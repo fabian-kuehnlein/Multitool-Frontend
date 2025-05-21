@@ -1,0 +1,20 @@
+.fc {
+    margin: 30px;
+}
+
+.fc-daygrid-day-number {
+    color: red;
+}
+
+::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(1),
+::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(2),
+::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(3) {
+}
+
+::ng-deep .fc .fc-button:hover {
+}
+
+::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(3) {
+    margin-right: 30px; 
+}
+

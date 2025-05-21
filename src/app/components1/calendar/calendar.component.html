@@ -1,0 +1,9 @@
+
+<full-calendar #calendarRef class="calendar-styles"
+    [options]="calendarOptions">
+    <ng-template let-arg>
+        <mat-card>
+            <b>{{ arg.timeText }}</b>
+        </mat-card>
+    </ng-template>
+</full-calendar>
