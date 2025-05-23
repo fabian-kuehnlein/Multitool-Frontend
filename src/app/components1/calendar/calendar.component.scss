@@ -1,20 +1,30 @@
 .fc {
-    margin: 30px;
+    // margin: 30px;
 }
 
 .fc-daygrid-day-number {
     color: red;
 }
 
-::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(1),
-::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(2),
-::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(3) {
+.calendar-container {
+    margin: 30px;
 }
 
-::ng-deep .fc .fc-button:hover {
+.toolbar-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 5px;
+    height: 70px;
 }
 
-::ng-deep .fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button:nth-child(3) {
-    margin-right: 30px; 
+.toolbar-container div {
+    display: flex;
+    justify-content: center;
 }
 
+.date-title {
+    font-size: 30px;
+    font-weight: 500;
+    align-self: center;
+    margin: 0 10px 0 10px;
+}

@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import 'moment/locale/de';
+import { provideHttpClient } from '@angular/common/http';
 
 registerLocaleData(localeDe, 'de');
 
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    provideHttpClient(),
     provideMomentDateAdapter({
       parse: {
         dateInput: ['l', 'LL'],

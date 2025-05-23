@@ -1,0 +1,82 @@
+<h1 mat-dialog-title>Neues Event erstellen</h1>
+
+<form mat-dialog-content class="dialog-form" [formGroup]="eventForm">
+    <mat-form-field>
+        <mat-label requi>Titel</mat-label>
+        <input matInput maxlength="100" formControlName="eventTitle" (input)="onInput('eventTitle', $event)" required/>
+        <mat-hint>{{values()['eventTitle'].length}}/100</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Notiz</mat-label>
+        <textarea matInput maxlength="200" formControlName="eventNote" (input)="onInput('eventNote', $event)"></textarea>
+        <mat-hint>{{values()['eventNote'].length}}/200</mat-hint>
+    </mat-form-field>
+
+    <div class="date-row">
+        <mat-form-field>
+            <mat-label>Startdatum</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate" required/>
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+            <mat-hint>DD.MM.YYYY</mat-hint>
+        </mat-form-field>
+        
+        <mat-form-field>
+            <mat-label>Startuhrzeit</mat-label>
+            <input matInput [matTimepicker]="startTimePicker" formControlName="startTime"/>
+            <mat-timepicker-toggle matIconSuffix [for]="startTimePicker">
+                <mat-icon matTimepickerToggleIcon>keyboard_arrow_down</mat-icon>
+            </mat-timepicker-toggle>
+            <mat-timepicker #startTimePicker/>
+            @if (eventForm.value.isAllDay == true) {
+                <mat-hint>Ganztägig</mat-hint>
+            } @else {
+                <mat-hint>HH:SS</mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="date-row">
+        <mat-form-field>
+            <mat-label>Enddatum</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+            <mat-hint>DD.MM.YYYY</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Enduhrzeit</mat-label>
+            <input matInput [matTimepicker]="endTimePicker" formControlName="endTime"/>
+            <mat-timepicker-toggle matIconSuffix [for]="endTimePicker">
+                <mat-icon matTimepickerToggleIcon>keyboard_arrow_down</mat-icon>
+            </mat-timepicker-toggle>
+            <mat-timepicker #endTimePicker/>
+            @if (eventForm.value.isAllDay == true) {
+                <mat-hint>Ganztägig</mat-hint>
+            } @else {
+                <mat-hint>HH:SS</mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="last-row">
+        <mat-slide-toggle formControlName="isAllDay" style="margin-bottom: 20px; justify-self: center;">Ganztägig</mat-slide-toggle>
+        
+        <!-- Custom dataSource for Select-Choices (Get from DB) -->
+        <mat-form-field>
+            <mat-label>Kategorie</mat-label>
+            <mat-select formControlName="categoryId" required>
+                <mat-option [value]="1">Arbeit</mat-option>
+                <mat-option [value]="2">Privat</mat-option>
+                <mat-option [value]="3">Wichtig</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</form>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="close()">Abbrechen</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="eventForm.invalid">Speichern</button>
+</div>
