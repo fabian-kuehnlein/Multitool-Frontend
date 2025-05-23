@@ -1,7 +1,7 @@
 # docker build --no-cache -t calendar-frontend .
 
 # 1. Build Stage
-FROM node:20 AS build
+FROM node:22 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
