@@ -1,6 +1,4 @@
-import { Component, signal, ViewChild, AfterViewInit, inject } from '@angular/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatCardModule } from '@angular/material/card';
+import { Component, signal, ViewChild, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -9,19 +7,17 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { CalendarService } from '../../shared/calendar.service';
 import { CalendarOptions, EventInput } from '@fullcalendar/core';
+import { CreateCalendarEvent } from '../../shared/models/CreateCalendarEvent';
+import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import deLocale from '@fullcalendar/core/locales/de-at';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { EventDialogComponent } from './event-dialog/event-dialog.component';
-
 
 @Component({
 	selector: 'app-calendar',
 	imports: [
-    MatDatepickerModule,
-    MatCardModule,
     MatButtonModule,
     FullCalendarModule,
     MatIconModule,
@@ -37,10 +33,6 @@ export class CalendarComponent {
 	
 	calendarService = inject(CalendarService);
 	dialog = inject(MatDialog);
-
-	ngAfterViewInit() {
-		this.getAllEvents();
-	}
 
 	get calendarApi() {
 		return this.calendar.getApi();
@@ -160,21 +152,21 @@ export class CalendarComponent {
 
 		dialogRef.afterClosed().subscribe(result => {
 			if (result) {
-				const newEvent: EventInput = {
-					id: result.eventId,
-					title: result.eventTitle,
-					start: result.startDateTime,
-					end: result.endDateTime,
-					allDay: result.isAllDay,
-					extendedProps: {
-						eventNote: result.eventNote,
-						categoryId: result.categoryId
-					}
+				const newEvent: CreateCalendarEvent = {
+					eventTitle: result.eventTitle,
+					eventNote: result.eventNote,
+					startDateTime: result.startDateTime,
+					endDateTime: result.endDateTime,
+					isAllDay: result.isAllDay,
+					categoryId: result.categoryId
 				};
 
-				this.calendarService.createEvent(result).subscribe({
+				this.calendarService.createEvent(newEvent).subscribe({
 					next: () => {
-						this.calendarApi.addEvent(newEvent);
+						this.calendarApi.refetchEvents();
+					},
+					error: (error) => {
+						console.error('Error creating event:', error);
 					}
 				});
 			}
