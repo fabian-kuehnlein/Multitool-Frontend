@@ -53,7 +53,11 @@
             <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
             <mat-datepicker #endPicker></mat-datepicker>
             <mat-hint>DD.MM.YYYY</mat-hint>
-            <mat-error>Enddatum vor Startdatum!</mat-error>
+            @if (eventForm.get('endDate')?.hasError('matDatepickerParse')) {
+                <mat-error>Falsches Format</mat-error>
+            } @else {
+                <mat-error>Enddatum vor Startdatum!</mat-error>
+            }
         </mat-form-field>
 
         <mat-form-field>

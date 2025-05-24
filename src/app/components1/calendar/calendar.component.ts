@@ -69,10 +69,46 @@ export class CalendarComponent {
 				error: (error) => failureCallback(error)
 			});
 		},
+		eventSources: [
+			{
+				events: (fetchInfo, successCallback, failureCallback) => {
+					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr).subscribe({
+						next: (events) => {
+							const eventInput: EventInput[] = events.map((event) => ({
+								id: event.eventId,
+								title: event.eventTitle,
+								start: event.startDateTime,
+								end: event.endDateTime,
+								allDay: event.isAllDay,
+								extendedProps: {
+									eventNote: event.eventNote,
+									categoryId: event.categoryId
+								}
+							}));
+
+							successCallback(eventInput);
+						},
+						error: (error) => failureCallback(error)
+					});
+				},
+			},
+			{
+				events: [
+					{
+						start: '2025-05-25',
+						end: '2025-05-26',
+						display: 'background',
+						color: '#ffcccc',
+						title: 'Beispielhintergrundereignis'
+					}
+				]
+			}
+		],
 		locales: [deLocale],
 		datesSet: () => {
 			this.title.set(this.calendarApi.view.title);
 		},
+		// eventContent: this.customEvent,
 		headerToolbar: false,
 		initialView: 'dayGridMonth',
 		weekends: true,
@@ -82,7 +118,13 @@ export class CalendarComponent {
 		dayMaxEvents: true,
 		contentHeight: 750,
 		showNonCurrentDates: false,
-		fixedWeekCount: false
+		fixedWeekCount: false,
+		eventTimeFormat: {
+			hour: '2-digit',
+			minute: '2-digit'
+		},
+		eventBackgroundColor: '#005CBB',
+		eventBorderColor: '#005CBB',
 	};
 
 	getAllEvents() {
@@ -172,4 +214,23 @@ export class CalendarComponent {
 			}
 		});
 	};
+
+	// customEvent(arg: any): { html: string } {
+	// 	const { event } = arg;
+	// 	const { extendedProps } = event;
+
+	// 	// Formatierte Zeit, z.B. "12:00 - 13:30"
+	// 	const startTime = event.start ? new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+	// 	const endTime = event.end ? new Date(event.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+	// 	const timeRange = startTime && endTime ? `${startTime} – ${endTime}` : startTime;
+
+	// 	return {
+	// 		html: `
+	// 			<div class="fc-event-material">
+	// 				<div class="fc-event-time">${timeRange}</div>
+	// 				<div class="fc-event-title">${event.title}</div>
+	// 			</div>
+	// 		`
+	// 	};
+	// }
 }
