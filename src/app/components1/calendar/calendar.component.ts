@@ -1,19 +1,20 @@
-import { Component, signal, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, inject, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
 
-import { CalendarService } from '../../shared/calendar.service';
-import { CalendarOptions, EventInput } from '@fullcalendar/core';
-import { CreateCalendarEvent } from '../../shared/models/CreateCalendarEvent';
-import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
+import { CalendarOptions, EventInput } from '@fullcalendar/core';
 import deLocale from '@fullcalendar/core/locales/de-at';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+
+import { CalendarService } from '../../shared/calendar.service';
+import { CreateCalendarEvent } from '../../shared/models/CreateCalendarEvent';
+import { EventDialogComponent } from './event-dialog/event-dialog.component';
 
 @Component({
 	selector: 'app-calendar',
@@ -49,26 +50,6 @@ export class CalendarComponent {
 			timeGridPlugin,
 			interactionPlugin
 		],
-		events: (fetchInfo, successCallback, failureCallback) => {
-			this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr).subscribe({
-				next: (events) => {
-					const eventInput: EventInput[] = events.map((event) => ({
-						id: event.eventId,
-						title: event.eventTitle,
-						start: event.startDateTime,
-						end: event.endDateTime,
-						allDay: event.isAllDay,
-						extendedProps: {
-							eventNote: event.eventNote,
-							categoryId: event.categoryId
-						}
-					}));
-
-					successCallback(eventInput);
-				},
-				error: (error) => failureCallback(error)
-			});
-		},
 		eventSources: [
 			{
 				events: (fetchInfo, successCallback, failureCallback) => {
@@ -77,8 +58,8 @@ export class CalendarComponent {
 							const eventInput: EventInput[] = events.map((event) => ({
 								id: event.eventId,
 								title: event.eventTitle,
-								start: event.startDateTime,
-								end: event.endDateTime,
+								start: this.formatCalendarDate(new Date(event.startDateTime ?? '')),
+								end: this.formatCalendarDate(new Date(event.endDateTime ?? '')),
 								allDay: event.isAllDay,
 								extendedProps: {
 									eventNote: event.eventNote,
@@ -93,22 +74,97 @@ export class CalendarComponent {
 				},
 			},
 			{
-				events: [
-					{
-						start: '2025-05-25',
-						end: '2025-05-26',
-						display: 'background',
-						color: '#ffcccc',
-						title: 'Beispielhintergrundereignis'
-					}
-				]
+				events: (info, successCallback, failureCallback) => {
+					const currentYear = info.start.getFullYear().toString();
+
+					this.calendarService.getHolidays(currentYear).subscribe({
+						next: (holidays) => {
+							const backgroundEvents: EventInput[] = holidays.map((holiday, index) => {
+								const startDate = new Date(holiday.holidayDate);
+								const endDate = new Date(holiday.holidayDate);
+
+								return {
+									id: `holiday-${index}`,
+									start: this.formatCalendarDate(startDate),
+									end: this.formatCalendarDate(endDate),
+									display: 'background',
+									color: '#FFCDD2',
+									title: holiday.holidayName,
+									textColor: '#000000', // this now works for 'block' or 'auto'
+								};
+							});
+
+							successCallback(backgroundEvents);
+						},
+						error: (error) => {
+							failureCallback(error);
+						}
+
+					});
+
+					
+				}
 			}
 		],
+		eventClick: (arg) => {
+			const event = arg.event;
+
+			const eventData = {
+				eventId: event.id,
+				eventTitle: event.title,
+				eventNote: event.extendedProps['eventNote'] || null,
+				startDateTime: event.start,
+				endDateTime: event.end,
+				isAllDay: event.allDay,
+				categoryId: event.extendedProps['categoryId'] || null
+			}
+
+			console.log('Event clicked:', eventData);
+
+			this.dialog.open(EventDialogComponent, {
+				data: eventData,
+				width: '1000px',
+				height: 'auto'
+			}).afterClosed().subscribe(result => {
+				console.log('Dialog closed with result:', result);
+				if (result) {
+					if (result.action === 'update') {
+						// const updatedEvent: CreateCalendarEvent = {
+						// 	eventTitle: result.eventTitle,
+						// 	eventNote: result.eventNote,
+						// 	startDateTime: result.startDateTime,
+						// 	endDateTime: result.endDateTime,
+						// 	isAllDay: result.isAllDay,
+						// 	categoryId: result.categoryId
+						// };
+	
+						// this.calendarService.updateEvent(event.id, updatedEvent).subscribe({
+						// 	next: () => {
+						// 		this.calendarApi.refetchEvents();
+						// 	},
+						// 	error: (error) => {
+						// 		console.error('Error updating event:', error);
+						// 	}
+						// });
+					} else if (result.action === 'delete') {
+						this.calendarService.deleteEvent(result.data).subscribe({
+							next: () => {
+								this.calendarApi.refetchEvents();
+							},
+							error: (error: any) => {
+								console.error('Error deleting event:', error);
+							}
+						});
+					}
+
+
+				}
+			});
+		},
 		locales: [deLocale],
 		datesSet: () => {
 			this.title.set(this.calendarApi.view.title);
 		},
-		// eventContent: this.customEvent,
 		headerToolbar: false,
 		initialView: 'dayGridMonth',
 		weekends: true,
@@ -122,28 +178,8 @@ export class CalendarComponent {
 		eventTimeFormat: {
 			hour: '2-digit',
 			minute: '2-digit'
-		},
-		eventBackgroundColor: '#005CBB',
-		eventBorderColor: '#005CBB',
+		}
 	};
-
-	getAllEvents() {
-		this.calendarService.getAllEvents().subscribe((events) => {
-			const eventInput: EventInput[] = events.map((event) => ({
-				id: event.eventId,
-				title: event.eventTitle,
-				start: event.startDateTime,
-				end: event.endDateTime,
-				allDay: event.isAllDay,
-				extendedProps: {
-					eventNote: event.eventNote,
-					categoryId: event.categoryId
-				}
-			}));
-
-			this.dataSource = eventInput;
-		})
-	}
 
 	calendarAction(action: 'today' | 'prev' | 'prevYear' | 'next' | 'nextYear' | 'changeMonth' | 'changeWeek' | 'changeDay') {
 		switch(action) {
@@ -233,4 +269,12 @@ export class CalendarComponent {
 	// 		`
 	// 	};
 	// }
+
+	formatCalendarDate(date: Date): string {
+		return [
+			date.getFullYear(),
+			(date.getMonth() + 1).toString().padStart(2, '0'),
+			date.getDate().toString().padStart(2, '0')
+		].join('-');
+	}
 }

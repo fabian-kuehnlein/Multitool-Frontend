@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { CalendarEvent } from './models/calendarevent';
+import { CalendarEvent } from './models/Calendarevent';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
-import { Category } from './models/category';
 import { CreateCalendarEvent } from './models/CreateCalendarEvent';
+import { Category } from './models/Category';
+import { Holiday } from './models/Holiday';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,21 @@ export class CalendarService {
         return this.http.post<CalendarEvent>(`${environment.CalendarApi}/${this.apiURL}/InsertEvent`, event);
     }
 
+    updateEvent(event: CreateCalendarEvent): Observable<CalendarEvent> {
+        return this.http.put<CalendarEvent>(`${environment.CalendarApi}/${this.apiURL}/UpdateEvent`, event);
+    }
+
+    deleteEvent(eventId: string): Observable<void> {
+        const params = new HttpParams().set('eventId', eventId);
+        return this.http.delete<void>(`${environment.CalendarApi}/${this.apiURL}/DeleteEvent`, { params });
+    }
+
     getCategories(): Observable<Category[]> {
         return this.http.get<Category[]>(`${environment.CalendarApi}/${this.apiURL}/GetCategories`);
+    }
+
+    getHolidays(year: string): Observable<Holiday[]> {
+        const params = new HttpParams().set('year', year);
+        return this.http.get<Holiday[]>(`${environment.CalendarApi}/${this.apiURL}/GetHolidays`, { params });
     }
 }

@@ -12,3 +12,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
         label-text-size: 20px,
     ));
 }
+
+.delete-button {
+    @include mat.button-overrides((
+        filled-container-color: #b71c1c,
+        filled-label-text-color: white,
+    ));
+}

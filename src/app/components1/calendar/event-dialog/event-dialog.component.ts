@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -11,9 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CalendarService } from '../../../shared/calendar.service';
-import { Category } from '../../../shared/models/category';
+import { Category } from '../../../shared/models/Category';
 import { CreateCalendarEvent } from '../../../shared/models/CreateCalendarEvent';
 import moment from 'moment';
+import { CalendarEvent } from '../../../shared/models/Calendarevent';
 
 @Component({
   selector: 'app-event-dialog',
@@ -37,6 +38,8 @@ export class EventDialogComponent {
     private fb = inject(FormBuilder);
     private dialogRef = inject(MatDialogRef<EventDialogComponent>);
     private readonly calendarService = inject(CalendarService);
+    private readonly dialogData = inject(MAT_DIALOG_DATA) as CalendarEvent;
+    public isEditMode = false;
 
     categories: Category[] = [];
 
@@ -80,9 +83,11 @@ export class EventDialogComponent {
                 this.categories = categories;
             }
         })
+
+        this.isEditMode = !!this.dialogData;
     };
 
-    save() {
+    create() {
         if (this.eventForm.valid) {
             const form = this.eventForm.value;
 
@@ -99,6 +104,36 @@ export class EventDialogComponent {
             }
 
             this.dialogRef.close(newEvent);
+        }
+    }
+
+    update() {
+        if (this.eventForm.valid) {
+            const form = this.eventForm.value;
+
+            const updatedEvent: CalendarEvent = {
+                eventId: this.dialogData?.eventId,
+                eventTitle: form.eventTitle,
+                eventNote: form.eventNote?.trim() === "" ? null : form.eventNote,
+                startDateTime: this.buildDate(form.startDate, form.startTime, form.isAllDay),
+                endDateTime: this.buildDate(
+                    form.endDate ?? form.startDate,
+                    form.endTime ?? form.startTime,
+                    form.isAllDay),
+                isAllDay: form.isAllDay,
+                categoryId: form.categoryId
+            }
+
+            this.dialogRef.close({ data: updatedEvent, action: 'update' });
+        }
+    }
+
+    delete() {
+        if (this.dialogData) {
+            const eventId = this.dialogData.eventId;
+            this.dialogRef.close({ data: eventId, action: 'delete' });
+        } else {
+            this.dialogRef.close(null);
         }
     }
 
