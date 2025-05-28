@@ -32,7 +32,7 @@ export class CalendarService {
         return this.http.post<CalendarEvent>(`${environment.CalendarApi}/${this.apiURL}/InsertEvent`, event);
     }
 
-    updateEvent(event: CreateCalendarEvent): Observable<CalendarEvent> {
+    updateEvent(event: CalendarEvent): Observable<CalendarEvent> {
         return this.http.put<CalendarEvent>(`${environment.CalendarApi}/${this.apiURL}/UpdateEvent`, event);
     }
 

@@ -1,20 +1,27 @@
+// Angular
 import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+
+// Angular Material Form Controls
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
+// App Services & Models
 import { CalendarService } from '../../../shared/calendar.service';
 import { Category } from '../../../shared/models/Category';
 import { CreateCalendarEvent } from '../../../shared/models/CreateCalendarEvent';
-import moment from 'moment';
 import { CalendarEvent } from '../../../shared/models/Calendarevent';
+
+// Third-party Libraries
+import moment from 'moment';
 
 @Component({
   selector: 'app-event-dialog',
@@ -39,7 +46,9 @@ export class EventDialogComponent {
     private dialogRef = inject(MatDialogRef<EventDialogComponent>);
     private readonly calendarService = inject(CalendarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as CalendarEvent;
-    public isEditMode = false;
+    public isEditMode = signal<boolean>(false);
+    public isChanged = signal<boolean>(false);
+    private originalEvent: CalendarEvent | null = null;
 
     categories: Category[] = [];
 
@@ -48,6 +57,7 @@ export class EventDialogComponent {
         eventNote: ''
     });
 
+    // handles char-count for title and note inputs
     protected onInput(key: string, event: Event) {
         const input = (event.target as HTMLInputElement).value;
         this.values.update(current => ({
@@ -78,13 +88,51 @@ export class EventDialogComponent {
             }
         })
 
+        this.eventForm?.valueChanges.subscribe(() => {
+            this.isChanged.set(!this.compareOriginalEvent());
+        });
+
         this.calendarService.getCategories().subscribe(categories => {
             if (categories.length > 0) {
                 this.categories = categories;
             }
         })
 
-        this.isEditMode = !!this.dialogData;
+        if (this.dialogData) {
+            this.isEditMode.set(true);
+
+            const startDateTime = new Date(this.dialogData.startDateTime!);
+            const endDateTime = this.dialogData.endDateTime ? new Date(this.dialogData.endDateTime) : null;
+
+            this.eventForm.patchValue({
+                eventTitle: this.dialogData.eventTitle,
+                eventNote: this.dialogData.eventNote,
+                startDate: new Date(
+                    startDateTime.getFullYear(),
+                    startDateTime.getMonth(),
+                    startDateTime.getDate()
+                ),
+                startTime: new Date(
+                    0, 0, 0,
+                    startDateTime.getHours(),
+                    startDateTime.getMinutes()
+                ),
+                endDate: endDateTime ? new Date(
+                    endDateTime.getFullYear(),
+                    endDateTime.getMonth(),
+                    endDateTime.getDate()
+                ) : null,
+                endTime: endDateTime ? new Date(
+                    0, 0, 0,
+                    endDateTime.getHours(),
+                    endDateTime.getMinutes()
+                ) : null,
+                isAllDay: this.dialogData.isAllDay,
+                categoryId: this.dialogData.categoryId
+            });
+
+            this.originalEvent = this.eventForm.value as CalendarEvent;
+        }
     };
 
     create() {
@@ -141,15 +189,16 @@ export class EventDialogComponent {
         this.dialogRef.close(null);
     }
 
-    buildDate(date: any, time: any, isAllDay: boolean): string | null {
+    buildDate(date: Date, time: Date, isAllDay: boolean): string | null {
         if (!date) return null;
         
         const dateObj = moment(date).clone();
+        const timeObj = moment(time).clone();
 
         if (!isAllDay && time) {
             dateObj.set({
-                hour: time.hour(),
-                minute: time.minute(),
+                hour: timeObj.hours(),
+                minute: timeObj.minutes(),
                 second: 0,
                 millisecond: 0
             });
@@ -163,6 +212,15 @@ export class EventDialogComponent {
         }
 
         return dateObj.format('YYYY-MM-DDTHH:mm:ss');
+    }
+
+    // Compares the current form values with the original event data
+    compareOriginalEvent(): boolean {
+        if (!this.originalEvent) return false;
+
+        const currentEvent = this.eventForm.value as CalendarEvent;
+
+        return JSON.stringify(currentEvent) === JSON.stringify(this.originalEvent);
     }
 }
 

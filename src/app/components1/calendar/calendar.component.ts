@@ -1,19 +1,23 @@
+// Angular Core
 import { Component, ViewChild, inject, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+
+// Angular Material
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+// FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventInput } from '@fullcalendar/core';
-import deLocale from '@fullcalendar/core/locales/de-at';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import deLocale from '@fullcalendar/core/locales/de-at';
+import timeGridPlugin from '@fullcalendar/timegrid';
 
+// App Services & Components
 import { CalendarService } from '../../shared/calendar.service';
-import { CreateCalendarEvent } from '../../shared/models/CreateCalendarEvent';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
 
 @Component({
@@ -32,17 +36,13 @@ import { EventDialogComponent } from './event-dialog/event-dialog.component';
 export class CalendarComponent {
 	@ViewChild('calendarRef') calendar!: FullCalendarComponent;
 	
-	calendarService = inject(CalendarService);
-	dialog = inject(MatDialog);
+	private readonly calendarService = inject(CalendarService);
+	private readonly dialog = inject(MatDialog);
 
-	get calendarApi() {
-		return this.calendar.getApi();
-	}
+	private get calendarApi() { return this.calendar.getApi();}
 
 	public readonly title = signal<string>("");
-	public isToday: boolean = false;
-
-	public dataSource: EventInput[] = []
+	public readonly isToday = signal<boolean>(true);
 
 	public readonly calendarOptions: CalendarOptions = {
 		plugins: [
@@ -58,8 +58,8 @@ export class CalendarComponent {
 							const eventInput: EventInput[] = events.map((event) => ({
 								id: event.eventId,
 								title: event.eventTitle,
-								start: this.formatCalendarDate(new Date(event.startDateTime ?? '')),
-								end: this.formatCalendarDate(new Date(event.endDateTime ?? '')),
+								start: new Date(event.startDateTime ?? ''),
+								end: new Date(event.endDateTime ?? ''),
 								allDay: event.isAllDay,
 								extendedProps: {
 									eventNote: event.eventNote,
@@ -89,8 +89,7 @@ export class CalendarComponent {
 									end: this.formatCalendarDate(endDate),
 									display: 'background',
 									color: '#FFCDD2',
-									title: holiday.holidayName,
-									textColor: '#000000', // this now works for 'block' or 'auto'
+									title: holiday.holidayName
 								};
 							});
 
@@ -119,33 +118,21 @@ export class CalendarComponent {
 				categoryId: event.extendedProps['categoryId'] || null
 			}
 
-			console.log('Event clicked:', eventData);
-
 			this.dialog.open(EventDialogComponent, {
 				data: eventData,
 				width: '1000px',
 				height: 'auto'
 			}).afterClosed().subscribe(result => {
-				console.log('Dialog closed with result:', result);
 				if (result) {
 					if (result.action === 'update') {
-						// const updatedEvent: CreateCalendarEvent = {
-						// 	eventTitle: result.eventTitle,
-						// 	eventNote: result.eventNote,
-						// 	startDateTime: result.startDateTime,
-						// 	endDateTime: result.endDateTime,
-						// 	isAllDay: result.isAllDay,
-						// 	categoryId: result.categoryId
-						// };
-	
-						// this.calendarService.updateEvent(event.id, updatedEvent).subscribe({
-						// 	next: () => {
-						// 		this.calendarApi.refetchEvents();
-						// 	},
-						// 	error: (error) => {
-						// 		console.error('Error updating event:', error);
-						// 	}
-						// });
+						this.calendarService.updateEvent(result.data).subscribe({
+							next: () => {
+								this.calendarApi.refetchEvents();
+							},
+							error: (error) => {
+								console.error('Error updating event:', error);
+							}
+						});
 					} else if (result.action === 'delete') {
 						this.calendarService.deleteEvent(result.data).subscribe({
 							next: () => {
@@ -179,6 +166,27 @@ export class CalendarComponent {
 			hour: '2-digit',
 			minute: '2-digit'
 		}
+	};
+
+	createEvent() {
+		const dialogRef = this.dialog.open(EventDialogComponent, {
+			width: '1000px',
+			height: 'auto',
+			data: null
+		});
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result) {
+				this.calendarService.createEvent(result).subscribe({
+					next: () => {
+						this.calendarApi.refetchEvents();
+					},
+					error: (error) => {
+						console.error('Error creating event:', error);
+					}
+				});
+			}
+		});
 	};
 
 	calendarAction(action: 'today' | 'prev' | 'prevYear' | 'next' | 'nextYear' | 'changeMonth' | 'changeWeek' | 'changeDay') {
@@ -215,41 +223,12 @@ export class CalendarComponent {
 		const today = new Date();
 
 		if (today >= start && today <= end) {
-			this.isToday = false;
+			this.isToday.set(false);
 		} else {
-			this.isToday = true;
+			this.isToday.set(true);
 		}
 	}
 
-	createEvent() {
-		const dialogRef = this.dialog.open(EventDialogComponent, {
-			width: '1000px',
-			height: 'auto',
-			data: null
-		});
-
-		dialogRef.afterClosed().subscribe(result => {
-			if (result) {
-				const newEvent: CreateCalendarEvent = {
-					eventTitle: result.eventTitle,
-					eventNote: result.eventNote,
-					startDateTime: result.startDateTime,
-					endDateTime: result.endDateTime,
-					isAllDay: result.isAllDay,
-					categoryId: result.categoryId
-				};
-
-				this.calendarService.createEvent(newEvent).subscribe({
-					next: () => {
-						this.calendarApi.refetchEvents();
-					},
-					error: (error) => {
-						console.error('Error creating event:', error);
-					}
-				});
-			}
-		});
-	};
 
 	// customEvent(arg: any): { html: string } {
 	// 	const { event } = arg;

@@ -94,11 +94,13 @@
 </form>
 
 <div mat-dialog-actions>
-    @if (isEditMode) {
+    @if (isEditMode()) {
         <button mat-flat-button class="delete-button" (click)="delete()">Löschen</button>
     }
     <button mat-button (click)="close()">Abbrechen</button>
-    <button mat-flat-button (click)="isEditMode ? update() : create()" [disabled]="eventForm.invalid">
-        {{ isEditMode ? 'Aktualisieren' : 'Erstellen' }}
+    <button mat-flat-button
+        (click)="isEditMode() ? update() : create()"
+        [disabled]="eventForm.invalid || !isChanged()">
+        {{ isEditMode() ? 'Aktualisieren' : 'Erstellen' }}
     </button>
 </div>
