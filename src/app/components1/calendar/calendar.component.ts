@@ -10,15 +10,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventInput } from '@fullcalendar/core';
+import { CalendarOptions, EventClickArg, EventContentArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import deLocale from '@fullcalendar/core/locales/de-at';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
+// Moment.js
+import moment from 'moment';
+
 // App Services & Components
 import { CalendarService } from '../../shared/calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
+import { CalendarEvent } from '../../shared/models/Calendarevent';
 
 @Component({
 	selector: 'app-calendar',
@@ -105,52 +109,49 @@ export class CalendarComponent {
 				}
 			}
 		],
-		eventClick: (arg) => {
-			const event = arg.event;
-
-			const eventData = {
-				eventId: event.id,
-				eventTitle: event.title,
-				eventNote: event.extendedProps['eventNote'] || null,
-				startDateTime: event.start,
-				endDateTime: event.end,
-				isAllDay: event.allDay,
-				categoryId: event.extendedProps['categoryId'] || null
-			}
-
-			this.dialog.open(EventDialogComponent, {
-				data: eventData,
-				width: '1000px',
-				height: 'auto'
-			}).afterClosed().subscribe(result => {
-				if (result) {
-					if (result.action === 'update') {
-						this.calendarService.updateEvent(result.data).subscribe({
-							next: () => {
-								this.calendarApi.refetchEvents();
-							},
-							error: (error) => {
-								console.error('Error updating event:', error);
-							}
-						});
-					} else if (result.action === 'delete') {
-						this.calendarService.deleteEvent(result.data).subscribe({
-							next: () => {
-								this.calendarApi.refetchEvents();
-							},
-							error: (error: any) => {
-								console.error('Error deleting event:', error);
-							}
-						});
-					}
-
-
-				}
-			});
-		},
+		eventClick: this.updateEvent.bind(this),
+		eventDrop: this.handleEventDrop.bind(this),
 		locales: [deLocale],
 		datesSet: () => {
 			this.title.set(this.calendarApi.view.title);
+		},
+		eventContent: (arg) => {
+			const { event } = arg;
+
+			if(event.display === 'background') {
+				return {
+					html: `<div class="fc-event-background">${event.title}</div>`
+				}
+			}
+
+			const isAllDay = event.allDay;
+			const note = event.extendedProps['eventNote'] || '';
+			const categoryId = event.extendedProps['categoryId'];
+
+			const start = event.start ? new Date(event.start) : null;
+			const end = event.end ? new Date(event.end) : null;
+
+			const startStr = start?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			const endStr = end?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+			const timeDisplay = isAllDay
+				? ''
+				: startStr
+					? endStr
+						? `${startStr} – ${endStr}`
+						: `${startStr}`
+					: '';
+
+			return {
+				html: `
+					<div class="fc-event-material category-${categoryId}">
+						<div class="fc-event-title">${event.title}</div>
+						<div class="fc-event-time">${timeDisplay}</div>
+						${note ? `<div class="fc-event-note">${note}</div>` : ''}
+					</div>
+				`
+			}
+
 		},
 		headerToolbar: false,
 		initialView: 'dayGridMonth',
@@ -159,7 +160,7 @@ export class CalendarComponent {
 		selectable: true,
 		selectMirror: true,
 		dayMaxEvents: true,
-		contentHeight: 750,
+		contentHeight: 800,
 		showNonCurrentDates: false,
 		fixedWeekCount: false,
 		eventTimeFormat: {
@@ -188,6 +189,74 @@ export class CalendarComponent {
 			}
 		});
 	};
+
+	updateEvent(arg: EventClickArg) {
+		const event = arg.event;
+
+		const eventData = {
+			eventId: event.id,
+			eventTitle: event.title,
+			eventNote: event.extendedProps['eventNote'] || null,
+			startDateTime: event.start,
+			endDateTime: event.end,
+			isAllDay: event.allDay,
+			categoryId: event.extendedProps['categoryId'] || null
+		}
+
+		this.dialog.open(EventDialogComponent, {
+			data: eventData,
+			width: '1000px',
+			height: 'auto'
+		}).afterClosed().subscribe(result => {
+			if (result) {
+				if (result.action === 'update') {
+					this.calendarService.updateEvent(result.data).subscribe({
+						next: () => {
+							this.calendarApi.refetchEvents();
+						},
+						error: (error) => {
+							console.error('Error updating event:', error);
+						}
+					});
+				} else if (result.action === 'delete') {
+					this.calendarService.deleteEvent(result.data).subscribe({
+						next: () => {
+							this.calendarApi.refetchEvents();
+						},
+						error: (error: any) => {
+							console.error('Error deleting event:', error);
+						}
+					});
+				}
+			}
+		});
+	};
+
+	handleEventDrop(arg: EventDropArg) {
+		const event = arg.event;
+
+		const startDateTime = moment(event.start).format('YYYY-MM-DDTHH:mm:ss');
+		const endDateTime = event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : startDateTime;
+
+		const updatedEvent: CalendarEvent = {
+			eventId: event.id,
+			eventTitle: event.title,
+			eventNote: event.extendedProps['eventNote'] || '',
+			startDateTime: startDateTime,
+			endDateTime: endDateTime,
+			isAllDay: event.allDay,
+			categoryId: event.extendedProps['categoryId'] || ''
+		};
+
+		this.calendarService.updateEvent(updatedEvent).subscribe({
+			next: () => {
+			},
+			error: (error) => {
+				console.error('Error updating event after drop:', error);
+				arg.revert();
+			}
+		});
+	}
 
 	calendarAction(action: 'today' | 'prev' | 'prevYear' | 'next' | 'nextYear' | 'changeMonth' | 'changeWeek' | 'changeDay') {
 		switch(action) {
@@ -227,27 +296,7 @@ export class CalendarComponent {
 		} else {
 			this.isToday.set(true);
 		}
-	}
-
-
-	// customEvent(arg: any): { html: string } {
-	// 	const { event } = arg;
-	// 	const { extendedProps } = event;
-
-	// 	// Formatierte Zeit, z.B. "12:00 - 13:30"
-	// 	const startTime = event.start ? new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-	// 	const endTime = event.end ? new Date(event.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-	// 	const timeRange = startTime && endTime ? `${startTime} – ${endTime}` : startTime;
-
-	// 	return {
-	// 		html: `
-	// 			<div class="fc-event-material">
-	// 				<div class="fc-event-time">${timeRange}</div>
-	// 				<div class="fc-event-title">${event.title}</div>
-	// 			</div>
-	// 		`
-	// 	};
-	// }
+	};
 
 	formatCalendarDate(date: Date): string {
 		return [

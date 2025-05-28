@@ -96,7 +96,7 @@ export class EventDialogComponent {
             if (categories.length > 0) {
                 this.categories = categories;
             }
-        })
+        });
 
         if (this.dialogData) {
             this.isEditMode.set(true);
