@@ -227,10 +227,10 @@ export class EventDialogComponent {
 export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
     const title = group.get('eventTitle')?.value;
     const isAllDay = group.get('isAllDay')?.value;
-    const startDate = group.get('startDate')?.value;
-    const startTime = group.get('startTime')?.value;
-    const endDate = group.get('endDate')?.value;
-    const endTime = group.get('endTime')?.value;
+    const startDate = moment(group.get('startDate')?.value);
+    const startTime = moment(group.get('startTime')?.value);
+    const endDate = moment(group.get('endDate')?.value);
+    const endTime = moment(group.get('endTime')?.value);
 
     const errors: ValidationErrors = {};
 

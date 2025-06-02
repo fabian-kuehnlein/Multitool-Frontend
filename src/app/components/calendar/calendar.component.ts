@@ -10,11 +10,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventClickArg, EventContentArg, EventDropArg, EventInput } from '@fullcalendar/core';
+import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import deLocale from '@fullcalendar/core/locales/de-at';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import rrulePlugin from '@fullcalendar/rrule';
 
 // Moment.js
 import moment from 'moment';
@@ -52,7 +53,8 @@ export class CalendarComponent {
 		plugins: [
 			dayGridPlugin,
 			timeGridPlugin,
-			interactionPlugin
+			interactionPlugin,
+			rrulePlugin
 		],
 		eventSources: [
 			{

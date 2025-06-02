@@ -17,7 +17,7 @@ export class CalendarService {
     private readonly apiURL = 'api/CalendarEvent';
     
     getAllEvents(): Observable<CalendarEvent[]> {
-        return this.http.get<CalendarEvent[]>(`${environment.CalendarApi}/${this.apiURL}/GetAllEvents`);
+        return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetAllEvents`);
     }
 
     getEventsByRange(startDate: string, endDate: string): Observable<CalendarEvent[]> {
@@ -25,28 +25,28 @@ export class CalendarService {
             .set('startDate', startDate)
             .set('endDate', endDate);
 
-        return this.http.get<CalendarEvent[]>(`${environment.CalendarApi}/${this.apiURL}/GetEventsByRange`, { params });
+        return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetEventsByRange`, { params });
     }
 
     createEvent(event: CreateCalendarEvent): Observable<CalendarEvent> {
-        return this.http.post<CalendarEvent>(`${environment.CalendarApi}/${this.apiURL}/InsertEvent`, event);
+        return this.http.post<CalendarEvent>(`${environment.MultitoolApi}/${this.apiURL}/InsertEvent`, event);
     }
 
     updateEvent(event: CalendarEvent): Observable<CalendarEvent> {
-        return this.http.put<CalendarEvent>(`${environment.CalendarApi}/${this.apiURL}/UpdateEvent`, event);
+        return this.http.put<CalendarEvent>(`${environment.MultitoolApi}/${this.apiURL}/UpdateEvent`, event);
     }
 
     deleteEvent(eventId: string): Observable<void> {
         const params = new HttpParams().set('eventId', eventId);
-        return this.http.delete<void>(`${environment.CalendarApi}/${this.apiURL}/DeleteEvent`, { params });
+        return this.http.delete<void>(`${environment.MultitoolApi}/${this.apiURL}/DeleteEvent`, { params });
     }
 
     getCategories(): Observable<Category[]> {
-        return this.http.get<Category[]>(`${environment.CalendarApi}/${this.apiURL}/GetCategories`);
+        return this.http.get<Category[]>(`${environment.MultitoolApi}/${this.apiURL}/GetCategories`);
     }
 
     getHolidays(year: string): Observable<Holiday[]> {
         const params = new HttpParams().set('year', year);
-        return this.http.get<Holiday[]>(`${environment.CalendarApi}/${this.apiURL}/GetHolidays`, { params });
+        return this.http.get<Holiday[]>(`${environment.MultitoolApi}/${this.apiURL}/GetHolidays`, { params });
     }
 }

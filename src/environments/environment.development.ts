@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    CalendarApi: 'http://localhost:5030'
+    MultitoolApi: 'http://localhost:5030'
 };
