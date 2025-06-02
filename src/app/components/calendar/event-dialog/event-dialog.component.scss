@@ -5,14 +5,34 @@
     margin-top: 10px;
 }
 
+.date-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.recurring-mode {
+    grid-template-columns: repeat(2, 1fr);
+}
+
 .date-row {
     display: flex;
-    justify-content: space-between;
+    gap: 20px;
+}
+
+.date-row > mat-form-field {
+    width: 100%;
 }
 
 .last-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 30px;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 20px;
     align-items: center;
+}
+
+.recurring-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }

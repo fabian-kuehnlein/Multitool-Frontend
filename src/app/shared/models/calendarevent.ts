@@ -6,4 +6,6 @@ export interface CalendarEvent {
   endDateTime?: string | null;
   isAllDay?: boolean;
   categoryId?: string;
+  recurrenceRule?: string | null;
+  recurrenceEnd?: string | null;
 }

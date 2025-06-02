@@ -61,17 +61,26 @@ export class CalendarComponent {
 				events: (fetchInfo, successCallback, failureCallback) => {
 					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr).subscribe({
 						next: (events) => {
-							const eventInput: EventInput[] = events.map((event) => ({
-								id: event.eventId,
-								title: event.eventTitle,
-								start: new Date(event.startDateTime ?? ''),
-								end: new Date(event.endDateTime ?? ''),
-								allDay: event.isAllDay,
-								extendedProps: {
-									eventNote: event.eventNote,
-									categoryId: event.categoryId
+							const eventInput: EventInput[] = events.map((event) => {
+								const input: EventInput = {
+									id: event.eventId,
+									title: event.eventTitle,
+									start: new Date(event.startDateTime ?? ''),
+									end: new Date(event.endDateTime ?? ''),
+									allDay: event.isAllDay,
+									extendedProps: {
+										eventNote: event.eventNote,
+										categoryId: event.categoryId,
+									}
+								};
+
+								if (event.recurrenceRule) {
+									input.rrule = event.recurrenceRule;
+									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null);
 								}
-							}));
+
+								return input;
+							});
 
 							successCallback(eventInput);
 						},
@@ -173,7 +182,9 @@ export class CalendarComponent {
 
 	createEvent() {
 		const dialogRef = this.dialog.open(EventDialogComponent, {
-			width: '1000px',
+			width: 'auto',
+			minWidth: '600px',
+			maxWidth: '1500px',
 			height: 'auto',
 			data: null
 		});
@@ -306,5 +317,20 @@ export class CalendarComponent {
 			(date.getMonth() + 1).toString().padStart(2, '0'),
 			date.getDate().toString().padStart(2, '0')
 		].join('-');
+	}
+
+	getDuration(startDateTime: string | null, endDateTime: string | null): string {
+		if (!startDateTime || !endDateTime) {
+			return '';
+		}
+
+		const start = moment(startDateTime);
+		const end = moment(endDateTime);
+
+		if (!start.isValid() || !end.isValid()) {
+			return '';
+		}
+
+		return moment.duration(end.diff(start)).toISOString();
 	}
 }

@@ -1,6 +1,7 @@
 // Angular
 import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 // Angular Material Form Controls
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -13,6 +14,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
 import { CalendarService } from '../../../shared/calendar.service';
@@ -35,7 +37,9 @@ import moment from 'moment';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatDividerModule,
+    NgClass
   ],
   providers: [provideMomentDateAdapter()],
   templateUrl: './event-dialog.component.html',
@@ -74,8 +78,28 @@ export class EventDialogComponent {
         endDate: [null],
         endTime: [null],
         isAllDay: [false],
-        categoryId: ['', [Validators.required]]
+        categoryId: ['', [Validators.required]],
+        isRecurring: [false],
+        recurrenceFrequency: [''],
+        recurrenceInterval: [1],
+        recurrenceByDay: [[]],
+        recurrenceEndDate: [null]
     }, { validators: FormValidator });
+
+    public readonly weekdayOptions = [
+        { value: 'MO', label: 'Montag' },
+        { value: 'TU', label: 'Dienstag' },
+        { value: 'WE', label: 'Mittwoch' },
+        { value: 'TH', label: 'Donnerstag' },
+        { value: 'FR', label: 'Freitag' },
+        { value: 'SA', label: 'Samstag' },
+        { value: 'SU', label: 'Sonntag' }
+    ];
+
+    getFirstSelectedWeekdayLabel(): string {
+        const firstSelected = this.eventForm.get('recurrenceByDay')?.value?.[0];
+        return this.weekdayOptions.find(d => d.value === firstSelected)?.label || '';
+    }
     
     ngOnInit() {
         this.eventForm.get('isAllDay')?.valueChanges.subscribe((isAllDay: boolean) => {
