@@ -1,14 +1,13 @@
 # docker build --no-cache -t calendar-frontend .
 
 # 1. Build Stage
-FROM node:22 AS build
+FROM node:22-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 COPY . .
-RUN npm run build --prod && ls -la /app/dist
+RUN npm install
+RUN npm run build -- --configuration production
 
-# 2. Production Stage
+
 FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/dist/calendar-frontend/browser /usr/share/nginx/html
