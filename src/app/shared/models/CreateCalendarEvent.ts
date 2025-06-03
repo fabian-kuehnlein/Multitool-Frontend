@@ -5,4 +5,6 @@ export interface CreateCalendarEvent {
   endDateTime?: string | null;
   isAllDay: boolean;
   categoryId?: string;
+  recurrenceRule?: string | null;
+  recurrenceEnd?: string | null;
 }

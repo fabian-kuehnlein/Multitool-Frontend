@@ -24,6 +24,7 @@ import { CalendarEvent } from '../../../shared/models/Calendarevent';
 
 // Third-party Libraries
 import moment from 'moment';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-event-dialog',
@@ -48,6 +49,7 @@ import moment from 'moment';
 export class EventDialogComponent {
     private fb = inject(FormBuilder);
     private dialogRef = inject(MatDialogRef<EventDialogComponent>);
+    private readonly destroy$ = new Subject<void>();
     private readonly calendarService = inject(CalendarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as CalendarEvent;
     public isEditMode = signal<boolean>(false);
@@ -81,7 +83,7 @@ export class EventDialogComponent {
         categoryId: ['', [Validators.required]],
         isRecurring: [false],
         recurrenceFrequency: [''],
-        recurrenceInterval: [1],
+        recurrenceInterval: [0],
         recurrenceByDay: [[]],
         recurrenceEndDate: [null]
     }, { validators: FormValidator });
@@ -102,7 +104,7 @@ export class EventDialogComponent {
     }
     
     ngOnInit() {
-        this.eventForm.get('isAllDay')?.valueChanges.subscribe((isAllDay: boolean) => {
+        this.eventForm.get('isAllDay')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((isAllDay: boolean) => {
             if (isAllDay) {
                 this.eventForm.get('startTime')!.disable();
                 this.eventForm.get('endTime')!.disable();
@@ -112,7 +114,25 @@ export class EventDialogComponent {
             }
         })
 
-        this.eventForm?.valueChanges.subscribe(() => {
+        this.eventForm.get('recurrenceByDay')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+            const control = this.eventForm.get('recurrenceInterval');
+            if (value?.length > 0 && !control?.disabled) {
+                control?.disable({ emitEvent: false });
+            } else if (!(value?.length > 0) && control?.disabled) {
+                control?.enable({ emitEvent: false });
+            }
+        });
+
+        this.eventForm.get('recurrenceInterval')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+            const control = this.eventForm.get('recurrenceByDay');
+            if (value && value > 0 && !control?.disabled) {
+                control?.disable({ emitEvent: false });
+            } else if ((!value || value <= 0) && control?.disabled) {
+                control?.enable({ emitEvent: false });
+            }
+        });
+
+        this.eventForm?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
             this.isChanged.set(!this.compareOriginalEvent());
         });
 
@@ -159,6 +179,11 @@ export class EventDialogComponent {
         }
     };
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     create() {
         if (this.eventForm.valid) {
             const form = this.eventForm.value;
@@ -172,7 +197,9 @@ export class EventDialogComponent {
                     form.endTime ?? form.startTime,
                     form.isAllDay),
                 isAllDay: form.isAllDay,
-                categoryId: form.categoryId
+                categoryId: form.categoryId,
+                recurrenceRule: this.getRecurrenceString(),
+                recurrenceEnd: null
             }
 
             this.dialogRef.close(newEvent);
@@ -213,6 +240,7 @@ export class EventDialogComponent {
         this.dialogRef.close(null);
     }
 
+    // builds right date format for return value that is used for the API-Call
     buildDate(date: Date, time: Date, isAllDay: boolean): string | null {
         if (!date) return null;
         
@@ -238,6 +266,18 @@ export class EventDialogComponent {
         return dateObj.format('YYYY-MM-DDTHH:mm:ss');
     }
 
+    getRecurrenceString(): string | null {
+        const freq = this.eventForm.value.recurrenceFrequency;
+        const interval = this.eventForm.value.recurrenceInterval;
+        const byDay = this.eventForm.value.recurrenceByDay;
+
+        if (!freq) {
+            return null;
+        }
+
+        return null;
+    }
+
     // Compares the current form values with the original event data
     compareOriginalEvent(): boolean {
         if (!this.originalEvent) return false;
@@ -248,6 +288,7 @@ export class EventDialogComponent {
     }
 }
 
+// validates and emits errors depending on the error-situation
 export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
     const title = group.get('eventTitle')?.value;
     const isAllDay = group.get('isAllDay')?.value;

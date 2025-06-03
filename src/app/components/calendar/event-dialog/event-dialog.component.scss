@@ -36,3 +36,20 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
+
+.recurring-weekday {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+::ng-deep .mat-mdc-select-panel::-webkit-scrollbar {
+    background-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-select-panel::-webkit-scrollbar-thumb {
+    background-color: lightgray !important;
+    border-radius: 3px;
+}
+
+::ng-deep .mat-mdc-select-panel::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(190, 190, 190) !important;
+}
