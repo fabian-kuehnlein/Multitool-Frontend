@@ -75,7 +75,11 @@ export class CalendarComponent {
 								};
 
 								if (event.recurrenceRule) {
-									input.rrule = event.recurrenceRule;
+									input.rrule = {
+										dtstart: event.startDateTime,
+										until: event.recurrenceEnd ?? undefined,
+										...this.parseRRuleString(event.recurrenceRule)
+									};
 									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null);
 								}
 
@@ -89,6 +93,7 @@ export class CalendarComponent {
 				},
 			},
 			{
+				// Background events for holidays
 				events: (info, successCallback, failureCallback) => {
 					const currentYear = info.start.getFullYear().toString();
 
@@ -191,6 +196,7 @@ export class CalendarComponent {
 
 		dialogRef.afterClosed().subscribe(result => {
 			if (result) {
+				console.log('Creating event:', result);
 				this.calendarService.createEvent(result).subscribe({
 					next: () => {
 						this.calendarApi.refetchEvents();
@@ -218,8 +224,10 @@ export class CalendarComponent {
 
 		this.dialog.open(EventDialogComponent, {
 			data: eventData,
-			width: '1000px',
-			height: 'auto'
+			width: 'auto',
+			minWidth: '600px',
+			maxWidth: '1500px',
+			height: 'auto',
 		}).afterClosed().subscribe(result => {
 			if (result) {
 				if (result.action === 'update') {
@@ -317,6 +325,29 @@ export class CalendarComponent {
 			(date.getMonth() + 1).toString().padStart(2, '0'),
 			date.getDate().toString().padStart(2, '0')
 		].join('-');
+	}
+
+	parseRRuleString(rrule: string): Record<string, any> {
+		const parts = rrule.split(';');
+		const rule: any = {};
+
+		for (const part of parts) {
+			const [key, value] = part.split('=');
+			
+			switch (key) {
+				case 'FREQ':
+					rule.freq = value.toLowerCase();
+					break;
+				case 'INTERVAL':
+					rule.interval = parseInt(value);
+					break;
+				case 'BYDAY':
+					rule.byweekday = value.split(',').map(day => day.toLowerCase());
+					break;
+			}
+		}
+
+		return rule;
 	}
 
 	getDuration(startDateTime: string | null, endDateTime: string | null): string {

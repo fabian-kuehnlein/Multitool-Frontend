@@ -199,7 +199,7 @@ export class EventDialogComponent {
                 isAllDay: form.isAllDay,
                 categoryId: form.categoryId,
                 recurrenceRule: this.getRecurrenceString(),
-                recurrenceEnd: null
+                recurrenceEnd: this.buildDate(form.recurrenceEndDate, undefined, false, form.isRecurring)
             }
 
             this.dialogRef.close(newEvent);
@@ -240,30 +240,28 @@ export class EventDialogComponent {
         this.dialogRef.close(null);
     }
 
-    // builds right date format for return value that is used for the API-Call
-    buildDate(date: Date, time: Date, isAllDay: boolean): string | null {
+    buildDate(date: Date | null, time?: Date, isAllDay = false, isRecurring = false): string | null {
         if (!date) return null;
-        
-        const dateObj = moment(date).clone();
-        const timeObj = moment(time).clone();
 
-        if (!isAllDay && time) {
-            dateObj.set({
-                hour: timeObj.hours(),
-                minute: timeObj.minutes(),
+        const dateMoment = moment(date);
+
+        // For recurring or all-day events, set time to 00:00:00
+        if (isRecurring || isAllDay) {
+            dateMoment.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        } else if (time) {
+            const timeMoment = moment(time);
+            dateMoment.set({
+                hour: timeMoment.hour(),
+                minute: timeMoment.minute(),
                 second: 0,
                 millisecond: 0
             });
         } else {
-            dateObj.set({
-                hour: 0,
-                minute: 0,
-                second: 0,
-                millisecond: 0
-            });
+            // If no time provided, default to 00:00:00
+            dateMoment.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
         }
 
-        return dateObj.format('YYYY-MM-DDTHH:mm:ss');
+        return dateMoment.format('YYYY-MM-DDTHH:mm:ss');
     }
 
     getRecurrenceString(): string | null {
@@ -271,11 +269,17 @@ export class EventDialogComponent {
         const interval = this.eventForm.value.recurrenceInterval;
         const byDay = this.eventForm.value.recurrenceByDay;
 
-        if (!freq) {
-            return null;
+        if (!freq) return null;
+
+        let rule = `FREQ=${freq}`;
+
+        if (interval && interval > 0) {
+            rule += `;INTERVAL=${interval}`;
+        } else if (Array.isArray(byDay) && byDay.length > 0) {
+            rule += `;BYDAY=${byDay.join(',')}`;
         }
 
-        return null;
+        return rule;
     }
 
     // Compares the current form values with the original event data
