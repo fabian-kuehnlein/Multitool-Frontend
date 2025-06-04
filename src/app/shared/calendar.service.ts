@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CalendarEvent } from './models/Calendarevent';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { CreateCalendarEvent } from './models/CreateCalendarEvent';
 import { Category } from './models/Category';
 import { Holiday } from './models/Holiday';
