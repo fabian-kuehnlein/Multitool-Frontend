@@ -82,7 +82,7 @@ export class EventDialogComponent {
         isAllDay: [false],
         categoryId: ['', [Validators.required]],
         isRecurring: [false],
-        recurrenceFrequency: [''],
+        recurrenceFrequency: ['WEEKLY'],
         recurrenceInterval: [0],
         recurrenceByDay: [[]],
         recurrenceEndDate: [null]
@@ -113,24 +113,6 @@ export class EventDialogComponent {
                 this.eventForm.get('endTime')!.enable();
             }
         })
-
-        this.eventForm.get('recurrenceByDay')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-            const control = this.eventForm.get('recurrenceInterval');
-            if (value?.length > 0 && !control?.disabled) {
-                control?.disable({ emitEvent: false });
-            } else if (!(value?.length > 0) && control?.disabled) {
-                control?.enable({ emitEvent: false });
-            }
-        });
-
-        this.eventForm.get('recurrenceInterval')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-            const control = this.eventForm.get('recurrenceByDay');
-            if (value && value > 0 && !control?.disabled) {
-                control?.disable({ emitEvent: false });
-            } else if ((!value || value <= 0) && control?.disabled) {
-                control?.enable({ emitEvent: false });
-            }
-        });
 
         this.eventForm?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
             this.isChanged.set(!this.compareOriginalEvent());
@@ -187,6 +169,10 @@ export class EventDialogComponent {
     create() {
         if (this.eventForm.valid) {
             const form = this.eventForm.value;
+            const recurrenceRule = form.isRecurring ? this.getRecurrenceString() : null;
+            const recurrenceEnd = (form.isRecurring && form.recurrenceEndDate && recurrenceRule)
+                ? this.buildDate(form.recurrenceEndDate, undefined, false, true)
+                : null;
 
             const newEvent: CreateCalendarEvent = {
                 eventTitle: form.eventTitle,
@@ -198,8 +184,8 @@ export class EventDialogComponent {
                     form.isAllDay),
                 isAllDay: form.isAllDay,
                 categoryId: form.categoryId,
-                recurrenceRule: this.getRecurrenceString(),
-                recurrenceEnd: this.buildDate(form.recurrenceEndDate, undefined, false, form.isRecurring)
+                recurrenceRule: recurrenceRule,
+                recurrenceEnd: recurrenceEnd
             }
 
             this.dialogRef.close(newEvent);
@@ -209,6 +195,10 @@ export class EventDialogComponent {
     update() {
         if (this.eventForm.valid) {
             const form = this.eventForm.value;
+            const recurrenceRule = form.isRecurring ? this.getRecurrenceString() : null;
+            const recurrenceEnd = (form.isRecurring && form.recurrenceEndDate && recurrenceRule)
+                ? this.buildDate(form.recurrenceEndDate, undefined, false, true)
+                : null;
 
             const updatedEvent: CalendarEvent = {
                 eventId: this.dialogData?.eventId,
@@ -220,7 +210,9 @@ export class EventDialogComponent {
                     form.endTime ?? form.startTime,
                     form.isAllDay),
                 isAllDay: form.isAllDay,
-                categoryId: form.categoryId
+                categoryId: form.categoryId,
+                recurrenceRule: recurrenceRule,
+                recurrenceEnd: recurrenceEnd
             }
 
             this.dialogRef.close({ data: updatedEvent, action: 'update' });
@@ -269,13 +261,18 @@ export class EventDialogComponent {
         const interval = this.eventForm.value.recurrenceInterval;
         const byDay = this.eventForm.value.recurrenceByDay;
 
-        if (!freq) return null;
+        const validInterval = interval && interval > 0;
+        const validByDay = Array.isArray(byDay) && byDay.length > 0;
+ 
+        if ((!freq) || (!validInterval && !validByDay)) return null;
 
         let rule = `FREQ=${freq}`;
 
-        if (interval && interval > 0) {
+        if (validInterval) {
             rule += `;INTERVAL=${interval}`;
-        } else if (Array.isArray(byDay) && byDay.length > 0) {
+        }
+        
+        if (validByDay) {
             rule += `;BYDAY=${byDay.join(',')}`;
         }
 
@@ -300,6 +297,8 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
     const startTime = moment(group.get('startTime')?.value);
     const endDate = moment(group.get('endDate')?.value);
     const endTime = moment(group.get('endTime')?.value);
+    const interval = group.get('recurrenceInterval')?.value;
+    const byDay = group.get('recurrenceByDay')?.value;
 
     const errors: ValidationErrors = {};
 
@@ -321,6 +320,10 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
         if (!isAllDay && !endTime) {
             group.get('endTime')?.setErrors({ endTimeMissing: true });
         }
+    }
+
+    if ((interval && interval > 0) || (Array.isArray(byDay) && byDay.length > 0)) {
+        errors['recurrenceInvalid'] = true;
     }
 
     return Object.keys(errors).length > 0 ? errors : null;
