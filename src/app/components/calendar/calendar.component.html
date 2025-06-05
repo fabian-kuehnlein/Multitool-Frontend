@@ -1,0 +1,42 @@
+<div class="calendar-container">
+    <mat-toolbar class="toolbar-container">
+        <div class="view-buttons" style="display: flex; gap: 15px;">
+            <button mat-flat-button matTooltip="Wechsel zur Monatsansicht" (click)="calendarAction('changeMonth')">Monat</button>
+            <button mat-flat-button matTooltip="Wechsel zur Wochenansicht" (click)="calendarAction('changeWeek')">Woche</button>
+            <button mat-flat-button matTooltip="Wechsel zur Tagesansicht" (click)="calendarAction('changeDay')">Tag</button>
+
+            <button mat-flat-button matTooltip="Springe zum heutigen Datum" style="margin-left: 30px;"
+            (click)="calendarAction('today')" [disabled]="!isToday">Heute</button>
+        </div>
+
+        <div style="gap:5px">
+            <button mat-icon-button matTooltip="Letzes Jahr" (click)="calendarAction('prevYear')">
+                <mat-icon style="position: relative; left: -4px">chevron_left</mat-icon>
+                <mat-icon style="position: relative; left: -19px">chevron_left</mat-icon>
+            </button>
+
+            <button mat-icon-button matTooltip="Letzter Monat" (click)="calendarAction('prev')">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            <h1 class="date-title">{{ this.title() }}</h1>
+
+            <button mat-icon-button matTooltip="Nächstes Jahr" (click)="calendarAction('next')">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+
+            <button mat-icon-button matTooltip="Nächster Monat" (click)="calendarAction('nextYear')">
+                <mat-icon style="position: relative; left: -4px">chevron_right</mat-icon>
+                <mat-icon style="position: relative; left: -19px">chevron_right</mat-icon>
+            </button>
+        </div>
+
+        <div>
+            <button mat-flat-button (click)="createEvent()">Kalendereintrag erstellen</button>
+        </div>
+    </mat-toolbar>
+    
+    <full-calendar #calendarRef
+        [options]="calendarOptions">
+    </full-calendar>
+</div>

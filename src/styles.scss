@@ -1,1 +1,77 @@
 /* You can add global styles to this file, and also import other style files */
+@use "@angular/material" as mat;
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+:root {
+    @include mat.toolbar-overrides((
+        container-background-color: white
+    ));
+    @include mat.slide-toggle-overrides((
+        label-text-size: 20px,
+    ));
+}
+
+.delete-button {
+    @include mat.button-overrides((
+        filled-container-color: #b71c1c,
+        filled-label-text-color: white,
+    ));
+}
+
+
+// event styles
+.fc-event {
+    background-color: white;
+    border: none;
+}
+
+.fc-event-material {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: none;
+}
+
+.fc-event-title {
+    font-weight: normal !important;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.fc-event-time {
+    font-weight: normal !important;
+    font-size: 12px;
+}
+
+.fc-event-note {
+    font-weight: normal;
+    font-size: 12px;
+    color: white;
+    margin-top: 2px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-event-background {
+    padding: 5px;
+}
+
+.category-1 {
+    background-color: #0d47a1; // Dark Blue
+    color: white;
+}
+.category-2 {
+    background-color: #388e3c; // Dark Green
+    color: white;
+}
+.category-3 {
+    background-color: #b71c1c;
+}

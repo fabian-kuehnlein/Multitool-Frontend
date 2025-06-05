@@ -1,0 +1,22 @@
+.calendar-container {
+    margin: 15px 25px 30px 25px;
+}
+
+.toolbar-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 5px;
+    height: 70px;
+}
+
+.toolbar-container div {
+    display: flex;
+    justify-content: center;
+}
+
+.date-title {
+    font-size: 30px;
+    font-weight: 500;
+    align-self: center;
+    margin: 0 10px 0 10px;
+}
