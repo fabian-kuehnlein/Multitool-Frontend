@@ -121,7 +121,12 @@ export class EventDialogComponent {
         this.calendarService.getCategories().subscribe(categories => {
             if (categories.length > 0) {
                 this.categories = categories;
-            }
+
+                const defaultCategory = categories.find(c => c.categoryName === 'Privat');
+                if (defaultCategory) {
+                    this.eventForm.get('categoryId')?.setValue(defaultCategory.categoryId);
+                };
+            };
         });
 
         if (this.dialogData) {
@@ -322,7 +327,7 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
         }
     }
 
-    if ((interval && interval > 0) || (Array.isArray(byDay) && byDay.length > 0)) {
+    if (!(interval && interval > 0) || !(Array.isArray(byDay) && byDay.length > 0)) {
         errors['recurrenceInvalid'] = true;
     }
 
