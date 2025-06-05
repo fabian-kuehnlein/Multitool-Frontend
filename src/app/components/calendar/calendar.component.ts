@@ -196,7 +196,6 @@ export class CalendarComponent {
 
 		dialogRef.afterClosed().subscribe(result => {
 			if (result) {
-				console.log('Creating event:', result);
 				this.calendarService.createEvent(result).subscribe({
 					next: () => {
 						this.calendarApi.refetchEvents();
