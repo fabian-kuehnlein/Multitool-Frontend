@@ -71,6 +71,8 @@ export class CalendarComponent {
 									extendedProps: {
 										eventNote: event.eventNote,
 										categoryId: event.categoryId,
+										recurrenceRule: event.recurrenceRule,
+										recurrenceEnd: event.recurrenceEnd
 									}
 								};
 
@@ -80,7 +82,7 @@ export class CalendarComponent {
 										until: event.recurrenceEnd ?? undefined,
 										...this.parseRRuleString(event.recurrenceRule)
 									};
-									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null);
+									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null); // z.B. 2 Stunden (Länge des Events)
 								}
 
 								return input;
@@ -176,8 +178,7 @@ export class CalendarComponent {
 		selectable: true,
 		selectMirror: true,
 		dayMaxEvents: true,
-		contentHeight: 800,
-		showNonCurrentDates: false,
+		contentHeight: 900,
 		fixedWeekCount: false,
 		eventTimeFormat: {
 			hour: '2-digit',
@@ -216,10 +217,17 @@ export class CalendarComponent {
 			eventTitle: event.title,
 			eventNote: event.extendedProps['eventNote'] || null,
 			startDateTime: event.start,
-			endDateTime: event.end,
+			endDateTime: event.end
+				? (event.allDay
+					? moment(event.end).subtract(1, 'day').toDate()
+					: new Date(event.end))
+				: event.extendedProps['recurrenceRule'] ? event.start
+				: null,
 			isAllDay: event.allDay,
-			categoryId: event.extendedProps['categoryId'] || null
-		}
+			categoryId: event.extendedProps['categoryId'] || null,
+			recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
+			recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null
+		};
 
 		this.dialog.open(EventDialogComponent, {
 			data: eventData,

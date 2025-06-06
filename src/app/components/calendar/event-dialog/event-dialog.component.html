@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Neues Event erstellen</h1>
+<h1 mat-dialog-title>{{ !isEditMode() ? "Neues Event erstellen" : "Event bearbeiten"}}</h1>
 
 <form mat-dialog-content class="dialog-form" [formGroup]="eventForm">
     <mat-form-field>

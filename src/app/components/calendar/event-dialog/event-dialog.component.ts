@@ -25,6 +25,7 @@ import { CalendarEvent } from '../../../shared/models/Calendarevent';
 // Third-party Libraries
 import moment from 'moment';
 import { Subject, takeUntil } from 'rxjs';
+import isEqual from 'lodash/isEqual';
 
 @Component({
   selector: 'app-event-dialog',
@@ -112,6 +113,14 @@ export class EventDialogComponent {
                 this.eventForm.get('startTime')!.enable();
                 this.eventForm.get('endTime')!.enable();
             }
+        });
+
+        this.eventForm.get('isRecurring')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((isRecurring: boolean) => {
+            if (isRecurring) {
+                this.eventForm.get('endDate')!.disable();
+            } else {
+                this.eventForm.get('endDate')!.enable();
+            }
         })
 
         this.eventForm?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -134,6 +143,8 @@ export class EventDialogComponent {
 
             const startDateTime = new Date(this.dialogData.startDateTime!);
             const endDateTime = this.dialogData.endDateTime ? new Date(this.dialogData.endDateTime) : null;
+            const rule = this.dialogData.recurrenceRule ? this.splitRecurrenceString(this.dialogData.recurrenceRule) : null;
+            const recurrenceEnd = this.dialogData.recurrenceEnd ?? null;
 
             this.eventForm.patchValue({
                 eventTitle: this.dialogData.eventTitle,
@@ -159,10 +170,15 @@ export class EventDialogComponent {
                     endDateTime.getMinutes()
                 ) : null,
                 isAllDay: this.dialogData.isAllDay,
-                categoryId: this.dialogData.categoryId
+                categoryId: this.dialogData.categoryId,
+                isRecurring: !!rule,
+                recurrenceFrequency: rule?.freq,
+                recurrenceInterval: rule?.interval,
+                recurrenceByDay: rule?.byDay ?? [],
+                recurrenceEndDate: recurrenceEnd
             });
 
-            this.originalEvent = this.eventForm.value as CalendarEvent;
+            this.originalEvent = this.eventForm.value;
         }
     };
 
@@ -174,19 +190,23 @@ export class EventDialogComponent {
     create() {
         if (this.eventForm.valid) {
             const form = this.eventForm.value;
-            const recurrenceRule = form.isRecurring ? this.getRecurrenceString() : null;
+            const recurrenceRule = form.isRecurring ? this.buildRecurrenceString() : null;
             const recurrenceEnd = (form.isRecurring && form.recurrenceEndDate && recurrenceRule)
-                ? this.buildDate(form.recurrenceEndDate, undefined, false, true)
+                ? this.buildDate(form.recurrenceEndDate, undefined, { isRecurring: true })
                 : null;
 
             const newEvent: CreateCalendarEvent = {
                 eventTitle: form.eventTitle,
                 eventNote: form.eventNote?.trim() === "" ? null : form.eventNote,
-                startDateTime: this.buildDate(form.startDate, form.startTime, form.isAllDay),
+                startDateTime: this.buildDate(
+                    form.startDate,
+                    form.startTime,
+                    {isAllDay: form.isAllDay}),
                 endDateTime: this.buildDate(
                     form.endDate ?? form.startDate,
                     form.endTime ?? form.startTime,
-                    form.isAllDay),
+                    { isAllDay: form.isAllDay, isRecurring: false, addDay: true }
+                ),
                 isAllDay: form.isAllDay,
                 categoryId: form.categoryId,
                 recurrenceRule: recurrenceRule,
@@ -200,20 +220,24 @@ export class EventDialogComponent {
     update() {
         if (this.eventForm.valid) {
             const form = this.eventForm.value;
-            const recurrenceRule = form.isRecurring ? this.getRecurrenceString() : null;
+            const recurrenceRule = form.isRecurring ? this.buildRecurrenceString() : null;
             const recurrenceEnd = (form.isRecurring && form.recurrenceEndDate && recurrenceRule)
-                ? this.buildDate(form.recurrenceEndDate, undefined, false, true)
+                ? this.buildDate(form.recurrenceEndDate, undefined, { isRecurring: true })
                 : null;
 
             const updatedEvent: CalendarEvent = {
                 eventId: this.dialogData?.eventId,
                 eventTitle: form.eventTitle,
                 eventNote: form.eventNote?.trim() === "" ? null : form.eventNote,
-                startDateTime: this.buildDate(form.startDate, form.startTime, form.isAllDay),
+                startDateTime: this.buildDate(
+                    form.startDate,
+                    form.startTime,
+                    {isAllDay: form.isAllDay}),
                 endDateTime: this.buildDate(
                     form.endDate ?? form.startDate,
                     form.endTime ?? form.startTime,
-                    form.isAllDay),
+                    { isAllDay: form.isAllDay, isRecurring: false, addDay: true, fallbackDate: form.startDate }
+                ),
                 isAllDay: form.isAllDay,
                 categoryId: form.categoryId,
                 recurrenceRule: recurrenceRule,
@@ -237,14 +261,24 @@ export class EventDialogComponent {
         this.dialogRef.close(null);
     }
 
-    buildDate(date: Date | null, time?: Date, isAllDay = false, isRecurring = false): string | null {
+    buildDate(
+        _date: Date | null,
+        time?: Date,
+        options: { isAllDay?: boolean; isRecurring?: boolean; addDay?: boolean; fallbackDate?: Date } = {}
+    ): string | null {
+        const { isAllDay = false, isRecurring = false, addDay = false, fallbackDate = null } = options;
+
+        const date = _date ?? fallbackDate;
+
         if (!date) return null;
 
         const dateMoment = moment(date);
 
-        // For recurring or all-day events, set time to 00:00:00
-        if (isRecurring || isAllDay) {
-            dateMoment.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        if (isAllDay || isRecurring) {
+            if (isAllDay && addDay) {
+                dateMoment.add(1, 'day');
+            }
+            dateMoment.startOf('day');
         } else if (time) {
             const timeMoment = moment(time);
             dateMoment.set({
@@ -254,25 +288,24 @@ export class EventDialogComponent {
                 millisecond: 0
             });
         } else {
-            // If no time provided, default to 00:00:00
-            dateMoment.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+            dateMoment.startOf('day');
         }
 
         return dateMoment.format('YYYY-MM-DDTHH:mm:ss');
     }
 
-    getRecurrenceString(): string | null {
+    buildRecurrenceString(): string | null {
         const freq = this.eventForm.value.recurrenceFrequency;
         const interval = this.eventForm.value.recurrenceInterval;
         const byDay = this.eventForm.value.recurrenceByDay;
-
+        
         const validInterval = interval && interval > 0;
         const validByDay = Array.isArray(byDay) && byDay.length > 0;
- 
+        
         if ((!freq) || (!validInterval && !validByDay)) return null;
-
+        
         let rule = `FREQ=${freq}`;
-
+        
         if (validInterval) {
             rule += `;INTERVAL=${interval}`;
         }
@@ -280,6 +313,35 @@ export class EventDialogComponent {
         if (validByDay) {
             rule += `;BYDAY=${byDay.join(',')}`;
         }
+        
+        return rule;
+    }
+
+    splitRecurrenceString(ruleString: string) {
+        const parts = ruleString.split(';');
+        const rule: {
+            freq: string | null;
+            interval: number | null;
+            byDay: string[] | null;
+        } = {
+            freq: null,
+            interval: null,
+            byDay: null
+        };
+
+        parts.forEach(part => {
+            const [key, value] = part.split('=');
+            switch (key) {
+                case 'FREQ':
+                    rule.freq = value;
+                    break;
+                case 'INTERVAL':
+                    rule.interval = parseInt(value, 10);
+                    break;
+                case 'BYDAY':
+                    rule.byDay = value.split(',');
+            }
+        });
 
         return rule;
     }
@@ -288,9 +350,9 @@ export class EventDialogComponent {
     compareOriginalEvent(): boolean {
         if (!this.originalEvent) return false;
 
-        const currentEvent = this.eventForm.value as CalendarEvent;
+        const currentEvent = this.eventForm.value;
 
-        return JSON.stringify(currentEvent) === JSON.stringify(this.originalEvent);
+        return JSON.stringify(currentEvent) == JSON.stringify(this.originalEvent);
     }
 }
 
@@ -302,6 +364,7 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
     const startTime = moment(group.get('startTime')?.value);
     const endDate = moment(group.get('endDate')?.value);
     const endTime = moment(group.get('endTime')?.value);
+    const isRecurring = group.get('isRecurring')?.value;
     const interval = group.get('recurrenceInterval')?.value;
     const byDay = group.get('recurrenceByDay')?.value;
 
@@ -317,7 +380,7 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
     if (!isAllDay && !startTime) errors['startTimeMissing'] = true;
 
     // Validate end date and time
-    if (endDate) {
+    if (endDate && !isRecurring) {
         if (endDate.isBefore(startDate)) {
             group.get('endDate')?.setErrors({ endBeforeStart: true });
         }
@@ -325,10 +388,16 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
         if (!isAllDay && !endTime) {
             group.get('endTime')?.setErrors({ endTimeMissing: true });
         }
+    } else if (isRecurring) {
+        if (!isAllDay && !endTime) {
+            group.get('endTime')?.setErrors({ endTimeMissing: true });
+        }
     }
 
-    if (!(interval && interval > 0) || !(Array.isArray(byDay) && byDay.length > 0)) {
-        errors['recurrenceInvalid'] = true;
+    if (isRecurring) {
+        if (!(interval > 0 || (Array.isArray(byDay) && byDay.length > 0))) {
+            errors['recurrenceInvalid'] = true;
+        }
     }
 
     return Object.keys(errors).length > 0 ? errors : null;
