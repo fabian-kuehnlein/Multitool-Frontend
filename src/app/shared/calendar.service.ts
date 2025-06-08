@@ -20,10 +20,14 @@ export class CalendarService {
         return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetAllEvents`);
     }
 
-    getEventsByRange(startDate: string, endDate: string): Observable<CalendarEvent[]> {
-        const params = new HttpParams()
+    getEventsByRange(startDate: string, endDate: string, categories: string[]): Observable<CalendarEvent[]> {
+        let params = new HttpParams()
             .set('startDate', startDate)
             .set('endDate', endDate);
+
+        if (categories && categories.length > 0) {
+            params = params.set('categories', categories.join(','));
+        }
 
         return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetEventsByRange`, { params });
     }

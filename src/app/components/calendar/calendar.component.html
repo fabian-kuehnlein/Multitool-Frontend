@@ -32,6 +32,22 @@
         </div>
 
         <div>
+            <mat-form-field>
+                <mat-label>Toppings</mat-label>
+                <mat-select [formControl]="categoryControl" multiple>
+                    <mat-select-trigger>
+                    {{ getCategoryDisplay() }}
+                    @if ((categoryControl.value?.length || 0) > 1 && getCategoryDisplay() != 'Alle') {
+                        <span>
+                            (+{{ (categoryControl.value?.length || 0) - 1 }} weitere)
+                        </span>
+                    }
+                    </mat-select-trigger>
+                    @for (category of categoryList; track $index) {
+                        <mat-option [value]="category.categoryId">{{ category.categoryName }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
             <button mat-flat-button (click)="createEvent()">Kalendereintrag erstellen</button>
         </div>
     </mat-toolbar>

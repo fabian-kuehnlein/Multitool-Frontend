@@ -1,21 +1,26 @@
 // Angular Core
 import { Component, ViewChild, inject, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 // Angular Material
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+// RxJS
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import deLocale from '@fullcalendar/core/locales/de-at';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import rrulePlugin from '@fullcalendar/rrule';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import deLocale from '@fullcalendar/core/locales/de-at';
 
 // Moment.js
 import moment from 'moment';
@@ -24,6 +29,7 @@ import moment from 'moment';
 import { CalendarService } from '../../shared/calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
+import { Category } from '../../shared/models/Category';
 
 @Component({
 	selector: 'app-calendar',
@@ -32,7 +38,9 @@ import { CalendarEvent } from '../../shared/models/Calendarevent';
     FullCalendarModule,
     MatIconModule,
 	MatToolbarModule,
-	MatTooltipModule
+	MatTooltipModule,
+	MatSelectModule,
+	ReactiveFormsModule
 ],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss'
@@ -43,11 +51,59 @@ export class CalendarComponent {
 	
 	private readonly calendarService = inject(CalendarService);
 	private readonly dialog = inject(MatDialog);
+	private readonly destroy$ = new Subject<void>();
 
 	private get calendarApi() { return this.calendar.getApi();}
 
 	public readonly title = signal<string>("");
 	public readonly isToday = signal<boolean>(true);
+
+	categoryControl = new FormControl<string[]>(['Alle']);
+	categoryList: Category[] = [];
+	private readonly selectedCategory = signal<string[]>([]);
+
+	ngOnInit(){
+		this.calendarService.getCategories().subscribe(categories => {
+			if (categories) {
+				this.categoryList = categories;
+
+				this.categoryControl.setValue(categories.map(c => c.categoryId));
+			}
+		});
+
+		this.categoryControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((ids: string[] | null) => {
+			if (!ids) return;
+			if (ids.length === this.categoryList.length) {
+				this.selectedCategory.set([]);
+			} else {
+				this.selectedCategory.set(ids);
+			}
+		})
+
+		this.categoryControl.valueChanges.pipe(
+			takeUntil(this.destroy$),
+			debounceTime(500)
+		).subscribe(() => {
+			this.calendarApi.refetchEvents();
+		})
+	};
+
+	ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+	getCategoryDisplay(): string {
+		const selectedIds = this.categoryControl.value || [];
+
+		if (!selectedIds.length) return '';
+
+		if (selectedIds.length === this.categoryList.length) {
+			return 'Alle';
+		}
+
+		return this.categoryList.find(c => c.categoryId === selectedIds[0])?.categoryName ?? '';
+	}
 
 	public readonly calendarOptions: CalendarOptions = {
 		plugins: [
@@ -59,7 +115,7 @@ export class CalendarComponent {
 		eventSources: [
 			{
 				events: (fetchInfo, successCallback, failureCallback) => {
-					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr).subscribe({
+					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategory()).subscribe({
 						next: (events) => {
 							const eventInput: EventInput[] = events.map((event) => {
 								const input: EventInput = {

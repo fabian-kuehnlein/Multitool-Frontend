@@ -59,6 +59,7 @@ export class EventDialogComponent {
 
     categories: Category[] = [];
 
+    // for char-count on title and note inputsa
     protected readonly values = signal<Record<string, string>>({
         eventTitle: '',
         eventNote: ''
