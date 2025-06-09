@@ -1,18 +1,13 @@
 // Angular
 import { Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { NgClass } from '@angular/common';
 
 // Angular Material Form Controls
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -25,20 +20,14 @@ import { CalendarEvent } from '../../../shared/models/Calendarevent';
 // Third-party Libraries
 import moment from 'moment';
 import { Subject, takeUntil } from 'rxjs';
-import isEqual from 'lodash/isEqual';
+import { UI_MODULES } from '../../../shared/material-ui';
 
 @Component({
   selector: 'app-event-dialog',
   imports: [
-    MatDialogModule,
-    MatInputModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
+    UI_MODULES,
     MatDatepickerModule,
     MatTimepickerModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
     MatSlideToggleModule,
     MatDividerModule,
     NgClass
@@ -132,10 +121,12 @@ export class EventDialogComponent {
             if (categories.length > 0) {
                 this.categories = categories;
 
-                const defaultCategory = categories.find(c => c.categoryName === 'Privat');
-                if (defaultCategory) {
-                    this.eventForm.get('categoryId')?.setValue(defaultCategory.categoryId);
-                };
+                if (!this.dialogData) {
+                    const defaultCategory = categories.find(c => c.categoryName === 'Privat');
+                    if (defaultCategory) {
+                        this.eventForm.get('categoryId')?.setValue(defaultCategory.categoryId);
+                    };
+                }
             };
         });
 

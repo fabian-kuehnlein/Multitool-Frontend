@@ -1,12 +1,9 @@
 // Angular Core
 import { Component, ViewChild, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 
 // Angular Material
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -30,17 +27,15 @@ import { CalendarService } from '../../shared/calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
 import { Category } from '../../shared/models/Category';
+import { UI_MODULES } from '../../shared/material-ui';
 
 @Component({
 	selector: 'app-calendar',
 	imports: [
-    MatButtonModule,
+	UI_MODULES,
     FullCalendarModule,
-    MatIconModule,
 	MatToolbarModule,
-	MatTooltipModule,
-	MatSelectModule,
-	ReactiveFormsModule
+	MatTooltipModule
 ],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss'
