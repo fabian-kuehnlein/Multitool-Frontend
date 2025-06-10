@@ -1,36 +1,34 @@
 // Angular Core
 import { Component, ViewChild, inject, signal } from '@angular/core';
+import { FormControl } from '@angular/forms';
 
 // Angular Material
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import deLocale from '@fullcalendar/core/locales/de-at';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import rrulePlugin from '@fullcalendar/rrule';
+import { defaultCalendarOptions } from './calendar.config';
 
-// Moment.js
+// Third Party
 import moment from 'moment';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // App Services & Components
 import { CalendarService } from '../../shared/calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
+import { SearchDialogComponent } from './search-dialog/search-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
+import { Category } from '../../shared/models/Category';
+import { UI_MODULES } from '../../shared/material-ui';
 
 @Component({
 	selector: 'app-calendar',
 	imports: [
-    MatButtonModule,
+	UI_MODULES,
     FullCalendarModule,
-    MatIconModule,
 	MatToolbarModule,
 	MatTooltipModule
 ],
@@ -43,23 +41,72 @@ export class CalendarComponent {
 	
 	private readonly calendarService = inject(CalendarService);
 	private readonly dialog = inject(MatDialog);
+	private readonly destroy$ = new Subject<void>();
 
 	private get calendarApi() { return this.calendar.getApi();}
 
 	public readonly title = signal<string>("");
 	public readonly isToday = signal<boolean>(true);
 
+	categoryControl = new FormControl<string[]>(['Alle']);
+	searchControl = new FormControl<string>('');
+	categoryList: Category[] = [];
+	private readonly selectedCategory = signal<string[]>([]);
+
+	ngOnInit(){
+		this.calendarService.getCategories().subscribe(categories => {
+			if (categories) {
+				this.categoryList = categories;
+
+				this.categoryControl.setValue(categories.map(c => c.categoryId));
+			}
+		});
+
+		this.categoryControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((ids: string[] | null) => {
+			if (!ids) return;
+			if (ids.length === this.categoryList.length) {
+				this.selectedCategory.set([]);
+			} else {
+				this.selectedCategory.set(ids);
+			}
+		})
+
+		this.categoryControl.valueChanges.pipe(
+			takeUntil(this.destroy$),
+			debounceTime(500)
+		).subscribe(() => {
+			this.calendarApi.refetchEvents();
+		})
+	};
+
+	ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+	getCategoryDisplay(): string {
+		const selectedIds = this.categoryControl.value || [];
+
+		if (!selectedIds.length) return '';
+
+		if (selectedIds.length === this.categoryList.length) {
+			return 'Alle';
+		}
+
+		return this.categoryList.find(c => c.categoryId === selectedIds[0])?.categoryName ?? '';
+	}
+
 	public readonly calendarOptions: CalendarOptions = {
-		plugins: [
-			dayGridPlugin,
-			timeGridPlugin,
-			interactionPlugin,
-			rrulePlugin
-		],
+		...defaultCalendarOptions,
+		// sets Title
+		datesSet: () => {
+			this.title.set(this.calendarApi.view.title);
+		},
+		// handles Events
 		eventSources: [
 			{
 				events: (fetchInfo, successCallback, failureCallback) => {
-					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr).subscribe({
+					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategory()).subscribe({
 						next: (events) => {
 							const eventInput: EventInput[] = events.map((event) => {
 								const input: EventInput = {
@@ -127,64 +174,30 @@ export class CalendarComponent {
 				}
 			}
 		],
+		// actives Update on click
 		eventClick: this.updateEvent.bind(this),
-		eventDrop: this.handleEventDrop.bind(this),
-		locales: [deLocale],
-		datesSet: () => {
-			this.title.set(this.calendarApi.view.title);
-		},
-		eventContent: (arg) => {
-			const { event } = arg;
-
-			if(event.display === 'background') {
-				return {
-					html: `<div class="fc-event-background">${event.title}</div>`
-				}
-			}
-
-			const isAllDay = event.allDay;
-			const note = event.extendedProps['eventNote'] || '';
-			const categoryId = event.extendedProps['categoryId'];
-
-			const start = event.start ? new Date(event.start) : null;
-			const end = event.end ? new Date(event.end) : null;
-
-			const startStr = start?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-			const endStr = end?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-			const timeDisplay = isAllDay
-				? ''
-				: startStr
-					? endStr
-						? `${startStr} – ${endStr}`
-						: `${startStr}`
-					: '';
-
-			return {
-				html: `
-					<div class="fc-event-material category-${categoryId}">
-						<div class="fc-event-title">${event.title}</div>
-						<div class="fc-event-time">${timeDisplay}</div>
-						${note ? `<div class="fc-event-note">${note}</div>` : ''}
-					</div>
-				`
-			}
-
-		},
-		headerToolbar: false,
-		initialView: 'dayGridMonth',
-		weekends: true,
-		editable: true,
-		selectable: true,
-		selectMirror: true,
-		dayMaxEvents: true,
-		contentHeight: 900,
-		fixedWeekCount: false,
-		eventTimeFormat: {
-			hour: '2-digit',
-			minute: '2-digit'
-		}
+		// updates the date one drag and drop
+		eventDrop: this.handleEventDrop.bind(this)
 	};
+
+	openSearchResult() {
+		const dialogRef = this.dialog.open(SearchDialogComponent, { 
+			width: 'fit-content',
+			maxWidth: '90vw',
+			minWidth: '500px',
+			data: this.searchControl.value
+		 });
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result && result.data) {
+				this.calendarApi.gotoDate(result.data);
+				this.calendarApi.select(result.data);
+				return;
+			}
+			
+			this.calendarApi.refetchEvents();
+		})
+	}
 
 	createEvent() {
 		const dialogRef = this.dialog.open(EventDialogComponent, {

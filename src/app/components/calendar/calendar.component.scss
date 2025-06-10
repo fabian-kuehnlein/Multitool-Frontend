@@ -15,7 +15,7 @@
 
 .toolbar-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 2fr;
     margin-bottom: 5px;
     height: 70px;
 }
@@ -23,6 +23,22 @@
 .toolbar-container div {
     display: flex;
     justify-content: center;
+    align-items: center;
+}
+
+.view-buttons {
+    display: flex;
+    justify-content: flex-start !important;
+    gap: 15px;
+}
+
+.page-buttons {
+    gap: 5px;
+}
+
+.actions {
+    align-items: center;
+    gap: 20px;
 }
 
 .date-title {
@@ -71,25 +87,25 @@
     text-overflow: ellipsis;
 }
 
+::ng-deep .fc-day-other {
+  background-color: #e6e6e6;
+  color: black;
+}
+
 ::ng-deep .fc-event-background {
     padding: 5px;
 }
 
 ::ng-deep .category-1 {
-    background-color: #0d47a1; // Dark Blue
+    background-color: #0d47a1;
     color: white;
 }
 
 ::ng-deep .category-2 {
-    background-color: #388e3c; // Dark Green
+    background-color: #388e3c;
     color: white;
 }
 
 ::ng-deep .category-3 {
     background-color: #b71c1c;
-}
-
-::ng-deep .fc-day-other {
-  background-color: #e6e6e6;
-  color: black;
 }
