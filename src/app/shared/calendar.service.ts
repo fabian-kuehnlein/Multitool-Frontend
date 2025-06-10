@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { CalendarEvent } from './models/Calendarevent';
-import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CreateCalendarEvent } from './models/CreateCalendarEvent';
+import { CalendarEvent } from './models/Calendarevent';
 import { Category } from './models/Category';
+import { CreateCalendarEvent } from './models/CreateCalendarEvent';
 import { Holiday } from './models/Holiday';
+import { SearchResult } from './models/SearchResult';
 
 @Injectable({
   providedIn: 'root'
@@ -15,10 +16,6 @@ export class CalendarService {
     constructor(private readonly http: HttpClient) { }
 
     private readonly apiURL = 'api/CalendarEvent';
-    
-    getAllEvents(): Observable<CalendarEvent[]> {
-        return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetAllEvents`);
-    }
 
     getEventsByRange(startDate: string, endDate: string, categories: string[]): Observable<CalendarEvent[]> {
         let params = new HttpParams()
@@ -30,6 +27,11 @@ export class CalendarService {
         }
 
         return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetEventsByRange`, { params });
+    }
+
+    searchEvents(searchString: string): Observable<SearchResult[]> {
+        let params = new HttpParams().set('searchString', searchString)
+        return this.http.get<SearchResult[]>(`${environment.MultitoolApi}/${this.apiURL}/GetEventsByRange`, { params });
     }
 
     createEvent(event: CreateCalendarEvent): Observable<CalendarEvent> {

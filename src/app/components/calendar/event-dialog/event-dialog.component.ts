@@ -4,7 +4,7 @@ import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn,
 import { NgClass } from '@angular/common';
 
 // Angular Material Form Controls
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -21,6 +21,7 @@ import { CalendarEvent } from '../../../shared/models/Calendarevent';
 import moment from 'moment';
 import { Subject, takeUntil } from 'rxjs';
 import { UI_MODULES } from '../../../shared/material-ui';
+import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-event-dialog',
@@ -39,6 +40,7 @@ import { UI_MODULES } from '../../../shared/material-ui';
 export class EventDialogComponent {
     private fb = inject(FormBuilder);
     private dialogRef = inject(MatDialogRef<EventDialogComponent>);
+    public dialog = inject(MatDialog);
     private readonly destroy$ = new Subject<void>();
     private readonly calendarService = inject(CalendarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as CalendarEvent;
@@ -242,8 +244,13 @@ export class EventDialogComponent {
 
     delete() {
         if (this.dialogData) {
-            const eventId = this.dialogData.eventId;
-            this.dialogRef.close({ data: eventId, action: 'delete' });
+            const dialogRef = this.dialog.open(ConfirmDialogComponent, {});
+            dialogRef.afterClosed().subscribe(result => {
+                if (!result) return;
+                
+                const eventId = this.dialogData.eventId;
+                this.dialogRef.close({ data: eventId, action: 'delete' });
+            });
         } else {
             this.dialogRef.close(null);
         }

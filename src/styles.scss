@@ -18,4 +18,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
         filled-container-color: #b71c1c,
         filled-label-text-color: white,
     ));
+    @include mat.icon-button-overrides((
+        icon-color: #b71c1c
+    ))
 }

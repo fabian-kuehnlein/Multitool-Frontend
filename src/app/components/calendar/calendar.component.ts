@@ -28,6 +28,7 @@ import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
 import { Category } from '../../shared/models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
+import { SearchDialogComponent } from './search-dialog/search-dialog.component';
 
 @Component({
 	selector: 'app-calendar',
@@ -54,6 +55,7 @@ export class CalendarComponent {
 	public readonly isToday = signal<boolean>(true);
 
 	categoryControl = new FormControl<string[]>(['Alle']);
+	searchControl = new FormControl<string>('');
 	categoryList: Category[] = [];
 	private readonly selectedCategory = signal<string[]>([]);
 
@@ -236,6 +238,22 @@ export class CalendarComponent {
 			minute: '2-digit'
 		}
 	};
+
+	openSearchResult() {
+		const dialogRef = this.dialog.open(SearchDialogComponent, { 
+			width: 'fit-content',
+			maxWidth: '90vw',
+			minWidth: '500px',
+			data: this.searchControl.value
+		 });
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result.data) {
+				this.calendarApi.gotoDate(result.data);
+				this.calendarApi.select(result.data);
+			}
+		})
+	}
 
 	createEvent() {
 		const dialogRef = this.dialog.open(EventDialogComponent, {
