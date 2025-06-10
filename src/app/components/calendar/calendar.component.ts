@@ -7,24 +7,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-// RxJS
-import { debounceTime, Subject, takeUntil } from 'rxjs';
-
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
+import { defaultCalendarOptions } from './calendar.config';
 
-// Moment.js
+// Third Party
 import moment from 'moment';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // App Services & Components
 import { CalendarService } from '../../shared/calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
+import { SearchDialogComponent } from './search-dialog/search-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
 import { Category } from '../../shared/models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
-import { SearchDialogComponent } from './search-dialog/search-dialog.component';
-import { defaultCalendarOptions } from './calendar.config';
 
 @Component({
 	selector: 'app-calendar',
@@ -191,10 +189,13 @@ export class CalendarComponent {
 		 });
 
 		dialogRef.afterClosed().subscribe(result => {
-			if (result.data) {
+			if (result && result.data) {
 				this.calendarApi.gotoDate(result.data);
 				this.calendarApi.select(result.data);
+				return;
 			}
+			
+			this.calendarApi.refetchEvents();
 		})
 	}
 

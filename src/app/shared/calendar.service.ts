@@ -31,7 +31,7 @@ export class CalendarService {
 
     searchEvents(searchString: string): Observable<SearchResult[]> {
         let params = new HttpParams().set('searchString', searchString)
-        return this.http.get<SearchResult[]>(`${environment.MultitoolApi}/${this.apiURL}/GetEventsByRange`, { params });
+        return this.http.get<SearchResult[]>(`${environment.MultitoolApi}/${this.apiURL}/SearchEvents`, { params });
     }
 
     createEvent(event: CreateCalendarEvent): Observable<CalendarEvent> {

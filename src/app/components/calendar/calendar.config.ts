@@ -5,7 +5,7 @@ import rrulePlugin from '@fullcalendar/rrule';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import deLocale from '@fullcalendar/core/locales/de-at';
 
-export const defaultCalendarOptions: CalendarOptions= {
+export const defaultCalendarOptions: CalendarOptions = {
     plugins: [
         dayGridPlugin,
         timeGridPlugin,
@@ -16,7 +16,7 @@ export const defaultCalendarOptions: CalendarOptions= {
     eventContent: (arg) => {
         const { event } = arg;
 
-        if(event.display === 'background') {
+        if (event.display === 'background') {
             return {
                 html: `<div class="fc-event-background">${event.title}</div>`
             }
@@ -62,5 +62,13 @@ export const defaultCalendarOptions: CalendarOptions= {
     eventTimeFormat: {
         hour: '2-digit',
         minute: '2-digit'
+    },
+    dayCellDidMount: (arg) => {
+        const today = new Date();
+        const cellDate = arg.date;
+
+        if (cellDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
+            arg.el.classList.add('past-date')
+        }
     }
 }
