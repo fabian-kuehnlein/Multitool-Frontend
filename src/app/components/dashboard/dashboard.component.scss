@@ -1,0 +1,14 @@
+.tool-card {
+    height: 400px;
+    width: 600px;
+}
+
+.grid-tile {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.card-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+}

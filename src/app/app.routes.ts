@@ -2,7 +2,10 @@ import { ApplicationConfig } from '@angular/core';
 import { Routes, provideRouter, withDebugTracing } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'calendar', pathMatch: 'full' },
+  {
+    path: '',
+    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
+  },
   { 
     path: 'calendar',
     loadComponent: () => import('./components/calendar/calendar.component').then(m => m.CalendarComponent)

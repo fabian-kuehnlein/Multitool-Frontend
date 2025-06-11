@@ -23,6 +23,7 @@ import { SearchDialogComponent } from './search-dialog/search-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
 import { Category } from '../../shared/models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-calendar',
@@ -38,6 +39,7 @@ import { UI_MODULES } from '../../shared/material-ui';
 
 export class CalendarComponent {
 	@ViewChild('calendarRef') calendar!: FullCalendarComponent;
+	private readonly router = inject(Router);
 	
 	private readonly calendarService = inject(CalendarService);
 	private readonly dialog = inject(MatDialog);
@@ -83,6 +85,10 @@ export class CalendarComponent {
         this.destroy$.next();
         this.destroy$.complete();
     }
+
+	toHome() {
+		this.router.navigate(['/']);
+	}
 
 	getCategoryDisplay(): string {
 		const selectedIds = this.categoryControl.value || [];
