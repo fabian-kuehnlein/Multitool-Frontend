@@ -11,6 +11,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     @include mat.slide-toggle-overrides((
         label-text-size: 20px,
     ));
+    @include mat.sidenav-overrides((
+        content-background-color: white
+    ));
 }
 
 .delete-button {
@@ -26,4 +29,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .past-date {
     background-color: #e6e6e6 !important;
     opacity: 0.8;
+}
+
+.transparent-backdrop {
+    background: rgba(0, 0, 0, 0.2);
 }

@@ -23,7 +23,7 @@ import { SearchDialogComponent } from './search-dialog/search-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
 import { Category } from '../../shared/models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
-import { Router } from '@angular/router';
+import { SidenavComponent } from '../sidenav/sidenav.component';
 
 @Component({
 	selector: 'app-calendar',
@@ -39,7 +39,6 @@ import { Router } from '@angular/router';
 
 export class CalendarComponent {
 	@ViewChild('calendarRef') calendar!: FullCalendarComponent;
-	private readonly router = inject(Router);
 	
 	private readonly calendarService = inject(CalendarService);
 	private readonly dialog = inject(MatDialog);
@@ -86,8 +85,18 @@ export class CalendarComponent {
         this.destroy$.complete();
     }
 
-	toHome() {
-		this.router.navigate(['/']);
+	openSideNav() {
+		const dialogRef = this.dialog.open(SidenavComponent, {
+			position: {
+				top: '90px',
+				left: '30px'
+			},
+			height: 'auto',
+			minHeight: '500px',
+			maxHeight: '1000px',
+			hasBackdrop: true,
+			backdropClass: 'transparent-backdrop',
+		});
 	}
 
 	getCategoryDisplay(): string {
