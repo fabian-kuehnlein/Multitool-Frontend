@@ -17,7 +17,7 @@ export class CalendarService {
 
     private readonly apiURL = 'api/CalendarEvent';
 
-    getEventsByRange(startDate: string, endDate: string, categories: string[]): Observable<CalendarEvent[]> {
+    getEventsByRange(startDate: string, endDate: string, categories: string[] | null): Observable<CalendarEvent[]> {
         let params = new HttpParams()
             .set('startDate', startDate)
             .set('endDate', endDate);

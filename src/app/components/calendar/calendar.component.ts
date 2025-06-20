@@ -23,6 +23,7 @@ import { SearchDialogComponent } from './search-dialog/search-dialog.component';
 import { CalendarEvent } from '../../shared/models/Calendarevent';
 import { Category } from '../../shared/models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
+import { SidenavComponent } from '../sidenav/sidenav.component';
 
 @Component({
 	selector: 'app-calendar',
@@ -83,6 +84,23 @@ export class CalendarComponent {
         this.destroy$.next();
         this.destroy$.complete();
     }
+
+	openSideNav() {
+		const dialogRef = this.dialog.open(SidenavComponent, {
+			position: {
+				top: '90px',
+				left: '30px'
+			},
+			height: 'auto',
+			minHeight: '100px',
+			maxHeight: '1000px',
+			hasBackdrop: true,
+			backdropClass: 'transparent-backdrop',
+			data: 'calendar'
+		});
+
+		dialogRef.afterClosed();
+	}
 
 	getCategoryDisplay(): string {
 		const selectedIds = this.categoryControl.value || [];

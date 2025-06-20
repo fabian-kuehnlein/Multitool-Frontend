@@ -70,5 +70,20 @@ export const defaultCalendarOptions: CalendarOptions = {
         if (cellDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
             arg.el.classList.add('past-date')
         }
+    },
+    eventDidMount: ({ event, el }) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const end = event.end
+            ? new Date(event.end)
+            : event.start 
+                ? new Date(event.start)
+                : new Date();
+        end.setHours(0, 0, 0, 0);
+
+        if (end.getTime() < today.getTime()) {
+            el.classList.add('past-event');
+        }
     }
 }
