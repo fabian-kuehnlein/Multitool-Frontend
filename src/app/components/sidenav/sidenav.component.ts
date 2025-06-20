@@ -4,6 +4,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-sidenav',
@@ -18,8 +19,9 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class SidenavComponent {
     private readonly router = inject(Router);
+    private readonly dialogData = inject(MAT_DIALOG_DATA) as string;
 
-    tools = [
+    public readonly tools = [
         {
             title: 'Kalender',
             icon: 'event',
@@ -34,5 +36,9 @@ export class SidenavComponent {
 
     navigate(route: string) {
         this.router.navigate([route])
+    }
+
+    isCurrentRoute(route: string) {
+        return `/${this.dialogData}` === route;
     }
 }

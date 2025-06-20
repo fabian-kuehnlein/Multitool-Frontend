@@ -3,8 +3,7 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-
-    padding: 10px 25px 0 25px;
+    padding: 10px 25px 0;
     box-sizing: border-box;
 }
 
@@ -16,41 +15,44 @@
 .toolbar-container {
     display: grid;
     grid-template-columns: 2fr 1fr 2fr;
+    gap: 10px;
     margin-bottom: 5px;
     height: 70px;
 }
 
-.toolbar-container div {
+.toolbar-container > div,
+.left-container,
+.right-container {
     display: flex;
-    justify-content: center;
     align-items: center;
 }
 
 .view-buttons {
     display: flex;
-    justify-content: flex-start !important;
     gap: 15px;
+    margin-left: auto;
 }
 
-.page-buttons {
+.middle-container {
     gap: 5px;
+    margin: 0 20px;
 }
 
-.actions {
-    align-items: center;
+.right-container {
     gap: 20px;
 }
 
 .date-title {
-    font-size: 30px;
+    flex-shrink: 0;
+    min-width: 200px;
+    text-align: center;
+    font-size: 1.7rem;
     font-weight: 500;
-    align-self: center;
-    margin: 0 10px 0 10px;
 }
 
 // calendar styles
 ::ng-deep .fc-event {
-    background-color: white;
+    background-color: #fff;
     border: none;
 }
 
@@ -60,36 +62,37 @@
     justify-content: center;
     padding: 5px;
     width: 100%;
-    height: auto;
     border-radius: 10px;
     border: none;
 }
 
-::ng-deep .fc-event-title {
+::ng-deep .fc-event-title,
+::ng-deep .fc-event-time {
     font-weight: normal !important;
+}
+
+::ng-deep .fc-event-title {
     font-size: 15px;
     margin-bottom: 2px;
 }
 
 ::ng-deep .fc-event-time {
-    font-weight: normal !important;
     font-size: 12px;
 }
 
 ::ng-deep .fc-event-note {
     font-weight: normal;
     font-size: 12px;
-    color: white;
+    color: #fff;
     margin-top: 2px;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 ::ng-deep .fc-day-other {
-  background-color: #e6e6e6;
-  color: black;
+    background-color: #e6e6e6;
+    color: #000;
 }
 
 ::ng-deep .fc-event-background {
@@ -98,12 +101,12 @@
 
 ::ng-deep .category-1 {
     background-color: #0d47a1;
-    color: white;
+    color: #fff;
 }
 
 ::ng-deep .category-2 {
     background-color: #388e3c;
-    color: white;
+    color: #fff;
 }
 
 ::ng-deep .category-3 {

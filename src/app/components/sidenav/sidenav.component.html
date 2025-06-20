@@ -2,7 +2,7 @@
 
 <mat-nav-list class="list">
     @for (tool of tools; track $index) {
-        <button mat-fab extended (click)="navigate(tool.route)">
+        <button mat-fab extended (click)="navigate(tool.route)" [disabled]="isCurrentRoute(tool.route)">
           <mat-icon>{{tool.icon}}</mat-icon>
           {{tool.title}}
         </button>

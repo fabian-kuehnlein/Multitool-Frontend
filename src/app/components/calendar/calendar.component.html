@@ -1,20 +1,22 @@
 <div class="calendar-container">
     <mat-toolbar class="toolbar-container">
-        <div class="view-buttons">
-            <button mat-fab extended (click)="openSideNav()" style="height: 50px; margin-right: 80px;">
+        <div class="left-container">
+            <button mat-fab extended matTooltip="Öffne eine Liste aller Tools" (click)="openSideNav()" style="height: 50px; margin-right: 80px;">
                 <mat-icon>home</mat-icon>
-                Home
+                Tool wechseln
             </button>
 
-            <button mat-flat-button matTooltip="Wechsel zur Monatsansicht" (click)="calendarAction('changeMonth')">Monat</button>
-            <button mat-flat-button matTooltip="Wechsel zur Wochenansicht" (click)="calendarAction('changeWeek')">Woche</button>
-            <button mat-flat-button matTooltip="Wechsel zur Tagesansicht" (click)="calendarAction('changeDay')">Tag</button>
-
-            <button mat-flat-button matTooltip="Springe zum heutigen Datum" style="margin-left: 30px;"
-            (click)="calendarAction('today')" [disabled]="!isToday">Heute</button>
+            <div class="view-buttons">
+                <button mat-flat-button matTooltip="Wechsel zur Monatsansicht" (click)="calendarAction('changeMonth')">Monat</button>
+                <button mat-flat-button matTooltip="Wechsel zur Wochenansicht" (click)="calendarAction('changeWeek')">Woche</button>
+                <button mat-flat-button matTooltip="Wechsel zur Tagesansicht" (click)="calendarAction('changeDay')">Tag</button>
+                
+                <button mat-flat-button matTooltip="Springe zum heutigen Datum" style="margin-left: 30px;"
+                (click)="calendarAction('today')" [disabled]="!isToday">Heute</button>
+            </div>
         </div>
 
-        <div class="page-buttons">
+        <div class="middle-container">
             <button mat-icon-button matTooltip="Letzes Jahr" (click)="calendarAction('prevYear')">
                 <mat-icon style="position: relative; left: -4px">chevron_left</mat-icon>
                 <mat-icon style="position: relative; left: -19px">chevron_left</mat-icon>
@@ -36,7 +38,9 @@
             </button>
         </div>
 
-        <div class="actions">
+        <div class="right-container">
+            <button mat-flat-button (click)="createEvent()">Kalendereintrag erstellen</button>
+            
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Nach Event suchen</mat-label>
                 <input matInput type="text" [formControl]="searchControl" (keydown.enter)="openSearchResult()">
@@ -62,8 +66,6 @@
                     }
                 </mat-select>
             </mat-form-field>
-
-            <button mat-flat-button (click)="createEvent()">Kalendereintrag erstellen</button>
         </div>
     </mat-toolbar>
     

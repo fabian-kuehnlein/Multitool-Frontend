@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common'
 import { UI_MODULES } from '../../../shared/material-ui';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { SearchResult } from '../../../shared/models/SearchResult';
 import { CalendarService } from '../../../shared/calendar.service';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
@@ -26,7 +26,7 @@ export class SearchDialogComponent {
     public dialog = inject(MatDialog);
 
     public readonly displayedColumns: string[] = ['eventTitle', 'eventNote', 'startDateTime', 'actions'];
-    public dataSource: SearchResult[] = [];
+    public dataSource: MatTableDataSource<SearchResult> = new MatTableDataSource<SearchResult>([]);
 
     ngOnInit() {
         if (this.dialogData) {
@@ -36,7 +36,12 @@ export class SearchDialogComponent {
 
     fetchEvents() {
         this.calendarService.searchEvents(this.dialogData).subscribe(events => {
-            this.dataSource = events;
+            if (events) {
+                const sortedEvents = events.sort((a, b) => 
+                    new Date(a.startDateTime ?? '').getTime() - new Date(b.startDateTime ?? '').getTime()
+                );
+                this.dataSource.data = sortedEvents;
+            }
         });
     }
 

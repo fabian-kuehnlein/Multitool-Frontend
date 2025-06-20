@@ -92,11 +92,14 @@ export class CalendarComponent {
 				left: '30px'
 			},
 			height: 'auto',
-			minHeight: '500px',
+			minHeight: '100px',
 			maxHeight: '1000px',
 			hasBackdrop: true,
 			backdropClass: 'transparent-backdrop',
+			data: 'calendar'
 		});
+
+		dialogRef.afterClosed();
 	}
 
 	getCategoryDisplay(): string {
