@@ -43,9 +43,10 @@ export class EventDialogComponent {
     public dialog = inject(MatDialog);
     private readonly destroy$ = new Subject<void>();
     private readonly calendarService = inject(CalendarService);
-    private readonly dialogData = inject(MAT_DIALOG_DATA) as CalendarEvent;
-    public isEditMode = signal<boolean>(false);
-    public isChanged = signal<boolean>(false);
+    private readonly dialogData = inject(MAT_DIALOG_DATA);
+    public readonly isEditMode = signal<boolean>(false);
+    public readonly isChanged = signal<boolean>(false);
+    public readonly startAt = signal<Date | null>(null);
     private originalEvent: CalendarEvent | null = null;
 
     categories: Category[] = [];
@@ -70,7 +71,7 @@ export class EventDialogComponent {
         eventNote: ['', [Validators.maxLength(200)]],
         startDate: [null, [Validators.required]],
         startTime: [null, [Validators.required]],
-        endDate: [null],
+        endDate: [null, [Validators.required]],
         endTime: [null],
         isAllDay: [false],
         categoryId: ['', [Validators.required]],
@@ -123,7 +124,7 @@ export class EventDialogComponent {
             if (categories.length > 0) {
                 this.categories = categories;
 
-                if (!this.dialogData) {
+                if (!this.dialogData.event) {
                     const defaultCategory = categories.find(c => c.categoryName === 'Privat');
                     if (defaultCategory) {
                         this.eventForm.get('categoryId')?.setValue(defaultCategory.categoryId);
@@ -132,17 +133,17 @@ export class EventDialogComponent {
             };
         });
 
-        if (this.dialogData) {
+        if (this.dialogData && this.dialogData.event) {
             this.isEditMode.set(true);
 
-            const startDateTime = new Date(this.dialogData.startDateTime!);
-            const endDateTime = this.dialogData.endDateTime ? new Date(this.dialogData.endDateTime) : null;
-            const rule = this.dialogData.recurrenceRule ? this.splitRecurrenceString(this.dialogData.recurrenceRule) : null;
-            const recurrenceEnd = this.dialogData.recurrenceEnd ?? null;
+            const startDateTime = new Date(this.dialogData.event.startDateTime!);
+            const endDateTime = this.dialogData.event.endDateTime ? new Date(this.dialogData.event.endDateTime) : null;
+            const rule = this.dialogData.event.recurrenceRule ? this.splitRecurrenceString(this.dialogData.event.recurrenceRule) : null;
+            const recurrenceEnd = this.dialogData.event.recurrenceEnd ?? null;
 
             this.eventForm.patchValue({
-                eventTitle: this.dialogData.eventTitle,
-                eventNote: this.dialogData.eventNote,
+                eventTitle: this.dialogData.event.eventTitle,
+                eventNote: this.dialogData.event.eventNote,
                 startDate: new Date(
                     startDateTime.getFullYear(),
                     startDateTime.getMonth(),
@@ -163,8 +164,8 @@ export class EventDialogComponent {
                     endDateTime.getHours(),
                     endDateTime.getMinutes()
                 ) : null,
-                isAllDay: this.dialogData.isAllDay,
-                categoryId: this.dialogData.categoryId,
+                isAllDay: this.dialogData.event.isAllDay,
+                categoryId: this.dialogData.event.categoryId,
                 isRecurring: !!rule,
                 recurrenceFrequency: rule?.freq,
                 recurrenceInterval: rule?.interval,
@@ -173,6 +174,8 @@ export class EventDialogComponent {
             });
 
             this.originalEvent = this.eventForm.value;
+        } else if (this.dialogData.anchorDate) {
+            this.startAt.set(this.dialogData.anchorDate);
         }
     };
 
@@ -220,7 +223,7 @@ export class EventDialogComponent {
                 : null;
 
             const updatedEvent: CalendarEvent = {
-                eventId: this.dialogData?.eventId,
+                eventId: this.dialogData.event?.eventId,
                 eventTitle: form.eventTitle,
                 eventNote: form.eventNote?.trim() === "" ? null : form.eventNote,
                 startDateTime: this.buildDate(
@@ -243,12 +246,12 @@ export class EventDialogComponent {
     }
 
     delete() {
-        if (this.dialogData) {
+        if (this.dialogData.event) {
             const dialogRef = this.dialog.open(ConfirmDialogComponent, {});
             dialogRef.afterClosed().subscribe(result => {
                 if (!result) return;
                 
-                const eventId = this.dialogData.eventId;
+                const eventId = this.dialogData.event.eventId;
                 this.dialogRef.close({ data: eventId, action: 'delete' });
             });
         } else {
@@ -380,10 +383,6 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
 
     // Validate end date and time
     if (endDate && !isRecurring) {
-        if (endDate.isBefore(startDate)) {
-            group.get('endDate')?.setErrors({ endBeforeStart: true });
-        }
-
         if (!isAllDay && !endTime) {
             group.get('endTime')?.setErrors({ endTimeMissing: true });
         }

@@ -10,6 +10,10 @@ export const routes: Routes = [
   { 
     path: 'calendar',
     loadComponent: () => import('./components/calendar/calendar.component').then(m => m.CalendarComponent)
+  },
+  {
+    path: 'custom-table',
+    loadComponent: () => import('./components/custom-table/custom-table.component').then(m => m.CustomTableComponent)
   }
 ];
 

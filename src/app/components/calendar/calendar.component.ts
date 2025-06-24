@@ -218,12 +218,16 @@ export class CalendarComponent {
 	}
 
 	createEvent() {
+		const anchorDate = this.calendarApi.getDate();
 		const dialogRef = this.dialog.open(EventDialogComponent, {
 			width: 'auto',
 			minWidth: '600px',
 			maxWidth: '1500px',
 			height: 'auto',
-			data: null
+			data: { 
+				anchorDate: anchorDate,
+				event: null
+			}
 		});
 
 		dialogRef.afterClosed().subscribe(result => {
@@ -261,7 +265,10 @@ export class CalendarComponent {
 		};
 
 		this.dialog.open(EventDialogComponent, {
-			data: eventData,
+			data: {
+				anchorDate: null,
+				event: eventData
+			},
 			width: 'auto',
 			minWidth: '600px',
 			maxWidth: '1500px',
@@ -357,6 +364,7 @@ export class CalendarComponent {
 		}
 	};
 
+	// for display in calendar
 	formatCalendarDate(date: Date): string {
 		return [
 			date.getFullYear(),

@@ -7,7 +7,7 @@
 
 .date-container {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1.5fr 0.8fr 0.8fr;
     gap: 20px;
 }
 
@@ -15,12 +15,7 @@
     grid-template-columns: repeat(2, 1fr);
 }
 
-.date-row {
-    display: flex;
-    gap: 20px;
-}
-
-.date-row > mat-form-field {
+.date-container > mat-form-field {
     width: 100%;
 }
 
