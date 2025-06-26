@@ -17,13 +17,13 @@ import moment from 'moment';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // App Services & Components
-import { CalendarService } from '../../shared/calendar.service';
+import { CalendarService } from './calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './search-dialog/search-dialog.component';
-import { CalendarEvent } from '../../shared/models/Calendarevent';
-import { Category } from '../../shared/models/Category';
+import { CalendarEvent } from './models/Calendarevent';
+import { Category } from './models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
-import { SidenavComponent } from '../sidenav/sidenav.component';
+import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 
 @Component({
 	selector: 'app-calendar',

@@ -12,16 +12,16 @@ import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
-import { CalendarService } from '../../../shared/calendar.service';
-import { Category } from '../../../shared/models/Category';
-import { CreateCalendarEvent } from '../../../shared/models/CreateCalendarEvent';
-import { CalendarEvent } from '../../../shared/models/Calendarevent';
+import { CalendarService } from '../calendar.service';
+import { Category } from '../models/Category';
+import { CreateCalendarEvent } from '../models/CreateCalendarEvent';
+import { CalendarEvent } from '../models/Calendarevent';
 
 // Third-party Libraries
 import moment from 'moment';
 import { Subject, takeUntil } from 'rxjs';
 import { UI_MODULES } from '../../../shared/material-ui';
-import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-event-dialog',

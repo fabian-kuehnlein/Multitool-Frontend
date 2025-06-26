@@ -16,3 +16,20 @@
     margin-bottom: 5px;
     height: 70px;
 }
+
+.content-container {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 12px 12px;
+    font-size: 20px;
+    text-align: center;
+    font-weight: 500;
+}

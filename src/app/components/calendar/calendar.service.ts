@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { CalendarEvent } from './models/Calendarevent';
 import { Category } from './models/Category';
 import { CreateCalendarEvent } from './models/CreateCalendarEvent';
@@ -13,8 +13,7 @@ import { SearchResult } from './models/SearchResult';
 })
 export class CalendarService {
 
-    constructor(private readonly http: HttpClient) { }
-
+    private readonly http = inject(HttpClient);
     private readonly apiURL = 'api/CalendarEvent';
 
     getEventsByRange(startDate: string, endDate: string, categories: string[] | null): Observable<CalendarEvent[]> {
