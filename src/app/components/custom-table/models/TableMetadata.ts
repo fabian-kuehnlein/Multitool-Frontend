@@ -1,43 +1,66 @@
-
-export interface TableInfo {
-    tableId: string;
-    tableName: string;
+export enum CustomDataType {
+    String  = 'String',
+    Int     = 'Int',
+    Decimal = 'Decimal',
+    Date    = 'Date',
+    Bool    = 'Bool'
 }
 
-// ui-table.model.ts
-export interface UiTable {
-  tableId: string;
-  tableName: string;
-  columns: UiColumn[];        // wird per JOIN oder extra Call geladen
-  rows: UiRow[];              // dto.
+// list of tables on the left side
+export interface TableOverview {
+    tableId: number;
+    name: string;
 }
 
-export interface UiColumn {
-  columnId: string;
-  tableId: string;
-  key: string;
-  header: string;
-  dataType: 'string' | 'number' | 'boolean' | 'date' | 'select';
-  index: number;
-  /** Frei für später: Dropdown-Werte, Validierung, Referenzen … */
-  options?: Record<string, any>;
+// column metadata
+export interface ColumnInfo {
+    columnId: number;
+    columnName: string;
+    dataType: CustomDataType;
+    colOrder: number;
 }
 
-export interface UiRow {
-  rowId: string;
-  tableId: string;
-  index: number;
-  /** Key–Value-Map, Keys = column.key */
-  data: Record<string, any>;
+// row metadata
+export interface RowInfo {
+    rowId: number;
+    createdAt: string;
+    cells: Record<number, string | number | boolean | null>;
 }
 
-export interface ColumnsResponse {
-    tableId: string,
-    tableName: string,
-    columns: UiColumn[]
+// full table structure
+export interface TableDetail {
+  tableId: number;
+  name: string;
+  createdAt: string;
+  columns: ColumnInfo[];
+  rows: RowInfo[];
 }
 
-export interface RowsResponse {
-    rows: UiRow[],
-    total: number
+// Create- and Update-Calls
+export interface CreateTableDto {
+  name: string;
+}
+
+export interface UpdateTableDto {
+  name: string;
+}
+
+export interface CreateColumnDto {
+  name: string;
+  dataType: CustomDataType;
+  colOrder: number;
+}
+
+export interface UpdateColumnDto {
+  name: string;
+  colOrder: number;
+  dataType?: CustomDataType;
+}
+
+export interface CreateRowDto {
+  cells: Record<number, string | number | boolean | null>;
+}
+
+export interface UpdateRowDto {
+  cells: Record<number, string | number | boolean | null>;
 }

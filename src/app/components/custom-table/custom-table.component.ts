@@ -4,11 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { TableInfo } from './models/TableMetadata';
+import { ColumnInfo, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
-import { MatTableModule } from '@angular/material/table';
-import { tap } from 'rxjs';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-custom-table',
@@ -26,11 +25,15 @@ export class CustomTableComponent {
     private readonly dialog = inject(MatDialog);
     private readonly tableService = inject(CustomTableService)
 
-    public tableList: TableInfo[] = [
-      { tableId: "1", tableName: "BG3 Build Table"},
-      { tableId: "2", tableName: "Elden Ring Build"}
-    ]
-    public readonly displayedColumns: string[] = [];
+    public tableList: TableOverview[] = [];
+
+    public tableId = 0;
+    public columns: ColumnInfo[] = [];
+    public displayedColumns: string[] = [];
+    public dataSource = new MatTableDataSource<RowInfo>();
+
+    public totalRows = 0;
+    public pageSize = 10;
 
     openSideNav() {
       const dialogRef = this.dialog.open(SidenavComponent, {
@@ -50,14 +53,42 @@ export class CustomTableComponent {
     }
 
     ngOnInit() {
-        this.tableService.getListOfTables().subscribe(list => {
-            this.tableList = list;
-        })
+        this.tableService.getListOfTables().subscribe({
+            next: list => {
+                this.tableList = list;
+            },
+            error: err => {
+                // add error snackbar later
+                console.error(err);
+            }
+        });
+        this.loadTable(1);
     }
 
-    loadTable(id: string) {
-        this.tableService.getColumns(id).subscribe(cols => {
-
+    loadTable(tableId: number) {
+        this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
+            console.log('Received table:', table);
+            this.columns = table.columns;
+            console.log('Columns:', this.columns);
+            this.displayedColumns = this.columns.map(c => c.columnId.toString());
+            console.log('Displayed Columns:', this.displayedColumns);
+            this.dataSource.data = table.rows;
+            console.log('Table Rows:', table.rows);
+            this.totalRows = table.rows.length;
+            console.log('Total Rows:', this.totalRows);
+            // this.dataSource.paginator = this.paginator;
+            console.log("Col:", this.columns[0])
         })
+
+        // this.tableService.getDevTable().subscribe((table: TableDetail) => {
+        //     console.log('Received table:', table);
+        //     this.columns = table.columns;
+        //     console.log('Columns:', this.columns);
+        //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
+        //     console.log('Displayed Columns:', this.displayedColumns);
+        //     this.dataSource.data = table.rows;
+        //     this.totalRows = table.rows.length;
+        //     // this.dataSource.paginator = this.paginator;
+        // })
     }
 }

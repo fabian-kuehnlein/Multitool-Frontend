@@ -13,6 +13,8 @@
 }
 
 .toolbar-container {
+    display: grid;
+    grid-template-columns: 0.5fr 5fr;
     margin-bottom: 5px;
     height: 70px;
 }
@@ -32,4 +34,13 @@
     font-size: 20px;
     text-align: center;
     font-weight: 500;
+}
+
+.table {
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.table-card {
+    padding: 10px;
 }
