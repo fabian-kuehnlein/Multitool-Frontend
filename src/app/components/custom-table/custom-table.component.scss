@@ -24,6 +24,8 @@
     grid-template-columns: 1fr 5fr;
     gap: 50px;
     margin-top: 20px;
+    min-height: 100vh;
+    align-items: start;
 }
 
 .list {
@@ -38,9 +40,16 @@
 
 .table {
     padding: 10px;
-    border-radius: 20px;
+    border-radius: 20px 20px 0 0;
 }
 
-.table-card {
-    padding: 10px;
+.paginator {
+    border-radius: 0 0 20px 20px;
+}
+
+.shadow {
+    box-shadow:
+        0px   2px  4px  -1px rgba(0, 0, 0, 0.20),
+        0px   4px  5px   0px rgba(0, 0, 0, 0.14),
+        0px   1px 10px   0px rgba(0, 0, 0, 0.12);
 }

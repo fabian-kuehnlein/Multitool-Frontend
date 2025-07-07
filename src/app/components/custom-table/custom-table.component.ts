@@ -4,10 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
+import { ColumnInfo, CreateColumnDto, CreateTableDto, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { CreationDialogComponent } from './creation-dialog/creation-dialog.component';
 
 @Component({
   selector: 'app-custom-table',
@@ -16,7 +18,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
     MatToolbarModule,
     MatCardModule,
     MatListModule,
-    MatTableModule
+    MatTableModule,
+    MatPaginatorModule
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
@@ -66,29 +69,55 @@ export class CustomTableComponent {
     }
 
     loadTable(tableId: number) {
-        this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
-            console.log('Received table:', table);
-            this.columns = table.columns;
-            console.log('Columns:', this.columns);
-            this.displayedColumns = this.columns.map(c => c.columnId.toString());
-            console.log('Displayed Columns:', this.displayedColumns);
-            this.dataSource.data = table.rows;
-            console.log('Table Rows:', table.rows);
-            this.totalRows = table.rows.length;
-            console.log('Total Rows:', this.totalRows);
-            // this.dataSource.paginator = this.paginator;
-            console.log("Col:", this.columns[0])
-        })
-
-        // this.tableService.getDevTable().subscribe((table: TableDetail) => {
+        // this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
         //     console.log('Received table:', table);
         //     this.columns = table.columns;
         //     console.log('Columns:', this.columns);
         //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
         //     console.log('Displayed Columns:', this.displayedColumns);
         //     this.dataSource.data = table.rows;
+        //     console.log('Table Rows:', table.rows);
         //     this.totalRows = table.rows.length;
+        //     console.log('Total Rows:', this.totalRows);
         //     // this.dataSource.paginator = this.paginator;
+        //     console.log("Col:", this.columns[0])
         // })
+
+        this.tableService.getDevTable().subscribe((table: TableDetail) => {
+            console.log('Received table:', table);
+            this.columns = table.columns;
+            console.log('Columns:', this.columns);
+            this.displayedColumns = this.columns.map(c => c.columnId.toString());
+            console.log('Displayed Columns:', this.displayedColumns);
+            this.dataSource.data = table.rows;
+            this.totalRows = table.rows.length;
+            // this.dataSource.paginator = this.paginator;
+        })
+    }
+
+    createTable() {
+        this.dialog.open(CreationDialogComponent, {
+            width: 'auto',
+            minWidth: '600px',
+            maxWidth: '1500px',
+            height: 'auto',
+        }).afterClosed().subscribe(data => {
+            if (data)
+            {
+                const dto: CreateTableDto = {
+                    name: data.name,
+                    column: {
+                        name: data.name,
+                        dataType: data.dataType,
+                        colOrder: data.colOrder
+                    }
+                }
+
+                this.tableService.createTable(dto).subscribe(id => {
+                        this.loadTable(id);
+                    }
+                );
+            }
+        });
     }
 }

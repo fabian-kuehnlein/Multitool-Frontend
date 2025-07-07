@@ -27,9 +27,9 @@
             </mat-list>
         </mat-card>
 
-        @if (this.dataSource) {
-            <mat-card class="table-card">
-                <table mat-table [dataSource]="dataSource" class="table">
+        @if (this.dataSource.data.length > 0) {
+            <div>
+                <table mat-table [dataSource]="dataSource" class="table shadow">
                     @for (col of columns; track $index) {
                         <ng-container [matColumnDef]="col.columnId.toString()">
                             <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
@@ -40,7 +40,16 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
                 </table>
-            </mat-card>
+                
+                @if (this.dataSource.data.length > 5) {
+                    <mat-paginator class="paginator shadow"
+                        [length]="100"
+                        [pageSize]="pageSize"
+                        [pageSizeOptions]="[5, 10, 25, 100]"
+                        aria-label="Select page">
+                    </mat-paginator>
+                }
+            </div>
         }
     </div>
 </div>

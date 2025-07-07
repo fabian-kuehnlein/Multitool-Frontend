@@ -39,6 +39,7 @@ export interface TableDetail {
 // Create- and Update-Calls
 export interface CreateTableDto {
   name: string;
+  column: CreateColumnDto;
 }
 
 export interface UpdateTableDto {

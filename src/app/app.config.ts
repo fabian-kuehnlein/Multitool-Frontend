@@ -7,6 +7,8 @@ import localeDe from '@angular/common/locales/de';
 import 'moment/locale/de';
 import { provideHttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { GermanPaginatorIntl } from './shared/GermanPaginatorIntl';
 
 registerLocaleData(localeDe, 'de');
 
@@ -28,6 +30,7 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'de' },
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: false }},
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { autoFocus: false }}
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { autoFocus: false }},
+    { provide: MatPaginatorIntl, useClass: GermanPaginatorIntl }
   ]
 };
