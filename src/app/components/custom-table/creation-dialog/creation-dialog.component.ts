@@ -1,11 +1,17 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CreateTableDto, CustomDataType } from '../models/TableMetadata';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { UI_MODULES } from '../../../shared/material-ui';
 
 @Component({
   selector: 'app-creation-dialog',
-  imports: [],
+  imports: [
+    UI_MODULES,
+    MatFormFieldModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './creation-dialog.component.html',
   styleUrl: './creation-dialog.component.scss'
 })
@@ -14,7 +20,28 @@ export class CreationDialogComponent {
     private dialogRef = inject(MatDialogRef<CreationDialogComponent>);
     public dialog = inject(MatDialog);
 
-    public dataTypes = Object.values(CustomDataType);
+    // for char-count on title and note inputs
+    protected readonly values = signal<Record<string, string>>({
+        tableName: '',
+        columnName: ''
+    });
+
+    // handles char-count for title and note inputs
+    protected onInput(key: string, event: Event) {
+        const input = (event.target as HTMLInputElement).value;
+        this.values.update(current => ({
+            ...current,
+            [key]: input
+        }));
+    }
+
+    public dataTypes = [
+        { value: CustomDataType.String, label: 'Text (Standard)' },
+        { value: CustomDataType.Int, label: 'Zahl' },
+        { value: CustomDataType.Decimal, label: 'Gleitkommazahl' },
+        { value: CustomDataType.Date, label: 'Datum' },
+        { value: CustomDataType.Bool, label: 'Ja/Nein' }
+    ];
 
     public form = this.fb.group({
         tableName:      ['', [Validators.required, Validators.maxLength(120)]],

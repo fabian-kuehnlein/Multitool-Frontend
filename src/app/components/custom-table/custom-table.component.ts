@@ -10,6 +10,7 @@ import { CustomTableService } from './custom-table.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CreationDialogComponent } from './creation-dialog/creation-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-custom-table',
@@ -19,7 +20,8 @@ import { CreationDialogComponent } from './creation-dialog/creation-dialog.compo
     MatCardModule,
     MatListModule,
     MatTableModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatTooltipModule
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
@@ -56,6 +58,10 @@ export class CustomTableComponent {
     }
 
     ngOnInit() {
+        this.loadTableList();
+    }
+
+    loadTableList() {
         this.tableService.getListOfTables().subscribe({
             next: list => {
                 this.tableList = list;
@@ -65,7 +71,6 @@ export class CustomTableComponent {
                 console.error(err);
             }
         });
-        this.loadTable(1);
     }
 
     loadTable(tableId: number) {
@@ -104,16 +109,8 @@ export class CustomTableComponent {
         }).afterClosed().subscribe(data => {
             if (data)
             {
-                const dto: CreateTableDto = {
-                    name: data.name,
-                    column: {
-                        name: data.name,
-                        dataType: data.dataType,
-                        colOrder: data.colOrder
-                    }
-                }
-
-                this.tableService.createTable(dto).subscribe(id => {
+                this.tableService.createTable(data).subscribe(id => {
+                        this.loadTableList();
                         this.loadTable(id);
                     }
                 );
