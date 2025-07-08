@@ -27,37 +27,40 @@
             </mat-list>
         </mat-card>
 
-        <div class="shadow">
-            <table mat-table [dataSource]="dataSource" class="table">
-                @for (col of columns; track $index) {
-                    <ng-container [matColumnDef]="col.columnId.toString()">
-                        <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
-                        <td mat-cell *matCellDef="let row"> {{row.cells[col.columnId]}} </td>
-                    </ng-container>
-                }
+        @if (this.tableId != 0) {
+
+            <div class="shadow">
+                <table mat-table [dataSource]="dataSource" class="table">
+                    @for (col of columns; track $index) {
+                        <ng-container [matColumnDef]="col.columnId.toString()">
+                            <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
+                            <td mat-cell *matCellDef="let row"> {{row.cells[col.columnId]}} </td>
+                        </ng-container>
+                    }
+                    
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                </table>
                 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-
-            <div class="table-footer">
-                <button mat-flat-button (click)="addColumn()">
-                    <mat-icon>view_column</mat-icon>
-                    Spalte hinzufügen
-                </button>
-
-                <button mat-raised-button (click)="addRow()">
-                    <mat-icon>add</mat-icon>
-                    Neue Zeile hinzufügen
-                </button>
-
-                <span class="flex-spacer"></span>
-
-                <button mat-flat-button class="delete-button">
-                    <mat-icon>delete</mat-icon>
-                    Tabelle löschen
-                </button>
+                <div class="table-footer">
+                    <button mat-flat-button (click)="addColumn()">
+                        <mat-icon>view_column</mat-icon>
+                        Spalte hinzufügen
+                    </button>
+                    
+                    <button mat-raised-button (click)="addRow()">
+                        <mat-icon>add</mat-icon>
+                        Neue Zeile hinzufügen
+                    </button>
+                    
+                    <span class="flex-spacer"></span>
+                    
+                    <button mat-flat-button class="delete-button">
+                        <mat-icon>delete</mat-icon>
+                        Tabelle löschen
+                    </button>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

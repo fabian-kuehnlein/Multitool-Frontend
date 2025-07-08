@@ -78,6 +78,7 @@ export class CustomTableComponent {
         // this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
         //     console.log('Received table:', table);
         //     this.tableId = table.tableId;
+        //     console.log('TableId:', this.tableId);
         //     this.columns = table.columns;
         //     console.log('Columns:', this.columns);
         //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
