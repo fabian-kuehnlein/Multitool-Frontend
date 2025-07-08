@@ -52,4 +52,20 @@
         0px   2px  4px  -1px rgba(0, 0, 0, 0.20),
         0px   4px  5px   0px rgba(0, 0, 0, 0.14),
         0px   1px 10px   0px rgba(0, 0, 0, 0.12);
+    border-radius: 20px;
 }
+
+/* table.component.scss */
+.table-footer {
+    display: flex;
+    align-items: center;
+    gap:  10px;
+    border-radius: 0 0 20px 20px;
+
+    min-height: 60px;
+    padding: 0 16px;
+    border-top: 1px solid rgba(0,0,0,.12);
+    background: var(--mdc-theme-surface, #FAF9FD);
+}
+
+.flex-spacer { flex: 1 1 auto; }

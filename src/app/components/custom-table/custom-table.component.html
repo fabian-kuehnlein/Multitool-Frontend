@@ -27,8 +27,8 @@
             </mat-list>
         </mat-card>
 
-        <div>
-            <table mat-table [dataSource]="dataSource" class="table shadow">
+        <div class="shadow">
+            <table mat-table [dataSource]="dataSource" class="table">
                 @for (col of columns; track $index) {
                     <ng-container [matColumnDef]="col.columnId.toString()">
                         <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
@@ -40,14 +40,23 @@
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
 
-            <div>
-            
-                <mat-paginator class="paginator shadow"
-                    [length]="100"
-                    [pageSize]="pageSize"
-                    [pageSizeOptions]="[5, 10, 25, 100]"
-                    aria-label="Select page">
-                </mat-paginator>
+            <div class="table-footer">
+                <button mat-flat-button (click)="addColumn()">
+                    <mat-icon>view_column</mat-icon>
+                    Spalte hinzufügen
+                </button>
+
+                <button mat-raised-button (click)="addRow()">
+                    <mat-icon>add</mat-icon>
+                    Neue Zeile hinzufügen
+                </button>
+
+                <span class="flex-spacer"></span>
+
+                <button mat-flat-button class="delete-button">
+                    <mat-icon>delete</mat-icon>
+                    Tabelle löschen
+                </button>
             </div>
         </div>
     </div>

@@ -59,6 +59,7 @@ export class CustomTableComponent {
 
     ngOnInit() {
         this.loadTableList();
+        this.loadTable(1);
     }
 
     loadTableList() {
@@ -76,6 +77,7 @@ export class CustomTableComponent {
     loadTable(tableId: number) {
         // this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
         //     console.log('Received table:', table);
+        //     this.tableId = table.tableId;
         //     this.columns = table.columns;
         //     console.log('Columns:', this.columns);
         //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
@@ -90,6 +92,7 @@ export class CustomTableComponent {
 
         this.tableService.getDevTable().subscribe((table: TableDetail) => {
             console.log('Received table:', table);
+            this.tableId = table.tableId;
             this.columns = table.columns;
             console.log('Columns:', this.columns);
             this.displayedColumns = this.columns.map(c => c.columnId.toString());
@@ -116,5 +119,15 @@ export class CustomTableComponent {
                 );
             }
         });
+    }
+
+    addColumn() {
+        this.tableService.createColumn(this.tableId).subscribe(() => {
+                this.loadTable(this.tableId);
+            }
+        );
+    }
+
+    addRow() {
     }
 }

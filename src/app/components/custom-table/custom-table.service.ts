@@ -39,7 +39,7 @@ export class CustomTableService {
 
     }
 
-    createColumns(id: number, dto: CreateColumnDto) {
-        return this.http.post<number>(`${this.apiURL}/CreateColumn`, dto, { params: {id} });
+    createColumn(id: number) {
+        return this.http.post<number>(`${this.apiURL}/CreateColumn`, { params: {id} });
     }
 }
