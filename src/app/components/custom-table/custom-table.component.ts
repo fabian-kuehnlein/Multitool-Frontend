@@ -4,13 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, CreateColumnDto, CreateTableDto, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
+import { ColumnInfo, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CreationDialogComponent } from './creation-dialog/creation-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-custom-table',
@@ -29,6 +30,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class CustomTableComponent {
     private readonly dialog = inject(MatDialog);
     private readonly tableService = inject(CustomTableService)
+
+    formControls: { [key: string]: FormControl } = {};
 
     public tableList: TableOverview[] = [];
 
@@ -60,6 +63,25 @@ export class CustomTableComponent {
     ngOnInit() {
         this.loadTableList();
         this.loadTable(1);
+    }
+
+    initializeFormControl() {
+        for (const row of this.dataSource.data) {
+            for (const col of this.columns) {
+                const key = `${row.rowId}_${col.columnId}`;
+                this.formControls[key] = new FormControl(row.cells[col.columnId] || '');
+            }
+        }
+    };
+
+    onCellBlur(rowId: number, columnId: number) {
+        const key = `${rowId}_${columnId}`;
+        const value = this.formControls[key].value;
+        this.setCellValue(rowId, columnId, value);
+    }
+
+    onEnter(rowId: number, columnId: number, event: KeyboardEvent) {
+        event.preventDefault();
     }
 
     loadTableList() {
@@ -101,7 +123,9 @@ export class CustomTableComponent {
             this.dataSource.data = table.rows;
             this.totalRows = table.rows.length;
             // this.dataSource.paginator = this.paginator;
+            this.initializeFormControl();
         })
+
     }
 
     createTable() {
@@ -130,5 +154,18 @@ export class CustomTableComponent {
     }
 
     addRow() {
+        this.tableService.createRow(this.tableId).subscribe(() => {
+                this.loadTable(this.tableId);
+            }
+        );
+    }
+
+    setCellValue(rowId: number, columnId: number, value: any) {
+        this.tableService.upsertCell(rowId, columnId, value).subscribe({
+            // error: err => {
+            //     //Add error snackbar later
+            //     console.error(err);
+            // }
+        });
     }
 }

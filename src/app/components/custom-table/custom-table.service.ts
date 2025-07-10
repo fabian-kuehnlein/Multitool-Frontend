@@ -42,4 +42,12 @@ export class CustomTableService {
     createColumn(tableId: number) {
         return this.http.post<number>(`${this.apiURL}/CreateColumn`, null,  { params: {tableId} });
     }
+
+    createRow(tableId: number) {
+        return this.http.post<number>(`${this.apiURL}/CreateRow`, null,  { params: {tableId} });
+    }
+
+    upsertCell(rowId: number, columnId: number, value: any) {
+        return this.http.put<void>(`${this.apiURL}/CreateColumn`, value,  { params: {rowId, columnId} });
+    }
 }
