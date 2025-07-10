@@ -1,8 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateColumnDto, CreateTableDto, TableDetail, TableOverview } from './models/TableMetadata';
+import { CreateTableDto, TableDetail, TableOverview } from './models/TableMetadata';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +48,14 @@ export class CustomTableService {
     }
 
     upsertCell(rowId: number, columnId: number, value: any) {
-        return this.http.put<void>(`${this.apiURL}/CreateColumn`, value,  { params: {rowId, columnId} });
+        const params = new HttpParams()
+            .set('rowId', rowId.toString())
+            .set('columnId', columnId.toString());
+        
+        const headers = new HttpHeaders({ 'Content-Type': 'application/json' })
+
+        const newvalue = JSON.stringify(value);
+
+        return this.http.put<void>(`${this.apiURL}/SetCell`, JSON.stringify(value), { params, headers });
     }
 }

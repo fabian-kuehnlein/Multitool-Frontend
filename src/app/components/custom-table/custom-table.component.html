@@ -34,10 +34,52 @@
                     @for (col of columns; track $index) {
                         <ng-container [matColumnDef]="col.columnId.toString()">
                             <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
-                            <!-- <td mat-cell *matCellDef="let row"> {{row.cells[col.columnId]}} </td> -->
                             <td mat-cell *matCellDef="let row">
-                                    <input class="input-cell" [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                    (blur)="onCellBlur(row.rowId, col.columnId)">
+                                @switch (col.dataType) {
+                                    @case (0) {
+                                        <input class="input-cell"
+                                            type="text"
+                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                    }
+
+                                    @case (1) {
+                                        <input class="input-cell"
+                                            type="number"
+                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                    }
+
+                                    @case (2) {
+                                        <input class="input-cell"
+                                            type="number"
+                                            step="0.01"
+                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                    }
+
+                                    @case (3) {
+                                        <input [matDatepicker]="picker"
+                                            type="number"
+                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                            (dateChange)="onCellBlur(row.rowId, col.columnId)">
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    }
+
+                                    @case (4) {
+                                        <mat-checkbox
+                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                            (change)="onCellBlur(row.rowId, col.columnId)">
+                                        </mat-checkbox>
+                                    }
+
+                                    @default {
+                                        <input class="input-cell"
+                                            type="text"
+                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                    }
+                                }
                             </td>
                         </ng-container>
                     }

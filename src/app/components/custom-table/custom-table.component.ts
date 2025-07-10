@@ -4,14 +4,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
+import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CreationDialogComponent } from './creation-dialog/creation-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormControl } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-custom-table',
@@ -22,7 +24,9 @@ import { FormControl } from '@angular/forms';
     MatListModule,
     MatTableModule,
     MatPaginatorModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatDatepickerModule
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
@@ -69,7 +73,16 @@ export class CustomTableComponent {
         for (const row of this.dataSource.data) {
             for (const col of this.columns) {
                 const key = `${row.rowId}_${col.columnId}`;
-                this.formControls[key] = new FormControl(row.cells[col.columnId] || '');
+                if (col.dataType === CustomDataType.Int) {
+                    // Intiger Validation
+                    this.formControls[key] = new FormControl(row.cells[col.columnId] || '', [Validators.pattern(/^\d+$/)])
+                } else if (col.dataType === CustomDataType.Decimal) {
+                    // Decimal Validation
+                    this.formControls[key] = new FormControl(row.cells[col.columnId] || '', [Validators.pattern(/^\d+(\.\d{1,2})?$/)])
+                } else {
+                    // Normal Textfield
+                    this.formControls[key] = new FormControl(row.cells[col.columnId] || '');
+                }
             }
         }
     };
@@ -77,6 +90,7 @@ export class CustomTableComponent {
     onCellBlur(rowId: number, columnId: number) {
         const key = `${rowId}_${columnId}`;
         const value = this.formControls[key].value;
+        console.log("value before API-Call:", value)
         this.setCellValue(rowId, columnId, value);
     }
 
@@ -110,7 +124,8 @@ export class CustomTableComponent {
         //     this.totalRows = table.rows.length;
         //     console.log('Total Rows:', this.totalRows);
         //     // this.dataSource.paginator = this.paginator;
-        //     console.log("Col:", this.columns[0])
+        //     console.log("Col:", this.columns[0]);
+        //     this.initializeFormControl();
         // })
 
         this.tableService.getDevTable().subscribe((table: TableDetail) => {
@@ -125,7 +140,6 @@ export class CustomTableComponent {
             // this.dataSource.paginator = this.paginator;
             this.initializeFormControl();
         })
-
     }
 
     createTable() {
