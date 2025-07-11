@@ -26,6 +26,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     ))
 }
 
+.no-outline-form-field {
+    @include mat.form-field-overrides((
+        outlined-outline-color: transparent,
+        outlined-focus-outline-color: transparent,
+        outlined-hover-outline-color: transparent
+    ))
+}
+
 .white-card {
     @include mat.card-overrides((
         elevated-container-color: white

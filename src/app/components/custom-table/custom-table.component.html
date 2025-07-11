@@ -36,37 +36,50 @@
                             <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
                             <td mat-cell *matCellDef="let row">
                                 @switch (col.dataType) {
-                                    @case (0) {
-                                        <input class="input-cell"
-                                            type="text"
-                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                    @case ('string') {
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
+                                            <input matInput
+                                                type="text"
+                                                [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                (blur)="onCellBlur(row.rowId, col.columnId)">
+                                        </mat-form-field>
                                     }
 
-                                    @case (1) {
-                                        <input class="input-cell"
-                                            type="number"
-                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                    @case ('int') {
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
+                                            <input matInput class="no-spinner"
+                                                type="number"
+                                                [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                (blur)="onCellBlur(row.rowId, col.columnId)">
+                                        </mat-form-field>
                                     }
 
-                                    @case (2) {
-                                        <input class="input-cell"
+                                    @case ('decimal') {
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
+                                            <input matInput class="no-spinner"
                                             type="number"
                                             step="0.01"
                                             [formControl]="formControls[row.rowId + '_' + col.columnId]"
                                             (blur)="onCellBlur(row.rowId, col.columnId)">
+                                        </mat-form-field>
                                     }
 
-                                    @case (3) {
-                                        <input [matDatepicker]="picker"
-                                            type="number"
+                                    @case ('date') {
+                                        <!-- <input matInput [matDatepicker]="picker"
                                             [formControl]="formControls[row.rowId + '_' + col.columnId]"
                                             (dateChange)="onCellBlur(row.rowId, col.columnId)">
-                                        <mat-datepicker #picker></mat-datepicker>
+                                        <mat-datepicker #picker></mat-datepicker> -->
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field date-cell">
+                                            <input matInput [matDatepicker]="picker" class="date-cell"
+                                                [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                (blur)="onCellBlur(row.rowId, col.columnId)">
+                                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                            <mat-datepicker #picker></mat-datepicker>
+                                        </mat-form-field>
+
                                     }
 
-                                    @case (4) {
+                                    @case ('bool') {
                                         <mat-checkbox
                                             [formControl]="formControls[row.rowId + '_' + col.columnId]"
                                             (change)="onCellBlur(row.rowId, col.columnId)">
@@ -74,10 +87,7 @@
                                     }
 
                                     @default {
-                                        <input class="input-cell"
-                                            type="text"
-                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                        <p>Datentyp nicht erkannt!</p>
                                     }
                                 }
                             </td>

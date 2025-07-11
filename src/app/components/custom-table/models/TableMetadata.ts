@@ -1,9 +1,9 @@
 export enum CustomDataType {
-    String  = 0,
-    Int     = 1,
-    Decimal = 2,
-    Date    = 3,
-    Bool    = 4
+    String  = 'string',
+    Int     = 'int',
+    Decimal = 'decimal',
+    Date    = 'date',
+    Bool    = 'bool'
 }
 
 // list of tables on the left side
