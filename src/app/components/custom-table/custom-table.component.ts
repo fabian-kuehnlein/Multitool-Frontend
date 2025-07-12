@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, QueryList, ViewChildren } from '@angular/core';
 import { UI_MODULES } from '../../shared/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
@@ -34,6 +34,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent {
+    @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLInputElement>>;
+
     private readonly dialog = inject(MatDialog);
     private readonly tableService = inject(CustomTableService)
 
@@ -92,12 +94,17 @@ export class CustomTableComponent {
     onCellBlur(rowId: number, columnId: number) {
         const key = `${rowId}_${columnId}`;
         const value = this.formControls[key].value;
-        console.log("value before API-Call:", value)
         this.setCellValue(rowId, columnId, value);
     }
 
-    onEnter(rowId: number, columnId: number, event: KeyboardEvent) {
-        event.preventDefault();
+    focusOwnCell(event: MouseEvent) {
+        const cell = event.currentTarget as HTMLElement;
+        const input = cell.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+            'input, textarea, select, [tabindex]:not([tabindex="-1"])'
+        );
+        if (input) {
+            input.focus();
+        }
     }
 
     loadTableList() {
@@ -113,35 +120,32 @@ export class CustomTableComponent {
     }
 
     loadTable(tableId: number) {
-        // this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
-        //     console.log('Received table:', table);
-        //     this.tableId = table.tableId;
-        //     console.log('TableId:', this.tableId);
-        //     this.columns = table.columns;
-        //     console.log('Columns:', this.columns);
-        //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
-        //     console.log('Displayed Columns:', this.displayedColumns);
-        //     this.dataSource.data = table.rows;
-        //     console.log('Table Rows:', table.rows);
-        //     this.totalRows = table.rows.length;
-        //     console.log('Total Rows:', this.totalRows);
-        //     // this.dataSource.paginator = this.paginator;
-        //     console.log("Col:", this.columns[0]);
-        //     this.initializeFormControl();
-        // })
-
-        this.tableService.getDevTable().subscribe((table: TableDetail) => {
+        this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
             console.log('Received table:', table);
             this.tableId = table.tableId;
+            console.log('TableId:', this.tableId);
             this.columns = table.columns;
             console.log('Columns:', this.columns);
             this.displayedColumns = this.columns.map(c => c.columnId.toString());
             console.log('Displayed Columns:', this.displayedColumns);
             this.dataSource.data = table.rows;
+            console.log('Table Rows:', table.rows);
             this.totalRows = table.rows.length;
+            console.log('Total Rows:', this.totalRows);
             // this.dataSource.paginator = this.paginator;
+            console.log("Col:", this.columns[0]);
             this.initializeFormControl();
         })
+
+        // this.tableService.getDevTable().subscribe((table: TableDetail) => {
+        //     this.tableId = table.tableId;
+        //     this.columns = table.columns;
+        //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
+        //     this.dataSource.data = table.rows;
+        //     this.totalRows = table.rows.length;
+        //     // this.dataSource.paginator = this.paginator;
+        //     this.initializeFormControl();
+        // })
     }
 
     createTable() {
@@ -150,6 +154,7 @@ export class CustomTableComponent {
             minWidth: '600px',
             maxWidth: '1500px',
             height: 'auto',
+            data: { dialogMode: 'CreateTable'}
         }).afterClosed().subscribe(data => {
             if (data)
             {
@@ -162,11 +167,53 @@ export class CustomTableComponent {
         });
     }
 
+    editTable() {
+        this.dialog.open(CreationDialogComponent, {
+            width: 'auto',
+            minWidth: '600px',
+            maxWidth: '1500px',
+            height: 'auto',
+            data: { dialogMode: 'EditTable', tableName: this.tableList.find(t => t.tableId === this.tableId)?.name }
+        }).afterClosed().subscribe(data => {
+            if (data)
+            {
+                this.tableService.updateTable(this.tableId, data).subscribe(() => {
+                    this.loadTableList()
+                });
+            }
+        });
+    }
+
     addColumn() {
         this.tableService.createColumn(this.tableId).subscribe(() => {
                 this.loadTable(this.tableId);
             }
         );
+    }
+    
+    editColumn(colId: number) {
+        const col = this.columns.find(c => c.columnId === colId);
+        if (!col) return;
+
+        const hasValues = this.dataSource.data.some(row => {
+            const value = row.cells[colId];
+            return value !== null && value !== undefined && value !== ''
+        })
+
+        this.dialog.open(CreationDialogComponent, {
+            width: 'auto',
+            minWidth: '600px',
+            maxWidth: '1500px',
+            height: 'auto',
+            data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
+        }).afterClosed().subscribe(data => {
+            if (data)
+            {
+                this.tableService.updateColumn(this.tableId, colId, data).subscribe(() => {
+                    this.loadTable(this.tableId);
+                })
+            }
+        });
     }
 
     addRow() {

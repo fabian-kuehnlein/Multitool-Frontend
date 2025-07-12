@@ -4,7 +4,7 @@
     <mat-form-field>
         <mat-label>Titel</mat-label>
         <input matInput maxlength="100" formControlName="eventTitle" (input)="onInput('eventTitle', $event)" required />
-        <mat-hint>{{ values()['eventTitle'].length }}/100</mat-hint>
+        <mat-hint>{{ values()['eventTitle'].length}}/100</mat-hint>
         @if (eventForm.errors?.['titleIsMissing']) {
             <mat-error>Titel ist erforderlich</mat-error>
         }
@@ -18,7 +18,7 @@
             maxlength="200"
             formControlName="eventNote"
             (input)="onInput('eventNote', $event)"></textarea>
-        <mat-hint>{{ values()['eventNote'].length }}/200</mat-hint>
+        <mat-hint>{{ values()['eventNote'].length}}/200</mat-hint>
     </mat-form-field>
 
     <div class="date-container">

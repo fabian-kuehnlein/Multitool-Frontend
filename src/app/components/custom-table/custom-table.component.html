@@ -16,7 +16,7 @@
                 <div mat-subheader>Tabellenübersicht</div>
                 @if (tableList.length > 0) {
                     @for (table of tableList; track $index) {
-                        <button mat-fab extended style="width: 100%;" (click)="loadTable(table.tableId)">
+                        <button mat-fab extended style="width: 100%;" (click)="loadTable(table.tableId)" [disabled]="table.tableId === this.tableId">
                             <mat-icon matListItemIcon>chevron_right</mat-icon>
                             <span matListItemTitle>{{table.name}}</span>
                         </button>
@@ -33,8 +33,10 @@
                 <table mat-table [dataSource]="dataSource" class="table">
                     @for (col of columns; track $index) {
                         <ng-container [matColumnDef]="col.columnId.toString()">
-                            <th mat-header-cell *matHeaderCellDef> {{col.columnName}} </th>
-                            <td mat-cell *matCellDef="let row">
+                            <th mat-header-cell *matHeaderCellDef (click)="editColumn(col.columnId)" class="column-hover">
+                                {{col.columnName}}
+                            </th>
+                            <td mat-cell *matCellDef="let row" class="cell-hover" (click)="focusOwnCell($event)">
                                 @switch (col.dataType) {
                                     @case ('string') {
                                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
@@ -110,6 +112,11 @@
                     </button>
                     
                     <span class="flex-spacer"></span>
+
+                    <button mat-flat-button (click)="editTable()">
+                        <mat-icon>edit</mat-icon>
+                        Tabellennamen ändern
+                    </button>
                     
                     <button mat-flat-button class="delete-button">
                         <mat-icon>delete</mat-icon>

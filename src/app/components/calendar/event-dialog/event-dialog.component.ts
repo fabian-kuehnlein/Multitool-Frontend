@@ -1,5 +1,5 @@
 // Angular
-import { Component, inject, signal } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { NgClass } from '@angular/common';
 
@@ -43,7 +43,6 @@ export class EventDialogComponent {
     public dialog = inject(MatDialog);
     private readonly destroy$ = new Subject<void>();
     private readonly calendarService = inject(CalendarService);
-    private readonly dialogData = inject(MAT_DIALOG_DATA);
     public readonly isEditMode = signal<boolean>(false);
     public readonly isChanged = signal<boolean>(false);
     public readonly startAt = signal<Date | null>(null);
@@ -95,6 +94,17 @@ export class EventDialogComponent {
     getFirstSelectedWeekdayLabel(): string {
         const firstSelected = this.eventForm.get('recurrenceByDay')?.value?.[0];
         return this.weekdayOptions.find(d => d.value === firstSelected)?.label || '';
+    }
+
+    constructor(@Inject(MAT_DIALOG_DATA) public dialogData: any) {
+        const title = dialogData?.event?.eventTitle ?? '';
+        const note = dialogData?.event?.eventNote ?? '';
+
+        this.values.set({
+            ...this.values(),
+            eventTitle: title,
+            eventNote: note
+        })
     }
     
     ngOnInit() {
@@ -247,7 +257,7 @@ export class EventDialogComponent {
 
     delete() {
         if (this.dialogData.event) {
-            const dialogRef = this.dialog.open(ConfirmDialogComponent, {});
+            const dialogRef = this.dialog.open(ConfirmDialogComponent);
             dialogRef.afterClosed().subscribe(result => {
                 if (!result) return;
                 

@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateTableDto, TableDetail, TableOverview } from './models/TableMetadata';
+import { CreateTableDto, TableDetail, TableOverview, UpdateColumnDto } from './models/TableMetadata';
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +31,8 @@ export class CustomTableService {
         return this.http.post<number>(`${this.apiURL}/CreateTable`, dto);
     }
 
-    updateTable() {
-
+    updateTable(tableId: number, newName: string) {
+        return this.http.put<number>(`${this.apiURL}/UpdateTable`, null, { params: {tableId, newName} });
     }
 
     deleteTable() {
@@ -41,6 +41,10 @@ export class CustomTableService {
 
     createColumn(tableId: number) {
         return this.http.post<number>(`${this.apiURL}/CreateColumn`, null,  { params: {tableId} });
+    }
+
+    updateColumn(tableId: number, columnId: number, dto: UpdateColumnDto) {
+        return this.http.put<number>(`${this.apiURL}/UpdateColumn`, dto,  { params: {tableId, columnId} });
     }
 
     createRow(tableId: number) {

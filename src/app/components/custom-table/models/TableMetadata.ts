@@ -42,10 +42,6 @@ export interface CreateTableDto {
   column: CreateColumnDto;
 }
 
-export interface UpdateTableDto {
-  name: string;
-}
-
 export interface CreateColumnDto {
   name: string;
   dataType: CustomDataType;

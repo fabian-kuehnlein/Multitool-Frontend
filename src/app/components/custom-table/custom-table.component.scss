@@ -55,6 +55,16 @@
     border-radius: 20px;
 }
 
+.column-hover:hover {
+    cursor: pointer;
+    background-color: lightgray;
+}
+
+.cell-hover:hover {
+    cursor: pointer;
+    background-color: lightgray;
+}
+
 /* table.component.scss */
 .table-footer {
     display: flex;
@@ -81,4 +91,9 @@ th {
 .no-spinner::-webkit-outer-spin-button,
 .no-spinner::-webkit-inner-spin-button {
   -webkit-appearance: none;
+}
+
+// removes padding from Inline-Edit Form-Fields, so it aligns with header of column
+::ng-deep td mat-form-field .mat-mdc-text-field-wrapper {
+  padding-left: 0 !important;
 }
