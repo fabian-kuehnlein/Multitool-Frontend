@@ -97,3 +97,12 @@ th {
 ::ng-deep td mat-form-field .mat-mdc-text-field-wrapper {
   padding-left: 0 !important;
 }
+
+mat-form-field {
+    width: 100%;
+}
+
+.row-marked-for-deletion {
+  background-color: #f8d7da;
+}
+

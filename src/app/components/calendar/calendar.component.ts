@@ -86,7 +86,7 @@ export class CalendarComponent {
     }
 
 	openSideNav() {
-		const dialogRef = this.dialog.open(SidenavComponent, {
+		this.dialog.open(SidenavComponent, {
 			position: {
 				top: '90px',
 				left: '30px'
@@ -97,9 +97,7 @@ export class CalendarComponent {
 			hasBackdrop: true,
 			backdropClass: 'transparent-backdrop',
 			data: 'calendar'
-		});
-
-		dialogRef.afterClosed();
+		}).afterClosed();
 	}
 
 	getCategoryDisplay(): string {
@@ -199,14 +197,12 @@ export class CalendarComponent {
 	};
 
 	openSearchResult() {
-		const dialogRef = this.dialog.open(SearchDialogComponent, { 
+		this.dialog.open(SearchDialogComponent, { 
 			width: 'fit-content',
 			maxWidth: '90vw',
 			minWidth: '500px',
 			data: this.searchControl.value
-		 });
-
-		dialogRef.afterClosed().subscribe(result => {
+		 }).afterClosed().subscribe(result => {
 			if (result && result.data) {
 				this.calendarApi.gotoDate(result.data);
 				this.calendarApi.select(result.data);
@@ -219,7 +215,7 @@ export class CalendarComponent {
 
 	createEvent() {
 		const anchorDate = this.calendarApi.getDate();
-		const dialogRef = this.dialog.open(EventDialogComponent, {
+		this.dialog.open(EventDialogComponent, {
 			width: 'auto',
 			minWidth: '600px',
 			maxWidth: '1500px',
@@ -228,9 +224,7 @@ export class CalendarComponent {
 				anchorDate: anchorDate,
 				event: null
 			}
-		});
-
-		dialogRef.afterClosed().subscribe(result => {
+		}).afterClosed().subscribe(result => {
 			if (result) {
 				this.calendarService.createEvent(result).subscribe({
 					next: () => {

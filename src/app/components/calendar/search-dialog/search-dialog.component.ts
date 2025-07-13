@@ -55,9 +55,7 @@ export class SearchDialogComponent {
 
     delete(deleteId: string) {
         if (deleteId) {
-            const dialogRef = this.dialog.open(ConfirmDialogComponent, {});
-
-            dialogRef.afterClosed().subscribe(result => {
+            this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
                 if (result) {
                     this.calendarService.deleteEvent(deleteId).subscribe({
                         next: () => {

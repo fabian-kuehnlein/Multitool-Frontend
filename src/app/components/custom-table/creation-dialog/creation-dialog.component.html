@@ -38,12 +38,18 @@
     }
 </form>
     
-    <div mat-dialog-actions>
-    <button mat-button (click)="cancel()">Abbrechen</button>
-    <button mat-flat-button
+<div mat-dialog-actions class="buttons">
+    @if (dialogMode === 'EditColumn') {
+        <button mat-flat-button class="delete-button" (click)="delete()">Spalte löschen</button>
+    }
+
+    <div class="right-buttons">
+        <button mat-button (click)="cancel()">Abbrechen</button>
+        <button mat-flat-button
         (click)="save()"
         [disabled]="this.form.invalid"
         >
-        {{dialogMode === 'CreateTable' ? 'Erstellen' : 'Änderung speichern'}}
-    </button>
+            {{dialogMode === 'CreateTable' ? 'Tabelle erstellen' : 'Änderung speichern'}}
+        </button>
+    </div>
 </div>

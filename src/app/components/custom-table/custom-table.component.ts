@@ -15,6 +15,8 @@ import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-custom-table',
@@ -28,7 +30,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatTooltipModule,
     MatCheckboxModule,
     MatDatepickerModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    NgClass
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
@@ -39,7 +42,8 @@ export class CustomTableComponent {
     private readonly dialog = inject(MatDialog);
     private readonly tableService = inject(CustomTableService)
 
-    formControls: { [key: string]: FormControl } = {};
+    public formControls: { [key: string]: FormControl } = {};
+    public removeControls: { [rowId: number]: FormControl} = {};
 
     public tableList: TableOverview[] = [];
 
@@ -51,11 +55,13 @@ export class CustomTableComponent {
     public totalRows = 0;
     public pageSize = 10;
 
+    public removeRowsColumn: boolean = false;
+
     openSideNav() {
-      const dialogRef = this.dialog.open(SidenavComponent, {
+        this.dialog.open(SidenavComponent, {
         position: {
-          top: '90px',
-          left: '30px'
+            top: '90px',
+            left: '30px'
         },
         height: 'auto',
         minHeight: '100px',
@@ -63,9 +69,7 @@ export class CustomTableComponent {
         hasBackdrop: true,
         backdropClass: 'transparent-backdrop',
         data: 'custom-table'
-      });
-  
-      dialogRef.afterClosed();
+        }).afterClosed();
     }
 
     ngOnInit() {
@@ -89,6 +93,12 @@ export class CustomTableComponent {
                 }
             }
         }
+
+        this.dataSource.data.forEach(row => {
+            if (!this.removeControls[row.rowId]) {
+                this.removeControls[row.rowId] = new FormControl(false);
+            }
+        })
     };
 
     onCellBlur(rowId: number, columnId: number) {
@@ -184,6 +194,18 @@ export class CustomTableComponent {
         });
     }
 
+    deleteTable() {
+        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+            if (!result) return;
+
+            this.tableService.deleteTable(this.tableId).subscribe(() => {
+                this.loadTableList();
+                // show no table after deleting current one
+                this.tableId = 0;
+            });
+        })
+    }
+
     addColumn() {
         this.tableService.createColumn(this.tableId).subscribe(() => {
                 this.loadTable(this.tableId);
@@ -207,7 +229,11 @@ export class CustomTableComponent {
             height: 'auto',
             data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
         }).afterClosed().subscribe(data => {
-            if (data)
+            if (data === true) {
+                this.tableService.deleteColumn(this.tableId, colId).subscribe(() => {
+                    this.loadTable(this.tableId);
+                });
+            } else if (data)
             {
                 this.tableService.updateColumn(this.tableId, colId, data).subscribe(() => {
                     this.loadTable(this.tableId);
@@ -221,6 +247,36 @@ export class CustomTableComponent {
                 this.loadTable(this.tableId);
             }
         );
+    }
+
+    deleteRows() {
+        const rows = Object.entries(this.removeControls).filter(([_, control]) => control.value).map(([rowId], _) => Number(rowId));
+
+        if (rows.length === 0) return;
+
+        this.tableService.deleteRows(this.tableId, rows).subscribe(() => {
+            this.loadTable(this.tableId);
+            this.toggleRemoveMode();
+        });
+    }
+
+    toggleRemoveMode() {
+        this.removeRowsColumn = !this.removeRowsColumn;
+        this.updateDisplayedColumns();
+
+        if (this.removeRowsColumn === false) {
+            Object.values(this.removeControls).forEach(control => control.setValue(false));
+        }
+    }
+
+    updateDisplayedColumns() {
+        const baseColumns = this.columns.map(col => col.columnId.toString());
+
+        this.displayedColumns = this.removeRowsColumn ? ['delete', ...baseColumns] : baseColumns;
+    }
+
+    hasCheckedRows() {
+        return Object.values(this.removeControls).some(control => control.value);
     }
 
     setCellValue(rowId: number, columnId: number, value: any) {

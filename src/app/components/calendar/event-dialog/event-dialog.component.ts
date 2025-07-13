@@ -257,8 +257,7 @@ export class EventDialogComponent {
 
     delete() {
         if (this.dialogData.event) {
-            const dialogRef = this.dialog.open(ConfirmDialogComponent);
-            dialogRef.afterClosed().subscribe(result => {
+            this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
                 if (!result) return;
                 
                 const eventId = this.dialogData.event.eventId;

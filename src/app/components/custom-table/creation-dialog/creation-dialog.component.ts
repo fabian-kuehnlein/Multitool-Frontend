@@ -139,6 +139,10 @@ export class CreationDialogComponent {
         }
     }
 
+    delete() {
+       this.dialogRef.close(true);
+    }
+
     cancel() {
         this.dialogRef.close(null);
     }
