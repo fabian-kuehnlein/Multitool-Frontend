@@ -5,7 +5,6 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { SearchResult } from '../models/SearchResult';
 import { CalendarService } from '../calendar.service';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -13,7 +12,6 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
     imports: [
         UI_MODULES,
         MatTableModule,
-        MatTooltipModule,
         DatePipe
     ],
     templateUrl: './search-dialog.component.html',

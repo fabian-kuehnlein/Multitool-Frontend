@@ -136,7 +136,7 @@
                 <mat-label>Ende der Wiederholung</mat-label>
                 <input matInput [matDatepicker]="recurrenceEndPicker" formControlName="recurrenceEndDate" />
                 <mat-datepicker-toggle matSuffix [for]="recurrenceEndPicker"></mat-datepicker-toggle>
-                <mat-datepicker #recurrenceEndPicker></mat-datepicker>
+                <mat-datepicker #recurrenceEndPicker [startAt]="startAt()"></mat-datepicker>
                 <mat-hint>DD.MM.YYYY</mat-hint>
                 @if (eventForm.get('recurrenceEndDate')?.hasError('matDatepickerParse')) {
                     <mat-error>Falsches Format</mat-error>

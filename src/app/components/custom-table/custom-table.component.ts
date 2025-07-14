@@ -1,42 +1,37 @@
-import { Component, ElementRef, inject, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, inject, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { UI_MODULES } from '../../shared/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview } from './models/TableMetadata';
+import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview, UpdateRowOrderDto } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CreationDialogComponent } from './creation-dialog/creation-dialog.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgClass } from '@angular/common';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-custom-table',
   imports: [
     UI_MODULES,
-    MatToolbarModule,
     MatCardModule,
     MatListModule,
     MatTableModule,
-    MatPaginatorModule,
-    MatTooltipModule,
     MatCheckboxModule,
     MatDatepickerModule,
-    MatFormFieldModule,
-    NgClass
+    NgClass,
+    DragDropModule
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent {
+    @ViewChild(MatTable) table!: MatTable<any>;
     @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
     private readonly dialog = inject(MatDialog);
@@ -131,31 +126,14 @@ export class CustomTableComponent {
 
     loadTable(tableId: number) {
         this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
-            console.log('Received table:', table);
             this.tableId = table.tableId;
-            console.log('TableId:', this.tableId);
             this.columns = table.columns;
-            console.log('Columns:', this.columns);
-            this.displayedColumns = this.columns.map(c => c.columnId.toString());
-            console.log('Displayed Columns:', this.displayedColumns);
-            this.dataSource.data = table.rows;
-            console.log('Table Rows:', table.rows);
+            this.displayedColumns = ['drag', ...this.columns.map(c => c.columnId.toString())];
+            this.dataSource.data = table.rows.sort((a, b) => a.rowOrder - b.rowOrder);
             this.totalRows = table.rows.length;
-            console.log('Total Rows:', this.totalRows);
-            // this.dataSource.paginator = this.paginator;
-            console.log("Col:", this.columns[0]);
+
             this.initializeFormControl();
         })
-
-        // this.tableService.getDevTable().subscribe((table: TableDetail) => {
-        //     this.tableId = table.tableId;
-        //     this.columns = table.columns;
-        //     this.displayedColumns = this.columns.map(c => c.columnId.toString());
-        //     this.dataSource.data = table.rows;
-        //     this.totalRows = table.rows.length;
-        //     // this.dataSource.paginator = this.paginator;
-        //     this.initializeFormControl();
-        // })
     }
 
     createTable() {
@@ -272,7 +250,7 @@ export class CustomTableComponent {
     updateDisplayedColumns() {
         const baseColumns = this.columns.map(col => col.columnId.toString());
 
-        this.displayedColumns = this.removeRowsColumn ? ['delete', ...baseColumns] : baseColumns;
+        this.displayedColumns = this.removeRowsColumn ? ['drag', 'delete', ...baseColumns] : ['drag', ...baseColumns];
     }
 
     hasCheckedRows() {
@@ -286,5 +264,18 @@ export class CustomTableComponent {
             //     console.error(err);
             // }
         });
+    }
+
+    dropRow(event: CdkDragDrop<string>) {
+        moveItemInArray(this.dataSource.data, event.previousIndex, event.currentIndex);
+        console.log("After Array Move:", this.dataSource.data)
+        this.table.renderRows();
+
+        const updateDtos: UpdateRowOrderDto[] = this.dataSource.data.map((row, index) => ({
+            rowId: row.rowId,
+            rowOrder: index
+        }));
+
+        this.tableService.updateRowOrder(updateDtos).subscribe();
     }
 }

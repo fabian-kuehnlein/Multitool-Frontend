@@ -25,6 +25,7 @@ export interface RowInfo {
     rowId: number;
     createdAt: string;
     cells: Record<number, string | number | boolean | null>;
+    rowOrder: number;
 }
 
 // full table structure
@@ -54,10 +55,7 @@ export interface UpdateColumnDto {
   dataType?: CustomDataType;
 }
 
-export interface CreateRowDto {
-  cells: Record<number, string | number | boolean | null>;
-}
-
-export interface UpdateRowDto {
-  cells: Record<number, string | number | boolean | null>;
+export interface UpdateRowOrderDto {
+  rowId: number
+  rowOrder: number;
 }

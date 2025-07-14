@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateTableDto, TableDetail, TableOverview, UpdateColumnDto } from './models/TableMetadata';
+import { CreateTableDto, TableDetail, TableOverview, UpdateColumnDto, UpdateRowOrderDto } from './models/TableMetadata';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +62,10 @@ export class CustomTableService {
     // create empty row for chosen table
     createRow(tableId: number) {
         return this.http.post<number>(`${this.apiURL}/CreateRow`, null,  { params: {tableId} });
+    }
+
+    updateRowOrder(rows: UpdateRowOrderDto[]) {
+        return this.http.put(`${this.apiURL}/UpdateRowOrder`, rows);
     }
 
     // deletes full row

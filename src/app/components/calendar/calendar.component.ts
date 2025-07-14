@@ -4,8 +4,6 @@ import { FormControl } from '@angular/forms';
 
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -29,9 +27,7 @@ import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 	selector: 'app-calendar',
 	imports: [
 	UI_MODULES,
-    FullCalendarModule,
-	MatToolbarModule,
-	MatTooltipModule
+    FullCalendarModule
 ],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss'

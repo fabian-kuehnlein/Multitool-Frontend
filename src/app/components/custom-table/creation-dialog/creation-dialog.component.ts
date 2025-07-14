@@ -1,8 +1,7 @@
 import { Component, Inject, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CreateTableDto, CustomDataType, UpdateColumnDto } from '../models/TableMetadata';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { UI_MODULES } from '../../../shared/material-ui';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
@@ -15,9 +14,7 @@ enum DialogMode {
 @Component({
   selector: 'app-creation-dialog',
   imports: [
-    UI_MODULES,
-    MatFormFieldModule,
-    ReactiveFormsModule
+    UI_MODULES
   ],
   templateUrl: './creation-dialog.component.html',
   styleUrl: './creation-dialog.component.scss'

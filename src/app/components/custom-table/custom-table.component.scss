@@ -38,21 +38,17 @@
     font-weight: 500;
 }
 
+.shadow {
+    box-shadow:
+        0px 2px 4px -1px rgba(0, 0, 0, 0.20),
+        0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+        0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+    border-radius: 20px;
+}
+
 .table {
     padding: 10px;
     border-radius: 20px 20px 0 0;
-}
-
-.paginator {
-    border-radius: 0 0 20px 20px;
-}
-
-.shadow {
-    box-shadow:
-        0px   2px  4px  -1px rgba(0, 0, 0, 0.20),
-        0px   4px  5px   0px rgba(0, 0, 0, 0.14),
-        0px   1px 10px   0px rgba(0, 0, 0, 0.12);
-    border-radius: 20px;
 }
 
 .column-hover:hover {
@@ -65,44 +61,79 @@
     background-color: lightgray;
 }
 
-/* table.component.scss */
-.table-footer {
-    display: flex;
-    align-items: center;
-    gap:  10px;
-    border-radius: 0 0 20px 20px;
-
-    min-height: 60px;
-    padding: 0 16px;
-    border-top: 1px solid rgba(0,0,0,.12);
-    background: var(--mdc-theme-surface, #FAF9FD);
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
 
-.flex-spacer { flex: 1 1 auto; }
-
-th {
-    font-size: 16px;
-}
-
+// reduces the distance between datepicker symbol and input field in date cell
 .date-cell {
     width: 160px;
 }
 
-.no-spinner::-webkit-outer-spin-button,
-.no-spinner::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+.row-marked-for-deletion {
+    background-color: #f8d7da;
 }
 
-// removes padding from Inline-Edit Form-Fields, so it aligns with header of column
-::ng-deep td mat-form-field .mat-mdc-text-field-wrapper {
-  padding-left: 0 !important;
+.table-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 0 0 20px 20px;
+    min-height: 60px;
+    padding: 0 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    background: var(--mdc-theme-surface, #FAF9FD);
+}
+
+.flex-spacer {
+    flex: 1 1 auto;
+}
+
+.delete-icon {
+    margin-left: 7.5px;
+}
+
+th {
+    font-size: 16px;
 }
 
 mat-form-field {
     width: 100%;
 }
 
-.row-marked-for-deletion {
-  background-color: #f8d7da;
+// removes padding from Inline-Edit Form-Fields, so it aligns with header of column
+::ng-deep td mat-form-field .mat-mdc-text-field-wrapper {
+    padding-left: 0 !important;
 }
 
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    background-color: #FAF9FD;
+}
+
+.cdk-drag-placeholder {
+    background-color: lightgray;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .mat-row:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Class that is added to cdkDropList while the user is dragging an item
+.cdk-drop-list-dragging {
+    cursor: move;
+}
+
+// Class that is added to the host element of the cdkDragHandle directive.
+.cdk-drag-handle {
+    cursor: move;
+}
