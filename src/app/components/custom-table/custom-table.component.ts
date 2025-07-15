@@ -250,7 +250,7 @@ export class CustomTableComponent {
     updateDisplayedColumns() {
         const baseColumns = this.columns.map(col => col.columnId.toString());
 
-        this.displayedColumns = this.removeRowsColumn ? ['drag', 'delete', ...baseColumns] : ['drag', ...baseColumns];
+        this.displayedColumns = this.removeRowsColumn ? ['delete', ...baseColumns] : ['drag', ...baseColumns];
     }
 
     hasCheckedRows() {
@@ -266,9 +266,11 @@ export class CustomTableComponent {
         });
     }
 
-    dropRow(event: CdkDragDrop<string>) {
+    dropRow(event: CdkDragDrop<string[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+
         moveItemInArray(this.dataSource.data, event.previousIndex, event.currentIndex);
-        console.log("After Array Move:", this.dataSource.data)
+
         this.table.renderRows();
 
         const updateDtos: UpdateRowOrderDto[] = this.dataSource.data.map((row, index) => ({
@@ -277,5 +279,17 @@ export class CustomTableComponent {
         }));
 
         this.tableService.updateRowOrder(updateDtos).subscribe();
+    }
+
+    dropColumn(event: CdkDragDrop<string[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+
+        console.log("col", this.displayedColumns)
+        moveItemInArray(this.displayedColumns, event.previousIndex, event.currentIndex);
+        console.log("col", this.displayedColumns)
+
+        this.displayedColumns = this.columns.map(c => c.columnId.toString());
+
+        this.table.renderRows()
     }
 }

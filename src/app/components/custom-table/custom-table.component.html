@@ -31,13 +31,15 @@
 
             <div class="shadow">
                 <table mat-table [dataSource]="dataSource" class="table" cdkDropList (cdkDropListDropped)="dropRow($event)">
-                    <ng-container [matColumnDef]="'drag'">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let row">
-                            <mat-icon cdkDragHandle>reorder</mat-icon>
-                        </td>
-                    </ng-container>
-
+                    @if (!this.removeRowsColumn) {
+                        <ng-container [matColumnDef]="'drag'">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let row">
+                                <mat-icon cdkDragHandle>reorder</mat-icon>
+                            </td>
+                        </ng-container>
+                    }
+                        
                     @if (this.removeRowsColumn) {
                         <ng-container [matColumnDef]="'delete'">
                             <th mat-header-cell *matHeaderCellDef>
@@ -113,6 +115,7 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row
                         cdkDrag
+                        [cdkDragDisabled]="removeRowsColumn"
                         *matRowDef="let row; columns: displayedColumns;"
                         [ngClass]="{ 'row-marked-for-deletion' : removeControls[row.rowId].value }">
                     </tr>

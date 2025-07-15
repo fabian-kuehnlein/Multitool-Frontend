@@ -5,7 +5,7 @@ import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import 'moment/locale/de';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { GermanPaginatorIntl } from './shared/GermanPaginatorIntl';
@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     provideMomentDateAdapter({
       parse: {
         dateInput: ['l', 'LL'],
