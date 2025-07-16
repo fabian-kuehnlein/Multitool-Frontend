@@ -3,7 +3,7 @@ import { UI_MODULES } from '../../shared/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview, UpdateRowOrderDto } from './models/TableMetadata';
+import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview, UpdateColumnOrderDto, UpdateRowOrderDto } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgClass } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ReorderColumnsDialogComponent } from './reorder-columns-dialog/reorder-columns-dialog.component';
 
 @Component({
   selector: 'app-custom-table',
@@ -278,18 +279,30 @@ export class CustomTableComponent {
             rowOrder: index
         }));
 
-        this.tableService.updateRowOrder(updateDtos).subscribe();
+        this.tableService.updateRowOrder(updateDtos)
     }
 
-    dropColumn(event: CdkDragDrop<string[]>) {
-        if (event.previousIndex === event.currentIndex) return;
+    reorderColumns() {
+        const cols = this.columns.map(col => ({
+            id: col.columnId,
+            name: col.columnName,
+            order: col.colOrder
+        }))
 
-        console.log("col", this.displayedColumns)
-        moveItemInArray(this.displayedColumns, event.previousIndex, event.currentIndex);
-        console.log("col", this.displayedColumns)
+        this.dialog.open(ReorderColumnsDialogComponent, {
+                width: 'auto',
+                minWidth: '1000px',
+                maxWidth: '2000px',
+                data: {columns: cols}
+            }).afterClosed().subscribe(result => {
+            if (!result) return;
 
-        this.displayedColumns = this.columns.map(c => c.columnId.toString());
+            const updateColumns: UpdateColumnOrderDto[] = result.map((col: any, index: number) => ({
+                columnId: col.columnId,
+                colOrder: index
+            }));
 
-        this.table.renderRows()
+            this.tableService.updateColumnOrder(updateColumns);
+        });
     }
 }

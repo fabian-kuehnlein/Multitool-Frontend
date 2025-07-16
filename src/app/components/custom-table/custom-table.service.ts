@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateTableDto, TableDetail, TableOverview, UpdateColumnDto, UpdateRowOrderDto } from './models/TableMetadata';
+import { CreateTableDto, TableDetail, TableOverview, UpdateColumnDto, UpdateColumnOrderDto, UpdateRowOrderDto } from './models/TableMetadata';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +52,10 @@ export class CustomTableService {
     // updates column name, column order and datatype, deletes all data when switching datatype
     updateColumn(tableId: number, columnId: number, dto: UpdateColumnDto) {
         return this.http.put<number>(`${this.apiURL}/UpdateColumn`, dto,  { params: {tableId, columnId} });
+    }
+
+    updateColumnOrder(dto: UpdateColumnOrderDto[]) {
+        return this.http.put<number>(`${this.apiURL}/UpdateColumnOrder`, dto);
     }
 
     // deletes full column

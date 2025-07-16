@@ -55,6 +55,11 @@ export interface UpdateColumnDto {
   dataType?: CustomDataType;
 }
 
+export interface UpdateColumnOrderDto {
+  columnId: number,
+  colOrder: number
+}
+
 export interface UpdateRowOrderDto {
   rowId: number
   rowOrder: number;

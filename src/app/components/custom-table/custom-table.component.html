@@ -128,7 +128,14 @@
                             Spalte hinzufügen
                         </button>
                         
-                        <button mat-raised-button (click)="addRow()">
+                        <button matButton="outlined" (click)="reorderColumns()">
+                            <mat-icon>swap_horiz</mat-icon>
+                            Spaltenreihenfolge ändern
+                        </button>
+
+                        <span class="flex-spacer"></span>
+
+                        <button mat-flat-button (click)="addRow()">
                             <mat-icon>add</mat-icon>
                             Neue Zeile hinzufügen
                         </button>

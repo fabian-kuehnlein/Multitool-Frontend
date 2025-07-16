@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Spaltenreihenfolge anpassen</h2>
+
+<mat-dialog-content>
+  <div cdkDropList cdkDropListOrientation="horizontal" [cdkDropListData]="columns" (cdkDropListDropped)="drop($event)" class="columns">
+    @for (col of columns; track $index) {
+        <div class="col" cdkDrag>{{col.name}}</div>
+    }
+  </div>
+
+    <!-- <mat-tab-group class="group"
+        selectedIndex="-1"
+        animationDuration="0"
+        disableRipple
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        (cdkDropListDropped)="drop($event)">
+        @for (col of columns; track $index) {
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <div cdkDrag>
+                        {{ col.name }}
+                    </div>
+                </ng-template>
+            </mat-tab>
+        }
+    </mat-tab-group> -->
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button (click)="save()">Speichern</button>
+</mat-dialog-actions>
