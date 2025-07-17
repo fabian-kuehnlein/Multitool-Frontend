@@ -1,0 +1,55 @@
+<h1 mat-dialog-title>
+    {{
+        dialogMode === 'CreateTable'
+            ? 'Neue Tabelle erstellen'
+        : dialogMode === 'EditTable'
+            ? 'Tabelle bearbeiten'
+        : 'Spalte bearbeiten'
+    }}
+</h1>
+
+<form mat-dialog-content [formGroup]="form">
+    @if (dialogMode === 'CreateTable' || dialogMode === 'EditTable') {
+        <mat-form-field style="width: 100%;">
+            <mat-label>Tabellenname</mat-label>
+            <input matInput maxlength="100" formControlName="tableName" (input)="onInput('tableName', $event)" required />
+            <mat-hint>{{ values()['tableName'].length }}/100</mat-hint>
+            <mat-error>Tabellenname ist erforderlich!</mat-error>
+        </mat-form-field>
+    }
+
+    @if (dialogMode === 'CreateTable' || dialogMode === 'EditColumn') {
+        <div class="second-row">
+            <mat-form-field>
+                <mat-label>{{dialogMode === 'CreateTable' ? 'Spaltenname der 1. Spalte' : 'Spaltenname'}}</mat-label>
+                <input matInput maxlength="100" formControlName="columnName" (input)="onInput('columnName', $event)" required />
+                <mat-hint>{{ values()['columnName'].length }}/100</mat-hint>
+                <mat-error>Spaltenname ist erforderlich!</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Datentyp</mat-label>
+                <mat-select formControlName="columnDataType">
+                    @for (type of dataTypes; track type) {
+                        <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    }
+</form>
+    
+<div mat-dialog-actions class="buttons">
+    @if (dialogMode === 'EditColumn') {
+        <button mat-flat-button class="delete-button" (click)="delete()">Spalte löschen</button>
+    }
+
+    <div class="right-buttons">
+        <button mat-button (click)="cancel()">Abbrechen</button>
+        <button mat-flat-button
+        (click)="save()"
+        [disabled]="this.form.invalid"
+        >
+            {{dialogMode === 'CreateTable' ? 'Tabelle erstellen' : 'Änderung speichern'}}
+        </button>
+    </div>
+</div>

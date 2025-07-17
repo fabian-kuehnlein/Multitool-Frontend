@@ -4,8 +4,6 @@ import { FormControl } from '@angular/forms';
 
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -17,21 +15,19 @@ import moment from 'moment';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // App Services & Components
-import { CalendarService } from '../../shared/calendar.service';
+import { CalendarService } from './calendar.service';
 import { EventDialogComponent } from './event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './search-dialog/search-dialog.component';
-import { CalendarEvent } from '../../shared/models/Calendarevent';
-import { Category } from '../../shared/models/Category';
+import { CalendarEvent } from './models/Calendarevent';
+import { Category } from './models/Category';
 import { UI_MODULES } from '../../shared/material-ui';
-import { SidenavComponent } from '../sidenav/sidenav.component';
+import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 
 @Component({
 	selector: 'app-calendar',
 	imports: [
 	UI_MODULES,
-    FullCalendarModule,
-	MatToolbarModule,
-	MatTooltipModule
+    FullCalendarModule
 ],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss'
@@ -86,7 +82,7 @@ export class CalendarComponent {
     }
 
 	openSideNav() {
-		const dialogRef = this.dialog.open(SidenavComponent, {
+		this.dialog.open(SidenavComponent, {
 			position: {
 				top: '90px',
 				left: '30px'
@@ -97,9 +93,7 @@ export class CalendarComponent {
 			hasBackdrop: true,
 			backdropClass: 'transparent-backdrop',
 			data: 'calendar'
-		});
-
-		dialogRef.afterClosed();
+		}).afterClosed();
 	}
 
 	getCategoryDisplay(): string {
@@ -199,14 +193,12 @@ export class CalendarComponent {
 	};
 
 	openSearchResult() {
-		const dialogRef = this.dialog.open(SearchDialogComponent, { 
+		this.dialog.open(SearchDialogComponent, { 
 			width: 'fit-content',
 			maxWidth: '90vw',
 			minWidth: '500px',
 			data: this.searchControl.value
-		 });
-
-		dialogRef.afterClosed().subscribe(result => {
+		 }).afterClosed().subscribe(result => {
 			if (result && result.data) {
 				this.calendarApi.gotoDate(result.data);
 				this.calendarApi.select(result.data);
@@ -218,15 +210,17 @@ export class CalendarComponent {
 	}
 
 	createEvent() {
-		const dialogRef = this.dialog.open(EventDialogComponent, {
+		const anchorDate = this.calendarApi.getDate();
+		this.dialog.open(EventDialogComponent, {
 			width: 'auto',
 			minWidth: '600px',
 			maxWidth: '1500px',
 			height: 'auto',
-			data: null
-		});
-
-		dialogRef.afterClosed().subscribe(result => {
+			data: { 
+				anchorDate: anchorDate,
+				event: null
+			}
+		}).afterClosed().subscribe(result => {
 			if (result) {
 				this.calendarService.createEvent(result).subscribe({
 					next: () => {
@@ -261,7 +255,10 @@ export class CalendarComponent {
 		};
 
 		this.dialog.open(EventDialogComponent, {
-			data: eventData,
+			data: {
+				anchorDate: null,
+				event: eventData
+			},
 			width: 'auto',
 			minWidth: '600px',
 			maxWidth: '1500px',
@@ -357,6 +354,7 @@ export class CalendarComponent {
 		}
 	};
 
+	// for display in calendar
 	formatCalendarDate(date: Date): string {
 		return [
 			date.getFullYear(),

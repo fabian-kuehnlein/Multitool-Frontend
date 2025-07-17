@@ -2,18 +2,16 @@ import { Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common'
 import { UI_MODULES } from '../../../shared/material-ui';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { SearchResult } from '../../../shared/models/SearchResult';
-import { CalendarService } from '../../../shared/calendar.service';
+import { SearchResult } from '../models/SearchResult';
+import { CalendarService } from '../calendar.service';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-search-dialog',
     imports: [
         UI_MODULES,
         MatTableModule,
-        MatTooltipModule,
         DatePipe
     ],
     templateUrl: './search-dialog.component.html',
@@ -55,9 +53,7 @@ export class SearchDialogComponent {
 
     delete(deleteId: string) {
         if (deleteId) {
-            const dialogRef = this.dialog.open(ConfirmDialogComponent, {});
-
-            dialogRef.afterClosed().subscribe(result => {
+            this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
                 if (result) {
                     this.calendarService.deleteEvent(deleteId).subscribe({
                         next: () => {
