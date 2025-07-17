@@ -3,7 +3,7 @@ import { UI_MODULES } from '../../shared/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview, UpdateColumnOrderDto, UpdateRowOrderDto } from './models/TableMetadata';
+import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview, UpdateRowOrderDto } from './models/TableMetadata';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from './custom-table.service';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -15,6 +15,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { NgClass } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ReorderColumnsDialogComponent } from './reorder-columns-dialog/reorder-columns-dialog.component';
+import { SnackbarService } from '../../shared/snackbar.service';
 
 @Component({
   selector: 'app-custom-table',
@@ -25,8 +26,8 @@ import { ReorderColumnsDialogComponent } from './reorder-columns-dialog/reorder-
     MatTableModule,
     MatCheckboxModule,
     MatDatepickerModule,
-    NgClass,
-    DragDropModule
+    DragDropModule,
+    NgClass
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
@@ -37,6 +38,7 @@ export class CustomTableComponent {
 
     private readonly dialog = inject(MatDialog);
     private readonly tableService = inject(CustomTableService)
+    private readonly snackbarService = inject(SnackbarService)
 
     public formControls: { [key: string]: FormControl } = {};
     public removeControls: { [rowId: number]: FormControl} = {};
@@ -70,7 +72,6 @@ export class CustomTableComponent {
 
     ngOnInit() {
         this.loadTableList();
-        this.loadTable(1);
     }
 
     initializeFormControl() {
@@ -119,8 +120,7 @@ export class CustomTableComponent {
                 this.tableList = list;
             },
             error: err => {
-                // add error snackbar later
-                console.error(err);
+                this.snackbarService.openSnackbar(err);
             }
         });
     }
@@ -147,11 +147,15 @@ export class CustomTableComponent {
         }).afterClosed().subscribe(data => {
             if (data)
             {
-                this.tableService.createTable(data).subscribe(id => {
+                this.tableService.createTable(data).subscribe({
+                    next: id => {
                         this.loadTableList();
                         this.loadTable(id);
+                    },
+                    error: err => {
+                        this.snackbarService.openSnackbar(err);
                     }
-                );
+                });
             }
         });
     }
@@ -166,8 +170,13 @@ export class CustomTableComponent {
         }).afterClosed().subscribe(data => {
             if (data)
             {
-                this.tableService.updateTable(this.tableId, data).subscribe(() => {
-                    this.loadTableList()
+                this.tableService.updateTable(this.tableId, data).subscribe({
+                    next: () => {
+                        this.loadTableList();
+                    },
+                    error: err => {
+                        this.snackbarService.openSnackbar(err);
+                    }
                 });
             }
         });
@@ -177,19 +186,27 @@ export class CustomTableComponent {
         this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
             if (!result) return;
 
-            this.tableService.deleteTable(this.tableId).subscribe(() => {
-                this.loadTableList();
-                // show no table after deleting current one
-                this.tableId = 0;
+            this.tableService.deleteTable(this.tableId).subscribe({
+                next: () => {
+                    this.loadTableList();
+                    this.tableId = 0;
+                },
+                error: err => {
+                    this.snackbarService.openSnackbar(err);
+                }
             });
         })
     }
 
     addColumn() {
-        this.tableService.createColumn(this.tableId).subscribe(() => {
-                this.loadTable(this.tableId);
-            }
-        );
+        this.tableService.createColumn(this.tableId).subscribe({
+                next: () => {
+                    this.loadTable(this.tableId);
+                },
+                error: err => {
+                    this.snackbarService.openSnackbar(err);
+                }
+            });
     }
     
     editColumn(colId: number) {
@@ -209,23 +226,53 @@ export class CustomTableComponent {
             data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
         }).afterClosed().subscribe(data => {
             if (data === true) {
-                this.tableService.deleteColumn(this.tableId, colId).subscribe(() => {
-                    this.loadTable(this.tableId);
+                this.tableService.deleteColumn(this.tableId, colId).subscribe({
+                    next: () => {
+                        this.loadTable(this.tableId);
+                    },
+                    error: err => {
+                        this.snackbarService.openSnackbar(err);
+                    }
                 });
             } else if (data)
             {
-                this.tableService.updateColumn(this.tableId, colId, data).subscribe(() => {
-                    this.loadTable(this.tableId);
-                })
+                this.tableService.updateColumn(this.tableId, colId, data).subscribe({
+                    next: () => {
+                        this.loadTable(this.tableId);
+                    },
+                    error: err => {
+                        this.snackbarService.openSnackbar(err);
+                    }
+                });
             }
         });
     }
 
     addRow() {
-        this.tableService.createRow(this.tableId).subscribe(() => {
+        this.tableService.createRow(this.tableId).subscribe({
+            next: () => {
                 this.loadTable(this.tableId);
+            },
+            error: err => {
+                this.snackbarService.openSnackbar(err);
             }
-        );
+        });
+    }
+
+    toggleRemoveMode() {
+        this.removeRowsColumn = !this.removeRowsColumn;
+
+        const baseColumns = this.columns.map(col => col.columnId.toString());
+        this.displayedColumns = this.removeRowsColumn ? ['delete', ...baseColumns] : ['drag', ...baseColumns];
+
+        if (this.removeRowsColumn === false) {
+            Object.values(this.removeControls).forEach(control => control.setValue(false));
+        }
+    }
+
+    // disables delete button if no row is selected to delete
+    hasCheckedRows() {
+        return Object.values(this.removeControls).some(control => control.value);
     }
 
     deleteRows() {
@@ -233,37 +280,22 @@ export class CustomTableComponent {
 
         if (rows.length === 0) return;
 
-        this.tableService.deleteRows(this.tableId, rows).subscribe(() => {
-            this.loadTable(this.tableId);
-            this.toggleRemoveMode();
+        this.tableService.deleteRows(this.tableId, rows).subscribe({
+            next: () => {
+                this.loadTable(this.tableId);
+                this.toggleRemoveMode();
+            },
+            error: err => {
+                this.snackbarService.openSnackbar(err);
+            }
         });
-    }
-
-    toggleRemoveMode() {
-        this.removeRowsColumn = !this.removeRowsColumn;
-        this.updateDisplayedColumns();
-
-        if (this.removeRowsColumn === false) {
-            Object.values(this.removeControls).forEach(control => control.setValue(false));
-        }
-    }
-
-    updateDisplayedColumns() {
-        const baseColumns = this.columns.map(col => col.columnId.toString());
-
-        this.displayedColumns = this.removeRowsColumn ? ['delete', ...baseColumns] : ['drag', ...baseColumns];
-    }
-
-    hasCheckedRows() {
-        return Object.values(this.removeControls).some(control => control.value);
     }
 
     setCellValue(rowId: number, columnId: number, value: any) {
         this.tableService.upsertCell(rowId, columnId, value).subscribe({
-            // error: err => {
-            //     //Add error snackbar later
-            //     console.error(err);
-            // }
+            error: err => {
+                this.snackbarService.openSnackbar(err);
+            }
         });
     }
 
@@ -279,7 +311,11 @@ export class CustomTableComponent {
             rowOrder: index
         }));
 
-        this.tableService.updateRowOrder(updateDtos)
+        this.tableService.updateRowOrder(updateDtos).subscribe({
+            error: err => {
+                this.snackbarService.openSnackbar(err);
+            }
+        })
     }
 
     reorderColumns() {
@@ -291,18 +327,20 @@ export class CustomTableComponent {
 
         this.dialog.open(ReorderColumnsDialogComponent, {
                 width: 'auto',
-                minWidth: '1000px',
-                maxWidth: '2000px',
+                minWidth: '500px',
+                maxWidth: '90vw',
                 data: {columns: cols}
             }).afterClosed().subscribe(result => {
             if (!result) return;
 
-            const updateColumns: UpdateColumnOrderDto[] = result.map((col: any, index: number) => ({
-                columnId: col.columnId,
-                colOrder: index
-            }));
-
-            this.tableService.updateColumnOrder(updateColumns);
+            this.tableService.updateColumnOrder(result).subscribe({
+                next: () => {
+                    this.loadTable(this.tableId);
+                },
+                error: err => {
+                    this.snackbarService.openSnackbar(err);
+                }
+            });
         });
     }
 }

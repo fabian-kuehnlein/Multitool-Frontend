@@ -30,7 +30,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     @include mat.form-field-overrides((
         outlined-outline-color: transparent,
         outlined-focus-outline-color: transparent,
-        outlined-hover-outline-color: transparent
+        outlined-hover-outline-color: transparent,
+        outlined-error-focus-outline-color: transparent
     ))
 }
 

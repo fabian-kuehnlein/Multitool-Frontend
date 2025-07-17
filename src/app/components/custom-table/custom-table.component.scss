@@ -103,10 +103,9 @@ mat-form-field {
 }
 
 // removes padding from Inline-Edit Form-Fields, so it aligns with header of column
-::ng-deep td mat-form-field .mat-mdc-text-field-wrapper {
-    padding-left: 0 !important;
+::ng-deep th {
+    padding-left: 32px !important;
 }
-
 
 .cdk-drag-preview {
     box-sizing: border-box;
@@ -114,6 +113,8 @@ mat-form-field {
         0 8px 10px 1px rgba(0, 0, 0, 0.14),
         0 3px 14px 2px rgba(0, 0, 0, 0.12);
     background-color: #FAF9FD;
+    border-radius: 4px;
+    justify-content: space-between;
 }
 
 .cdk-drag-placeholder {

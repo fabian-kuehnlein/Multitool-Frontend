@@ -1,25 +1,21 @@
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatTabsModule } from '@angular/material/tabs'
+import { UpdateColumnOrderDto } from '../models/TableMetadata';
 
 @Component({
   selector: 'app-reorder-columns-dialog',
   imports: [
     MatDialogModule,
     MatButtonModule,
-    DragDropModule,
-    MatCardModule,
-    MatTabsModule
+    DragDropModule
   ],
   templateUrl: './reorder-columns-dialog.component.html',
   styleUrl: './reorder-columns-dialog.component.scss'
 })
 export class ReorderColumnsDialogComponent {
     public columns: any[];
-
 
     constructor(
         private dialogRef: MatDialogRef<ReorderColumnsDialogComponent>,
@@ -28,9 +24,22 @@ export class ReorderColumnsDialogComponent {
         this.columns = [...data.columns];
     }
 
-    drop(event: CdkDragDrop<string[]>) {}
+    drop(event: CdkDragDrop<string[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+        
+        moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
+    }
 
-    save() {}
+    save() {
+        const dto: UpdateColumnOrderDto[] = this.columns.map((col, index) => ({
+            columnId: col.colId,
+            colOrder: index
+        }));
 
-    cancel() {}
+        this.dialogRef.close(dto);
+    }
+
+    cancel() {
+        this.dialogRef.close(null);
+    }
 }
