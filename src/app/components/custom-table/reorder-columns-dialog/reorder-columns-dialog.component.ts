@@ -32,7 +32,7 @@ export class ReorderColumnsDialogComponent {
 
     save() {
         const dto: UpdateColumnOrderDto[] = this.columns.map((col, index) => ({
-            columnId: col.colId,
+            columnId: col.id,
             colOrder: index
         }));
 

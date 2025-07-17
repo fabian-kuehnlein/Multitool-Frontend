@@ -8,10 +8,24 @@ import 'moment/locale/de';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
-import { GermanPaginatorIntl } from './shared/GermanPaginatorIntl';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 
 registerLocaleData(localeDe, 'de');
+
+export class GermanPaginatorIntl extends MatPaginatorIntl {
+    override itemsPerPageLabel = 'Elemente pro Seite:';
+    override nextPageLabel     = 'Nächste Seite';
+    override previousPageLabel = 'Vorige Seite';
+    override firstPageLabel    = 'Erste Seite';
+    override lastPageLabel     = 'Letzte Seite';
+
+    override getRangeLabel = (page: number, pageSize: number, length: number) => {
+        if (!length || pageSize === 0) return `0 von ${length}`;
+        const start = page * pageSize + 1;
+        const end   = Math.min(length, (page + 1) * pageSize);
+        return `${start} - ${end} von ${length}`;
+    };
+}
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -37,8 +51,10 @@ export const appConfig: ApplicationConfig = {
             useValue: {
                 duration: 5000,
                 horizontalPosition: 'center',
-                verticalPosition: 'top'
+                verticalPosition: 'top',
+                panelClass: ['error-snackbar', 'multiline-snackbar']
             }
         }
     ]
 };
+

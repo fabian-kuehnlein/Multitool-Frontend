@@ -52,3 +52,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .transparent-backdrop {
     background: rgba(0, 0, 0, 0.2);
 }
+
+.error-snackbar {
+    @include mat.snack-bar-overrides((
+        container-color: #b71c1c,
+
+    ));
+}
+
+.multiline-snackbar {
+    white-space: pre-line;
+}

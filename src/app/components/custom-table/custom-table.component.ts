@@ -15,7 +15,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { NgClass } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ReorderColumnsDialogComponent } from './reorder-columns-dialog/reorder-columns-dialog.component';
-import { SnackbarService } from '../../shared/snackbar.service';
+import { SnackbarService } from '../../shared/snackbars/snackbar.service';
 
 @Component({
   selector: 'app-custom-table',
@@ -248,6 +248,32 @@ export class CustomTableComponent {
         });
     }
 
+    reorderColumns() {
+        const cols = this.columns.map(col => ({
+            id: col.columnId,
+            name: col.columnName,
+            order: col.colOrder
+        }))
+
+        this.dialog.open(ReorderColumnsDialogComponent, {
+                width: 'auto',
+                minWidth: '500px',
+                maxWidth: '90vw',
+                data: {columns: cols}
+            }).afterClosed().subscribe(result => {
+            if (!result) return;
+
+            this.tableService.updateColumnOrder(result).subscribe({
+                next: () => {
+                    this.loadTable(this.tableId);
+                },
+                error: err => {
+                    this.snackbarService.openSnackbar(err);
+                }
+            });
+        });
+    }
+
     addRow() {
         this.tableService.createRow(this.tableId).subscribe({
             next: () => {
@@ -257,6 +283,25 @@ export class CustomTableComponent {
                 this.snackbarService.openSnackbar(err);
             }
         });
+    }
+
+    dropRow(event: CdkDragDrop<string[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+
+        moveItemInArray(this.dataSource.data, event.previousIndex, event.currentIndex);
+
+        this.table.renderRows();
+
+        const updateDtos: UpdateRowOrderDto[] = this.dataSource.data.map((row, index) => ({
+            rowId: row.rowId,
+            rowOrder: index
+        }));
+
+        this.tableService.updateRowOrder(updateDtos).subscribe({
+            error: err => {
+                this.snackbarService.openSnackbar(err);
+            }
+        })
     }
 
     toggleRemoveMode() {
@@ -296,51 +341,6 @@ export class CustomTableComponent {
             error: err => {
                 this.snackbarService.openSnackbar(err);
             }
-        });
-    }
-
-    dropRow(event: CdkDragDrop<string[]>) {
-        if (event.previousIndex === event.currentIndex) return;
-
-        moveItemInArray(this.dataSource.data, event.previousIndex, event.currentIndex);
-
-        this.table.renderRows();
-
-        const updateDtos: UpdateRowOrderDto[] = this.dataSource.data.map((row, index) => ({
-            rowId: row.rowId,
-            rowOrder: index
-        }));
-
-        this.tableService.updateRowOrder(updateDtos).subscribe({
-            error: err => {
-                this.snackbarService.openSnackbar(err);
-            }
-        })
-    }
-
-    reorderColumns() {
-        const cols = this.columns.map(col => ({
-            id: col.columnId,
-            name: col.columnName,
-            order: col.colOrder
-        }))
-
-        this.dialog.open(ReorderColumnsDialogComponent, {
-                width: 'auto',
-                minWidth: '500px',
-                maxWidth: '90vw',
-                data: {columns: cols}
-            }).afterClosed().subscribe(result => {
-            if (!result) return;
-
-            this.tableService.updateColumnOrder(result).subscribe({
-                next: () => {
-                    this.loadTable(this.tableId);
-                },
-                error: err => {
-                    this.snackbarService.openSnackbar(err);
-                }
-            });
         });
     }
 }
