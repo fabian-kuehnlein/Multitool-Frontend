@@ -347,10 +347,14 @@ export class CalendarComponent {
 		const end = new Date(view.currentEnd);
 		const today = new Date();
 
-		if (today >= start && today <= end) {
-			this.isToday.set(false);
-		} else {
+		today.setHours(0, 0, 0, 0);
+		start.setHours(0, 0, 0, 0);
+		end.setHours(0, 0, 0, 0);
+
+		if (today >= start && today < end) {
 			this.isToday.set(true);
+		} else {
+			this.isToday.set(false);
 		}
 	};
 
