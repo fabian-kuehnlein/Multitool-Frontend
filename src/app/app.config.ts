@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID, Injectable } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideMomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { routes } from './app.routes';
@@ -12,6 +12,7 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 
 registerLocaleData(localeDe, 'de');
 
+@Injectable()
 export class GermanPaginatorIntl extends MatPaginatorIntl {
     override itemsPerPageLabel = 'Elemente pro Seite:';
     override nextPageLabel     = 'Nächste Seite';

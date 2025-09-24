@@ -13,6 +13,7 @@ export const defaultCalendarOptions: CalendarOptions = {
         rrulePlugin
     ],
     locales: [deLocale],
+    locale: 'de',
     eventContent: (arg) => {
         const { event } = arg;
 

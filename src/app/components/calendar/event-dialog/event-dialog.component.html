@@ -144,16 +144,16 @@
             </mat-form-field>
         </div>
     }
-    </form>
+</form>
     
-    <div mat-dialog-actions>
+<div mat-dialog-actions>
     @if (isEditMode()) {
-        <button mat-flat-button class="delete-button" (click)="delete()">Löschen</button>
+        <button mat-flat-button class="delete-button delete-btn" (click)="delete()">Löschen</button>
     }
-    <button mat-button (click)="close()">Abbrechen</button>
     <button mat-flat-button
         (click)="isEditMode() ? update() : create()"
         [disabled]="eventForm.invalid || !isChanged()">
         {{ isEditMode() ? 'Aktualisieren' : 'Erstellen' }}
     </button>
+    <button mat-button (click)="close()">Abbrechen</button>
 </div>

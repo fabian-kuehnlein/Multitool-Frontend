@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { UI_MODULES } from '../../shared/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
@@ -32,7 +32,7 @@ import { SnackbarService } from '../../shared/snackbars/snackbar.service';
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
 })
-export class CustomTableComponent {
+export class CustomTableComponent implements OnInit {
     @ViewChild(MatTable) table!: MatTable<any>;
     @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
@@ -51,7 +51,6 @@ export class CustomTableComponent {
     public dataSource = new MatTableDataSource<RowInfo>();
 
     public totalRows = 0;
-    public pageSize = 10;
 
     public removeRowsColumn: boolean = false;
 
@@ -70,7 +69,7 @@ export class CustomTableComponent {
         }).afterClosed();
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.loadTableList();
     }
 
@@ -285,7 +284,7 @@ export class CustomTableComponent {
         });
     }
 
-    dropRow(event: CdkDragDrop<string[]>) {
+    dropRow(event: CdkDragDrop<RowInfo[]>) {
         if (event.previousIndex === event.currentIndex) return;
 
         moveItemInArray(this.dataSource.data, event.previousIndex, event.currentIndex);
