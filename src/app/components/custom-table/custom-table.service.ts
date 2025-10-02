@@ -85,8 +85,6 @@ export class CustomTableService {
         
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' })
 
-        const newvalue = JSON.stringify(value);
-
         return this.http.put<void>(`${this.apiURL}/SetCell`, JSON.stringify(value), { params, headers });
     }
 }

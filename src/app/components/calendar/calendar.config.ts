@@ -53,6 +53,7 @@ export const defaultCalendarOptions: CalendarOptions = {
     },
     headerToolbar: false,
     initialView: 'dayGridMonth',
+    firstDay: 1,
     weekends: true,
     editable: true,
     selectable: true,
