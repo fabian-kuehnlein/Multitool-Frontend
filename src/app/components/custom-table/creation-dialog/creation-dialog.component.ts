@@ -137,7 +137,11 @@ export class CreationDialogComponent {
     }
 
     delete() {
-       this.dialogRef.close(true);
+        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+            if (!result) return;
+
+            this.dialogRef.close(true);
+        });
     }
 
     cancel() {

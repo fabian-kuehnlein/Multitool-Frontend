@@ -7,11 +7,10 @@
         <p>Dadurch werden alle bisherigen Inhalte unwiderruflich gelöscht.</p>
         <p>Möchtest du wirklich fortfahren?</p>
     </mat-dialog-content>
-        
 }
 
 
 <mat-dialog-actions class="actions">
-    <button mat-flat-button [mat-dialog-close]="true" class="delete-button">{{ !this.data ? 'Löschen' : 'Änderung bestätigen'}}</button>
     <button mat-flat-button mat-dialog-close>Abbrechen</button>
+    <button mat-flat-button [mat-dialog-close]="true" class="delete-button">{{ !this.data ? 'Löschen' : 'Änderung bestätigen'}}</button>
 </mat-dialog-actions>
