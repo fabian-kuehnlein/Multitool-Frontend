@@ -43,7 +43,7 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         return {
             html: `
-                <div class="fc-event-material" style="background-color: ${categoryColor}; color: #fff;>
+                <div class="fc-event-material" style="background-color: ${categoryColor}; color: #fff;">
                     <div class="fc-event-title">${event.title}</div>
                     <div class="fc-event-time">${timeDisplay}</div>
                     ${note ? `<div class="fc-event-note">${note}</div>` : ''}
