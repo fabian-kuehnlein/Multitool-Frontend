@@ -130,6 +130,7 @@ export class CalendarComponent {
 									extendedProps: {
 										eventNote: event.eventNote,
 										categoryId: event.categoryId,
+										categoryColor: this.categoryList.find(c => c.categoryId === event.categoryId)?.color || '#1976d2',
 										recurrenceRule: event.recurrenceRule,
 										recurrenceEnd: event.recurrenceEnd
 									}

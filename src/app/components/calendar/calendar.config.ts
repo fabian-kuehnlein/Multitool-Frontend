@@ -25,7 +25,7 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         const isAllDay = event.allDay;
         const note = event.extendedProps['eventNote'] || '';
-        const categoryId = event.extendedProps['categoryId'];
+        const categoryColor = event.extendedProps['categoryColor'] || '#1976d2';
 
         const start = event.start ? new Date(event.start) : null;
         const end = event.end ? new Date(event.end) : null;
@@ -43,7 +43,7 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         return {
             html: `
-                <div class="fc-event-material category-${categoryId}">
+                <div class="fc-event-material" style="background-color: ${categoryColor}; color: #fff;>
                     <div class="fc-event-title">${event.title}</div>
                     <div class="fc-event-time">${timeDisplay}</div>
                     ${note ? `<div class="fc-event-note">${note}</div>` : ''}
