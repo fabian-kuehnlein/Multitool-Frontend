@@ -25,12 +25,14 @@ export class SidenavComponent {
     public readonly tools = [
         {
             title: 'Kalender',
-            icon: 'event',
+            description: 'Termine und Ereignisse verwalten',
+            icon: 'calendar_month',
             route: '/calendar',
         },
         {
             title: 'Custom Tables',
-            icon: 'list',
+            description: 'Eigene Datenstrukturen pflegen',
+            icon: 'table_chart',
             route: '/custom-table',
         }
     ];

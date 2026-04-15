@@ -1,46 +1,84 @@
-@if (dataSource.data.length > 0) {
-    <table mat-table [dataSource]="dataSource" class="table mat-elevation-z8">
-        
-        <ng-container matColumnDef="eventTitle">
-            <th mat-header-cell *matHeaderCellDef> Titel </th>
-            <td mat-cell *matCellDef="let element"> {{element.eventTitle}} </td>
-        </ng-container>
-        
-        <ng-container matColumnDef="eventNote">
-            <th mat-header-cell *matHeaderCellDef> Beschreibung </th>
-            <td mat-cell *matCellDef="let element"> {{element.eventNote}} </td>
-        </ng-container>
-        
-        <ng-container matColumnDef="startDateTime">
-            <th mat-header-cell *matHeaderCellDef> Startdatum </th>
-            <td mat-cell *matCellDef="let element">
-                @if ((element.startDateTime | date:'HH:mm:ss') === '00:00:00') {
-                    {{ element.startDateTime | date:'dd.MM.yyyy' }}
-                } @else {
-                    {{ element.startDateTime | date:'dd.MM.yyyy | HH:mm:ss' }}
-                }
-            </td>
-        </ng-container>
-        
-        <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef> </th>
-            <td mat-cell *matCellDef="let element">
-                <div class="action-buttons">
-                    <button mat-icon-button aria-label="Kalender anzeigen" matTooltip="Zu Event springen"
-                    (click)="goToDate(element.startDateTime)">
-                        <mat-icon>event</mat-icon>
-                    </button>
-                    <button mat-icon-button aria-label="Löschen" matTooltip="Löschen" class="delete-button"
-                    (click)="delete(element.eventId)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </div>
-            </td>
-        </ng-container>
+<h2 mat-dialog-title class="search-title">
+    <mat-icon>search</mat-icon>
+    <span>Events suchen</span>
+</h2>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-} @else {
-    <h2 style="text-align: center;">Keine Daten gefunden</h2>
-}
+<mat-dialog-content class="search-content">
+    <div class="search-header">
+        <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+            <mat-label>Suchen...</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Titel oder Beschreibung eingeben" cdkFocusInitial>
+            @if (searchControl.value) {
+                <button matSuffix mat-icon-button aria-label="Clear" (click)="searchControl.setValue('')">
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+        </mat-form-field>
+    </div>
+
+    @if (isLoading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p>Suche Einträge...</p>
+        </div>
+    } @else if (dataSource.data.length > 0) {
+        <div class="table-container">
+            <table mat-table [dataSource]="dataSource" class="table">
+                
+                <ng-container matColumnDef="eventTitle">
+                    <th mat-header-cell *matHeaderCellDef> Titel </th>
+                    <td mat-cell *matCellDef="let element"> {{element.eventTitle}} </td>
+                </ng-container>
+                
+                <ng-container matColumnDef="eventNote">
+                    <th mat-header-cell *matHeaderCellDef> Beschreibung </th>
+                    <td mat-cell *matCellDef="let element" class="note-cell"> {{element.eventNote}} </td>
+                </ng-container>
+                
+                <ng-container matColumnDef="startDateTime">
+                    <th mat-header-cell *matHeaderCellDef> Datum </th>
+                    <td mat-cell *matCellDef="let element">
+                        @if ((element.startDateTime | date:'HH:mm:ss') === '00:00:00') {
+                            {{ element.startDateTime | date:'dd.MM.yyyy' }}
+                        } @else {
+                            {{ element.startDateTime | date:'dd.MM.yyyy HH:mm' }}
+                        }
+                    </td>
+                </ng-container>
+                
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="action-buttons">
+                            <button mat-icon-button aria-label="Kalender anzeigen" matTooltip="Zu Event springen"
+                            (click)="goToDate(element.startDateTime)">
+                                <mat-icon>event</mat-icon>
+                            </button>
+                            <button mat-icon-button aria-label="Löschen" matTooltip="Löschen" class="delete-button"
+                            (click)="delete(element.eventId)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </div>
+    } @else if (searchControl.value) {
+        <div class="no-results">
+            <mat-icon>search_off</mat-icon>
+            <p>Keine Einträge für "{{ searchControl.value }}" gefunden</p>
+        </div>
+    } @else {
+        <div class="no-results">
+            <mat-icon>info</mat-icon>
+            <p>Gib einen Suchbegriff ein, um Events zu finden.</p>
+        </div>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Schließen</button>
+</mat-dialog-actions>

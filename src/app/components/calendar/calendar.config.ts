@@ -58,20 +58,24 @@ export const defaultCalendarOptions: CalendarOptions = {
     editable: true,
     selectable: true,
     selectMirror: true,
-    dayMaxEvents: true,
-    contentHeight: 900,
+    dayMaxEvents: false,
+    height: '100%',
     fixedWeekCount: false,
     eventTimeFormat: {
         hour: '2-digit',
         minute: '2-digit'
     },
-    dayCellDidMount: (arg) => {
+    dayCellClassNames: (arg) => {
         const today = new Date();
-        const cellDate = arg.date;
+        today.setHours(0, 0, 0, 0);
+        
+        const cellDate = new Date(arg.date);
+        cellDate.setHours(0, 0, 0, 0);
 
-        if (cellDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
-            arg.el.classList.add('past-date')
+        if (cellDate.getTime() < today.getTime()) {
+            return ['past-date'];
         }
+        return [];
     },
     eventDidMount: ({ event, el }) => {
         const today = new Date();

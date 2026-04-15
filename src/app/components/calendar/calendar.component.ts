@@ -1,9 +1,12 @@
 // Angular Core
-import { Component, ViewChild, inject, signal } from '@angular/core';
+import { Component, ViewChild, inject, signal, HostListener } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { MatChipsModule } from '@angular/material/chips';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -27,10 +30,22 @@ import { SidenavComponent } from '../../shared/sidenav/sidenav.component';
 	selector: 'app-calendar',
 	imports: [
 	UI_MODULES,
-    FullCalendarModule
+    FullCalendarModule,
+    MatChipsModule
 ],
 	templateUrl: './calendar.component.html',
-	styleUrl: './calendar.component.scss'
+	styleUrl: './calendar.component.scss',
+    animations: [
+        trigger('fadeSlideInOut', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }),
+                animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }))
+            ])
+        ])
+    ]
 })
 
 export class CalendarComponent {
@@ -44,9 +59,24 @@ export class CalendarComponent {
 
 	public readonly title = signal<string>("");
 	public readonly isToday = signal<boolean>(true);
+	public readonly currentView = signal<string>('dayGridMonth');
+    public readonly showFilters = signal<boolean>(false);
+
+	@HostListener('window:keydown', ['$event'])
+	handleKeyboardEvent(event: KeyboardEvent) {
+		// Alt + N for New Event
+		if (event.altKey && event.key.toLowerCase() === 'n') {
+			event.preventDefault();
+			this.createEvent();
+		}
+		// Alt + F or / for Search
+		if ((event.altKey && event.key.toLowerCase() === 'f') || (event.key === '/' && !(event.target instanceof HTMLInputElement))) {
+			event.preventDefault();
+			this.openSearchResult();
+		}
+	}
 
 	categoryControl = new FormControl<string[]>(['Alle']);
-	searchControl = new FormControl<string>('');
 	categoryList: Category[] = [];
 	private readonly selectedCategory = signal<string[]>([]);
 
@@ -142,7 +172,7 @@ export class CalendarComponent {
 										until: event.recurrenceEnd ?? undefined,
 										...this.parseRRuleString(event.recurrenceRule)
 									};
-									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null); // z.B. 2 Stunden (Länge des Events)
+									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null); // e.g., 2 hours (event length)
 								}
 
 								return input;
@@ -198,7 +228,6 @@ export class CalendarComponent {
 			width: 'fit-content',
 			maxWidth: '90vw',
 			minWidth: '500px',
-			data: this.searchControl.value
 		 }).afterClosed().subscribe(result => {
 			if (result && result.data) {
 				this.calendarApi.gotoDate(result.data);
@@ -334,12 +363,15 @@ export class CalendarComponent {
 			break;
 			case 'changeMonth':
 			this.calendarApi.changeView('dayGridMonth');
+			this.currentView.set('dayGridMonth');
 			break;
 			case 'changeWeek':
 			this.calendarApi.changeView('timeGridWeek');
+			this.currentView.set('timeGridWeek');
 			break;
 			case 'changeDay':
 			this.calendarApi.changeView('timeGridDay');
+			this.currentView.set('timeGridDay');
 			break;
 		}
 

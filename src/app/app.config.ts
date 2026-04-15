@@ -36,12 +36,16 @@ export const appConfig: ApplicationConfig = {
         provideMomentDateAdapter({
             parse: {
                 dateInput: ['l', 'LL'],
+                timeInput: 'HH:mm'
             },
             display: {
                 dateInput: 'L',
                 monthYearLabel: 'MMM YYYY',
                 dateA11yLabel: 'LL',
                 monthYearA11yLabel: 'MMMM YYYY',
+
+                timeInput: 'HH:mm',
+                timeOptionLabel: 'HH:mm'
             },
         }),
         { provide: LOCALE_ID, useValue: 'de' },

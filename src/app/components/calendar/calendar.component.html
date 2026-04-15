@@ -1,74 +1,85 @@
 <div class="calendar-container">
     <mat-toolbar class="toolbar-container">
+        <!-- Left Container: Navigation & Views -->
         <div class="left-container">
-            <button mat-fab extended matTooltip="Öffne eine Liste aller Tools" (click)="openSideNav()" style="height: 50px; margin-right: 80px;">
-                <mat-icon>home</mat-icon>
-                Tool wechseln
+            <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
+                <mat-icon>menu</mat-icon>
             </button>
 
-            <div class="view-buttons">
-                <button mat-flat-button matTooltip="Wechsel zur Monatsansicht" (click)="calendarAction('changeMonth')">Monat</button>
-                <button mat-flat-button matTooltip="Wechsel zur Wochenansicht" (click)="calendarAction('changeWeek')">Woche</button>
-                
-                <button mat-flat-button matTooltip="Springe zum heutigen Datum" style="margin-left: 30px;"
-                (click)="calendarAction('today')" [disabled]="isToday()">Heute</button>
+            <button mat-stroked-button (click)="calendarAction('today')" [disabled]="isToday()" class="today-button">
+                Heute
+            </button>
+
+            <mat-button-toggle-group [value]="currentView()" (change)="calendarAction($event.value === 'dayGridMonth' ? 'changeMonth' : 'changeWeek')">
+                <mat-button-toggle value="dayGridMonth" matTooltip="Monatsansicht (M)">Monat</mat-button-toggle>
+                <mat-button-toggle value="timeGridWeek" matTooltip="Wochenansicht (W)">Woche</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+
+        <!-- Middle Container: Date Selection -->
+        <div class="middle-container">
+            <div class="navigation-buttons">
+                <button mat-icon-button (click)="calendarAction('prevYear')" matTooltip="Letztes Jahr">
+                    <mat-icon>keyboard_double_arrow_left</mat-icon>
+                </button>
+                <button mat-icon-button (click)="calendarAction('prev')" matTooltip="Letzter Monat">
+                    <mat-icon>chevron_left</mat-icon>
+                </button>
+            </div>
+
+            <h1 class="date-title">{{ title() }}</h1>
+
+            <div class="navigation-buttons">
+                <button mat-icon-button (click)="calendarAction('next')" matTooltip="Nächster Monat">
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
+                <button mat-icon-button (click)="calendarAction('nextYear')" matTooltip="Nächstes Jahr">
+                    <mat-icon>keyboard_double_arrow_right</mat-icon>
+                </button>
             </div>
         </div>
 
-        <div class="middle-container">
-            <button mat-icon-button matTooltip="Letzes Jahr" (click)="calendarAction('prevYear')">
-                <mat-icon style="position: relative; left: -4px">chevron_left</mat-icon>
-                <mat-icon style="position: relative; left: -19px">chevron_left</mat-icon>
-            </button>
-
-            <button mat-icon-button matTooltip="Letzter Monat" (click)="calendarAction('prev')">
-                <mat-icon>chevron_left</mat-icon>
-            </button>
-
-            <h1 class="date-title">{{ this.title() }}</h1>
-
-            <button mat-icon-button matTooltip="Nächster Monat" (click)="calendarAction('next')">
-                <mat-icon>chevron_right</mat-icon>
-            </button>
-
-            <button mat-icon-button matTooltip="Nächstes Jahr" (click)="calendarAction('nextYear')">
-                <mat-icon style="position: relative; left: -4px">chevron_right</mat-icon>
-                <mat-icon style="position: relative; left: -19px">chevron_right</mat-icon>
-            </button>
-        </div>
-
+        <!-- Right Container: Actions -->
         <div class="right-container">
-            <button mat-flat-button (click)="createEvent()">Kalendereintrag erstellen</button>
+            <button mat-flat-button color="primary" (click)='createEvent()' class="create-button" matTooltip="Neuer Eintrag (Alt + N)">
+                <mat-icon>add</mat-icon>
+                <span>Eintrag erstellen</span>
+            </button>
             
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="event-search">
-                <mat-label>Nach Event suchen</mat-label>
-                <input matInput type="text" [formControl]="searchControl" (keydown.enter)="openSearchResult()">
-                <button matSuffix mat-icon-button type="button" aria-label="Clear"
-                    (click)="searchControl.reset()" [style.visibility]="searchControl.value ? 'visible' : 'hidden'">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </mat-form-field>
+            <button mat-icon-button (click)="openSearchResult()" matTooltip="Suche (Alt + F oder /)">
+                <mat-icon>search</mat-icon>
+            </button>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Kategorie</mat-label>
-                <mat-select [formControl]="categoryControl" multiple>
-                    <mat-select-trigger>
-                    {{ getCategoryDisplay() }}
-                    @if ((categoryControl.value?.length || 0) > 1 && getCategoryDisplay() != 'Alle') {
-                        <span>
-                            (+{{ (categoryControl.value?.length || 0) - 1 }} weitere)
-                        </span>
-                    }
-                    </mat-select-trigger>
-                    @for (category of categoryList; track $index) {
-                        <mat-option [value]="category.categoryId">{{ category.categoryName }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+            <button mat-icon-button (click)="showFilters.set(!showFilters())" [color]="showFilters() ? 'primary' : ''" matTooltip="Filter">
+                <mat-icon>filter_list</mat-icon>
+            </button>
         </div>
     </mat-toolbar>
+
+    @if (showFilters()) {
+        <div class="filter-bar" @fadeSlideInOut>
+            <div class="filter-chips">
+                <span class="filter-label">Kategorien:</span>
+                @if (categoryList.length > 0) {
+                    <mat-chip-listbox [formControl]="categoryControl" multiple>
+                        @for (category of categoryList; track category.categoryId) {
+                            <mat-chip-option [value]="category.categoryId" [selectable]="true">
+                                <span class="color-dot" [style.background-color]="category.color"></span>
+                                {{ category.categoryName }}
+                            </mat-chip-option>
+                        }
+                    </mat-chip-listbox>
+                } @else {
+                    <span class="no-categories">Keine Kategorien vorhanden</span>
+                }
+            </div>
+            <button mat-icon-button (click)="showFilters.set(false)" class="close-filter">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+    }
     
-    <full-calendar #calendarRef
-        [options]="calendarOptions">
-    </full-calendar>
+    <div class="calendar-wrapper">
+        <full-calendar #calendarRef [options]="calendarOptions"></full-calendar>
+    </div>
 </div>

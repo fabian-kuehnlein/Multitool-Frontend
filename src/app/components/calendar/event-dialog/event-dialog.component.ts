@@ -8,7 +8,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
@@ -33,7 +32,7 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
     MatDividerModule,
     NgClass
   ],
-  providers: [provideMomentDateAdapter()],
+  providers: [],
   templateUrl: './event-dialog.component.html',
   styleUrl: './event-dialog.component.scss'
 })
