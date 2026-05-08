@@ -76,8 +76,8 @@ export class CalendarComponent {
 		}
 	}
 
-	categoryControl = new FormControl<string[]>(['Alle']);
-	categoryList: Category[] = [];
+	public categoryControl = new FormControl<string[]>(['Alle']);
+	public categoryList: Category[] = [];
 	private readonly selectedCategory = signal<string[]>([]);
 
 	ngOnInit(){

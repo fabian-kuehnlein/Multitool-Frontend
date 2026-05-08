@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CalendarEvent } from './models/Calendarevent';
 import { Category } from './models/Category';
@@ -14,7 +14,7 @@ import { SearchResult } from './models/SearchResult';
 export class CalendarService {
 
     private readonly http = inject(HttpClient);
-    private readonly apiURL = 'api/CalendarEvent';
+    private readonly apiURL = `${environment.MultitoolApi}/api/Calendar`;
 
     getEventsByRange(startDate: string, endDate: string, categories: string[] | null): Observable<CalendarEvent[]> {
         let params = new HttpParams()
@@ -25,33 +25,45 @@ export class CalendarService {
             params = params.set('categories', categories.join(','));
         }
 
-        return this.http.get<CalendarEvent[]>(`${environment.MultitoolApi}/${this.apiURL}/GetEventsByRange`, { params });
+        return this.http.get<CalendarEvent[]>(`${this.apiURL}/events`, { params });
     }
 
     searchEvents(searchString: string): Observable<SearchResult[]> {
         let params = new HttpParams().set('searchString', searchString)
-        return this.http.get<SearchResult[]>(`${environment.MultitoolApi}/${this.apiURL}/SearchEvents`, { params });
+        return this.http.get<SearchResult[]>(`${this.apiURL}/events/search`, { params });
     }
 
-    createEvent(event: CreateCalendarEvent): Observable<CalendarEvent> {
-        return this.http.post<CalendarEvent>(`${environment.MultitoolApi}/${this.apiURL}/InsertEvent`, event);
+    createEvent(event: CreateCalendarEvent): Observable<number> {
+        return this.http.post<number>(`${this.apiURL}/events`, event);
     }
 
-    updateEvent(event: CalendarEvent): Observable<CalendarEvent> {
-        return this.http.put<CalendarEvent>(`${environment.MultitoolApi}/${this.apiURL}/UpdateEvent`, event);
+    updateEvent(event: CalendarEvent): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/events`, event);
     }
 
     deleteEvent(eventId: string): Observable<void> {
-        const params = new HttpParams().set('eventId', eventId);
-        return this.http.delete<void>(`${environment.MultitoolApi}/${this.apiURL}/DeleteEvent`, { params });
+        return this.http.delete<void>(`${this.apiURL}/events/${eventId}`);
     }
 
     getCategories(): Observable<Category[]> {
-        return this.http.get<Category[]>(`${environment.MultitoolApi}/${this.apiURL}/GetCategories`);
+        return this.http.get<ApiCategory[]>(`${this.apiURL}/categories`).pipe(
+            map(categories =>
+                categories.map(category => ({
+                    categoryId: category.id?.toString() ?? '',
+                    categoryName: category.name ?? '',
+                    color: category.color ?? ''
+                }))
+            )
+        );
     }
 
     getHolidays(year: string): Observable<Holiday[]> {
-        const params = new HttpParams().set('year', year);
-        return this.http.get<Holiday[]>(`${environment.MultitoolApi}/${this.apiURL}/GetHolidays`, { params });
+        return this.http.get<Holiday[]>(`${this.apiURL}/holidays/${year}`);
     }
 }
+
+type ApiCategory = {
+    id?: string | number;
+    name?: string;
+    color?: string;
+};
