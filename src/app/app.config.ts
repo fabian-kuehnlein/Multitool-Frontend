@@ -8,7 +8,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
-import { authInterceptor } from './shared/authentication/auth.interceptor';
+import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
 
 registerLocaleData(localeDe, 'de');
 
