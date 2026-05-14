@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { DatePipe } from '@angular/common'
-import { UI_MODULES } from '../../../../../../shared/utilities/material-ui';
+import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SearchResult } from '../../../../models/search-result.model';
-import { CalendarService } from '../../../../services/calendar.service';
+import { SearchResult } from '../../../models/search-result.model';
+import { CalendarService } from '../../../services/calendar.service';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 

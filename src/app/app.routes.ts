@@ -14,7 +14,7 @@ export const routes: Routes = [
   { 
     path: 'calendar',
     canActivate: [authGuard],
-    loadComponent: () => import('./modules/calendar/pages/calendar/calendar.component').then(m => m.CalendarComponent)
+    loadComponent: () => import('./modules/calendar/pages/calendar.component').then(m => m.CalendarComponent)
   },
   {
     path: 'custom-table',

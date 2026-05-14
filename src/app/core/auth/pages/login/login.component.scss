@@ -33,6 +33,17 @@ mat-form-field {
   margin-top: 20px;
 }
 
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
 button {
   width: 100%;
 }

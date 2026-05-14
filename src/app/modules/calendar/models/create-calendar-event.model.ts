@@ -1,6 +1,6 @@
 export interface CreateCalendarEvent {
-  eventTitle: string;
-  eventNote: string;
+  title: string;
+  note: string;
   startDateTime: string | null;
   endDateTime?: string | null;
   isAllDay: boolean;

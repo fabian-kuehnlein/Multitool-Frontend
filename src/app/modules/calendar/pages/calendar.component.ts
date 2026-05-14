@@ -11,20 +11,20 @@ import { MatChipsModule } from '@angular/material/chips';
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
-import { defaultCalendarOptions } from '../../calendar.config';
+import { defaultCalendarOptions } from '../calendar.config';
 
 // Third Party
 import moment from 'moment';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // App Services & Components
-import { CalendarService } from '../../services/calendar.service';
+import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
-import { CalendarEvent } from '../../models/calendar-event.model';
-import { Category } from '../../models/category.model';
-import { UI_MODULES } from '../../../../shared/utilities/material-ui';
-import { SidenavComponent } from '../../../../core/layout/sidenav/sidenav.component';
+import { CalendarEvent } from '../models/calendar-event.model';
+import { Category } from '../models/category.model';
+import { UI_MODULES } from '../../../shared/utilities/material-ui';
+import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 
 @Component({
 	selector: 'app-calendar',
@@ -85,7 +85,7 @@ export class CalendarComponent {
 			if (categories) {
 				this.categoryList = categories;
 
-				this.categoryControl.setValue(categories.map(c => c.categoryId));
+				this.categoryControl.setValue(categories.map(c => c.id));
 			}
 		});
 
@@ -135,7 +135,7 @@ export class CalendarComponent {
 			return 'Alle';
 		}
 
-		return this.categoryList.find(c => c.categoryId === selectedIds[0])?.categoryName ?? '';
+		return this.categoryList.find(c => c.id === selectedIds[0])?.name ?? '';
 	}
 
 	public readonly calendarOptions: CalendarOptions = {
@@ -150,29 +150,31 @@ export class CalendarComponent {
 				events: (fetchInfo, successCallback, failureCallback) => {
 					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategory()).subscribe({
 						next: (events) => {
-							const eventInput: EventInput[] = events.map((event) => {
+							const eventInput: EventInput[] = events.map((event: any) => {
 								const input: EventInput = {
-									id: event.eventId,
-									title: event.eventTitle,
-									start: new Date(event.startDateTime ?? ''),
-									end: new Date(event.endDateTime ?? ''),
+									id: event.id,
+									title: event.title,
+									start: new Date(event.startDateTime || ''),
+									end: new Date(event.endDateTime || ''),
 									allDay: event.isAllDay,
 									extendedProps: {
-										eventNote: event.eventNote,
+										eventNote: event.note || '',
 										categoryId: event.categoryId,
-										categoryColor: this.categoryList.find(c => c.categoryId === event.categoryId)?.color || '#1976d2',
+										categoryColor: this.categoryList.find(c => c.id === event.categoryId)?.color || '#1976d2',
 										recurrenceRule: event.recurrenceRule,
 										recurrenceEnd: event.recurrenceEnd
 									}
 								};
 
+                                console.log(input);
+
 								if (event.recurrenceRule) {
 									input.rrule = {
-										dtstart: event.startDateTime,
+										dtstart: event.startDateTime || event.start,
 										until: event.recurrenceEnd ?? undefined,
 										...this.parseRRuleString(event.recurrenceRule)
 									};
-									input.duration = this.getDuration(event.startDateTime ?? null, event.endDateTime ?? null); // e.g., 2 hours (event length)
+									input.duration = this.getDuration(event.startDateTime || event.start || null, event.endDateTime || event.end || null);
 								}
 
 								return input;
@@ -248,7 +250,8 @@ export class CalendarComponent {
 			height: 'auto',
 			data: { 
 				anchorDate: anchorDate,
-				event: null
+				event: null,
+				categories: this.categoryList
 			}
 		}).afterClosed().subscribe(result => {
 			if (result) {
@@ -287,7 +290,8 @@ export class CalendarComponent {
 		this.dialog.open(EventDialogComponent, {
 			data: {
 				anchorDate: null,
-				event: eventData
+				event: eventData,
+				categories: this.categoryList
 			},
 			width: 'auto',
 			minWidth: '600px',
@@ -325,9 +329,9 @@ export class CalendarComponent {
 		const endDateTime = event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : startDateTime;
 
 		const updatedEvent: CalendarEvent = {
-			eventId: event.id,
-			eventTitle: event.title,
-			eventNote: event.extendedProps['eventNote'] || '',
+			id: event.id,
+			title: event.title,
+			note: event.extendedProps['eventNote'] || '',
 			startDateTime: startDateTime,
 			endDateTime: endDateTime,
 			isAllDay: event.allDay,

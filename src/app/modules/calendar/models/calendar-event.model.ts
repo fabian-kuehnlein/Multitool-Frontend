@@ -1,7 +1,7 @@
 export interface CalendarEvent {
-  eventId: string;
-  eventTitle: string;
-  eventNote: string;
+  id: string;
+  title: string;
+  note: string;
   startDateTime: string | null;
   endDateTime?: string | null;
   isAllDay?: boolean;

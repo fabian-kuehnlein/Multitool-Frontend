@@ -11,16 +11,16 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
-import { CalendarService } from '../../../../services/calendar.service';
-import { Category } from '../../../../models/category.model';
-import { CreateCalendarEvent } from '../../../../models/create-calendar-event.model';
-import { CalendarEvent } from '../../../../models/calendar-event.model';
+import { CalendarService } from '../../../services/calendar.service';
+import { Category } from '../../../models/category.model';
+import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
+import { CalendarEvent } from '../../../models/calendar-event.model';
 
 // Third-party Libraries
 import moment from 'moment';
 import { Subject, takeUntil } from 'rxjs';
-import { UI_MODULES } from '../../../../../../shared/utilities/material-ui';
-import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
+import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-event-dialog',
@@ -134,9 +134,9 @@ export class EventDialogComponent {
                 this.categories = categories;
 
                 if (!this.dialogData.event) {
-                    const defaultCategory = categories.find(c => c.categoryName === 'Privat');
+                    const defaultCategory = categories.find(c => c.name === 'Privat');
                     if (defaultCategory) {
-                        this.eventForm.get('categoryId')?.setValue(defaultCategory.categoryId);
+                        this.eventForm.get('categoryId')?.setValue(defaultCategory.id);
                     };
                 }
             };
@@ -202,8 +202,8 @@ export class EventDialogComponent {
                 : null;
 
             const newEvent: CreateCalendarEvent = {
-                eventTitle: form.eventTitle,
-                eventNote: form.eventNote?.trim() === "" ? null : form.eventNote,
+                title: form.eventTitle,
+                note: form.eventNote?.trim() === "" ? null : form.eventNote,
                 startDateTime: this.buildDate(
                     form.startDate,
                     form.startTime,
@@ -232,9 +232,9 @@ export class EventDialogComponent {
                 : null;
 
             const updatedEvent: CalendarEvent = {
-                eventId: this.dialogData.event?.eventId,
-                eventTitle: form.eventTitle,
-                eventNote: form.eventNote?.trim() === "" ? null : form.eventNote,
+                id: this.dialogData.event?.eventId,
+                title: form.eventTitle,
+                note: form.eventNote?.trim() === "" ? null : form.eventNote,
                 startDateTime: this.buildDate(
                     form.startDate,
                     form.startTime,
@@ -363,6 +363,15 @@ export class EventDialogComponent {
         const currentEvent = this.eventForm.value;
 
         return JSON.stringify(currentEvent) == JSON.stringify(this.originalEvent);
+    }
+
+    private setDefaultCategory() {
+        if (!this.dialogData.event) {
+            const defaultCategory = this.categories.find(c => c.name === 'Privat');
+            if (defaultCategory) {
+                this.eventForm.get('categoryId')?.setValue(defaultCategory.id);
+            }
+        }
     }
 }
 

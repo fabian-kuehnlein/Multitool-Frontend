@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { Category } from '../models/category.model';
@@ -46,11 +46,11 @@ export class CalendarService {
     }
 
     getCategories(): Observable<Category[]> {
-        return this.http.get<ApiCategory[]>(`${this.apiURL}/categories`).pipe(
+        return this.http.get<Category[]>(`${this.apiURL}/categories`).pipe(
             map(categories =>
                 categories.map(category => ({
-                    categoryId: category.id?.toString() ?? '',
-                    categoryName: category.name ?? '',
+                    id: category.id?.toString() ?? '',
+                    name: category.name ?? '',
                     color: category.color ?? ''
                 }))
             )
@@ -61,9 +61,3 @@ export class CalendarService {
         return this.http.get<Holiday[]>(`${this.apiURL}/holidays/${year}`);
     }
 }
-
-type ApiCategory = {
-    id?: string | number;
-    name?: string;
-    color?: string;
-};
