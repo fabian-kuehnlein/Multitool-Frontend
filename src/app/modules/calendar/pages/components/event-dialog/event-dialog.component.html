@@ -1,6 +1,12 @@
 <h1 mat-dialog-title>{{ !isEditMode() ? "Neues Event erstellen" : "Event bearbeiten"}}</h1>
 
-<form mat-dialog-content class="dialog-form" [formGroup]="eventForm">
+@if (isLoadingCategories()) {
+    <div mat-dialog-content class="loading-container">
+        <mat-spinner></mat-spinner>
+    </div>
+} @else {
+    <form mat-dialog-content class="dialog-form" [formGroup]="eventForm">
+
     <mat-form-field>
         <mat-label>Titel</mat-label>
         <input matInput maxlength="100" formControlName="eventTitle" (input)="onInput('eventTitle', $event)" required />
@@ -80,7 +86,7 @@
         <mat-form-field>
             <mat-label>Kategorie</mat-label>
             <mat-select formControlName="categoryId">
-                @for (category of categories; track category.id) {
+                @for (category of categories(); track category.id) {
                     <mat-option [value]="category.id">{{ category.name }}</mat-option>
                 }
             </mat-select>
@@ -117,7 +123,7 @@
                     <mat-label>Wochentag</mat-label>
                     <mat-select formControlName="recurrenceByDay" multiple>
                         <mat-select-trigger>
-                            {{ getFirstSelectedWeekdayLabel() }}
+                            {{ firstSelectedWeekdayLabel() }}
                             @if ((eventForm.get('recurrenceByDay')?.value?.length || 0) > 1) {
                                 <span class="weekday-hint">
                                     (+{{ eventForm.get('recurrenceByDay')?.value.length -1 }} weitere )
@@ -157,3 +163,4 @@
     </button>
     <button mat-button (click)="close()">Abbrechen</button>
 </div>
+}

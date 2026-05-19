@@ -1,5 +1,6 @@
 // Angular Core
-import { Component, ViewChild, inject, signal, HostListener } from '@angular/core';
+import { Component, ViewChild, inject, signal, HostListener, computed, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -76,34 +77,52 @@ export class CalendarComponent {
 		}
 	}
 
-	public categoryControl = new FormControl<string[]>(['Alle']);
-	public categoryList: Category[] = [];
-	private readonly selectedCategory = signal<string[]>([]);
+	public categoryControl = new FormControl<string[]>([]);
+	public readonly categoryList = this.calendarService.categories;
+	
+	private readonly categoryControlValue = toSignal(this.categoryControl.valueChanges, { initialValue: [] as string[] });
 
-	ngOnInit(){
-		this.calendarService.getCategories().subscribe(categories => {
-			if (categories) {
-				this.categoryList = categories;
+	public readonly selectedCategory = computed(() => {
+		const ids = this.categoryControlValue();
+		if (!ids || ids.length === this.categoryList().length) {
+			return [];
+		}
+		return ids;
+	});
 
+	public readonly categoryDisplay = computed(() => {
+		const selectedIds = this.categoryControlValue() || [];
+		if (!selectedIds.length) return '';
+
+		if (selectedIds.length === this.categoryList().length) {
+			return 'Alle';
+		}
+
+		return this.categoryList().find(c => c.id === selectedIds[0])?.name ?? '';
+	});
+
+	constructor() {
+		// Initialize category selection when categories are loaded
+		effect(() => {
+			const categories = this.categoryList();
+			if (categories.length > 0 && this.categoryControl.value?.length === 0) {
 				this.categoryControl.setValue(categories.map(c => c.id));
 			}
 		});
 
-		this.categoryControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((ids: string[] | null) => {
-			if (!ids) return;
-			if (ids.length === this.categoryList.length) {
-				this.selectedCategory.set([]);
-			} else {
-				this.selectedCategory.set(ids);
-			}
-		})
-
+		// Debounced refetch when selection changes
 		this.categoryControl.valueChanges.pipe(
 			takeUntil(this.destroy$),
 			debounceTime(500)
 		).subscribe(() => {
-			this.calendarApi.refetchEvents();
-		})
+			if (this.calendar) {
+				this.calendarApi.refetchEvents();
+			}
+		});
+	}
+
+	ngOnInit(){
+		// No longer needed: categories subscription handled by signal + effect
 	};
 
 	ngOnDestroy(): void {
@@ -124,18 +143,6 @@ export class CalendarComponent {
 			backdropClass: 'transparent-backdrop',
 			data: 'calendar'
 		}).afterClosed();
-	}
-
-	getCategoryDisplay(): string {
-		const selectedIds = this.categoryControl.value || [];
-
-		if (!selectedIds.length) return '';
-
-		if (selectedIds.length === this.categoryList.length) {
-			return 'Alle';
-		}
-
-		return this.categoryList.find(c => c.id === selectedIds[0])?.name ?? '';
 	}
 
 	public readonly calendarOptions: CalendarOptions = {
@@ -160,7 +167,7 @@ export class CalendarComponent {
 									extendedProps: {
 										eventNote: event.note || '',
 										categoryId: event.categoryId,
-										categoryColor: this.categoryList.find(c => c.id === event.categoryId)?.color || '#1976d2',
+										categoryColor: this.categoryList().find(c => c.id === event.categoryId)?.color || '#1976d2',
 										recurrenceRule: event.recurrenceRule,
 										recurrenceEnd: event.recurrenceEnd
 									}
@@ -251,7 +258,7 @@ export class CalendarComponent {
 			data: { 
 				anchorDate: anchorDate,
 				event: null,
-				categories: this.categoryList
+				categories: this.categoryList()
 			}
 		}).afterClosed().subscribe(result => {
 			if (result) {
@@ -291,7 +298,7 @@ export class CalendarComponent {
 			data: {
 				anchorDate: null,
 				event: eventData,
-				categories: this.categoryList
+				categories: this.categoryList()
 			},
 			width: 'auto',
 			minWidth: '600px',

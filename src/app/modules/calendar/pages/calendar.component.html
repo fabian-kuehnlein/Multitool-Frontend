@@ -60,9 +60,9 @@
         <div class="filter-bar" @fadeSlideInOut>
             <div class="filter-chips">
                 <span class="filter-label">Kategorien:</span>
-                @if (categoryList.length > 0) {
+                @if (categoryList().length > 0) {
                     <mat-chip-listbox [formControl]="categoryControl" multiple>
-                        @for (category of categoryList; track category.id) {
+                        @for (category of categoryList(); track category.id) {
                             <mat-chip-option [value]="category.id" [selectable]="true">
                                 <span class="color-dot" [style.background-color]="category.color"></span>
                                 {{ category.name }}

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common'
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -21,7 +22,7 @@ import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
     templateUrl: './search-dialog.component.html',
     styleUrl: './search-dialog.component.scss'
 })
-export class SearchDialogComponent implements OnInit, OnDestroy {
+export class SearchDialogComponent implements OnDestroy {
     private readonly calendarService = inject(CalendarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as string;
     private dialogRef = inject(MatDialogRef<SearchDialogComponent>);
@@ -34,13 +35,17 @@ export class SearchDialogComponent implements OnInit, OnDestroy {
 
     searchControl = new FormControl<string>(this.dialogData || '');
 
-    ngOnInit() {
+    private readonly searchTerm = toSignal(
         this.searchControl.valueChanges.pipe(
             debounceTime(300),
-            distinctUntilChanged(),
-            takeUntil(this.destroy$)
-        ).subscribe(() => {
-            this.fetchEvents();
+            distinctUntilChanged()
+        ),
+        { initialValue: this.dialogData || '' }
+    );
+
+    constructor() {
+        effect(() => {
+            this.fetchEvents(this.searchTerm() ?? '');
         });
     }
 
@@ -49,8 +54,7 @@ export class SearchDialogComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-    fetchEvents() {
-        const searchTerm = this.searchControl.value;
+    fetchEvents(searchTerm: string) {
         if (!searchTerm || searchTerm.trim().length === 0) {
             this.dataSource.data = [];
             this.isLoading.set(false);
@@ -92,7 +96,7 @@ export class SearchDialogComponent implements OnInit, OnDestroy {
                 if (result) {
                     this.calendarService.deleteEvent(deleteId).subscribe({
                         next: () => {
-                            this.fetchEvents();
+                            this.dataSource.data = this.dataSource.data.filter(event => event.eventId !== deleteId);
                         },
 						error: (error: any) => {
                             console.error('Error deleting event:', error);

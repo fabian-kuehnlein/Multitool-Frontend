@@ -1,5 +1,6 @@
 // Angular
-import { Component, Inject, inject, signal } from '@angular/core';
+import { Component, Inject, inject, signal, computed, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { NgClass } from '@angular/common';
 
@@ -42,12 +43,14 @@ export class EventDialogComponent {
     public dialog = inject(MatDialog);
     private readonly destroy$ = new Subject<void>();
     private readonly calendarService = inject(CalendarService);
+    
     public readonly isEditMode = signal<boolean>(false);
-    public readonly isChanged = signal<boolean>(false);
     public readonly startAt = signal<Date | null>(null);
-    private originalEvent: CalendarEvent | null = null;
+    public readonly isLoadingCategories = signal<boolean>(false);
+    
+    private readonly originalEvent = signal<CalendarEvent | null>(null);
 
-    categories: Category[] = [];
+    public readonly categories = this.calendarService.categories;
 
     // for char-count on title and note inputsa
     protected readonly values = signal<Record<string, string>>({
@@ -80,6 +83,16 @@ export class EventDialogComponent {
         recurrenceEndDate: [null]
     }, { validators: FormValidator });
 
+    private readonly formValue = toSignal(this.eventForm.valueChanges);
+
+    public readonly isChanged = computed(() => {
+        const original = this.originalEvent();
+        const current = this.formValue();
+        if (!original || !current) return false;
+        
+        return JSON.stringify(current) !== JSON.stringify(original);
+    });
+
     public readonly weekdayOptions = [
         { value: 'MO', label: 'Montag' },
         { value: 'TU', label: 'Dienstag' },
@@ -90,10 +103,11 @@ export class EventDialogComponent {
         { value: 'SU', label: 'Sonntag' }
     ];
 
-    getFirstSelectedWeekdayLabel(): string {
-        const firstSelected = this.eventForm.get('recurrenceByDay')?.value?.[0];
+    public readonly firstSelectedWeekdayLabel = computed(() => {
+        const value = this.formValue();
+        const firstSelected = value?.recurrenceByDay?.[0];
         return this.weekdayOptions.find(d => d.value === firstSelected)?.label || '';
-    }
+    });
 
     constructor(@Inject(MAT_DIALOG_DATA) public dialogData: any) {
         const title = dialogData?.event?.eventTitle ?? '';
@@ -104,6 +118,17 @@ export class EventDialogComponent {
             eventTitle: title,
             eventNote: note
         })
+
+        // Handle category initialization via effect
+        effect(() => {
+            const categories = this.categories();
+            if (categories.length > 0 && !this.dialogData.event && !this.eventForm.get('categoryId')?.value) {
+                const defaultCategory = categories.find(c => c.name === 'Privat');
+                if (defaultCategory) {
+                    this.eventForm.get('categoryId')?.setValue(defaultCategory.id);
+                }
+            }
+        });
     }
     
     ngOnInit() {
@@ -123,23 +148,6 @@ export class EventDialogComponent {
             } else {
                 this.eventForm.get('endDate')!.enable();
             }
-        })
-
-        this.eventForm?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-            this.isChanged.set(!this.compareOriginalEvent());
-        });
-
-        this.calendarService.getCategories().subscribe(categories => {
-            if (categories.length > 0) {
-                this.categories = categories;
-
-                if (!this.dialogData.event) {
-                    const defaultCategory = categories.find(c => c.name === 'Privat');
-                    if (defaultCategory) {
-                        this.eventForm.get('categoryId')?.setValue(defaultCategory.id);
-                    };
-                }
-            };
         });
 
         if (this.dialogData && this.dialogData.event) {
@@ -182,7 +190,7 @@ export class EventDialogComponent {
                 recurrenceEndDate: recurrenceEnd
             });
 
-            this.originalEvent = this.eventForm.value;
+            this.originalEvent.set(this.eventForm.value);
         } else if (this.dialogData.anchorDate) {
             this.startAt.set(this.dialogData.anchorDate);
         }
@@ -354,24 +362,6 @@ export class EventDialogComponent {
         });
 
         return rule;
-    }
-
-    // Compares the current form values with the original event data
-    compareOriginalEvent(): boolean {
-        if (!this.originalEvent) return false;
-
-        const currentEvent = this.eventForm.value;
-
-        return JSON.stringify(currentEvent) == JSON.stringify(this.originalEvent);
-    }
-
-    private setDefaultCategory() {
-        if (!this.dialogData.event) {
-            const defaultCategory = this.categories.find(c => c.name === 'Privat');
-            if (defaultCategory) {
-                this.eventForm.get('categoryId')?.setValue(defaultCategory.id);
-            }
-        }
     }
 }
 
