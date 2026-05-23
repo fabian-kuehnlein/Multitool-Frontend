@@ -26,6 +26,14 @@
     box-sizing: border-box;
 }
 
+.calendar-loader {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
 .left-container, .right-container {
     display: flex;
     align-items: center;
@@ -135,12 +143,56 @@
 }
 
 // Event Styles
-::ng-deep .fc-event-material {
-    display: flex;
-    flex-direction: column;
-    padding: 4px 8px;
-    border-radius: 6px;
-    margin: 1px 2px;
+::ng-deep {
+    .fc-daygrid-event, .fc-timegrid-event {
+        border-radius: 4px !important;
+        border: none !important;
+        padding: 2px 4px !important;
+        margin: 1px 2px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .fc-event-main {
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .fc-event-main-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        color: #fff;
+        font-size: 0.85rem;
+
+        .fc-event-title {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fc-event-time {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .fc-event-note {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .fc-daygrid-event-dot {
+        display: none !important;
+    }
+}
+
+::ng-deep .fc-day-today {
+    background-color: #fff9c4 !important;
 }
 
 ::ng-deep .fc-day-other {

@@ -46,9 +46,9 @@ export class EventDialogComponent {
     
     public readonly isEditMode = signal<boolean>(false);
     public readonly startAt = signal<Date | null>(null);
-    public readonly isLoadingCategories = signal<boolean>(false);
+    public readonly isLoadingCategories = computed(() => this.calendarService.categories().length === 0);
     
-    private readonly originalEvent = signal<CalendarEvent | null>(null);
+    private readonly originalEvent = signal<any | null>(null);
 
     public readonly categories = this.calendarService.categories;
 
@@ -83,9 +83,11 @@ export class EventDialogComponent {
         recurrenceEndDate: [null]
     }, { validators: FormValidator });
 
-    private readonly formValue = toSignal(this.eventForm.valueChanges);
+    private readonly formValue = toSignal(this.eventForm.valueChanges, { initialValue: this.eventForm.getRawValue() });
 
     public readonly isChanged = computed(() => {
+        if (!this.isEditMode()) return true;
+        
         const original = this.originalEvent();
         const current = this.formValue();
         if (!original || !current) return false;
@@ -110,6 +112,10 @@ export class EventDialogComponent {
     });
 
     constructor(@Inject(MAT_DIALOG_DATA) public dialogData: any) {
+        if (this.dialogData && this.dialogData.event) {
+            this.isEditMode.set(true);
+        }
+
         const title = dialogData?.event?.eventTitle ?? '';
         const note = dialogData?.event?.eventNote ?? '';
 
@@ -119,13 +125,23 @@ export class EventDialogComponent {
             eventNote: note
         })
 
-        // Handle category initialization via effect
+        // Ensure category is correctly selected once categories are loaded
         effect(() => {
             const categories = this.categories();
-            if (categories.length > 0 && !this.dialogData.event && !this.eventForm.get('categoryId')?.value) {
-                const defaultCategory = categories.find(c => c.name === 'Privat');
-                if (defaultCategory) {
-                    this.eventForm.get('categoryId')?.setValue(defaultCategory.id);
+            const isEdit = this.isEditMode();
+            
+            if (categories.length > 0) {
+                const categoryControl = this.eventForm.get('categoryId');
+                const currentVal = categoryControl?.value;
+                
+                if (isEdit) {
+                    // Ensure the categoryId is a string so it matches the mat-option values
+                    if (currentVal != null && typeof currentVal !== 'string') {
+                        categoryControl?.setValue(String(currentVal), { emitEvent: false });
+                    }
+                } else if (!currentVal) {
+                    // For new events, default to the first available category
+                    categoryControl?.setValue(String(categories[0].id), { emitEvent: false });
                 }
             }
         });
@@ -150,9 +166,7 @@ export class EventDialogComponent {
             }
         });
 
-        if (this.dialogData && this.dialogData.event) {
-            this.isEditMode.set(true);
-
+        if (this.isEditMode()) {
             const startDateTime = new Date(this.dialogData.event.startDateTime!);
             const endDateTime = this.dialogData.event.endDateTime ? new Date(this.dialogData.event.endDateTime) : null;
             const rule = this.dialogData.event.recurrenceRule ? this.splitRecurrenceString(this.dialogData.event.recurrenceRule) : null;
@@ -190,7 +204,7 @@ export class EventDialogComponent {
                 recurrenceEndDate: recurrenceEnd
             });
 
-            this.originalEvent.set(this.eventForm.value);
+            this.originalEvent.set(this.eventForm.getRawValue());
         } else if (this.dialogData.anchorDate) {
             this.startAt.set(this.dialogData.anchorDate);
         }
@@ -383,18 +397,18 @@ export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationEr
     if (!title) errors['titleIsMissing'] = true;
 
     // Validate start date
-    if (!startDate) errors['startDateMissing'] = true;
+    if (!startDate.isValid()) errors['startDateMissing'] = true;
 
     // Validate start time
-    if (!isAllDay && !startTime) errors['startTimeMissing'] = true;
+    if (!isAllDay && !startTime.isValid()) errors['startTimeMissing'] = true;
 
     // Validate end date and time
-    if (endDate && !isRecurring) {
-        if (!isAllDay && !endTime) {
+    if (endDate.isValid() && !isRecurring) {
+        if (!isAllDay && !endTime.isValid()) {
             group.get('endTime')?.setErrors({ endTimeMissing: true });
         }
     } else if (isRecurring) {
-        if (!isAllDay && !endTime) {
+        if (!isAllDay && !endTime.isValid()) {
             group.get('endTime')?.setErrors({ endTimeMissing: true });
         }
     }

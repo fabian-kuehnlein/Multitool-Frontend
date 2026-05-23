@@ -9,6 +9,10 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import moment from 'moment';
+import 'moment/locale/de';
+
+moment.locale('de');
 
 registerLocaleData(localeDe, 'de');
 
@@ -35,11 +39,11 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
         provideMomentDateAdapter({
             parse: {
-                dateInput: ['l', 'LL'],
+                dateInput: ['DD.MM.YYYY', 'D.M.YYYY'],
                 timeInput: 'HH:mm'
             },
             display: {
-                dateInput: 'L',
+                dateInput: 'DD.MM.YYYY',
                 monthYearLabel: 'MMM YYYY',
                 dateA11yLabel: 'LL',
                 monthYearA11yLabel: 'MMMM YYYY',

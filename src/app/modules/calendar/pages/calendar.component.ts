@@ -1,116 +1,103 @@
 // Angular Core
-import { Component, ViewChild, inject, signal, HostListener, computed, effect } from '@angular/core';
+import { Component, ViewChild, inject, signal, HostListener, computed, effect, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
-import { MatMenuTrigger } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
-import { defaultCalendarOptions } from '../calendar.config';
+import { CalendarOptions, EventClickArg, EventDropArg } from '@fullcalendar/core';
+import { defaultCalendarOptions } from '../utilities/calendar.config';
 
 // Third Party
 import moment from 'moment';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
 
-// App Services & Components
+// App Services, Components & Utilities
 import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
 import { CalendarEvent } from '../models/calendar-event.model';
-import { Category } from '../models/category.model';
+import { CalendarMapper } from '../utilities/calendar-mapper';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 
 @Component({
 	selector: 'app-calendar',
+	standalone: true,
 	imports: [
-	UI_MODULES,
-    FullCalendarModule,
-    MatChipsModule
-],
+		UI_MODULES,
+		FullCalendarModule,
+		MatChipsModule,
+		ReactiveFormsModule
+	],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss',
-    animations: [
-        trigger('fadeSlideInOut', [
-            transition(':enter', [
-                style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }),
-                animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
-            ]),
-            transition(':leave', [
-                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }))
-            ])
-        ])
-    ]
+	animations: [
+		trigger('fadeSlideInOut', [
+			transition(':enter', [
+				style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }),
+				animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
+			]),
+			transition(':leave', [
+				animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }))
+			])
+		])
+	]
 })
-
-export class CalendarComponent {
+export class CalendarComponent implements OnDestroy {
 	@ViewChild('calendarRef') calendar!: FullCalendarComponent;
-	
+
 	private readonly calendarService = inject(CalendarService);
 	private readonly dialog = inject(MatDialog);
 	private readonly destroy$ = new Subject<void>();
 
-	private get calendarApi() { return this.calendar.getApi();}
-
+	// --- Signals & State ---
 	public readonly title = signal<string>("");
 	public readonly isToday = signal<boolean>(true);
 	public readonly currentView = signal<string>('dayGridMonth');
-    public readonly showFilters = signal<boolean>(false);
+	public readonly showFilters = signal<boolean>(false);
+	public readonly isLoading = signal<boolean>(false);
 
-	@HostListener('window:keydown', ['$event'])
-	handleKeyboardEvent(event: KeyboardEvent) {
-		// Alt + N for New Event
-		if (event.altKey && event.key.toLowerCase() === 'n') {
-			event.preventDefault();
-			this.createEvent();
-		}
-		// Alt + F or / for Search
-		if ((event.altKey && event.key.toLowerCase() === 'f') || (event.key === '/' && !(event.target instanceof HTMLInputElement))) {
-			event.preventDefault();
-			this.openSearchResult();
-		}
-	}
-
-	public categoryControl = new FormControl<string[]>([]);
 	public readonly categoryList = this.calendarService.categories;
-	
+	public readonly categoryControl = new FormControl<string[]>([]);
+
+    // Converts the valueChange observable into a signal to reactively track the selected categories without needing to subscribe manually
 	private readonly categoryControlValue = toSignal(this.categoryControl.valueChanges, { initialValue: [] as string[] });
 
-	public readonly selectedCategory = computed(() => {
-		const ids = this.categoryControlValue();
-		if (!ids || ids.length === this.categoryList().length) {
-			return [];
-		}
-		return ids;
+    // Computes the IDs of all categories whose events are currently shown
+	public readonly selectedCategoryIds = computed(() => {
+		const ids = this.categoryControlValue() || [];
+		return (ids.length === 0 || ids.length === this.categoryList().length) ? [] : ids;
 	});
 
-	public readonly categoryDisplay = computed(() => {
-		const selectedIds = this.categoryControlValue() || [];
-		if (!selectedIds.length) return '';
-
-		if (selectedIds.length === this.categoryList().length) {
-			return 'Alle';
-		}
-
-		return this.categoryList().find(c => c.id === selectedIds[0])?.name ?? '';
-	});
+	private get calendarApi() { return this.calendar.getApi(); }
 
 	constructor() {
-		// Initialize category selection when categories are loaded
+		this.initCategoryControl();
+		this.setupCategorySelectionListener();
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+	}
+
+	// --- Initialization ---
+	private initCategoryControl() {
 		effect(() => {
 			const categories = this.categoryList();
-			if (categories.length > 0 && this.categoryControl.value?.length === 0) {
+			if (categories.length > 0 && (this.categoryControl.value?.length || 0) === 0) {
 				this.categoryControl.setValue(categories.map(c => c.id));
 			}
 		});
+	}
 
-		// Debounced refetch when selection changes
+	private setupCategorySelectionListener() {
 		this.categoryControl.valueChanges.pipe(
 			takeUntil(this.destroy$),
 			debounceTime(500)
@@ -121,331 +108,175 @@ export class CalendarComponent {
 		});
 	}
 
-	ngOnInit(){
-		// No longer needed: categories subscription handled by signal + effect
-	};
+	// --- Host Listeners ---
+	@HostListener('window:keydown', ['$event'])
+	handleKeyboardEvent(event: KeyboardEvent) {
+		if (event.altKey && event.key.toLowerCase() === 'n') {
+			event.preventDefault();
+			this.createEvent();
+		}
+		if ((event.altKey && event.key.toLowerCase() === 'f') || (event.key === '/' && !(event.target instanceof HTMLInputElement))) {
+			event.preventDefault();
+			this.openSearchResult();
+		}
+	}
 
-	ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+	// --- UI Actions ---
+	public calendarAction(action: string) {
+		switch (action) {
+			case 'today': this.calendarApi.today(); break;
+			case 'prev': this.calendarApi.prev(); break;
+			case 'prevYear': this.calendarApi.prevYear(); break;
+			case 'next': this.calendarApi.next(); break;
+			case 'nextYear': this.calendarApi.nextYear(); break;
+			case 'changeMonth': this.changeView('dayGridMonth'); break;
+			case 'changeWeek': this.changeView('timeGridWeek'); break;
+			case 'changeDay': this.changeView('timeGridDay'); break;
+		}
+		this.updateTodayStatus();
+	}
 
-	openSideNav() {
+	private changeView(viewName: string) {
+		this.calendarApi.changeView(viewName);
+		this.currentView.set(viewName);
+	}
+
+	private updateTodayStatus() {
+		const view = this.calendarApi.view;
+		const start = moment(view.currentStart).startOf('day');
+		const end = moment(view.currentEnd).startOf('day');
+		const today = moment().startOf('day');
+
+		this.isToday.set(today.isSameOrAfter(start) && today.isBefore(end));
+	}
+
+	public openSideNav() {
 		this.dialog.open(SidenavComponent, {
-			position: {
-				top: '90px',
-				left: '30px'
-			},
+			position: { top: '90px', left: '30px' },
 			height: 'auto',
-			minHeight: '100px',
-			maxHeight: '1000px',
 			hasBackdrop: true,
 			backdropClass: 'transparent-backdrop',
 			data: 'calendar'
-		}).afterClosed();
+		});
 	}
 
-	public readonly calendarOptions: CalendarOptions = {
-		...defaultCalendarOptions,
-		// sets Title
-		datesSet: () => {
-			this.title.set(this.calendarApi.view.title);
-		},
-		// handles Events
-		eventSources: [
-			{
-				events: (fetchInfo, successCallback, failureCallback) => {
-					this.calendarService.getEventsByRange(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategory()).subscribe({
-						next: (events) => {
-							const eventInput: EventInput[] = events.map((event: any) => {
-								const input: EventInput = {
-									id: event.id,
-									title: event.title,
-									start: new Date(event.startDateTime || ''),
-									end: new Date(event.endDateTime || ''),
-									allDay: event.isAllDay,
-									extendedProps: {
-										eventNote: event.note || '',
-										categoryId: event.categoryId,
-										categoryColor: this.categoryList().find(c => c.id === event.categoryId)?.color || '#1976d2',
-										recurrenceRule: event.recurrenceRule,
-										recurrenceEnd: event.recurrenceEnd
-									}
-								};
-
-                                console.log(input);
-
-								if (event.recurrenceRule) {
-									input.rrule = {
-										dtstart: event.startDateTime || event.start,
-										until: event.recurrenceEnd ?? undefined,
-										...this.parseRRuleString(event.recurrenceRule)
-									};
-									input.duration = this.getDuration(event.startDateTime || event.start || null, event.endDateTime || event.end || null);
-								}
-
-								return input;
-							});
-
-							successCallback(eventInput);
-						},
-						error: (error) => failureCallback(error)
-					});
-				},
-			},
-			{
-				// Background events for holidays
-				events: (info, successCallback, failureCallback) => {
-					const currentYear = info.start.getFullYear().toString();
-
-					this.calendarService.getHolidays(currentYear).subscribe({
-						next: (holidays) => {
-							const backgroundEvents: EventInput[] = holidays.map((holiday, index) => {
-								const startDate = new Date(holiday.holidayDate);
-								const endDate = new Date(holiday.holidayDate);
-
-								return {
-									id: `holiday-${index}`,
-									start: this.formatCalendarDate(startDate),
-									end: this.formatCalendarDate(endDate),
-									display: 'background',
-									color: '#FFCDD2',
-									title: holiday.holidayName
-								};
-							});
-
-							successCallback(backgroundEvents);
-						},
-						error: (error) => {
-							failureCallback(error);
-						}
-
-					});
-
-					
-				}
-			}
-		],
-		// actives Update on click
-		eventClick: this.updateEvent.bind(this),
-		// updates the date one drag and drop
-		eventDrop: this.handleEventDrop.bind(this)
-	};
-
-	openSearchResult() {
-		this.dialog.open(SearchDialogComponent, { 
-			width: 'fit-content',
-			maxWidth: '90vw',
-			minWidth: '500px',
-		 }).afterClosed().subscribe(result => {
-			if (result && result.data) {
-				this.calendarApi.gotoDate(result.data);
-				this.calendarApi.select(result.data);
-				return;
-			}
-			
-			this.calendarApi.refetchEvents();
-		})
-	}
-
-	createEvent() {
+	// --- Event Operations ---
+	public createEvent() {
 		const anchorDate = this.calendarApi.getDate();
 		this.dialog.open(EventDialogComponent, {
 			width: 'auto',
 			minWidth: '600px',
-			maxWidth: '1500px',
-			height: 'auto',
-			data: { 
-				anchorDate: anchorDate,
-				event: null,
-				categories: this.categoryList()
-			}
+            maxWidth: '1500px',
+			data: { anchorDate, event: null }
 		}).afterClosed().subscribe(result => {
 			if (result) {
-				this.calendarService.createEvent(result).subscribe({
-					next: () => {
-						this.calendarApi.refetchEvents();
-					},
-					error: (error) => {
-						console.error('Error creating event:', error);
-					}
-				});
+				this.calendarService.createEvent(result).subscribe(() => this.calendarApi.refetchEvents());
 			}
 		});
-	};
+	}
 
-	updateEvent(arg: EventClickArg) {
+	public updateEvent(arg: EventClickArg) {
 		const event = arg.event;
-
-		const eventData = {
-			eventId: event.id,
-			eventTitle: event.title,
-			eventNote: event.extendedProps['eventNote'] || null,
-			startDateTime: event.start,
-			endDateTime: event.end
-				? (event.allDay
-					? moment(event.end).subtract(1, 'day').toDate()
-					: new Date(event.end))
-				: event.extendedProps['recurrenceRule'] ? event.start
-				: null,
-			isAllDay: event.allDay,
-			categoryId: event.extendedProps['categoryId'] || null,
-			recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
-			recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null
-		};
+		const eventData = this.mapFullCalendarEventToData(event);
 
 		this.dialog.open(EventDialogComponent, {
-			data: {
-				anchorDate: null,
-				event: eventData,
-				categories: this.categoryList()
-			},
 			width: 'auto',
 			minWidth: '600px',
-			maxWidth: '1500px',
-			height: 'auto',
+            maxWidth: '1500px',
+			data: { event: eventData }
 		}).afterClosed().subscribe(result => {
-			if (result) {
-				if (result.action === 'update') {
-					this.calendarService.updateEvent(result.data).subscribe({
-						next: () => {
-							this.calendarApi.refetchEvents();
-						},
-						error: (error) => {
-							console.error('Error updating event:', error);
-						}
-					});
-				} else if (result.action === 'delete') {
-					this.calendarService.deleteEvent(result.data).subscribe({
-						next: () => {
-							this.calendarApi.refetchEvents();
-						},
-						error: (error: any) => {
-							console.error('Error deleting event:', error);
-						}
-					});
-				}
+			if (!result) return;
+			
+			if (result.action === 'update') {
+				this.calendarService.updateEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+			} else if (result.action === 'delete') {
+				this.calendarService.deleteEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
 			}
 		});
-	};
+	}
 
-	handleEventDrop(arg: EventDropArg) {
+	public handleEventDrop(arg: EventDropArg) {
 		const event = arg.event;
-
-		const startDateTime = moment(event.start).format('YYYY-MM-DDTHH:mm:ss');
-		const endDateTime = event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : startDateTime;
-
 		const updatedEvent: CalendarEvent = {
 			id: event.id,
 			title: event.title,
 			note: event.extendedProps['eventNote'] || '',
-			startDateTime: startDateTime,
-			endDateTime: endDateTime,
+			startDateTime: moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
+			endDateTime: event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
 			isAllDay: event.allDay,
 			categoryId: event.extendedProps['categoryId'] || ''
 		};
 
 		this.calendarService.updateEvent(updatedEvent).subscribe({
-			next: () => {
-			},
-			error: (error) => {
-				console.error('Error updating event after drop:', error);
+			error: (err) => {
+				console.error('Drop failed:', err);
 				arg.revert();
 			}
 		});
 	}
 
-	calendarAction(action: 'today' | 'prev' | 'prevYear' | 'next' | 'nextYear' | 'changeMonth' | 'changeWeek' | 'changeDay') {
-		switch(action) {
-			case 'today':
-			this.calendarApi.today();
-			break;
-			case 'prev':
-			this.calendarApi.prev();
-			break;
-			case 'prevYear':
-			this.calendarApi.prevYear();
-			break;
-			case 'next':
-			this.calendarApi.next();
-			break;
-			case 'nextYear':
-			this.calendarApi.nextYear();
-			break;
-			case 'changeMonth':
-			this.calendarApi.changeView('dayGridMonth');
-			this.currentView.set('dayGridMonth');
-			break;
-			case 'changeWeek':
-			this.calendarApi.changeView('timeGridWeek');
-			this.currentView.set('timeGridWeek');
-			break;
-			case 'changeDay':
-			this.calendarApi.changeView('timeGridDay');
-			this.currentView.set('timeGridDay');
-			break;
-		}
+	public openSearchResult() {
+		this.dialog.open(SearchDialogComponent, {
+			width: 'fit-content',
+			minWidth: '500px',
+		}).afterClosed().subscribe(result => {
+			if (result?.data) {
+				this.calendarApi.gotoDate(result.data);
+				this.calendarApi.select(result.data);
+			} else {
+				this.calendarApi.refetchEvents();
+			}
+		});
+	}
 
-		const view = this.calendarApi.view;
-		const start = new Date(view.currentStart);
-		const end = new Date(view.currentEnd);
-		const today = new Date();
-
-		today.setHours(0, 0, 0, 0);
-		start.setHours(0, 0, 0, 0);
-		end.setHours(0, 0, 0, 0);
-
-		if (today >= start && today < end) {
-			this.isToday.set(true);
-		} else {
-			this.isToday.set(false);
-		}
+	// --- Calendar Configuration ---
+	public readonly calendarOptions: CalendarOptions = {
+		...defaultCalendarOptions,
+		datesSet: () => this.title.set(this.calendarApi.view.title),
+		loading: (isLoading) => this.isLoading.set(isLoading),
+		eventSources: [
+			{
+				events: (fetchInfo, successCallback, failureCallback) => {
+					this.calendarService.getEvents(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategoryIds()).subscribe({
+						next: (events) => successCallback(events.map(e => CalendarMapper.toEventInput(e, this.categoryList()))),
+						error: (err) => failureCallback(err)
+					});
+				}
+			},
+			{
+				events: (info, successCallback, failureCallback) => {
+					this.calendarService.getHolidays(info.start.getFullYear().toString()).subscribe({
+						next: (holidays) => successCallback(holidays.map((h, i) => ({
+							id: `holiday-${i}`,
+							start: moment(h.date).format('YYYY-MM-DD'),
+							end: moment(h.date).add(1, 'day').format('YYYY-MM-DD'),
+							display: 'background',
+							color: '#FFCDD2',
+							title: h.name
+						}))),
+						error: (err) => failureCallback(err)
+					});
+				}
+			}
+		],
+		eventClick: this.updateEvent.bind(this),
+		eventDrop: this.handleEventDrop.bind(this)
 	};
 
-	// for display in calendar
-	formatCalendarDate(date: Date): string {
-		return [
-			date.getFullYear(),
-			(date.getMonth() + 1).toString().padStart(2, '0'),
-			date.getDate().toString().padStart(2, '0')
-		].join('-');
-	}
-
-	parseRRuleString(rrule: string): Record<string, any> {
-		const parts = rrule.split(';');
-		const rule: any = {};
-
-		for (const part of parts) {
-			const [key, value] = part.split('=');
-			
-			switch (key) {
-				case 'FREQ':
-					rule.freq = value.toLowerCase();
-					break;
-				case 'INTERVAL':
-					rule.interval = parseInt(value);
-					break;
-				case 'BYDAY':
-					rule.byweekday = value.split(',').map(day => day.toLowerCase());
-					break;
-			}
-		}
-
-		return rule;
-	}
-
-	getDuration(startDateTime: string | null, endDateTime: string | null): string {
-		if (!startDateTime || !endDateTime) {
-			return '';
-		}
-
-		const start = moment(startDateTime);
-		const end = moment(endDateTime);
-
-		if (!start.isValid() || !end.isValid()) {
-			return '';
-		}
-
-		return moment.duration(end.diff(start)).toISOString();
+	// --- Helpers ---
+	private mapFullCalendarEventToData(event: any) {
+		return {
+			eventId: event.id,
+			eventTitle: event.title,
+			eventNote: event.extendedProps['eventNote'] || null,
+			startDateTime: event.start,
+			endDateTime: event.end
+				? (event.allDay ? moment(event.end).subtract(1, 'day').toDate() : new Date(event.end))
+				: (event.extendedProps['recurrenceRule'] ? event.start : null),
+			isAllDay: event.allDay,
+			categoryId: event.extendedProps['categoryId'] ? event.extendedProps['categoryId'].toString() : null,
+			recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
+			recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null
+		};
 	}
 }

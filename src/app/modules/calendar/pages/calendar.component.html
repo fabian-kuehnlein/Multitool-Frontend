@@ -56,6 +56,10 @@
         </div>
     </mat-toolbar>
 
+    @if (isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="calendar-loader"></mat-progress-bar>
+    }
+
     @if (showFilters()) {
         <div class="filter-bar" @fadeSlideInOut>
             <div class="filter-chips">

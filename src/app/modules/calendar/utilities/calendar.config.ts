@@ -19,13 +19,12 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         if (event.display === 'background') {
             return {
-                html: `<div class="fc-event-background">${event.title}</div>`
+                html: `<div class="fc-event-background" title="${event.title || ''}">${event.title || ''}</div>`
             }
         }
 
         const isAllDay = event.allDay;
         const note = event.extendedProps['eventNote'] || '';
-        const categoryColor = event.extendedProps['categoryColor'] || '#1976d2';
 
         const start = event.start ? new Date(event.start) : null;
         const end = event.end ? new Date(event.end) : null;
@@ -43,9 +42,9 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         return {
             html: `
-                <div class="fc-event-material" style="background-color: ${categoryColor}; color: #fff;">
-                    <div class="fc-event-title">${event.title}</div>
-                    <div class="fc-event-time">${timeDisplay}</div>
+                <div class="fc-event-main-content">
+                    <div class="fc-event-title">${event.title || ''}</div>
+                    ${timeDisplay ? `<div class="fc-event-time">${timeDisplay}</div>` : ''}
                     ${note ? `<div class="fc-event-note">${note}</div>` : ''}
                 </div>
             `
@@ -58,7 +57,7 @@ export const defaultCalendarOptions: CalendarOptions = {
     editable: true,
     selectable: true,
     selectMirror: true,
-    dayMaxEvents: false,
+    dayMaxEvents: true,
     height: '100%',
     fixedWeekCount: false,
     eventTimeFormat: {
@@ -78,6 +77,13 @@ export const defaultCalendarOptions: CalendarOptions = {
         return [];
     },
     eventDidMount: ({ event, el }) => {
+        const categoryColor = event.extendedProps['categoryColor'];
+        if (categoryColor) {
+            el.style.backgroundColor = categoryColor;
+            el.style.borderColor = categoryColor;
+            el.style.color = '#fff';
+        }
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -90,6 +96,7 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         if (end.getTime() < today.getTime()) {
             el.classList.add('past-event');
+            el.style.opacity = '0.6';
         }
     }
 }
