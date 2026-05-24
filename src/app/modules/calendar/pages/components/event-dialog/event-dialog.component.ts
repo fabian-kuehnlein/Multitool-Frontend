@@ -73,6 +73,22 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         return this.weekdayOptions.find(d => d.value === firstSelected)?.label || '';
     });
 
+    public readonly selectedCategory = computed(() => {
+        const categoryId = this.formValue()?.categoryId;
+        return this.categories().find(c => c.id == categoryId);
+    });
+
+    public readonly getFrequencyLabel = computed(() => {
+        const freq = this.formValue()?.recurrenceFrequency;
+        switch (freq) {
+            case 'DAILY': return 'Tage';
+            case 'WEEKLY': return 'Wochen';
+            case 'MONTHLY': return 'Monate';
+            case 'YEARLY': return 'Jahre';
+            default: return '';
+        }
+    });
+
     // handles char-count for inputs
     protected readonly charCounts = computed(() => ({
         title: (this.formValue()?.eventTitle || '').length,
