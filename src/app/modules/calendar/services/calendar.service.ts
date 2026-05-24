@@ -22,18 +22,16 @@ export class CalendarService {
     private readonly holidayCache = new Map<string, Holiday[]>();
 
     constructor() {
+        setInterval(() => {
+            this.loadCategories();
+        }, 60000); // Refresh categories every minute
         this.loadCategories();
     }
 
     private loadCategories(): void {
-        this.httpService.getCategories().pipe(
-            map(categories => categories.map(category => ({
-                id: category.id?.toString() ?? '',
-                name: category.name ?? '',
-                color: category.color ?? ''
-            }))),
-            tap(categories => this._categories.set(categories))
-        ).subscribe();
+        this.httpService.getCategories().subscribe(
+            categories => this._categories.set(categories)
+        );
     }
 
     getEvents(startDate: string, endDate: string, categories: string[] | null): Observable<CalendarEvent[]> {

@@ -274,7 +274,7 @@ export class CalendarComponent implements OnDestroy {
 				? (event.allDay ? moment(event.end).subtract(1, 'day').toDate() : new Date(event.end))
 				: (event.extendedProps['recurrenceRule'] ? event.start : null),
 			isAllDay: event.allDay,
-			categoryId: event.extendedProps['categoryId'] ? event.extendedProps['categoryId'].toString() : null,
+			categoryId: event.extendedProps['categoryId']?.toString() ?? null,
 			recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
 			recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null
 		};

@@ -145,12 +145,21 @@
 // Event Styles
 ::ng-deep {
     .fc-daygrid-event, .fc-timegrid-event {
-        border-radius: 4px !important;
+        border-radius: 6px !important;
         border: none !important;
-        padding: 2px 4px !important;
+        padding: 3px 6px !important;
         margin: 1px 2px !important;
         display: flex !important;
         flex-direction: column !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+        transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out !important;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+            z-index: 5 !important;
+        }
     }
 
     .fc-event-main {
@@ -163,22 +172,24 @@
         flex-direction: column;
         width: 100%;
         color: #fff;
-        font-size: 0.85rem;
+        font-size: 0.825rem;
+        line-height: 1.3;
 
         .fc-event-title {
-            font-weight: 600;
+            font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .fc-event-time {
-            font-size: 0.75rem;
+            font-size: 0.725rem;
             opacity: 0.9;
         }
 
         .fc-event-note {
-            font-size: 0.75rem;
+            font-size: 0.725rem;
+            font-style: italic;
             opacity: 0.8;
             white-space: nowrap;
             overflow: hidden;

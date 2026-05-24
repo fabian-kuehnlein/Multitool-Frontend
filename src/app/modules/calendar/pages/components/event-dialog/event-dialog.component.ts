@@ -1,10 +1,10 @@
 // Angular
-import { Component, Inject, inject, signal, computed, effect } from '@angular/core';
+import { Component, Inject, inject, signal, computed, effect, OnInit, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 
-// Angular Material Form Controls
+// Angular Material
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
@@ -13,411 +13,169 @@ import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
 import { CalendarService } from '../../../services/calendar.service';
-import { Category } from '../../../models/category.model';
-import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
-import { CalendarEvent } from '../../../models/calendar-event.model';
-
-// Third-party Libraries
-import moment from 'moment';
-import { Subject, takeUntil } from 'rxjs';
+import { EventFormService } from './event-form.service';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
+// Third-party
+import { Subject, takeUntil } from 'rxjs';
+
 @Component({
   selector: 'app-event-dialog',
+  standalone: true,
   imports: [
     UI_MODULES,
     MatDatepickerModule,
     MatTimepickerModule,
     MatSlideToggleModule,
     MatDividerModule,
+    ReactiveFormsModule,
     NgClass
   ],
-  providers: [],
+  providers: [EventFormService],
   templateUrl: './event-dialog.component.html',
   styleUrl: './event-dialog.component.scss'
 })
-export class EventDialogComponent {
-    private fb = inject(FormBuilder);
-    private dialogRef = inject(MatDialogRef<EventDialogComponent>);
-    public dialog = inject(MatDialog);
-    private readonly destroy$ = new Subject<void>();
+export class EventDialogComponent implements OnInit, OnDestroy {
+    private readonly dialogRef = inject(MatDialogRef<EventDialogComponent>);
+    private readonly dialog = inject(MatDialog);
     private readonly calendarService = inject(CalendarService);
-    
+    private readonly formService = inject(EventFormService);
+    public readonly dialogData = inject(MAT_DIALOG_DATA);
+    private readonly destroy$ = new Subject<void>();
+
+    // --- Signals & State ---
     public readonly isEditMode = signal<boolean>(false);
-    public readonly startAt = signal<Date | null>(null);
     public readonly isLoadingCategories = computed(() => this.calendarService.categories().length === 0);
-    
-    private readonly originalEvent = signal<any | null>(null);
-
     public readonly categories = this.calendarService.categories;
-
-    // for char-count on title and note inputsa
-    protected readonly values = signal<Record<string, string>>({
-        eventTitle: '',
-        eventNote: ''
-    });
-
-    // handles char-count for title and note inputs
-    protected onInput(key: string, event: Event) {
-        const input = (event.target as HTMLInputElement).value;
-        this.values.update(current => ({
-            ...current,
-            [key]: input
-        }));
-    }
-
-    eventForm: FormGroup = this.fb.group({
-        eventTitle: ['', [Validators.required, Validators.maxLength(100)]],
-        eventNote: ['', [Validators.maxLength(200)]],
-        startDate: [null, [Validators.required]],
-        startTime: [null, [Validators.required]],
-        endDate: [null, [Validators.required]],
-        endTime: [null],
-        isAllDay: [false],
-        categoryId: ['', [Validators.required]],
-        isRecurring: [false],
-        recurrenceFrequency: ['WEEKLY'],
-        recurrenceInterval: [0],
-        recurrenceByDay: [[]],
-        recurrenceEndDate: [null]
-    }, { validators: FormValidator });
-
-    private readonly formValue = toSignal(this.eventForm.valueChanges, { initialValue: this.eventForm.getRawValue() });
-
-    public readonly isChanged = computed(() => {
-        if (!this.isEditMode()) return true;
-        
-        const original = this.originalEvent();
-        const current = this.formValue();
-        if (!original || !current) return false;
-        
-        return JSON.stringify(current) !== JSON.stringify(original);
-    });
-
-    public readonly weekdayOptions = [
-        { value: 'MO', label: 'Montag' },
-        { value: 'TU', label: 'Dienstag' },
-        { value: 'WE', label: 'Mittwoch' },
-        { value: 'TH', label: 'Donnerstag' },
-        { value: 'FR', label: 'Freitag' },
-        { value: 'SA', label: 'Samstag' },
+    
+    // UI Metadata
+    protected readonly weekdayOptions = [
+        { value: 'MO', label: 'Montag' }, { value: 'TU', label: 'Dienstag' },
+        { value: 'WE', label: 'Mittwoch' }, { value: 'TH', label: 'Donnerstag' },
+        { value: 'FR', label: 'Freitag' }, { value: 'SA', label: 'Samstag' },
         { value: 'SU', label: 'Sonntag' }
     ];
 
+    // Form setup
+    public readonly eventForm: FormGroup = this.formService.buildForm();
+    private readonly formValue = toSignal(this.eventForm.valueChanges, { initialValue: this.eventForm.getRawValue() });
+    private readonly originalEventValue = signal<any>(null);
+
+    // Computed properties for UI
+    public readonly isChanged = computed(() => {
+        if (!this.isEditMode()) return true;
+        return JSON.stringify(this.formValue()) !== JSON.stringify(this.originalEventValue());
+    });
+
     public readonly firstSelectedWeekdayLabel = computed(() => {
-        const value = this.formValue();
-        const firstSelected = value?.recurrenceByDay?.[0];
+        const firstSelected = this.formValue()?.recurrenceByDay?.[0];
         return this.weekdayOptions.find(d => d.value === firstSelected)?.label || '';
     });
 
-    constructor(@Inject(MAT_DIALOG_DATA) public dialogData: any) {
-        if (this.dialogData && this.dialogData.event) {
-            this.isEditMode.set(true);
-        }
+    // handles char-count for inputs
+    protected readonly charCounts = computed(() => ({
+        title: (this.formValue()?.eventTitle || '').length,
+        note: (this.formValue()?.eventNote || '').length
+    }));
 
-        const title = dialogData?.event?.eventTitle ?? '';
-        const note = dialogData?.event?.eventNote ?? '';
-
-        this.values.set({
-            ...this.values(),
-            eventTitle: title,
-            eventNote: note
-        })
-
-        // Ensure category is correctly selected once categories are loaded
+    constructor() {
+        this.isEditMode.set(!!this.dialogData?.event);
+        
+        // Category Initialization logic
         effect(() => {
             const categories = this.categories();
-            const isEdit = this.isEditMode();
-            
-            if (categories.length > 0) {
-                const categoryControl = this.eventForm.get('categoryId');
-                const currentVal = categoryControl?.value;
-                
-                if (isEdit) {
-                    // Ensure the categoryId is a string so it matches the mat-option values
-                    if (currentVal != null && typeof currentVal !== 'string') {
-                        categoryControl?.setValue(String(currentVal), { emitEvent: false });
-                    }
-                } else if (!currentVal) {
-                    // For new events, default to the first available category
-                    categoryControl?.setValue(String(categories[0].id), { emitEvent: false });
+            if (categories.length === 0) return;
+
+            const categoryControl = this.eventForm.get('categoryId');
+
+            if (this.isEditMode()) {
+                const eventCategoryId = this.dialogData.event.categoryId;
+                if (eventCategoryId != null) {
+                    categoryControl?.setValue(Number(eventCategoryId), { emitEvent: false });
+                    this.originalEventValue.set(this.eventForm.getRawValue());
                 }
+            } else {
+                const defaultCat = categories.find(c => Number(c.id) === 1) || categories[0];
+                categoryControl?.setValue(Number(defaultCat.id), { emitEvent: false });
             }
         });
     }
     
     ngOnInit() {
-        this.eventForm.get('isAllDay')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((isAllDay: boolean) => {
-            if (isAllDay) {
-                this.eventForm.get('startTime')!.disable();
-                this.eventForm.get('endTime')!.disable();
-            } else {
-                this.eventForm.get('startTime')!.enable();
-                this.eventForm.get('endTime')!.enable();
-            }
-        });
-
-        this.eventForm.get('isRecurring')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((isRecurring: boolean) => {
-            if (isRecurring) {
-                this.eventForm.get('endDate')!.disable();
-            } else {
-                this.eventForm.get('endDate')!.enable();
-            }
-        });
-
+        this.setupFormSubscriptions();
         if (this.isEditMode()) {
-            const startDateTime = new Date(this.dialogData.event.startDateTime!);
-            const endDateTime = this.dialogData.event.endDateTime ? new Date(this.dialogData.event.endDateTime) : null;
-            const rule = this.dialogData.event.recurrenceRule ? this.splitRecurrenceString(this.dialogData.event.recurrenceRule) : null;
-            const recurrenceEnd = this.dialogData.event.recurrenceEnd ?? null;
-
-            this.eventForm.patchValue({
-                eventTitle: this.dialogData.event.eventTitle,
-                eventNote: this.dialogData.event.eventNote,
-                startDate: new Date(
-                    startDateTime.getFullYear(),
-                    startDateTime.getMonth(),
-                    startDateTime.getDate()
-                ),
-                startTime: new Date(
-                    0, 0, 0,
-                    startDateTime.getHours(),
-                    startDateTime.getMinutes()
-                ),
-                endDate: endDateTime ? new Date(
-                    endDateTime.getFullYear(),
-                    endDateTime.getMonth(),
-                    endDateTime.getDate()
-                ) : null,
-                endTime: endDateTime ? new Date(
-                    0, 0, 0,
-                    endDateTime.getHours(),
-                    endDateTime.getMinutes()
-                ) : null,
-                isAllDay: this.dialogData.event.isAllDay,
-                categoryId: this.dialogData.event.categoryId,
-                isRecurring: !!rule,
-                recurrenceFrequency: rule?.freq,
-                recurrenceInterval: rule?.interval,
-                recurrenceByDay: rule?.byDay ?? [],
-                recurrenceEndDate: recurrenceEnd
-            });
-
-            this.originalEvent.set(this.eventForm.getRawValue());
+            this.patchFormForEdit();
         } else if (this.dialogData.anchorDate) {
-            this.startAt.set(this.dialogData.anchorDate);
+            const setDate = new Date(this.dialogData.anchorDate)
+            this.eventForm.patchValue({ startDate: setDate, endDate: setDate });
         }
-    };
+    }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
 
-    create() {
-        if (this.eventForm.valid) {
-            const form = this.eventForm.value;
-            const recurrenceRule = form.isRecurring ? this.buildRecurrenceString() : null;
-            const recurrenceEnd = (form.isRecurring && form.recurrenceEndDate && recurrenceRule)
-                ? this.buildDate(form.recurrenceEndDate, undefined, { isRecurring: true })
-                : null;
-
-            const newEvent: CreateCalendarEvent = {
-                title: form.eventTitle,
-                note: form.eventNote?.trim() === "" ? null : form.eventNote,
-                startDateTime: this.buildDate(
-                    form.startDate,
-                    form.startTime,
-                    {isAllDay: form.isAllDay}),
-                endDateTime: this.buildDate(
-                    form.endDate ?? form.startDate,
-                    form.endTime ?? form.startTime,
-                    { isAllDay: form.isAllDay, isRecurring: false, addDay: true }
-                ),
-                isAllDay: form.isAllDay,
-                categoryId: form.categoryId,
-                recurrenceRule: recurrenceRule,
-                recurrenceEnd: recurrenceEnd
-            }
-
-            this.dialogRef.close(newEvent);
-        }
-    }
-
-    update() {
-        if (this.eventForm.valid) {
-            const form = this.eventForm.value;
-            const recurrenceRule = form.isRecurring ? this.buildRecurrenceString() : null;
-            const recurrenceEnd = (form.isRecurring && form.recurrenceEndDate && recurrenceRule)
-                ? this.buildDate(form.recurrenceEndDate, undefined, { isRecurring: true })
-                : null;
-
-            const updatedEvent: CalendarEvent = {
-                id: this.dialogData.event?.eventId,
-                title: form.eventTitle,
-                note: form.eventNote?.trim() === "" ? null : form.eventNote,
-                startDateTime: this.buildDate(
-                    form.startDate,
-                    form.startTime,
-                    {isAllDay: form.isAllDay}),
-                endDateTime: this.buildDate(
-                    form.endDate ?? form.startDate,
-                    form.endTime ?? form.startTime,
-                    { isAllDay: form.isAllDay, isRecurring: false, addDay: true, fallbackDate: form.startDate }
-                ),
-                isAllDay: form.isAllDay,
-                categoryId: form.categoryId,
-                recurrenceRule: recurrenceRule,
-                recurrenceEnd: recurrenceEnd
-            }
-
-            this.dialogRef.close({ data: updatedEvent, action: 'update' });
-        }
-    }
-
-    delete() {
-        if (this.dialogData.event) {
-            this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
-                if (!result) return;
-                
-                const eventId = this.dialogData.event.eventId;
-                this.dialogRef.close({ data: eventId, action: 'delete' });
-            });
-        } else {
-            this.dialogRef.close(null);
-        }
-    }
-
-    close() {
-        this.dialogRef.close(null);
-    }
-
-    buildDate(
-        _date: Date | null,
-        time?: Date,
-        options: { isAllDay?: boolean; isRecurring?: boolean; addDay?: boolean; fallbackDate?: Date } = {}
-    ): string | null {
-        const { isAllDay = false, isRecurring = false, addDay = false, fallbackDate = null } = options;
-
-        const date = _date ?? fallbackDate;
-
-        if (!date) return null;
-
-        const dateMoment = moment(date);
-
-        if (isAllDay || isRecurring) {
-            if (isAllDay && addDay) {
-                dateMoment.add(1, 'day');
-            }
-            dateMoment.startOf('day');
-        } else if (time) {
-            const timeMoment = moment(time);
-            dateMoment.set({
-                hour: timeMoment.hour(),
-                minute: timeMoment.minute(),
-                second: 0,
-                millisecond: 0
-            });
-        } else {
-            dateMoment.startOf('day');
-        }
-
-        return dateMoment.format('YYYY-MM-DDTHH:mm:ss');
-    }
-
-    buildRecurrenceString(): string | null {
-        const freq = this.eventForm.value.recurrenceFrequency;
-        const interval = this.eventForm.value.recurrenceInterval;
-        const byDay = this.eventForm.value.recurrenceByDay;
-        
-        const validInterval = interval && interval > 0;
-        const validByDay = Array.isArray(byDay) && byDay.length > 0;
-        
-        if ((!freq) || (!validInterval && !validByDay)) return null;
-        
-        let rule = `FREQ=${freq}`;
-        
-        if (validInterval) {
-            rule += `;INTERVAL=${interval}`;
-        }
-        
-        if (validByDay) {
-            rule += `;BYDAY=${byDay.join(',')}`;
-        }
-        
-        return rule;
-    }
-
-    splitRecurrenceString(ruleString: string) {
-        const parts = ruleString.split(';');
-        const rule: {
-            freq: string | null;
-            interval: number | null;
-            byDay: string[] | null;
-        } = {
-            freq: null,
-            interval: null,
-            byDay: null
-        };
-
-        parts.forEach(part => {
-            const [key, value] = part.split('=');
-            switch (key) {
-                case 'FREQ':
-                    rule.freq = value;
-                    break;
-                case 'INTERVAL':
-                    rule.interval = parseInt(value, 10);
-                    break;
-                case 'BYDAY':
-                    rule.byDay = value.split(',');
-            }
+    private setupFormSubscriptions() {
+        // Toggle time field enablement based on AllDay status
+        this.eventForm.get('isAllDay')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(isAllDay => {
+            const timeControls = ['startTime', 'endTime'];
+            timeControls.forEach(ctrl => isAllDay ? this.eventForm.get(ctrl)?.disable() : this.eventForm.get(ctrl)?.enable());
         });
 
-        return rule;
+        // Disable endDate if recurring (as we use recurrenceEndDate)
+        this.eventForm.get('isRecurring')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(isRec => {
+            isRec ? this.eventForm.get('endDate')?.disable() : this.eventForm.get('endDate')?.enable();
+        });
+    }
+
+    private patchFormForEdit() {
+        const event = this.dialogData.event;
+        const start = new Date(event.startDateTime);
+        const end = event.endDateTime ? new Date(event.endDateTime) : null;
+        const rrule = this.formService.parseRecurrenceString(event.recurrenceRule);
+
+        this.eventForm.patchValue({
+            eventTitle: event.eventTitle,
+            eventNote: event.eventNote,
+            startDate: new Date(start.getFullYear(), start.getMonth(), start.getDate()),
+            startTime: new Date(0, 0, 0, start.getHours(), start.getMinutes()),
+            endDate: end ? new Date(end.getFullYear(), end.getMonth(), end.getDate()) : null,
+            endTime: end ? new Date(0, 0, 0, end.getHours(), end.getMinutes()) : null,
+            isAllDay: event.isAllDay,
+            isRecurring: !!rrule,
+            recurrenceFrequency: rrule?.freq || 'WEEKLY',
+            recurrenceInterval: rrule?.interval || 1,
+            recurrenceByDay: rrule?.byDay || [],
+            recurrenceEndDate: event.recurrenceEnd ? new Date(event.recurrenceEnd) : null
+        });
+
+        this.originalEventValue.set(this.eventForm.getRawValue());
+    }
+
+    // --- Actions ---
+    public save() {
+        if (this.eventForm.invalid) return;
+
+        const formValue = this.eventForm.getRawValue();
+        if (this.isEditMode()) {
+            const updated = this.formService.getUpdateEventData(this.dialogData.event.eventId, formValue);
+            this.dialogRef.close({ data: updated, action: 'update' });
+        } else {
+            const created = this.formService.getCreateEventData(formValue);
+            this.dialogRef.close(created);
+        }
+    }
+
+    public delete() {
+        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(confirm => {
+            if (confirm) this.dialogRef.close({ data: this.dialogData.event.eventId, action: 'delete' });
+        });
+    }
+
+    public close() {
+        this.dialogRef.close(null);
     }
 }
 
-// validates and emits errors depending on the error-situation
-export const FormValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
-    const title = group.get('eventTitle')?.value;
-    const isAllDay = group.get('isAllDay')?.value;
-    const startDate = moment(group.get('startDate')?.value);
-    const startTime = moment(group.get('startTime')?.value);
-    const endDate = moment(group.get('endDate')?.value);
-    const endTime = moment(group.get('endTime')?.value);
-    const isRecurring = group.get('isRecurring')?.value;
-    const interval = group.get('recurrenceInterval')?.value;
-    const byDay = group.get('recurrenceByDay')?.value;
-
-    const errors: ValidationErrors = {};
-
-    // Validate title
-    if (!title) errors['titleIsMissing'] = true;
-
-    // Validate start date
-    if (!startDate.isValid()) errors['startDateMissing'] = true;
-
-    // Validate start time
-    if (!isAllDay && !startTime.isValid()) errors['startTimeMissing'] = true;
-
-    // Validate end date and time
-    if (endDate.isValid() && !isRecurring) {
-        if (!isAllDay && !endTime.isValid()) {
-            group.get('endTime')?.setErrors({ endTimeMissing: true });
-        }
-    } else if (isRecurring) {
-        if (!isAllDay && !endTime.isValid()) {
-            group.get('endTime')?.setErrors({ endTimeMissing: true });
-        }
-    }
-
-    if (isRecurring) {
-        if (!(interval > 0 || (Array.isArray(byDay) && byDay.length > 0))) {
-            errors['recurrenceInvalid'] = true;
-        }
-    }
-
-    return Object.keys(errors).length > 0 ? errors : null;
-}

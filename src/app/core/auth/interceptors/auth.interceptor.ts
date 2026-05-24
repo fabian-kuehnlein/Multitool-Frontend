@@ -11,6 +11,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   let authReq = req;
   if (token) {
+    if (!authService.isLoggedIn()) {
+      authService.logout();
+      return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
+    }
+
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -22,9 +27,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         authService.logout();
-        if (!router.url.includes('/login')) {
-          router.navigate(['/login']);
-        }
       }
       return throwError(() => error);
     })

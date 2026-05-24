@@ -9,9 +9,9 @@
 
     <mat-form-field>
         <mat-label>Titel</mat-label>
-        <input matInput maxlength="100" formControlName="eventTitle" (input)="onInput('eventTitle', $event)" required />
-        <mat-hint>{{ values()['eventTitle'].length}}/100</mat-hint>
-        @if (eventForm.errors?.['titleIsMissing']) {
+        <input matInput maxlength="100" formControlName="eventTitle" required />
+        <mat-hint>{{ charCounts().title }}/100</mat-hint>
+        @if (eventForm.get('eventTitle')?.hasError('required')) {
             <mat-error>Titel ist erforderlich</mat-error>
         }
     </mat-form-field>
@@ -22,9 +22,8 @@
             cdkTextareaAutosize
             #autosize="cdkTextareaAutosize"
             maxlength="200"
-            formControlName="eventNote"
-            (input)="onInput('eventNote', $event)"></textarea>
-        <mat-hint>{{ values()['eventNote'].length}}/200</mat-hint>
+            formControlName="eventNote"></textarea>
+        <mat-hint>{{ charCounts().note }}/200</mat-hint>
     </mat-form-field>
 
     <div class="date-container">
@@ -36,13 +35,15 @@
             </mat-date-range-input>
             <mat-hint>DD.MM.YYYY – DD.MM.YYYY</mat-hint>
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-date-range-picker #picker [startAt]="startAt()"></mat-date-range-picker>
+            <mat-date-range-picker #picker></mat-date-range-picker>
 
             @if (eventForm.get('startDate')?.hasError('matStartDateInvalid')) {
                 <mat-error>Startdatum im falschen Format</mat-error>
             } @else if (eventForm.get('endDate')?.hasError('matEndDateInvalid')) {
                 <mat-error>Enddatum im falschen Format</mat-error>
-            } 
+            } @else if (eventForm.hasError('startDateMissing')) {
+                <mat-error>Startdatum erforderlich</mat-error>
+            }
         </mat-form-field>
 
         <mat-form-field>
@@ -52,12 +53,12 @@
                 <mat-icon matTimepickerToggleIcon>keyboard_arrow_down</mat-icon>
             </mat-timepicker-toggle>
             <mat-timepicker #startTimePicker></mat-timepicker>
-            @if (eventForm.value.isAllDay) {
+            @if (eventForm.get('isAllDay')?.value) {
                 <mat-hint>Ganztägig</mat-hint>
             } @else {
-                <mat-hint>HH:SS</mat-hint>
+                <mat-hint>HH:MM</mat-hint>
             }
-            @if (eventForm.errors?.['startTimeMissing']) {
+            @if (eventForm.hasError('startTimeMissing')) {
                 <mat-error>Startzeit ist erforderlich</mat-error>
             }
         </mat-form-field>
@@ -69,12 +70,11 @@
                 <mat-icon matTimepickerToggleIcon>keyboard_arrow_down</mat-icon>
             </mat-timepicker-toggle>
             <mat-timepicker #endTimePicker></mat-timepicker>
-            @if (eventForm.value.isAllDay) {
+            @if (eventForm.get('isAllDay')?.value) {
                 <mat-hint>Ganztägig</mat-hint>
             } @else {
-                <mat-hint>HH:SS</mat-hint>
+                <mat-hint>HH:MM</mat-hint>
             }
-            <mat-error>Endzeit erforderlich</mat-error>
         </mat-form-field>
     </div>
 
@@ -100,8 +100,8 @@
 
     <mat-divider style="margin-top: -10px;"></mat-divider>
 
-    @if (eventForm.value.isRecurring) {
-        <div class="recurring-container" [ngClass]="{ 'recurring-weekday': eventForm.value.recurrenceFrequency == 'WEEKLY'}">
+    @if (eventForm.get('isRecurring')?.value) {
+        <div class="recurring-container" [ngClass]="{ 'recurring-weekday': eventForm.get('recurrenceFrequency')?.value == 'WEEKLY'}">
             <mat-form-field>
                 <mat-label>Häufigkeit</mat-label>
                 <mat-select formControlName="recurrenceFrequency">
@@ -118,7 +118,7 @@
                 <mat-hint>z.B. alle 2 Wochen</mat-hint>
             </mat-form-field>
 
-            @if (eventForm.value.recurrenceFrequency === 'WEEKLY') {
+            @if (eventForm.get('recurrenceFrequency')?.value === 'WEEKLY') {
                 <mat-form-field>
                     <mat-label>Wochentag</mat-label>
                     <mat-select formControlName="recurrenceByDay" multiple>
@@ -131,7 +131,7 @@
                             }
                         </mat-select-trigger>
                         
-                        @for (day of weekdayOptions; track $index) {
+                        @for (day of weekdayOptions; track day.value) {
                             <mat-option [value]="day.value">{{ day.label }}</mat-option>
                         }
                     </mat-select>
@@ -142,7 +142,7 @@
                 <mat-label>Ende der Wiederholung</mat-label>
                 <input matInput [matDatepicker]="recurrenceEndPicker" formControlName="recurrenceEndDate" />
                 <mat-datepicker-toggle matSuffix [for]="recurrenceEndPicker"></mat-datepicker-toggle>
-                <mat-datepicker #recurrenceEndPicker [startAt]="startAt()"></mat-datepicker>
+                <mat-datepicker #recurrenceEndPicker></mat-datepicker>
                 <mat-hint>DD.MM.YYYY</mat-hint>
                 @if (eventForm.get('recurrenceEndDate')?.hasError('matDatepickerParse')) {
                     <mat-error>Falsches Format</mat-error>
@@ -157,7 +157,7 @@
         <button mat-flat-button class="delete-button delete-btn" (click)="delete()">Löschen</button>
     }
     <button mat-flat-button
-        (click)="isEditMode() ? update() : create()"
+        (click)="save()"
         [disabled]="eventForm.invalid || !isChanged()">
         {{ isEditMode() ? 'Aktualisieren' : 'Erstellen' }}
     </button>
