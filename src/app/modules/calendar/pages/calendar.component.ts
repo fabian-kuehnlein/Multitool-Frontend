@@ -21,6 +21,7 @@ import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
+import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { CalendarMapper } from '../utilities/calendar-mapper';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
@@ -33,7 +34,8 @@ import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component
 		UI_MODULES,
 		FullCalendarModule,
 		MatChipsModule,
-		ReactiveFormsModule
+		ReactiveFormsModule,
+		RecurrenceChoiceDialogComponent
 	],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss',
@@ -176,43 +178,89 @@ export class CalendarComponent implements OnDestroy {
 	}
 
 	public updateEvent(arg: EventClickArg) {
-		const event = arg.event;
-		const eventData = this.mapFullCalendarEventToData(event);
+		const eventData = CalendarMapper.fromFullCalendarEvent(arg.event);
 
-		this.dialog.open(EventDialogComponent, {
+        if (eventData.recurrenceRule) {
+            this.dialog.open(RecurrenceChoiceDialogComponent).afterClosed().subscribe(choice => {
+                if (choice) this.openEventDialog(eventData, choice === 'instance');
+            });
+        } else {
+            this.openEventDialog(eventData);
+        }
+	}
+
+    private openEventDialog(eventData: any, isInstance: boolean = false) {
+        const dialogConfig = {
 			width: 'auto',
 			minWidth: '600px',
             maxWidth: '1500px',
-			data: { event: eventData }
-		}).afterClosed().subscribe(result => {
+			data: { event: isInstance ? { ...eventData, recurrenceRule: null, recurrenceEnd: null, eventId: null } : eventData }
+		};
+
+		this.dialog.open(EventDialogComponent, dialogConfig).afterClosed().subscribe(result => {
 			if (!result) return;
 			
 			if (result.action === 'update') {
-				this.calendarService.updateEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+                if (isInstance) {
+                    this.splitEventFromSeries(eventData, result.data);
+                } else {
+				    this.calendarService.updateEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+                }
 			} else if (result.action === 'delete') {
-				this.calendarService.deleteEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+				if (isInstance) {
+                    this.excludeDateFromSeries(eventData);
+                } else {
+                    this.calendarService.deleteEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+                }
 			}
 		});
-	}
+    }
+
+    private splitEventFromSeries(originalInstance: any, updatedData: any) {
+        const newEvent = { ...updatedData, id: undefined };
+        this.calendarService.createEvent(newEvent).subscribe(() => {
+            this.excludeDateFromSeries(originalInstance);
+        });
+    }
+
+    private excludeDateFromSeries(instance: any) {
+        const dateToExclude = moment(instance.startDateTime).format('YYYY-MM-DD');
+        this.calendarService.excludeDateFromSeries(instance.eventId, dateToExclude).subscribe({
+            next: () => this.calendarApi.refetchEvents(),
+            error: (err) => console.error('Failed to exclude date:', err)
+        });
+    }
 
 	public handleEventDrop(arg: EventDropArg) {
 		const event = arg.event;
-		const updatedEvent: CalendarEvent = {
-			id: event.id,
-			title: event.title,
-			note: event.extendedProps['eventNote'] || '',
-			startDateTime: moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
-			endDateTime: event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
-			isAllDay: event.allDay,
-			categoryId: event.extendedProps['categoryId'] || ''
-		};
+        const isRecurring = !!event.extendedProps['recurrenceRule'];
+		const updatedEvent = CalendarMapper.toCalendarEvent(event);
 
-		this.calendarService.updateEvent(updatedEvent).subscribe({
-			error: (err) => {
-				console.error('Drop failed:', err);
-				arg.revert();
-			}
-		});
+        if (isRecurring) {
+            this.dialog.open(RecurrenceChoiceDialogComponent).afterClosed().subscribe(choice => {
+                if (choice === 'series') {
+                    this.calendarService.updateEvent(updatedEvent).subscribe({
+                        next: () => this.calendarApi.refetchEvents(),
+                        error: (err) => {
+                            console.error('Drop failed:', err);
+                            arg.revert();
+                        }
+                    });
+                } else if (choice === 'instance') {
+                    const originalInstance = CalendarMapper.fromFullCalendarEvent(arg.oldEvent);
+                    this.splitEventFromSeries(originalInstance, updatedEvent);
+                } else {
+                    arg.revert();
+                }
+            });
+        } else {
+            this.calendarService.updateEvent(updatedEvent).subscribe({
+                error: (err) => {
+                    console.error('Drop failed:', err);
+                    arg.revert();
+                }
+            });
+        }
 	}
 
 	public openSearchResult() {
@@ -262,21 +310,4 @@ export class CalendarComponent implements OnDestroy {
 		eventClick: this.updateEvent.bind(this),
 		eventDrop: this.handleEventDrop.bind(this)
 	};
-
-	// --- Helpers ---
-	private mapFullCalendarEventToData(event: any) {
-		return {
-			eventId: event.id,
-			eventTitle: event.title,
-			eventNote: event.extendedProps['eventNote'] || null,
-			startDateTime: event.start,
-			endDateTime: event.end
-				? (event.allDay ? moment(event.end).subtract(1, 'day').toDate() : new Date(event.end))
-				: (event.extendedProps['recurrenceRule'] ? event.start : null),
-			isAllDay: event.allDay,
-			categoryId: event.extendedProps['categoryId']?.toString() ?? null,
-			recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
-			recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null
-		};
-	}
 }

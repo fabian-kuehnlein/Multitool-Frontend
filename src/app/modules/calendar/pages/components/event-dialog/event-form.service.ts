@@ -25,7 +25,8 @@ export class EventFormService {
             recurrenceFrequency: ['WEEKLY'],
             recurrenceInterval: [1],
             recurrenceByDay: [[]],
-            recurrenceEndDate: [null]
+            recurrenceEndDate: [null],
+            exDates: [[]]
         }, { validators: this.formValidator() });
     }
 
@@ -108,7 +109,7 @@ export class EventFormService {
      * Builds an RRule string from form values.
      */
     public buildRecurrenceString(formValue: any): string | null {
-        const { recurrenceFrequency: freq, recurrenceInterval: interval, recurrenceByDay: byDay } = formValue;
+        const { recurrenceFrequency: freq, recurrenceInterval: interval, recurrenceByDay: byDay, exDates } = formValue;
         
         const validInterval = interval && interval > 0;
         const validByDay = Array.isArray(byDay) && byDay.length > 0;
@@ -118,6 +119,9 @@ export class EventFormService {
         let rule = `FREQ=${freq}`;
         if (validInterval) rule += `;INTERVAL=${interval}`;
         if (validByDay) rule += `;BYDAY=${byDay.join(',')}`;
+        if (Array.isArray(exDates) && exDates.length > 0) {
+            rule += `;EXDATE=${exDates.join(',')}`;
+        }
         
         return rule;
     }
@@ -129,7 +133,7 @@ export class EventFormService {
         if (!ruleString) return null;
 
         const parts = ruleString.split(';');
-        const rule: any = { freq: 'WEEKLY', interval: 1, byDay: [] };
+        const rule: any = { freq: 'WEEKLY', interval: 1, byDay: [], exDates: [] };
 
         parts.forEach(part => {
             const [key, value] = part.split('=');
@@ -137,6 +141,7 @@ export class EventFormService {
                 case 'FREQ': rule.freq = value; break;
                 case 'INTERVAL': rule.interval = parseInt(value, 10); break;
                 case 'BYDAY': rule.byDay = value.split(','); break;
+                case 'EXDATE': rule.exDates = value.split(','); break;
             }
         });
 

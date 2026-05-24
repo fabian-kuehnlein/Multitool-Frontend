@@ -164,7 +164,8 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             recurrenceFrequency: rrule?.freq || 'WEEKLY',
             recurrenceInterval: rrule?.interval || 1,
             recurrenceByDay: rrule?.byDay || [],
-            recurrenceEndDate: event.recurrenceEnd ? new Date(event.recurrenceEnd) : null
+            recurrenceEndDate: event.recurrenceEnd ? new Date(event.recurrenceEnd) : null,
+            exDates: rrule?.exDates || []
         });
 
         this.originalEventValue.set(this.eventForm.getRawValue());
