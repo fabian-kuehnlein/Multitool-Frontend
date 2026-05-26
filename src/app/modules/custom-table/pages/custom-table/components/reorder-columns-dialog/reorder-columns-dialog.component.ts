@@ -1,14 +1,13 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, Inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UpdateColumnOrderDto } from '../../../../models';
+import { UI_MODULES } from '../../../../../../shared/utilities/material-ui';
 
 @Component({
   selector: 'app-reorder-columns-dialog',
   imports: [
-    MatDialogModule,
-    MatButtonModule,
+    UI_MODULES,
     DragDropModule
   ],
   templateUrl: './reorder-columns-dialog.component.html',
@@ -19,12 +18,12 @@ export class ReorderColumnsDialogComponent {
 
     constructor(
         private dialogRef: MatDialogRef<ReorderColumnsDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { columns: string[] }
+        @Inject(MAT_DIALOG_DATA) public data: { columns: { id: number, name: string, order: number }[] }
     ) {
-        this.columns = [...data.columns];
+        this.columns = [...data.columns].sort((a, b) => a.order - b.order);
     }
 
-    drop(event: CdkDragDrop<string[]>) {
+    drop(event: CdkDragDrop<any[]>) {
         if (event.previousIndex === event.currentIndex) return;
         
         moveItemInArray(this.columns, event.previousIndex, event.currentIndex);

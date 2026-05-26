@@ -1,36 +1,101 @@
 h2 {
-    text-align: center;
+    margin-bottom: 0;
 }
 
-.columns {
+.description {
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.column-list {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: nowrap;
-    padding: 8px;
+    flex-direction: column;
     gap: 8px;
-    margin-top: 20px;
+    padding: 4px;
 }
 
-.col {
-    text-align: center;
+.column-item {
+    display: flex;
+    align-items: center;
     padding: 12px 16px;
-    border: 1px solid rgba(0, 0, 0, 0.23);
-    border-radius: 4px;
-    font-size: 20px;
-    color: black;
-    background-color: #fff;
-    cursor: move;
-    min-width: 100px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
+    user-select: none;
+
+    &:hover {
+        background-color: #fafafa;
+    }
+
+    &.cdk-drag-dragging {
+        box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+        z-index: 1000;
+    }
+}
+
+.drag-handle {
+    cursor: grab;
+    margin-right: 12px;
+    color: rgba(0, 0, 0, 0.38);
+    display: flex;
+    align-items: center;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.column-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+}
+
+/* CDK Drag & Drop Helpers */
+.cdk-drop-list-dragging .column-item:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.custom-placeholder {
+    background: #f0f0f0;
+    border: 2px dashed #ccc;
+    min-height: 48px;
+    border-radius: 8px;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .cdk-drag-preview {
-    height: auto !important;
-    width: auto !important;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    
+    display: flex;
+    align-items: center;
     padding: 12px 16px;
-}
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.12);
 
-.cdk-drag-placeholder {
-    background-color: lightgray;
+    .drag-handle {
+        margin-right: 12px;
+        color: rgba(0, 0, 0, 0.38);
+        display: flex;
+        align-items: center;
+    }
+
+    .column-name {
+        font-size: 16px;
+        font-weight: 500;
+    }
 }
