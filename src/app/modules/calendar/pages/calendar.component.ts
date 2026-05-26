@@ -2,7 +2,6 @@
 import { Component, ViewChild, inject, signal, HostListener, computed, effect, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { trigger, transition, style, animate } from '@angular/animations';
 
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
@@ -22,7 +21,6 @@ import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
 import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
-import { CalendarEvent } from '../models/calendar-event.model';
 import { CalendarMapper } from '../utilities/calendar-mapper';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
@@ -34,22 +32,10 @@ import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component
 		UI_MODULES,
 		FullCalendarModule,
 		MatChipsModule,
-		ReactiveFormsModule,
-		RecurrenceChoiceDialogComponent
+		ReactiveFormsModule
 	],
 	templateUrl: './calendar.component.html',
-	styleUrl: './calendar.component.scss',
-	animations: [
-		trigger('fadeSlideInOut', [
-			transition(':enter', [
-				style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }),
-				animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
-			]),
-			transition(':leave', [
-				animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }))
-			])
-		])
-	]
+	styleUrl: './calendar.component.scss'
 })
 export class CalendarComponent implements OnDestroy {
 	@ViewChild('calendarRef') calendar!: FullCalendarComponent;

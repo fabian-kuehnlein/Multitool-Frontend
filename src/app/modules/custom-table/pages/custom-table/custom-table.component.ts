@@ -1,9 +1,9 @@
-import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren, signal, computed, effect } from '@angular/core';
 import { UI_MODULES } from '../../../../shared/utilities/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../../../core/layout/sidenav/sidenav.component';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, CustomDataType, RowInfo, TableDetail, TableOverview, UpdateRowOrderDto } from '../../models';
+import { ColumnInfo, CustomDataType, RowInfo, UpdateRowOrderDto } from '../../models';
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from '../../services/custom-table.service';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -37,70 +37,235 @@ export class CustomTableComponent implements OnInit {
     @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
     private readonly dialog = inject(MatDialog);
-    private readonly tableService = inject(CustomTableService)
+    protected readonly tableService = inject(CustomTableService)
     private readonly snackbarService = inject(SnackbarService)
+
+    // UI State Signals
+    protected readonly removeRowsColumn = signal<boolean>(false);
+    
+    // Computed Signals
+    protected readonly displayedColumns = computed(() => {
+        const baseColumns = this.tableService.columns().map(col => col.columnId.toString());
+        if (this.removeRowsColumn()) {
+            return ['delete', ...baseColumns];
+        }
+        return ['drag', ...baseColumns];
+    });
 
     public formControls: { [key: string]: FormControl } = {};
     public removeControls: { [rowId: number]: FormControl} = {};
-
-    public tableList: TableOverview[] = [];
-
-    public tableId = 0;
-    public columns: ColumnInfo[] = [];
-    public displayedColumns: string[] = [];
     public dataSource = new MatTableDataSource<RowInfo>();
 
-    public totalRows = 0;
-
-    public removeRowsColumn: boolean = false;
-
-    openSideNav() {
-        this.dialog.open(SidenavComponent, {
-        position: {
-            top: '90px',
-            left: '30px'
-        },
-        height: 'auto',
-        minHeight: '100px',
-        maxHeight: '1000px',
-        hasBackdrop: true,
-        backdropClass: 'transparent-backdrop',
-        data: 'custom-table'
-        }).afterClosed();
+    constructor() {
+        // Automatically sync dataSource and formControls when table data changes
+        effect(() => {
+            const rows = this.tableService.rows();
+            const cols = this.tableService.columns();
+            
+            this.dataSource.data = rows;
+            this.initializeFormControls(rows, cols);
+            
+            if (this.table) {
+                this.table.renderRows();
+            }
+        });
     }
 
     ngOnInit(): void {
-        this.loadTableList();
+        this.tableService.fetchTableList();
     }
 
-    initializeFormControl() {
-        for (const row of this.dataSource.data) {
-            for (const col of this.columns) {
+    private initializeFormControls(rows: RowInfo[], columns: ColumnInfo[]) {
+        // We keep existing controls to avoid losing focus if only data changes
+        // But for a full table load, we might want to refresh.
+        // For simplicity, we just rebuild for now.
+        this.formControls = {};
+        
+        for (const row of rows) {
+            for (const col of columns) {
                 const key = `${row.rowId}_${col.columnId}`;
+                const value = row.cells[col.columnId];
+                
+                let validators = [];
                 if (col.dataType === CustomDataType.Int) {
-                    // Intiger Validation
-                    this.formControls[key] = new FormControl(row.cells[col.columnId] || '', [Validators.pattern(/^\d+$/)])
+                    validators.push(Validators.pattern(/^\d+$/));
                 } else if (col.dataType === CustomDataType.Decimal) {
-                    // Decimal Validation
-                    this.formControls[key] = new FormControl(row.cells[col.columnId] || '', [Validators.pattern(/^\d+(\.\d{1,2})?$/)])
-                } else {
-                    // Normal Textfield
-                    this.formControls[key] = new FormControl(row.cells[col.columnId] || '');
+                    validators.push(Validators.pattern(/^\d+(\.\d{1,2})?$/));
                 }
-            }
-        }
 
-        this.dataSource.data.forEach(row => {
+                this.formControls[key] = new FormControl(value ?? '', validators);
+            }
+
             if (!this.removeControls[row.rowId]) {
                 this.removeControls[row.rowId] = new FormControl(false);
             }
-        })
-    };
+        }
+    }
+
+    openSideNav() {
+        this.dialog.open(SidenavComponent, {
+            position: { top: '90px', left: '30px' },
+            height: 'auto',
+            minHeight: '100px',
+            maxHeight: '1000px',
+            hasBackdrop: true,
+            backdropClass: 'transparent-backdrop',
+            data: 'custom-table'
+        });
+    }
+
+    loadTable(tableId: number) {
+        this.tableService.loadTable(tableId);
+    }
+
+    createTable() {
+        this.dialog.open(CreationDialogComponent, {
+            width: 'auto',
+            minWidth: '600px',
+            data: { dialogMode: 'CreateTable' }
+        }).afterClosed().subscribe(data => {
+            if (data) {
+                this.tableService.createTable(data).subscribe({
+                    error: err => this.snackbarService.openSnackbar(err)
+                });
+            }
+        });
+    }
+
+    editTable() {
+        const tableId = this.tableService.tableId();
+        const currentTable = this.tableService.currentTable();
+        if (tableId === 0 || !currentTable) return;
+
+        this.dialog.open(CreationDialogComponent, {
+            width: 'auto',
+            minWidth: '600px',
+            data: { dialogMode: 'EditTable', tableName: currentTable.name }
+        }).afterClosed().subscribe(data => {
+            if (data) {
+                this.tableService.updateTable(tableId, data).subscribe({
+                    error: err => this.snackbarService.openSnackbar(err)
+                });
+            }
+        });
+    }
+
+    deleteTable() {
+        const tableId = this.tableService.tableId();
+        if (tableId === 0) return;
+
+        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+            if (!result) return;
+            this.tableService.deleteTable(tableId).subscribe({
+                error: err => this.snackbarService.openSnackbar(err)
+            });
+        });
+    }
+
+    addColumn() {
+        this.tableService.createColumn(this.tableService.tableId()).subscribe({
+            error: err => this.snackbarService.openSnackbar(err)
+        });
+    }
+    
+    editColumn(colId: number) {
+        const col = this.tableService.columns().find(c => c.columnId === colId);
+        if (!col) return;
+
+        const hasValues = this.tableService.rows().some(row => {
+            const value = row.cells[colId];
+            return value !== null && value !== undefined && value !== '';
+        });
+
+        this.dialog.open(CreationDialogComponent, {
+            width: 'auto',
+            minWidth: '600px',
+            data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
+        }).afterClosed().subscribe(data => {
+            if (data === true) {
+                this.tableService.deleteColumn(this.tableService.tableId(), colId).subscribe({
+                    error: err => this.snackbarService.openSnackbar(err)
+                });
+            } else if (data) {
+                this.tableService.updateColumn(colId, data).subscribe({
+                    error: err => this.snackbarService.openSnackbar(err)
+                });
+            }
+        });
+    }
+
+    reorderColumns() {
+        const cols = this.tableService.columns().map(col => ({
+            id: col.columnId,
+            name: col.name,
+            order: col.colOrder
+        }));
+
+        this.dialog.open(ReorderColumnsDialogComponent, {
+            width: 'auto',
+            minWidth: '500px',
+            data: { columns: cols }
+        }).afterClosed().subscribe(result => {
+            if (!result) return;
+            this.tableService.updateColumnOrder(result).subscribe({
+                error: err => this.snackbarService.openSnackbar(err)
+            });
+        });
+    }
+
+    addRow() {
+        this.tableService.createRow(this.tableService.tableId()).subscribe({
+            error: err => this.snackbarService.openSnackbar(err)
+        });
+    }
+
+    dropRow(event: CdkDragDrop<RowInfo[]>) {
+        if (event.previousIndex === event.currentIndex) return;
+
+        const rows = [...this.tableService.rows()];
+        moveItemInArray(rows, event.previousIndex, event.currentIndex);
+
+        const updateDtos: UpdateRowOrderDto[] = rows.map((row, index) => ({
+            rowId: row.rowId,
+            rowOrder: index
+        }));
+
+        this.tableService.updateRowOrder(updateDtos).subscribe({
+            next: () => this.tableService.loadTable(this.tableService.tableId()),
+            error: err => this.snackbarService.openSnackbar(err)
+        });
+    }
+
+    toggleRemoveMode() {
+        this.removeRowsColumn.update(v => !v);
+        if (!this.removeRowsColumn()) {
+            Object.values(this.removeControls).forEach(control => control.setValue(false));
+        }
+    }
+
+    hasCheckedRows() {
+        return Object.values(this.removeControls).some(control => control.value);
+    }
+
+    deleteRows() {
+        const rows = Object.entries(this.removeControls)
+            .filter(([_, control]) => control.value)
+            .map(([rowId]) => Number(rowId));
+
+        if (rows.length === 0) return;
+
+        this.tableService.deleteRows(this.tableService.tableId(), rows).subscribe({
+            next: () => this.toggleRemoveMode(),
+            error: err => this.snackbarService.openSnackbar(err)
+        });
+    }
 
     onCellBlur(rowId: number, columnId: number) {
         const key = `${rowId}_${columnId}`;
         const value = this.formControls[key].value;
-        this.setCellValue(rowId, columnId, value);
+        this.tableService.upsertCell(rowId, columnId, value).subscribe({
+            error: err => this.snackbarService.openSnackbar(err)
+        });
     }
 
     focusOwnCell(event: MouseEvent) {
@@ -111,235 +276,5 @@ export class CustomTableComponent implements OnInit {
         if (input) {
             input.focus();
         }
-    }
-
-    loadTableList() {
-        this.tableService.getListOfTables().subscribe({
-            next: list => {
-                this.tableList = list;
-            },
-            error: err => {
-                this.snackbarService.openSnackbar(err);
-            }
-        });
-    }
-
-    loadTable(tableId: number) {
-        this.tableService.getTable(tableId).subscribe((table: TableDetail) => {
-            this.tableId = table.tableId;
-            this.columns = table.columns;
-            this.displayedColumns = ['drag', ...this.columns.map(c => c.columnId.toString())];
-            this.dataSource.data = table.rows.sort((a, b) => a.rowOrder - b.rowOrder);
-            this.totalRows = table.rows.length;
-
-            this.initializeFormControl();
-        })
-    }
-
-    createTable() {
-        this.dialog.open(CreationDialogComponent, {
-            width: 'auto',
-            minWidth: '600px',
-            maxWidth: '1500px',
-            height: 'auto',
-            data: { dialogMode: 'CreateTable'}
-        }).afterClosed().subscribe(data => {
-            if (data)
-            {
-                this.tableService.createTable(data).subscribe({
-                    next: id => {
-                        this.loadTableList();
-                        this.loadTable(id);
-                    },
-                    error: err => {
-                        this.snackbarService.openSnackbar(err);
-                    }
-                });
-            }
-        });
-    }
-
-    editTable() {
-        this.dialog.open(CreationDialogComponent, {
-            width: 'auto',
-            minWidth: '600px',
-            maxWidth: '1500px',
-            height: 'auto',
-            data: { dialogMode: 'EditTable', tableName: this.tableList.find(t => t.tableId === this.tableId)?.name }
-        }).afterClosed().subscribe(data => {
-            if (data)
-            {
-                this.tableService.updateTable(this.tableId, data).subscribe({
-                    next: () => {
-                        this.loadTableList();
-                    },
-                    error: err => {
-                        this.snackbarService.openSnackbar(err);
-                    }
-                });
-            }
-        });
-    }
-
-    deleteTable() {
-        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
-            if (!result) return;
-
-            this.tableService.deleteTable(this.tableId).subscribe({
-                next: () => {
-                    this.loadTableList();
-                    this.tableId = 0;
-                },
-                error: err => {
-                    this.snackbarService.openSnackbar(err);
-                }
-            });
-        })
-    }
-
-    addColumn() {
-        this.tableService.createColumn(this.tableId).subscribe({
-                next: () => {
-                    this.loadTable(this.tableId);
-                },
-                error: err => {
-                    this.snackbarService.openSnackbar(err);
-                }
-            });
-    }
-    
-    editColumn(colId: number) {
-        const col = this.columns.find(c => c.columnId === colId);
-        if (!col) return;
-
-        const hasValues = this.dataSource.data.some(row => {
-            const value = row.cells[colId];
-            return value !== null && value !== undefined && value !== ''
-        })
-
-        this.dialog.open(CreationDialogComponent, {
-            width: 'auto',
-            minWidth: '600px',
-            maxWidth: '1500px',
-            height: 'auto',
-            data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
-        }).afterClosed().subscribe(data => {
-            if (data === true) {
-                this.tableService.deleteColumn(this.tableId, colId).subscribe({
-                    next: () => {
-                        this.loadTable(this.tableId);
-                    },
-                    error: err => {
-                        this.snackbarService.openSnackbar(err);
-                    }
-                });
-            } else if (data)
-            {
-                this.tableService.updateColumn(this.tableId, colId, data).subscribe({
-                    next: () => {
-                        this.loadTable(this.tableId);
-                    },
-                    error: err => {
-                        this.snackbarService.openSnackbar(err);
-                    }
-                });
-            }
-        });
-    }
-
-    reorderColumns() {
-        const cols = this.columns.map(col => ({
-            id: col.columnId,
-            name: col.columnName,
-            order: col.colOrder
-        }))
-
-        this.dialog.open(ReorderColumnsDialogComponent, {
-                width: 'auto',
-                minWidth: '500px',
-                maxWidth: '90vw',
-                data: {columns: cols}
-            }).afterClosed().subscribe(result => {
-            if (!result) return;
-
-            this.tableService.updateColumnOrder(result).subscribe({
-                next: () => {
-                    this.loadTable(this.tableId);
-                },
-                error: err => {
-                    this.snackbarService.openSnackbar(err);
-                }
-            });
-        });
-    }
-
-    addRow() {
-        this.tableService.createRow(this.tableId).subscribe({
-            next: () => {
-                this.loadTable(this.tableId);
-            },
-            error: err => {
-                this.snackbarService.openSnackbar(err);
-            }
-        });
-    }
-
-    dropRow(event: CdkDragDrop<RowInfo[]>) {
-        if (event.previousIndex === event.currentIndex) return;
-
-        moveItemInArray(this.dataSource.data, event.previousIndex, event.currentIndex);
-
-        this.table.renderRows();
-
-        const updateDtos: UpdateRowOrderDto[] = this.dataSource.data.map((row, index) => ({
-            rowId: row.rowId,
-            rowOrder: index
-        }));
-
-        this.tableService.updateRowOrder(updateDtos).subscribe({
-            error: err => {
-                this.snackbarService.openSnackbar(err);
-            }
-        })
-    }
-
-    toggleRemoveMode() {
-        this.removeRowsColumn = !this.removeRowsColumn;
-
-        const baseColumns = this.columns.map(col => col.columnId.toString());
-        this.displayedColumns = this.removeRowsColumn ? ['delete', ...baseColumns] : ['drag', ...baseColumns];
-
-        if (this.removeRowsColumn === false) {
-            Object.values(this.removeControls).forEach(control => control.setValue(false));
-        }
-    }
-
-    // disables delete button if no row is selected to delete
-    hasCheckedRows() {
-        return Object.values(this.removeControls).some(control => control.value);
-    }
-
-    deleteRows() {
-        const rows = Object.entries(this.removeControls).filter(([_, control]) => control.value).map(([rowId], _) => Number(rowId));
-
-        if (rows.length === 0) return;
-
-        this.tableService.deleteRows(this.tableId, rows).subscribe({
-            next: () => {
-                this.loadTable(this.tableId);
-                this.toggleRemoveMode();
-            },
-            error: err => {
-                this.snackbarService.openSnackbar(err);
-            }
-        });
-    }
-
-    setCellValue(rowId: number, columnId: number, value: any) {
-        this.tableService.upsertCell(rowId, columnId, value).subscribe({
-            error: err => {
-                this.snackbarService.openSnackbar(err);
-            }
-        });
     }
 }

@@ -1,90 +1,126 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { inject, Injectable, signal, computed } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { UpsertTableDto, TableDetail, TableOverview, UpdateColumnDto, UpdateColumnOrderDto, UpdateRowOrderDto } from '../models';
+import { CustomTableHttpService } from './custom-table-http.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomTableService {
+    private readonly httpService = inject(CustomTableHttpService);
 
-    private readonly http = inject(HttpClient)
-    private readonly apiURL = `${environment.MultitoolApi}/api/CustomTable`;
+    // --- Signals for State Management ---
+    private readonly _tableList = signal<TableOverview[]>([]);
+    private readonly _currentTable = signal<TableDetail | null>(null);
+    private readonly _loading = signal<boolean>(false);
 
-    // development route
-    // returns a table with fixed values
-    getDevTable() {
-        return this.http.get<TableDetail>(`${this.apiURL}/GetDevTable`);
-    }
-    //
+    // Public Read-only Signals
+    public readonly tableList = this._tableList.asReadonly();
+    public readonly currentTable = this._currentTable.asReadonly();
+    public readonly loading = this._loading.asReadonly();
 
-    // returns the table list to select
-    getListOfTables(): Observable<TableOverview[]> {
-        return this.http.get<TableOverview[]>(`${this.apiURL}/GetTableList`)
-    }
+    // Derived Signals
+    public readonly tableId = computed(() => this._currentTable()?.tableId ?? 0);
+    public readonly columns = computed(() => {
+        const table = this._currentTable();
+        return table ? [...table.columns].sort((a, b) => a.colOrder - b.colOrder) : [];
+    });
+    public readonly rows = computed(() => {
+        const table = this._currentTable();
+        return table ? [...table.rows].sort((a, b) => a.rowOrder - b.rowOrder) : [];
+    });
 
-    // loads table
-    getTable(tableId: number) {
-        return this.http.get<TableDetail>(`${this.apiURL}/GetTable`, { params: {tableId} });
-    }
+    // --- State Management Actions ---
 
-    // creates table with name and first row
-    createTable(dto: UpsertTableDto) {
-        return this.http.post<number>(`${this.apiURL}/CreateTable`, dto);
-    }
-
-    // updates tablename
-    updateTable(tableId: number, newName: string) {
-        return this.http.put<number>(`${this.apiURL}/UpdateTable`, null, { params: {tableId, newName} });
-    }
-
-    // deletes table
-    deleteTable(tableId: number) {
-        return this.http.delete(`${this.apiURL}/DeleteTable`, { params: {tableId}});
-    }
-
-    // creates column with base name and datatype
-    createColumn(tableId: number) {
-        return this.http.post<number>(`${this.apiURL}/CreateColumn`, null,  { params: {tableId} });
+    fetchTableList(): void {
+        this._loading.set(true);
+        this.httpService.getListOfTables().subscribe({
+            next: list => {
+                this._tableList.set(list);
+                this._loading.set(false);
+            },
+            error: () => this._loading.set(false)
+        });
     }
 
-    // updates column name, column order and datatype, deletes all data when switching datatype
-    updateColumn(tableId: number, columnId: number, dto: UpdateColumnDto) {
-        return this.http.put<number>(`${this.apiURL}/UpdateColumn`, dto,  { params: {tableId, columnId} });
+    loadTable(tableId: number): void {
+        this._loading.set(true);
+        this.httpService.getTable(tableId).subscribe({
+            next: table => {
+                this._currentTable.set(table);
+                this._loading.set(false);
+            },
+            error: () => this._loading.set(false)
+        });
     }
 
-    updateColumnOrder(dto: UpdateColumnOrderDto[]) {
-        return this.http.put<number>(`${this.apiURL}/UpdateColumnOrder`, dto);
+    createTable(dto: UpsertTableDto): Observable<number> {
+        return this.httpService.createTable(dto).pipe(
+            tap(id => {
+                this.fetchTableList();
+                this.loadTable(id);
+            })
+        );
     }
 
-    // deletes full column
-    deleteColumn(tableId: number, columnId: number) {
-        return this.http.delete(`${this.apiURL}/DeleteColumn`, { params: {tableId, columnId}})
+    updateTable(tableId: number, newName: string): Observable<number> {
+        return this.httpService.updateTable(tableId, newName).pipe(
+            tap(() => this.fetchTableList())
+        );
     }
 
-    // create empty row for chosen table
-    createRow(tableId: number) {
-        return this.http.post<number>(`${this.apiURL}/CreateRow`, null,  { params: {tableId} });
+    deleteTable(tableId: number): Observable<any> {
+        return this.httpService.deleteTable(tableId).pipe(
+            tap(() => {
+                this.fetchTableList();
+                if (this.tableId() === tableId) {
+                    this._currentTable.set(null);
+                }
+            })
+        );
     }
 
-    updateRowOrder(rows: UpdateRowOrderDto[]) {
-        return this.http.put(`${this.apiURL}/UpdateRowOrder`, rows);
+    createColumn(tableId: number): Observable<number> {
+        return this.httpService.createColumn(tableId).pipe(
+            tap(() => this.loadTable(tableId))
+        );
     }
 
-    // deletes full row
-    deleteRows(tableId: number, rows: number[]) {
-        return this.http.delete(`${this.apiURL}/DeleteRows`, { body: rows, params: {tableId}})
+    updateColumn(columnId: number, dto: UpdateColumnDto): Observable<number> {
+        return this.httpService.updateColumn(columnId, dto).pipe(
+            tap(() => this.loadTable(this.tableId()))
+        );
     }
 
-    // adds or updates cell data
-    upsertCell(rowId: number, columnId: number, value: any) {
-        const params = new HttpParams()
-            .set('rowId', rowId.toString())
-            .set('columnId', columnId.toString());
-        
-        const headers = new HttpHeaders({ 'Content-Type': 'application/json' })
+    updateColumnOrder(dto: UpdateColumnOrderDto[]): Observable<number> {
+        return this.httpService.updateColumnOrder(dto).pipe(
+            tap(() => this.loadTable(this.tableId()))
+        );
+    }
 
-        return this.http.put<void>(`${this.apiURL}/SetCell`, JSON.stringify(value), { params, headers });
+    deleteColumn(tableId: number, columnId: number): Observable<any> {
+        return this.httpService.deleteColumn(tableId, columnId).pipe(
+            tap(() => this.loadTable(tableId))
+        );
+    }
+
+    createRow(tableId: number): Observable<number> {
+        return this.httpService.createRow(tableId).pipe(
+            tap(() => this.loadTable(tableId))
+        );
+    }
+
+    updateRowOrder(rows: UpdateRowOrderDto[]): Observable<any> {
+        return this.httpService.updateRowOrder(rows);
+    }
+
+    deleteRows(tableId: number, rows: number[]): Observable<any> {
+        return this.httpService.deleteRows(tableId, rows).pipe(
+            tap(() => this.loadTable(tableId))
+        );
+    }
+
+    upsertCell(rowId: number, columnId: number, value: any): Observable<void> {
+        return this.httpService.upsertCell(rowId, columnId, value);
     }
 }
