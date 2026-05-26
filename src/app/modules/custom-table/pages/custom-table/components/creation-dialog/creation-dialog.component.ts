@@ -74,13 +74,13 @@ export class CreationDialogComponent {
 
         if (data.col) {
             this.form.patchValue({
-                columnName: data.col.columnName,
+                columnName: data.col.name,
                 columnDataType: data.col.dataType as CustomDataType
             });
 
             this.values.set({
                 ...this.values(),
-                columnName: data.col.columnName
+                columnName: data.col.name
             })
 
             this.form.get('tableName')?.disable();

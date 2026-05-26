@@ -91,7 +91,7 @@
                             @for (col of tableService.columns(); track col.columnId) {
                                 <ng-container [matColumnDef]="col.columnId.toString()">
                                     <th mat-header-cell *matHeaderCellDef (click)="editColumn(col.columnId)" class="column-hover">
-                                        {{col.name || col.name || 'Unbenannt'}}
+                                        {{col.name || 'Unbenannt'}}
                                     </th>                                    <td mat-cell *matCellDef="let row" class="cell-hover" (click)="focusOwnCell($event)">
                                         @switch (col.dataType) {
                                             @case ('string') {

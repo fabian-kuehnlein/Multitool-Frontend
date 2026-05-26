@@ -65,7 +65,10 @@ export class CustomTableService {
 
     updateTable(tableId: number, newName: string): Observable<number> {
         return this.httpService.updateTable(tableId, newName).pipe(
-            tap(() => this.fetchTableList())
+            tap(() => {
+                this.fetchTableList();
+                this.loadTable(tableId);
+            })
         );
     }
 

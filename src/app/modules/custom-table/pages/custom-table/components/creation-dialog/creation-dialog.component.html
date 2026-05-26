@@ -13,7 +13,7 @@
         <mat-form-field style="width: 100%;">
             <mat-label>Tabellenname</mat-label>
             <input matInput maxlength="100" formControlName="tableName" (input)="onInput('tableName', $event)" required />
-            <mat-hint>{{ values()['tableName'].length }}/100</mat-hint>
+            <mat-hint>{{ values()['tableName']?.length ?? 0 }}/100</mat-hint>
             <mat-error>Tabellenname ist erforderlich!</mat-error>
         </mat-form-field>
     }
@@ -23,7 +23,7 @@
             <mat-form-field>
                 <mat-label>{{dialogMode === 'CreateTable' ? 'Spaltenname der 1. Spalte' : 'Spaltenname'}}</mat-label>
                 <input matInput maxlength="100" formControlName="columnName" (input)="onInput('columnName', $event)" required />
-                <mat-hint>{{ values()['columnName'].length }}/100</mat-hint>
+                <mat-hint>{{ values()['columnName']?.length ?? 0 }}/100</mat-hint>
                 <mat-error>Spaltenname ist erforderlich!</mat-error>
             </mat-form-field>
             <mat-form-field>

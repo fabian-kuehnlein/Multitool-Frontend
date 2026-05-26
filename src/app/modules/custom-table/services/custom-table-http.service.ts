@@ -56,7 +56,7 @@ export class CustomTableHttpService {
     }
 
     deleteRows(tableId: number, rows: number[]): Observable<any> {
-        return this.http.delete(`${this.apiURL}/tables/${tableId}/rows`, { body: { rows } });
+        return this.http.delete(`${this.apiURL}/tables/${tableId}/rows`, { body: rows });
     }
 
     upsertCell(rowId: number, columnId: number, value: any): Observable<void> {
