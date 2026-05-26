@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren, signal, computed, effect } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren, signal, computed, effect, AfterViewInit, OnDestroy } from '@angular/core';
 import { UI_MODULES } from '../../../../shared/utilities/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../../../core/layout/sidenav/sidenav.component';
@@ -7,6 +7,7 @@ import { ColumnInfo, CustomDataType, RowInfo, UpdateRowOrderDto } from '../../mo
 import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from '../../services/custom-table.service';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { PageEvent } from '@angular/material/paginator';
 import { CreationDialogComponent } from './components/creation-dialog/creation-dialog.component';
 import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox'
@@ -32,8 +33,9 @@ import { SnackbarService } from '../../../../core/services/snackbar.service';
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
 })
-export class CustomTableComponent implements OnInit {
+export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild(MatTable) table!: MatTable<any>;
+    @ViewChild('sidebarList', { read: ElementRef }) sidebarList!: ElementRef;
     @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
     private readonly dialog = inject(MatDialog);
@@ -42,6 +44,16 @@ export class CustomTableComponent implements OnInit {
 
     // UI State Signals
     protected readonly removeRowsColumn = signal<boolean>(false);
+    protected readonly isSidebarVisible = signal<boolean>(true);
+
+    // Pagination Signals
+    protected readonly pageSize = signal<number>(10);
+    protected readonly pageIndex = signal<number>(0);
+    private resizeObserver?: ResizeObserver;
+
+    toggleSidebar() {
+        this.isSidebarVisible.update(v => !v);
+    }
     
     // Computed Signals
     protected readonly displayedColumns = computed(() => {
@@ -51,6 +63,17 @@ export class CustomTableComponent implements OnInit {
         }
         return ['drag', ...baseColumns];
     });
+
+    protected readonly paginatedTableList = computed(() => {
+        const list = this.tableService.tableList();
+        const start = this.pageIndex() * this.pageSize();
+        return list.slice(start, start + this.pageSize());
+    });
+
+    onPageChange(event: PageEvent) {
+        this.pageIndex.set(event.pageIndex);
+        this.pageSize.set(event.pageSize);
+    }
 
     public formControls: { [key: string]: FormControl } = {};
     public removeControls: { [rowId: number]: FormControl} = {};
@@ -69,10 +92,52 @@ export class CustomTableComponent implements OnInit {
                 this.table.renderRows();
             }
         });
+
+        // Ensure pageIndex is valid when table list changes
+        effect(() => {
+            const list = this.tableService.tableList();
+            const maxPage = Math.max(0, Math.ceil(list.length / this.pageSize()) - 1);
+            if (this.pageIndex() > maxPage) {
+                this.pageIndex.set(maxPage);
+            }
+        });
     }
 
     ngOnInit(): void {
         this.tableService.fetchTableList();
+    }
+
+    ngAfterViewInit(): void {
+        this.setupResizeObserver();
+    }
+
+    ngOnDestroy(): void {
+        this.resizeObserver?.disconnect();
+    }
+
+    private setupResizeObserver() {
+        this.resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                if (entry.target === this.sidebarList.nativeElement) {
+                    this.calculatePageSize();
+                }
+            }
+        });
+        this.resizeObserver.observe(this.sidebarList.nativeElement);
+        // Initial calculation
+        this.calculatePageSize();
+    }
+
+    private calculatePageSize() {
+        if (!this.sidebarList) return;
+        
+        const containerHeight = this.sidebarList.nativeElement.clientHeight;
+        const itemHeight = 56; // 48px standard + 8px gap
+        
+        const newPageSize = Math.max(1, Math.floor(containerHeight / itemHeight));
+        if (newPageSize !== this.pageSize()) {
+            this.pageSize.set(newPageSize);
+        }
     }
 
     private initializeFormControls(rows: RowInfo[], columns: ColumnInfo[]) {

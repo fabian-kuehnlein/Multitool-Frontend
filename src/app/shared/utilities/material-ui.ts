@@ -11,6 +11,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatPaginatorModule } from "@angular/material/paginator";
 
 export const UI_MODULES = [
     MatInputModule,
@@ -25,5 +26,6 @@ export const UI_MODULES = [
     MatMenuModule,
     MatButtonToggleModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatPaginatorModule
 ];

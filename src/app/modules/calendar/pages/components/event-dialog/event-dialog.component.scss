@@ -57,17 +57,8 @@
     padding: 16px 24px;
     gap: 8px;
 
-    .delete-btn {
+    .delete-button {
         margin-right: auto;
-        color: #d32f2f;
-        
-        &:hover {
-            background-color: rgba(211, 47, 47, 0.04);
-        }
-
-        mat-icon {
-            color: #d32f2f;
-        }
     }
 
     button {
