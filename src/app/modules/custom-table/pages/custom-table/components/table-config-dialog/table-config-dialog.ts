@@ -12,18 +12,18 @@ enum DialogMode {
 }
 
 @Component({
-  selector: 'app-creation-dialog',
+  selector: 'app-table-config-dialog',
   imports: [
     UI_MODULES
   ],
-  templateUrl: './creation-dialog.component.html',
-  styleUrl: './creation-dialog.component.scss'
+  templateUrl: './table-config-dialog.html',
+  styleUrl: './table-config-dialog.scss'
 })
-export class CreationDialogComponent {
+export class TableConfigDialog {
     dialogMode: DialogMode = DialogMode.CreateTable;
 
     private readonly fb = inject(FormBuilder);
-    private readonly dialogRef = inject(MatDialogRef<CreationDialogComponent>);
+    private readonly dialogRef = inject(MatDialogRef<TableConfigDialog>);
     public readonly dialog = inject(MatDialog);
 
     // for char-count on title and note inputs

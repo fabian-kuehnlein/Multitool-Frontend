@@ -8,7 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { CustomTableService } from '../../services/custom-table.service';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { PageEvent } from '@angular/material/paginator';
-import { CreationDialogComponent } from './components/creation-dialog/creation-dialog.component';
+import { TableConfigDialog } from './components/table-config-dialog/table-config-dialog';
 import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -184,7 +184,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     createTable() {
-        this.dialog.open(CreationDialogComponent, {
+        this.dialog.open(TableConfigDialog, {
             width: 'auto',
             minWidth: '600px',
             data: { dialogMode: 'CreateTable' }
@@ -202,7 +202,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         const currentTable = this.tableService.currentTable();
         if (tableId === 0 || !currentTable) return;
 
-        this.dialog.open(CreationDialogComponent, {
+        this.dialog.open(TableConfigDialog, {
             width: 'auto',
             minWidth: '600px',
             data: { dialogMode: 'EditTable', tableName: currentTable.name }
@@ -242,7 +242,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
             return value !== null && value !== undefined && value !== '';
         });
 
-        this.dialog.open(CreationDialogComponent, {
+        this.dialog.open(TableConfigDialog, {
             width: 'auto',
             minWidth: '600px',
             data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
