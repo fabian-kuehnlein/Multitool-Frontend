@@ -232,6 +232,23 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
             error: err => this.snackbarService.openSnackbar(err)
         });
     }
+
+    deleteColumn(event: MouseEvent, colId: number) {
+        event.stopPropagation(); // Prevent opening the edit dialog
+        
+        this.dialog.open(ConfirmDialogComponent, {
+            data: { 
+                title: 'Spalte löschen', 
+                message: 'Möchten Sie diese Spalte wirklich löschen? Alle darin enthaltenen Daten gehen unwiderruflich verloren.' 
+            }
+        }).afterClosed().subscribe(result => {
+            if (result) {
+                this.tableService.deleteColumn(this.tableService.tableId(), colId).subscribe({
+                    error: err => this.snackbarService.openSnackbar(err)
+                });
+            }
+        });
+    }
     
     editColumn(colId: number) {
         const col = this.tableService.columns().find(c => c.columnId === colId);

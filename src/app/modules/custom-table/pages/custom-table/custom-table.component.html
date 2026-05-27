@@ -72,7 +72,9 @@
                                 <ng-container [matColumnDef]="'drag'" sticky>
                                     <th mat-header-cell *matHeaderCellDef></th>
                                     <td mat-cell *matCellDef="let row">
-                                        <mat-icon cdkDragHandle class="action-col">reorder</mat-icon>
+                                        <div class="cell-content">
+                                            <mat-icon cdkDragHandle>reorder</mat-icon>
+                                        </div>
                                     </td>
                                 </ng-container>
                             }
@@ -80,19 +82,29 @@
                             @if (removeRowsColumn()) {
                                 <ng-container [matColumnDef]="'delete'" sticky>
                                     <th mat-header-cell *matHeaderCellDef>
-                                        <mat-icon class="delete-button action-col">delete</mat-icon>
+                                        <div class="cell-content">
+                                            <mat-icon class="delete-button">delete</mat-icon>
+                                        </div>
                                     </th>
                                     <td mat-cell *matCellDef="let row">
-                                        <mat-checkbox [formControl]="removeControls[row.rowId]" class="action-col"></mat-checkbox>
+                                        <div class="cell-content">
+                                            <mat-checkbox [formControl]="removeControls[row.rowId]"></mat-checkbox>
+                                        </div>
                                     </td>
                                 </ng-container>
                             }
 
                             @for (col of tableService.columns(); track col.columnId) {
                                 <ng-container [matColumnDef]="col.columnId.toString()">
-                                    <th mat-header-cell *matHeaderCellDef (click)="editColumn(col.columnId)" class="column-hover">
-                                        {{col.name || 'Unbenannt'}}
-                                    </th>                                    <td mat-cell *matCellDef="let row" class="cell-hover" (click)="focusOwnCell($event)">
+                                    <th mat-header-cell *matHeaderCellDef class="column-header-cell">
+                                        <div class="header-container" (click)="editColumn(col.columnId)">
+                                            <span class="column-name">{{col.name || 'Unbenannt'}}</span>
+                                            <button mat-icon-button class="delete-col-btn" (click)="deleteColumn($event, col.columnId)" matTooltip="Spalte löschen">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row" class="cell-hover" (click)="focusOwnCell($event)">
                                         @switch (col.dataType) {
                                             @case ('string') {
                                                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
@@ -134,14 +146,18 @@
                                             }
 
                                             @case ('bool') {
-                                                <mat-checkbox
-                                                    [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                    (change)="onCellBlur(row.rowId, col.columnId)">
-                                                </mat-checkbox>
+                                                <div class="cell-content">
+                                                    <mat-checkbox
+                                                        [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                        (change)="onCellBlur(row.rowId, col.columnId)">
+                                                    </mat-checkbox>
+                                                </div>
                                             }
 
                                             @default {
-                                                <p>Datentyp nicht erkannt!</p>
+                                                <div class="cell-content">
+                                                    <p>Datentyp nicht erkannt!</p>
+                                                </div>
                                             }
                                         }
                                     </td>

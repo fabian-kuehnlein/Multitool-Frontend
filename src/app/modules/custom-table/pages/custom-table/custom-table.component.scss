@@ -150,49 +150,145 @@
 
 .table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 
     th {
-        background-color: #f4f4f4;
-        font-weight: 600;
-        color: #444;
-        padding: 12px 16px;
-        border-bottom: 2px solid #ddd;
+        background-color: #ececec; // Slightly darker gray for header
+        font-weight: 700; // Bolder text
+        color: #222; // Darker text for contrast
+        padding: 0; // Remove padding to allow header-container to fill
+        border-bottom: 3px solid #bbb; // Thicker, darker bottom border
+        border-right: 1px solid #ccc;
         white-space: nowrap;
         cursor: pointer;
         transition: background-color 0.2s;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+
+        &:last-child {
+            border-right: none;
+        }
 
         &:hover {
-            background-color: #e8e8e8;
+            background-color: #e0e0e0;
+
+            .delete-col-btn {
+                opacity: 1;
+            }
         }
     }
 
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px 10px 16px;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    .column-name {
+        text-transform: uppercase;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .delete-col-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+        width: 32px;
+        height: 32px;
+        display: flex; // Use flex to center
+        align-items: center;
+        justify-content: center;
+        margin-left: 4px;
+
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: #000; // Change to black
+        }
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.1); // Darker hover background
+        }
+    }
+
+    tr:nth-child(odd) {
+        background-color: #ffffff; // Pure white
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2; // More visible light gray
+    }
+
+    tr:hover {
+        background-color: #e9ecef !important; // Stronger hover effect
+    }
+
     td {
-        padding: 4px 8px;
-        border-bottom: 1px solid #eee;
-        transition: background-color 0.1s;
+        padding: 0;
+        border-bottom: 1px solid #ddd; // Slightly darker border
+        border-right: 1px solid #ddd;
+        transition: all 0.2s;
+        position: relative;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        &:focus-within {
+            outline: 2px solid #1976d2;
+            outline-offset: -2px;
+            z-index: 10;
+            background-color: #e3f2fd !important; // Slightly more blue focus
+        }
     }
 }
 
 .cell-hover:hover {
-    background-color: rgb(224, 224, 224);
+    background-color: #f0f0f0;
+}
+
+.cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 12px;
 }
 
 .no-outline-form-field {
     width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+
     ::ng-deep {
         .mat-mdc-form-field-flex {
             background-color: transparent !important;
+            padding: 0 12px !important;
+            height: 48px; // Consistent height
+            align-items: center;
         }
         .mat-mdc-notched-outline {
             display: none !important;
         }
         .mat-mdc-form-field-infix {
-            padding: 8px 0 !important;
+            padding: 0 !important;
             min-height: 0 !important;
+            border-top: none !important;
+            display: flex;
+            align-items: center;
         }
         input {
             font-size: 0.95rem;
+            height: 100%;
         }
     }
 }
@@ -245,9 +341,4 @@
         display: flex;
         align-items: center;
     }
-}
-
-.action-col {
-    margin-left: 16px;
-    margin-right: 8px;
 }
