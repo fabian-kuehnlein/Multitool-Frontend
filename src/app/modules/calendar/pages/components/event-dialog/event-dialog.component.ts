@@ -186,7 +186,15 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     }
 
     public delete() {
-        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(confirm => {
+        this.dialog.open(ConfirmDialogComponent, {
+            data: {
+                title: 'Ereignis löschen',
+                message: 'Möchten Sie dieses Ereignis wirklich löschen?',
+                confirmText: 'Löschen',
+                isDestructive: true
+            }
+        })
+        .afterClosed().subscribe(confirm => {
             if (confirm) this.dialogRef.close({ data: this.dialogData.event.eventId, action: 'delete' });
         });
     }

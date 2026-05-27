@@ -219,7 +219,14 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         const tableId = this.tableService.tableId();
         if (tableId === 0) return;
 
-        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+        this.dialog.open(ConfirmDialogComponent, {
+            data: {
+                title: 'Tabelle löschen',
+                message: 'Möchten Sie diese Tabelle wirklich mit allen Inhalten löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+                confirmText: 'Tabelle löschen',
+                isDestructive: true
+            }
+        }).afterClosed().subscribe(result => {
             if (!result) return;
             this.tableService.deleteTable(tableId).subscribe({
                 error: err => this.snackbarService.openSnackbar(err)
@@ -239,7 +246,9 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dialog.open(ConfirmDialogComponent, {
             data: { 
                 title: 'Spalte löschen', 
-                message: 'Möchten Sie diese Spalte wirklich löschen? Alle darin enthaltenen Daten gehen unwiderruflich verloren.' 
+                message: 'Möchten Sie diese Spalte wirklich löschen? Alle darin enthaltenen Daten gehen unwiderruflich verloren.',
+                confirmText: 'Spalte löschen',
+                isDestructive: true
             }
         }).afterClosed().subscribe(result => {
             if (result) {

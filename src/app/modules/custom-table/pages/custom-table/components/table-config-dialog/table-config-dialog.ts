@@ -119,7 +119,16 @@ export class TableConfigDialog {
 
                 // if dataType was changed, ask User through ConfirmDialog for Confirmation
                 if (this.form.value.columnDataType !== this.data.col.dataType) {
-                    this.dialog.open(ConfirmDialogComponent, { minHeight: '270px', data: true }).afterClosed().subscribe(result => {
+                    this.dialog.open(ConfirmDialogComponent, {
+                        data: {
+                            title: 'Datentyp ändern',
+                            message: 'Wenn Sie den Datentyp ändern, können die bestehenden Daten in dieser Spalte verloren gehen. Möchten Sie fortfahren?',
+                            confirmText: 'Ändern',
+                            cancelText: 'Abbrechen',
+                            isDestructive: true
+                        }
+                    })
+                    .afterClosed().subscribe(result => {
                         // if false, cancel save(), else proceed
                         if (!result) return;
                         this.dialogRef.close(updateColDto);
@@ -137,7 +146,15 @@ export class TableConfigDialog {
     }
 
     delete() {
-        this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+        this.dialog.open(ConfirmDialogComponent, {
+            data: {
+                title: 'Spalte löschen',
+                message: 'Möchten Sie diese Spalte wirklich löschen? Alle Daten in dieser Spalte gehen verloren.',
+                confirmText: 'Löschen',
+                isDestructive: true
+            }
+        })
+        .afterClosed().subscribe(result => {
             if (!result) return;
 
             this.dialogRef.close(true);

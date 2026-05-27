@@ -92,7 +92,15 @@ export class SearchDialogComponent implements OnDestroy {
 
     delete(deleteId: string) {
         if (deleteId) {
-            this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+            this.dialog.open(ConfirmDialogComponent, {
+                data: {
+                    title: 'Ereignis löschen',
+                    message: 'Möchten Sie dieses Ereignis wirklich löschen?',
+                    confirmText: 'Löschen',
+                    isDestructive: true
+                }
+            })
+            .afterClosed().subscribe(result => {
                 if (result) {
                     this.calendarService.deleteEvent(deleteId).subscribe({
                         next: () => {

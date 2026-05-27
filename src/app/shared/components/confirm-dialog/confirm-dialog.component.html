@@ -1,16 +1,24 @@
-@if (!this.data) {
-    <h2 mat-dialog-title class="header">Bist du dir sicher?</h2>
-} @else {
-    <h2 mat-dialog-title class="header">Achtung</h2>
-    <mat-dialog-content>
-        <p>Der Datentyp dieser Spalte wird geändert.</p>
-        <p>Dadurch werden alle bisherigen Inhalte unwiderruflich gelöscht.</p>
-        <p>Möchtest du wirklich fortfahren?</p>
+<div class="confirm-dialog-container">
+    <div class="dialog-header">
+        <div class="icon-container" [class.destructive]="isDestructive">
+            <mat-icon>{{ isDestructive ? 'warning' : 'info' }}</mat-icon>
+        </div>
+        <h2 mat-dialog-title>{{ title }}</h2>
+    </div>
+
+    <mat-dialog-content class="dialog-content">
+        <p>{{ message }}</p>
     </mat-dialog-content>
-}
 
-
-<mat-dialog-actions class="actions">
-    <button mat-flat-button mat-dialog-close>Abbrechen</button>
-    <button mat-flat-button [mat-dialog-close]="true" class="delete-button">{{ !this.data ? 'Löschen' : 'Änderung bestätigen'}}</button>
-</mat-dialog-actions>
+    <mat-dialog-actions class="dialog-actions">
+        <button mat-button (click)="dialogRef.close(false)" class="cancel-btn">
+            {{ cancelText }}
+        </button>
+        <button mat-flat-button 
+                (click)="dialogRef.close(true)" 
+                class="confirm-btn"
+                [class.delete-button]="isDestructive">
+            {{ confirmText }}
+        </button>
+    </mat-dialog-actions>
+</div>
