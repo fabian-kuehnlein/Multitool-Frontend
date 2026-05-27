@@ -4,11 +4,15 @@ import { provideMomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angu
 import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
-import 'moment/locale/de';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
+import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import moment from 'moment';
+import 'moment/locale/de';
+
+moment.locale('de');
 
 registerLocaleData(localeDe, 'de');
 
@@ -32,16 +36,20 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
-        provideHttpClient(withFetch()),
+        provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
         provideMomentDateAdapter({
             parse: {
-                dateInput: ['l', 'LL'],
+                dateInput: ['DD.MM.YYYY', 'D.M.YYYY'],
+                timeInput: 'HH:mm'
             },
             display: {
-                dateInput: 'L',
+                dateInput: 'DD.MM.YYYY',
                 monthYearLabel: 'MMM YYYY',
                 dateA11yLabel: 'LL',
                 monthYearA11yLabel: 'MMMM YYYY',
+
+                timeInput: 'HH:mm',
+                timeOptionLabel: 'HH:mm'
             },
         }),
         { provide: LOCALE_ID, useValue: 'de' },

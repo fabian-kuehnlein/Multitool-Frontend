@@ -1,9 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @use "@angular/material" as mat;
-@import "@fontsource/roboto/300.css";
-@import "@fontsource/roboto/400.css";
-@import "@fontsource/roboto/500.css";
-@import "@fontsource/material-icons";
+@use "@fontsource/roboto/300.css" as *;
+@use "@fontsource/roboto/400.css" as *;
+@use "@fontsource/roboto/500.css" as *;
+@use "@fontsource/material-icons" as *;
 
 .material-icons {
     font-family: "Material Icons";
@@ -39,6 +39,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     @include mat.button-overrides((
         filled-container-color: #b71c1c,
         filled-label-text-color: white,
+        text-label-text-color: #b71c1c,
+        text-state-layer-color: #b71c1c
     ));
     @include mat.icon-button-overrides((
         icon-color: #b71c1c

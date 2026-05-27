@@ -1,0 +1,233 @@
+<div class="custom-table-container">
+    <mat-toolbar class="toolbar-container">
+        <!-- Left Container: Navigation & Sidebar Toggle -->
+        <div class="left-container">
+            <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
+                <mat-icon>home</mat-icon>
+            </button>
+            
+            <button mat-icon-button (click)="toggleSidebar()" [matTooltip]="isSidebarVisible() ? 'Tabellenliste einklappen' : 'Tabellenliste ausklappen'">
+                <mat-icon>{{ isSidebarVisible() ? 'menu_open' : 'menu' }}</mat-icon>
+            </button>
+        </div>
+
+        <!-- Middle Container: Current Table Title -->
+        <div class="middle-container">
+            @if (tableService.tableId() !== 0) {
+                <h1 class="table-title">{{ tableService.currentTable()?.name }}</h1>
+            } @else {
+                <h1 class="table-title">Custom Tables</h1>
+            }
+        </div>
+
+        <!-- Right Container: Actions -->
+        <div class="right-container">
+            <button mat-flat-button color="primary" (click)="createTable()" class="create-button">
+                <mat-icon>add</mat-icon>
+                <span>Tabelle erstellen</span>
+            </button>
+        </div>
+    </mat-toolbar>
+
+    @if (tableService.loading()) {
+        <mat-progress-bar mode="indeterminate" class="table-loader"></mat-progress-bar>
+    }
+
+    <div class="main-layout">
+        <!-- Collapsible Sidebar -->
+        <div class="table-sidebar" [class.collapsed]="!isSidebarVisible()">
+            <div class="sidebar-header">
+                <span>Meine Tabellen</span>
+            </div>
+            <mat-nav-list class="sidebar-list" #sidebarList>
+                @for (table of paginatedTableList(); track table.tableId) {
+                    <a mat-list-item (click)="loadTable(table.tableId)" [class.active-item]="table.tableId === tableService.tableId()">
+                        <mat-icon matListItemIcon>table_chart</mat-icon>
+                        <span matListItemTitle>{{table.name}}</span>
+                    </a>
+                }
+                @if (tableService.tableList().length === 0) {
+                    <div class="empty-list-message">Keine Tabellen</div>
+                }
+            </mat-nav-list>
+
+            @if (tableService.tableList().length > pageSize()) {
+                <mat-paginator [length]="tableService.tableList().length"
+                              [pageSize]="pageSize()"
+                              [pageIndex]="pageIndex()"
+                              [hidePageSize]="true"
+                              (page)="onPageChange($event)"
+                              class="sidebar-paginator">
+                </mat-paginator>
+            }
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            @if (tableService.tableId() !== 0) {
+                <div class="table-content-card">
+                    <div class="scroll-wrapper" cdkDropList (cdkDropListDropped)="dropRow($event)" [cdkDropListData]="dataSource.data">
+                        <table mat-table [dataSource]="dataSource" class="table">
+                            @if (!removeRowsColumn()) {
+                                <ng-container [matColumnDef]="'drag'" sticky>
+                                    <th mat-header-cell *matHeaderCellDef></th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <div class="cell-content">
+                                            <mat-icon cdkDragHandle>reorder</mat-icon>
+                                        </div>
+                                    </td>
+                                </ng-container>
+                            }
+                                
+                            @if (removeRowsColumn()) {
+                                <ng-container [matColumnDef]="'delete'" sticky>
+                                    <th mat-header-cell *matHeaderCellDef>
+                                        <div class="cell-content">
+                                            <mat-icon class="delete-button">delete</mat-icon>
+                                        </div>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <div class="cell-content">
+                                            <mat-checkbox [formControl]="removeControls[row.rowId]"></mat-checkbox>
+                                        </div>
+                                    </td>
+                                </ng-container>
+                            }
+
+                            @for (col of tableService.columns(); track col.columnId) {
+                                <ng-container [matColumnDef]="col.columnId.toString()">
+                                    <th mat-header-cell *matHeaderCellDef class="column-header-cell">
+                                        <div class="header-container" (click)="editColumn(col.columnId)">
+                                            <span class="column-name">{{col.name || 'Unbenannt'}}</span>
+                                            <button mat-icon-button class="delete-col-btn" (click)="deleteColumn($event, col.columnId)" matTooltip="Spalte löschen">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row" class="cell-hover" (click)="focusOwnCell($event)">
+                                        @switch (col.dataType) {
+                                            @case ('string') {
+                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
+                                                    <input matInput
+                                                        type="text"
+                                                        [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                        (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                </mat-form-field>
+                                            }
+
+                                            @case ('int') {
+                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
+                                                    <input matInput class="no-spinner"
+                                                        type="number"
+                                                        [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                        (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                </mat-form-field>
+                                            }
+
+                                            @case ('decimal') {
+                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
+                                                    <input matInput class="no-spinner"
+                                                    type="number"
+                                                    step="0.01"
+                                                    [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                    (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                </mat-form-field>
+                                            }
+
+                                            @case ('date') { 
+                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field date-cell">
+                                                    <input matInput [matDatepicker]="picker" class="date-cell"
+                                                        [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                        (dateChange)="onCellBlur(row.rowId, col.columnId)">
+                                                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                                    <mat-datepicker #picker></mat-datepicker>
+                                                </mat-form-field>
+
+                                            }
+
+                                            @case ('bool') {
+                                                <div class="cell-content">
+                                                    <mat-checkbox
+                                                        [formControl]="formControls[row.rowId + '_' + col.columnId]"
+                                                        (change)="onCellBlur(row.rowId, col.columnId)">
+                                                    </mat-checkbox>
+                                                </div>
+                                            }
+
+                                            @default {
+                                                <div class="cell-content">
+                                                    <p>Datentyp nicht erkannt!</p>
+                                                </div>
+                                            }
+                                        }
+                                    </td>
+                                </ng-container>
+                            }
+                            
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                            <tr mat-row
+                                cdkDrag
+                                [cdkDragDisabled]="removeRowsColumn()"
+                                *matRowDef="let row; columns: displayedColumns();"
+                                [ngClass]="{ 'row-marked-for-deletion' : removeControls[row.rowId].value }">
+                            </tr>                        </table>
+                    </div>
+                    
+                    <div class="table-footer-actions">
+                        @if (!removeRowsColumn()) {
+                            <button mat-stroked-button (click)="addRow()">
+                                <mat-icon>add</mat-icon>
+                                Zeile hinzufügen
+                            </button>
+                            
+                            <button mat-stroked-button (click)="addColumn()">
+                                <mat-icon>view_column</mat-icon>
+                                Spalte hinzufügen
+                            </button>
+
+                            <button mat-stroked-button (click)="reorderColumns()">
+                                <mat-icon>swap_horiz</mat-icon>
+                                Anordnung
+                            </button>
+
+                            <span class="spacer"></span>
+
+                            <button mat-button (click)="editTable()">
+                                <mat-icon>edit</mat-icon>
+                                Umbenennen
+                            </button>
+
+                            <button mat-button class="delete-button" (click)="toggleRemoveMode()">
+                                <mat-icon>remove_circle_outline</mat-icon>
+                                Zeilen löschen
+                            </button>
+
+                            <button mat-button class="delete-button" (click)="deleteTable()">
+                                <mat-icon>delete_forever</mat-icon>
+                                Tabelle löschen
+                            </button>
+                        } @else {
+                            <button mat-flat-button class="delete-button" (click)="deleteRows()" [disabled]="!hasCheckedRows()">
+                                <mat-icon>delete</mat-icon>
+                                Ausgewählte Zeilen löschen
+                            </button>
+
+                            <button mat-button (click)="toggleRemoveMode()">
+                                Abbrechen
+                            </button>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <div class="empty-state">
+                    <mat-icon class="empty-table-icon">table_chart</mat-icon>
+                    <h2>Wähle eine Tabelle aus oder erstelle eine neue</h2>
+                    <button mat-flat-button color="primary" (click)="createTable()">
+                        <mat-icon>add</mat-icon>
+                        Tabelle erstellen
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

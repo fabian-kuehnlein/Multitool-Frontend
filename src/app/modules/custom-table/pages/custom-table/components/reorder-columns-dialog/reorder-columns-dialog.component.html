@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Spaltenreihenfolge anpassen</h2>
+
+<mat-dialog-content>
+    <p class="description">Ziehe die Spalten in die gewünschte Reihenfolge.</p>
+    <div cdkDropList [cdkDropListData]="columns" (cdkDropListDropped)="drop($event)" class="column-list">
+        @for (col of columns; track col.id) {
+            <div class="column-item" cdkDrag>
+                <div class="drag-handle" cdkDragHandle>
+                    <mat-icon>drag_indicator</mat-icon>
+                </div>
+                <span class="column-name">{{ col.name || 'Unbenannt' }}</span>
+                
+                <!-- Placeholder for the drag operation -->
+                <div class="custom-placeholder" *cdkDragPlaceholder></div>
+            </div>
+        }
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="actions">
+    <button mat-button (click)="cancel()">Abbrechen</button>
+    <button mat-flat-button color="primary" (click)="save()">Speichern</button>
+</mat-dialog-actions>

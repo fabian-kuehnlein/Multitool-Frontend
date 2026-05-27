@@ -1,0 +1,24 @@
+<div class="confirm-dialog-container">
+    <div class="dialog-header">
+        <div class="icon-container" [class.destructive]="isDestructive">
+            <mat-icon>{{ isDestructive ? 'warning' : 'info' }}</mat-icon>
+        </div>
+        <h2 mat-dialog-title>{{ title }}</h2>
+    </div>
+
+    <mat-dialog-content class="dialog-content">
+        <p>{{ message }}</p>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions">
+        <button mat-button (click)="dialogRef.close(false)" class="cancel-btn">
+            {{ cancelText }}
+        </button>
+        <button mat-flat-button 
+                (click)="dialogRef.close(true)" 
+                class="confirm-btn"
+                [class.delete-button]="isDestructive">
+            {{ confirmText }}
+        </button>
+    </mat-dialog-actions>
+</div>

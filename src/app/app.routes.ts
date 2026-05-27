@@ -1,22 +1,24 @@
-import { ApplicationConfig } from '@angular/core';
-import { Routes, provideRouter, withDebugTracing } from '@angular/router';
+import { Routes } from '@angular/router';
+import { authGuard } from './core/auth/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'calendar',
+    redirectTo: 'login',
     pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./core/auth/pages/login/login.component').then(m => m.LoginComponent)
   },
   { 
     path: 'calendar',
-    loadComponent: () => import('./components/calendar/calendar.component').then(m => m.CalendarComponent)
+    canActivate: [authGuard],
+    loadComponent: () => import('./modules/calendar/pages/calendar.component').then(m => m.CalendarComponent)
   },
   {
     path: 'custom-table',
-    loadComponent: () => import('./components/custom-table/custom-table.component').then(m => m.CustomTableComponent)
+    canActivate: [authGuard],
+    loadComponent: () => import('./modules/custom-table/pages/custom-table/custom-table.component').then(m => m.CustomTableComponent)
   }
 ];
-
-export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes, withDebugTracing())]
-}
