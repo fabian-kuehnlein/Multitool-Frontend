@@ -1,51 +1,59 @@
 <div class="calendar-container">
-    <mat-toolbar class="toolbar-container">
-        <!-- Left Container: Navigation & Views -->
+    <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
+        <!-- Left Container -->
         <div class="left-container">
-            <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
-                <mat-icon>home</mat-icon>
-            </button>
+            @if (!isMobile()) {
+                <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
+                    <mat-icon>home</mat-icon>
+                </button>
 
-            <button mat-stroked-button (click)="calendarAction('today')" [disabled]="isToday()" class="today-button">
-                Heute
-            </button>
+                <button mat-stroked-button (click)="calendarAction('today')" [disabled]="isToday()" class="today-button">
+                    Heute
+                </button>
 
-            <mat-button-toggle-group [value]="currentView()" (change)="calendarAction($event.value === 'dayGridMonth' ? 'changeMonth' : 'changeWeek')">
-                <mat-button-toggle value="dayGridMonth" matTooltip="Monatsansicht (M)">Monat</mat-button-toggle>
-                <mat-button-toggle value="timeGridWeek" matTooltip="Wochenansicht (W)">Woche</mat-button-toggle>
-            </mat-button-toggle-group>
+                <mat-button-toggle-group [value]="currentView()" (change)="calendarAction($event.value === 'dayGridMonth' ? 'changeMonth' : 'changeWeek')">
+                    <mat-button-toggle value="dayGridMonth" matTooltip="Monatsansicht (M)">Monat</mat-button-toggle>
+                    <mat-button-toggle value="timeGridWeek" matTooltip="Wochenansicht (W)">Woche</mat-button-toggle>
+                </mat-button-toggle-group>
+            } @else {
+                <h1 class="date-title">{{ title() }}</h1>
+            }
         </div>
 
-        <!-- Middle Container: Date Selection -->
-        <div class="middle-container">
-            <div class="navigation-buttons">
-                <button mat-icon-button (click)="calendarAction('prevYear')" matTooltip="Letztes Jahr">
-                    <mat-icon>keyboard_double_arrow_left</mat-icon>
-                </button>
-                <button mat-icon-button (click)="calendarAction('prev')" matTooltip="Letzter Monat">
-                    <mat-icon>chevron_left</mat-icon>
-                </button>
+        <!-- Middle Container (Desktop only) -->
+        @if (!isMobile()) {
+            <div class="middle-container">
+                <div class="navigation-buttons">
+                    <button mat-icon-button (click)="calendarAction('prevYear')" matTooltip="Letztes Jahr">
+                        <mat-icon>keyboard_double_arrow_left</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="calendarAction('prev')" matTooltip="Letzter Monat">
+                        <mat-icon>chevron_left</mat-icon>
+                    </button>
+                </div>
+
+                <h1 class="date-title">{{ title() }}</h1>
+
+                <div class="navigation-buttons">
+                    <button mat-icon-button (click)="calendarAction('next')" matTooltip="Nächster Monat">
+                        <mat-icon>chevron_right</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="calendarAction('nextYear')" matTooltip="Nächstes Jahr">
+                        <mat-icon>keyboard_double_arrow_right</mat-icon>
+                    </button>
+                </div>
             </div>
+        }
 
-            <h1 class="date-title">{{ title() }}</h1>
-
-            <div class="navigation-buttons">
-                <button mat-icon-button (click)="calendarAction('next')" matTooltip="Nächster Monat">
-                    <mat-icon>chevron_right</mat-icon>
-                </button>
-                <button mat-icon-button (click)="calendarAction('nextYear')" matTooltip="Nächstes Jahr">
-                    <mat-icon>keyboard_double_arrow_right</mat-icon>
-                </button>
-            </div>
-        </div>
-
-        <!-- Right Container: Actions -->
+        <!-- Right Container -->
         <div class="right-container">
-            <button mat-flat-button color="primary" (click)='createEvent()' class="create-button" matTooltip="Neuer Eintrag (Alt + N)">
-                <mat-icon>add</mat-icon>
-                <span>Eintrag erstellen</span>
-            </button>
-            
+            @if (!isMobile()) {
+                <button mat-flat-button color="primary" (click)='createEvent()' class="create-button" matTooltip="Neuer Eintrag (Alt + N)">
+                    <mat-icon>add</mat-icon>
+                    <span>Eintrag erstellen</span>
+                </button>
+            }
+
             <button mat-icon-button (click)="openSearchResult()" matTooltip="Suche (Alt + F oder /)">
                 <mat-icon>search</mat-icon>
             </button>
@@ -82,8 +90,34 @@
             </button>
         </div>
     }
-    
+
     <div class="calendar-wrapper">
         <full-calendar #calendarRef [options]="calendarOptions"></full-calendar>
     </div>
+
+    @if (isMobile()) {
+        <div class="mobile-action-container">
+            <button mat-fab class="mobile-fab-left" (click)="openSideNav()" matTooltip="Tool wechseln">
+                <mat-icon>home</mat-icon>
+            </button>
+
+            <div class="mobile-nav-center">
+                <button mat-mini-fab (click)="calendarAction('prev')" color="basic">
+                    <mat-icon>chevron_left</mat-icon>
+                </button>
+
+                <button mat-mini-fab (click)="calendarAction('today')" [color]="isToday() ? 'basic' : 'primary'" [disabled]="isToday()">
+                    <mat-icon>today</mat-icon>
+                </button>
+
+                <button mat-mini-fab (click)="calendarAction('next')" color="basic">
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
+            </div>
+
+            <button mat-fab color="primary" class="mobile-fab-right" (click)="createEvent()" matTooltip="Neuer Eintrag">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+    }
 </div>
