@@ -3,42 +3,46 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { AuthService } from '../../auth/services/auth.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
-  selector: 'app-sidenav',
-  imports: [
-    MatDialogModule,
-    MatSidenavModule,
-    MatListModule,
-    MatButtonModule,
-    MatIconModule
-  ],
-  templateUrl: './sidenav.component.html',
-  styleUrl: './sidenav.component.scss'
+    selector: 'app-sidenav',
+    standalone: true,
+    imports: [MatIconModule, MatSidenavModule, MatListModule, MatDividerModule],
+    templateUrl: './sidenav.component.html',
+    styleUrl: './sidenav.component.scss'
 })
 export class SidenavComponent {
     private readonly router = inject(Router);
-    private readonly dialogData = inject(MAT_DIALOG_DATA) as string;
+    private readonly authService = inject(AuthService);
+    private readonly dialogRef = inject(MatDialogRef<SidenavComponent>);
+    public readonly dialogData = inject(MAT_DIALOG_DATA);
 
-    public readonly tools = [
+    tools = [
         {
-            title: 'Kalender',
-            description: 'Termine und Ereignisse verwalten',
-            icon: 'calendar_month',
+            name: 'Kalender',
+            description: 'Termine verwalten',
+            icon: 'calendar_today',
             route: '/calendar',
         },
         {
-            title: 'Custom Tables',
-            description: 'Eigene Datenstrukturen pflegen',
+            name: 'Tabellen',
+            description: 'Eigene Listen führen',
             icon: 'table_chart',
             route: '/custom-table',
         }
     ];
 
     navigate(route: string) {
-        this.router.navigate([route])
+        this.router.navigate([route]);
+        this.dialogRef.close();
+    }
+
+    logout() {
+        this.authService.logout();
+        this.dialogRef.close();
     }
 
     isCurrentRoute(route: string) {

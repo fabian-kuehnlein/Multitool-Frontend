@@ -5,13 +5,12 @@
         @for (tool of tools; track tool.route) {
             <div class="tool-item" 
                  [class.active]="isCurrentRoute(tool.route)"
-                 (click)="!isCurrentRoute(tool.route) && navigate(tool.route)"
-                 [mat-dialog-close]="true">
-                <div class="icon-wrapper">
+                 (click)="navigate(tool.route)">
+                <div class="tool-icon">
                     <mat-icon>{{tool.icon}}</mat-icon>
                 </div>
                 <div class="tool-info">
-                    <span class="tool-name">{{tool.title}}</span>
+                    <span class="tool-name">{{tool.name}}</span>
                     <span class="tool-desc">{{tool.description}}</span>
                 </div>
                 @if (isCurrentRoute(tool.route)) {
@@ -19,5 +18,19 @@
                 }
             </div>
         }
+    </div>
+
+    <mat-divider class="sidenav-divider"></mat-divider>
+
+    <div class="action-list">
+        <div class="tool-item logout-item" (click)="logout()">
+            <div class="tool-icon logout-icon">
+                <mat-icon>logout</mat-icon>
+            </div>
+            <div class="tool-info">
+                <span class="tool-name">Abmelden</span>
+                <span class="tool-desc">Sitzung beenden</span>
+            </div>
+        </div>
     </div>
 </div>
