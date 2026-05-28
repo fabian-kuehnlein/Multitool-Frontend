@@ -37,7 +37,7 @@ export const defaultCalendarOptions: CalendarOptions = {
         const endStr = end?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         const timeDisplay = isAllDay
-            ? 'Ganztägig'
+            ? ''
             : startStr
                 ? endStr
                     ? `${startStr} – ${endStr}`
@@ -94,6 +94,16 @@ export const defaultCalendarOptions: CalendarOptions = {
     eventDidMount: ({ event, el, view }) => {
         const categoryColor = event.extendedProps['categoryColor'];
         const isListView = view.type.includes('list');
+        const isPlaceholder = event.extendedProps['isPlaceholder'];
+
+        if (isPlaceholder) {
+            el.style.fontStyle = 'italic';
+            el.style.opacity = '0.7';
+            el.style.pointerEvents = 'none';
+            const dot = el.querySelector('.fc-list-event-dot') as HTMLElement;
+            if (dot) dot.style.display = 'none';
+            return;
+        }
 
         if (categoryColor) {
             if (isListView) {
@@ -107,6 +117,7 @@ export const defaultCalendarOptions: CalendarOptions = {
                 // For our custom indicator
                 el.style.setProperty('--event-color', categoryColor);
             } else {
+                // Standard grid styling
                 el.style.backgroundColor = categoryColor;
                 el.style.borderColor = categoryColor;
                 el.style.color = '#fff';

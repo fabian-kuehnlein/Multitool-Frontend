@@ -169,12 +169,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
 		api.changeView(viewName);
 		this.currentView.set(viewName);
-        
-        if (viewName === 'listMonth') {
-            this.title.set('Agenda');
-        } else {
-            this.title.set(api.view.title);
-        }
+        this.title.set(api.view.title);
 	}
 
 	private updateTodayStatus() {
@@ -328,11 +323,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 		datesSet: () => {
             const api = this.calendarApi;
             if (api) {
-                if (this.currentView() === 'listMonth') {
-                    this.title.set('Agenda');
-                } else {
-                    this.title.set(api.view.title);
-                }
+                this.title.set(api.view.title);
             }
         },
 		loading: (isLoading) => this.isLoading.set(isLoading),
@@ -340,7 +331,29 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 			{
 				events: (fetchInfo, successCallback, failureCallback) => {
 					this.calendarService.getEvents(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategoryIds()).subscribe({
-						next: (events) => successCallback(events.map(e => CalendarMapper.toEventInput(e, this.categoryList()))),
+						next: (events) => {
+                            const mappedEvents = events.map(e => CalendarMapper.toEventInput(e, this.categoryList()));
+                            
+                            // Ensure 'Today' is always visible in list view by adding a placeholder if empty
+                            const todayStr = moment().format('YYYY-MM-DD');
+                            const hasEventToday = mappedEvents.some(e => {
+                                const start = moment(e.start as string).format('YYYY-MM-DD');
+                                return start === todayStr;
+                            });
+
+                            if (!hasEventToday && this.currentView() === 'listMonth') {
+                                mappedEvents.push({
+                                    id: 'today-placeholder',
+                                    title: 'Keine Termine geplant',
+                                    start: todayStr,
+                                    allDay: true,
+                                    display: 'list-item',
+                                    extendedProps: { isPlaceholder: true }
+                                });
+                            }
+
+                            successCallback(mappedEvents);
+                        },
 						error: (err) => failureCallback(err)
 					});
 				}
