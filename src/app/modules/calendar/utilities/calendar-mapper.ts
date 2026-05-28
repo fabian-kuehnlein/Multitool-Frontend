@@ -8,11 +8,19 @@ export class CalendarMapper {
         const category = categories.find(c => String(c.id) === String(event.categoryId));
         const color = category?.color || '#1976d2';
 
+        // Helper to strip 'Z' and ensure we parse as local time
+        const parseAsLocal = (dateStr: string | null | undefined) => {
+            if (!dateStr) return undefined;
+            // Remove 'Z' if present to prevent UTC conversion by the browser
+            const cleanStr = dateStr.endsWith('Z') ? dateStr.slice(0, -1) : dateStr;
+            return moment(cleanStr).toDate();
+        };
+
         const input: EventInput = {
             id: event.id,
             title: event.title,
-            start: new Date(event.startDateTime || ''),
-            end: new Date(event.endDateTime || ''),
+            start: parseAsLocal(event.startDateTime),
+            end: parseAsLocal(event.endDateTime),
             allDay: event.isAllDay,
             backgroundColor: color,
             borderColor: color,
@@ -21,7 +29,7 @@ export class CalendarMapper {
                 categoryId: event.categoryId,
                 categoryColor: color,
                 recurrenceRule: event.recurrenceRule,
-                recurrenceEnd: event.recurrenceEnd
+                recurrenceEnd: parseAsLocal(event.recurrenceEnd)
             }
         };
 
@@ -30,8 +38,8 @@ export class CalendarMapper {
             const { exdate, ...rruleOptions } = parsedRule;
 
             input['rrule'] = {
-                dtstart: event.startDateTime,
-                until: event.recurrenceEnd ?? undefined,
+                dtstart: event.startDateTime?.replace('Z', ''), 
+                until: event.recurrenceEnd?.replace('Z', '') ?? undefined,
                 ...rruleOptions
             };
 

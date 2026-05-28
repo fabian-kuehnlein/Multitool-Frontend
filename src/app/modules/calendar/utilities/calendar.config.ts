@@ -16,6 +16,7 @@ export const defaultCalendarOptions: CalendarOptions = {
     ],
     locales: [deLocale],
     locale: 'de',
+    timeZone: 'local',
     eventContent: (arg) => {
         const { event, view } = arg;
         const isListView = view.type.includes('list');
