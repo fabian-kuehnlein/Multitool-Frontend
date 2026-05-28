@@ -10,10 +10,10 @@
     color: #888;
     letter-spacing: 1px;
     margin-bottom: 20px;
-    padding-left: 8px;
+    padding-left: 12px;
 }
 
-.tool-grid {
+.tool-grid, .action-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -22,29 +22,24 @@
 .tool-item {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
+    gap: 16px;
+    padding: 12px;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
-    background: transparent;
+    border: 1px solid transparent;
 
-    &:hover:not(.active) {
-        background-color: #f5f7f9;
-        
-        .icon-wrapper {
-            background-color: #e3f2fd;
-            color: #1976d2;
-        }
+    &:hover {
+        background-color: #f5f5f5;
     }
 
     &.active {
         background-color: #e3f2fd;
-        cursor: default;
+        border-color: #bbdefb;
 
-        .icon-wrapper {
-            background-color: #1976d2;
-            color: white;
+        .tool-icon {
+            color: #1976d2;
         }
 
         .tool-name {
@@ -54,23 +49,32 @@
     }
 }
 
-.icon-wrapper {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+.logout-item {
+    margin-top: 4px;
+    
+    &:hover {
+        background-color: #fff1f0;
+        
+        .logout-icon {
+            color: #f44336;
+        }
+        
+        .tool-name {
+            color: #f44336;
+        }
+    }
+}
+
+.tool-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f0f0f0;
-    color: #666;
-    margin-right: 16px;
-    transition: all 0.2s ease;
-
-    mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-    }
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    color: #555;
 }
 
 .tool-info {
@@ -79,9 +83,9 @@
 }
 
 .tool-name {
-    font-size: 1rem;
-    color: #333;
+    font-size: 0.95rem;
     font-weight: 500;
+    color: #333;
 }
 
 .tool-desc {
@@ -97,4 +101,9 @@
     height: 6px;
     border-radius: 50%;
     background-color: #1976d2;
+}
+
+.sidenav-divider {
+    margin: 16px 0;
+    opacity: 0.6;
 }

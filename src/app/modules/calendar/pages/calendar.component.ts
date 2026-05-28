@@ -1,11 +1,12 @@
 // Angular Core
-import { Component, ViewChild, inject, signal, HostListener, computed, effect, OnDestroy } from '@angular/core';
+import { Component, inject, signal, HostListener, computed, effect, OnDestroy, viewChild, AfterViewInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 // FullCalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -14,7 +15,7 @@ import { defaultCalendarOptions } from '../utilities/calendar.config';
 
 // Third Party
 import moment from 'moment';
-import { debounceTime, Subject, takeUntil } from 'rxjs';
+import { debounceTime, Subject, takeUntil, map } from 'rxjs';
 
 // App Services, Components & Utilities
 import { CalendarService } from '../services/calendar.service';
@@ -37,11 +38,13 @@ import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss'
 })
-export class CalendarComponent implements OnDestroy {
-	@ViewChild('calendarRef') calendar!: FullCalendarComponent;
+export class CalendarComponent implements OnDestroy, AfterViewInit {
+    // Modern viewChild signal for reactive access to the calendar
+	public readonly calendar = viewChild<FullCalendarComponent>('calendarRef');
 
 	private readonly calendarService = inject(CalendarService);
 	private readonly dialog = inject(MatDialog);
+    private readonly breakpointObserver = inject(BreakpointObserver);
 	private readonly destroy$ = new Subject<void>();
 
 	// --- Signals & State ---
@@ -50,25 +53,40 @@ export class CalendarComponent implements OnDestroy {
 	public readonly currentView = signal<string>('dayGridMonth');
 	public readonly showFilters = signal<boolean>(false);
 	public readonly isLoading = signal<boolean>(false);
+    
+    public readonly isMobile = toSignal(
+        this.breakpointObserver.observe([Breakpoints.Handset]).pipe(
+            map(result => result.matches)
+        ),
+        { initialValue: false }
+    );
 
 	public readonly categoryList = this.calendarService.categories;
 	public readonly categoryControl = new FormControl<string[]>([]);
 
-    // Converts the valueChange observable into a signal to reactively track the selected categories without needing to subscribe manually
 	private readonly categoryControlValue = toSignal(this.categoryControl.valueChanges, { initialValue: [] as string[] });
 
-    // Computes the IDs of all categories whose events are currently shown
 	public readonly selectedCategoryIds = computed(() => {
 		const ids = this.categoryControlValue() || [];
 		return (ids.length === 0 || ids.length === this.categoryList().length) ? [] : ids;
 	});
 
-	private get calendarApi() { return this.calendar.getApi(); }
+	private get calendarApi() { return this.calendar()?.getApi(); }
 
 	constructor() {
 		this.initCategoryControl();
 		this.setupCategorySelectionListener();
+        this.setupMobileViewListener();
 	}
+
+    ngAfterViewInit(): void {
+        const isHandset = this.breakpointObserver.isMatched(Breakpoints.Handset);
+        if (isHandset && this.calendarApi) {
+            this.changeView('listMonth');
+            this.currentView.set('listMonth');
+            this.updateTodayStatus();
+        }
+    }
 
 	ngOnDestroy(): void {
 		this.destroy$.next();
@@ -76,6 +94,24 @@ export class CalendarComponent implements OnDestroy {
 	}
 
 	// --- Initialization ---
+    private setupMobileViewListener() {
+        effect(() => {
+            const api = this.calendarApi;
+            const mobile = this.isMobile();
+            
+            if (api) {
+                if (mobile) {
+                    api.changeView('listMonth');
+                    this.currentView.set('listMonth');
+                } else {
+                    api.changeView('dayGridMonth');
+                    this.currentView.set('dayGridMonth');
+                }
+                this.updateTodayStatus();
+            }
+        });
+    }
+
 	private initCategoryControl() {
 		effect(() => {
 			const categories = this.categoryList();
@@ -90,8 +126,8 @@ export class CalendarComponent implements OnDestroy {
 			takeUntil(this.destroy$),
 			debounceTime(500)
 		).subscribe(() => {
-			if (this.calendar) {
-				this.calendarApi.refetchEvents();
+			if (this.calendar()) {
+				this.calendarApi?.refetchEvents();
 			}
 		});
 	}
@@ -111,12 +147,15 @@ export class CalendarComponent implements OnDestroy {
 
 	// --- UI Actions ---
 	public calendarAction(action: string) {
+        const api = this.calendarApi;
+        if (!api) return;
+
 		switch (action) {
-			case 'today': this.calendarApi.today(); break;
-			case 'prev': this.calendarApi.prev(); break;
-			case 'prevYear': this.calendarApi.prevYear(); break;
-			case 'next': this.calendarApi.next(); break;
-			case 'nextYear': this.calendarApi.nextYear(); break;
+			case 'today': api.today(); break;
+			case 'prev': api.prev(); break;
+			case 'prevYear': api.prevYear(); break;
+			case 'next': api.next(); break;
+			case 'nextYear': api.nextYear(); break;
 			case 'changeMonth': this.changeView('dayGridMonth'); break;
 			case 'changeWeek': this.changeView('timeGridWeek'); break;
 			case 'changeDay': this.changeView('timeGridDay'); break;
@@ -125,12 +164,19 @@ export class CalendarComponent implements OnDestroy {
 	}
 
 	private changeView(viewName: string) {
-		this.calendarApi.changeView(viewName);
+        const api = this.calendarApi;
+        if (!api) return;
+
+		api.changeView(viewName);
 		this.currentView.set(viewName);
+        this.title.set(api.view.title);
 	}
 
 	private updateTodayStatus() {
-		const view = this.calendarApi.view;
+        const api = this.calendarApi;
+        if (!api) return;
+
+		const view = api.view;
 		const start = moment(view.currentStart).startOf('day');
 		const end = moment(view.currentEnd).startOf('day');
 		const today = moment().startOf('day');
@@ -140,7 +186,8 @@ export class CalendarComponent implements OnDestroy {
 
 	public openSideNav() {
 		this.dialog.open(SidenavComponent, {
-			position: { top: '90px', left: '30px' },
+			position: this.isMobile() ? {} : { top: '90px', left: '30px' },
+            width: this.isMobile() ? '90vw' : 'auto',
 			height: 'auto',
 			hasBackdrop: true,
 			backdropClass: 'transparent-backdrop',
@@ -150,15 +197,20 @@ export class CalendarComponent implements OnDestroy {
 
 	// --- Event Operations ---
 	public createEvent() {
-		const anchorDate = this.calendarApi.getDate();
+        const api = this.calendarApi;
+        if (!api) return;
+
+		const anchorDate = api.getDate();
 		this.dialog.open(EventDialogComponent, {
-			width: 'auto',
-			minWidth: '600px',
-            maxWidth: '1500px',
+			width: this.isMobile() ? '100vw' : 'auto',
+            height: this.isMobile() ? '100vh' : 'auto',
+			minWidth: this.isMobile() ? '100vw' : '600px',
+            maxWidth: this.isMobile() ? '100vw' : '1500px',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
 			data: { anchorDate, event: null }
 		}).afterClosed().subscribe(result => {
 			if (result) {
-				this.calendarService.createEvent(result).subscribe(() => this.calendarApi.refetchEvents());
+				this.calendarService.createEvent(result).subscribe(() => api.refetchEvents());
 			}
 		});
 	}
@@ -177,9 +229,11 @@ export class CalendarComponent implements OnDestroy {
 
     private openEventDialog(eventData: any, isInstance: boolean = false) {
         const dialogConfig = {
-			width: 'auto',
-			minWidth: '600px',
-            maxWidth: '1500px',
+			width: this.isMobile() ? '100vw' : 'auto',
+            height: this.isMobile() ? '100vh' : 'auto',
+			minWidth: this.isMobile() ? '100vw' : '600px',
+            maxWidth: this.isMobile() ? '100vw' : '1500px',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
 			data: { event: isInstance ? { ...eventData, recurrenceRule: null, recurrenceEnd: null, eventId: null } : eventData }
 		};
 
@@ -190,13 +244,13 @@ export class CalendarComponent implements OnDestroy {
                 if (isInstance) {
                     this.splitEventFromSeries(eventData, result.data);
                 } else {
-				    this.calendarService.updateEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+				    this.calendarService.updateEvent(result.data).subscribe(() => this.calendarApi?.refetchEvents());
                 }
 			} else if (result.action === 'delete') {
 				if (isInstance) {
                     this.excludeDateFromSeries(eventData);
                 } else {
-                    this.calendarService.deleteEvent(result.data).subscribe(() => this.calendarApi.refetchEvents());
+                    this.calendarService.deleteEvent(result.data).subscribe(() => this.calendarApi?.refetchEvents());
                 }
 			}
 		});
@@ -212,7 +266,7 @@ export class CalendarComponent implements OnDestroy {
     private excludeDateFromSeries(instance: any) {
         const dateToExclude = moment(instance.startDateTime).format('YYYY-MM-DD');
         this.calendarService.excludeDateFromSeries(instance.eventId, dateToExclude).subscribe({
-            next: () => this.calendarApi.refetchEvents(),
+            next: () => this.calendarApi?.refetchEvents(),
             error: (err) => console.error('Failed to exclude date:', err)
         });
     }
@@ -226,7 +280,7 @@ export class CalendarComponent implements OnDestroy {
             this.dialog.open(RecurrenceChoiceDialogComponent).afterClosed().subscribe(choice => {
                 if (choice === 'series') {
                     this.calendarService.updateEvent(updatedEvent).subscribe({
-                        next: () => this.calendarApi.refetchEvents(),
+                        next: () => this.calendarApi?.refetchEvents(),
                         error: (err) => {
                             console.error('Drop failed:', err);
                             arg.revert();
@@ -255,10 +309,10 @@ export class CalendarComponent implements OnDestroy {
 			minWidth: '500px',
 		}).afterClosed().subscribe(result => {
 			if (result?.data) {
-				this.calendarApi.gotoDate(result.data);
-				this.calendarApi.select(result.data);
+				this.calendarApi?.gotoDate(result.data);
+				this.calendarApi?.select(result.data);
 			} else {
-				this.calendarApi.refetchEvents();
+				this.calendarApi?.refetchEvents();
 			}
 		});
 	}
@@ -266,13 +320,40 @@ export class CalendarComponent implements OnDestroy {
 	// --- Calendar Configuration ---
 	public readonly calendarOptions: CalendarOptions = {
 		...defaultCalendarOptions,
-		datesSet: () => this.title.set(this.calendarApi.view.title),
+		datesSet: () => {
+            const api = this.calendarApi;
+            if (api) {
+                this.title.set(api.view.title);
+            }
+        },
 		loading: (isLoading) => this.isLoading.set(isLoading),
 		eventSources: [
 			{
 				events: (fetchInfo, successCallback, failureCallback) => {
 					this.calendarService.getEvents(fetchInfo.startStr, fetchInfo.endStr, this.selectedCategoryIds()).subscribe({
-						next: (events) => successCallback(events.map(e => CalendarMapper.toEventInput(e, this.categoryList()))),
+						next: (events) => {
+                            const mappedEvents = events.map(e => CalendarMapper.toEventInput(e, this.categoryList()));
+                            
+                            // Ensure 'Today' is always visible in list view by adding a placeholder if empty
+                            const todayStr = moment().format('YYYY-MM-DD');
+                            const hasEventToday = mappedEvents.some(e => {
+                                const start = moment(e.start as string).format('YYYY-MM-DD');
+                                return start === todayStr;
+                            });
+
+                            if (!hasEventToday && this.currentView() === 'listMonth') {
+                                mappedEvents.push({
+                                    id: 'today-placeholder',
+                                    title: 'Keine Termine geplant',
+                                    start: todayStr,
+                                    allDay: true,
+                                    display: 'list-item',
+                                    extendedProps: { isPlaceholder: true }
+                                });
+                            }
+
+                            successCallback(mappedEvents);
+                        },
 						error: (err) => failureCallback(err)
 					});
 				}

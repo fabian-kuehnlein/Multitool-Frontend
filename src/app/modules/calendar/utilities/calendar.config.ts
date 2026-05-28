@@ -1,21 +1,25 @@
 import { CalendarOptions } from "@fullcalendar/core/index.js";
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import rrulePlugin from '@fullcalendar/rrule';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import deLocale from '@fullcalendar/core/locales/de-at';
 
 export const defaultCalendarOptions: CalendarOptions = {
     plugins: [
         dayGridPlugin,
         timeGridPlugin,
+        listPlugin,
         interactionPlugin,
         rrulePlugin
     ],
     locales: [deLocale],
     locale: 'de',
+    timeZone: 'local',
     eventContent: (arg) => {
-        const { event } = arg;
+        const { event, view } = arg;
+        const isListView = view.type.includes('list');
 
         if (event.display === 'background') {
             return {
@@ -39,6 +43,17 @@ export const defaultCalendarOptions: CalendarOptions = {
                     ? `${startStr} – ${endStr}`
                     : `${startStr}`
                 : '';
+
+        if (isListView) {
+            return {
+                html: `
+                    <div class="fc-list-event-custom">
+                        <div class="fc-event-title" style="font-weight: 600; color: #333;">${event.title || ''}</div>
+                        ${note ? `<div class="fc-event-note" style="font-size: 0.85rem; font-style: italic; color: #888; margin-top: 2px;">${note}</div>` : ''}
+                    </div>
+                `
+            };
+        }
 
         return {
             html: `
@@ -76,12 +91,37 @@ export const defaultCalendarOptions: CalendarOptions = {
         }
         return [];
     },
-    eventDidMount: ({ event, el }) => {
+    eventDidMount: ({ event, el, view }) => {
         const categoryColor = event.extendedProps['categoryColor'];
+        const isListView = view.type.includes('list');
+        const isPlaceholder = event.extendedProps['isPlaceholder'];
+
+        if (isPlaceholder) {
+            el.style.fontStyle = 'italic';
+            el.style.opacity = '0.7';
+            el.style.pointerEvents = 'none';
+            const dot = el.querySelector('.fc-list-event-dot') as HTMLElement;
+            if (dot) dot.style.display = 'none';
+            return;
+        }
+
         if (categoryColor) {
-            el.style.backgroundColor = categoryColor;
-            el.style.borderColor = categoryColor;
-            el.style.color = '#fff';
+            if (isListView) {
+                // Apply color to the dot and a left border
+                const dot = el.querySelector('.fc-list-event-dot') as HTMLElement;
+                if (dot) {
+                    dot.style.borderColor = categoryColor;
+                    dot.style.backgroundColor = categoryColor;
+                }
+                
+                // For our custom indicator
+                el.style.setProperty('--event-color', categoryColor);
+            } else {
+                // Standard grid styling
+                el.style.backgroundColor = categoryColor;
+                el.style.borderColor = categoryColor;
+                el.style.color = '#fff';
+            }
         }
 
         const today = new Date();
