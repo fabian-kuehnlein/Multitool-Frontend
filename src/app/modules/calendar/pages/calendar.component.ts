@@ -305,8 +305,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
 	public openSearchResult() {
 		this.dialog.open(SearchDialogComponent, {
-			width: 'fit-content',
-			minWidth: '500px',
+			width: this.isMobile() ? '100vw' : 'auto',
+            height: this.isMobile() ? '100vh' : 'auto',
+			minWidth: this.isMobile() ? '100vw' : '600px',
+            maxWidth: this.isMobile() ? '100vw' : '1500px',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
 		}).afterClosed().subscribe(result => {
 			if (result?.data) {
 				this.calendarApi?.gotoDate(result.data);
