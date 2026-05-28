@@ -1,5 +1,5 @@
 // Angular Core
-import { Component, inject, signal, HostListener, computed, effect, OnDestroy, viewChild } from '@angular/core';
+import { Component, inject, signal, HostListener, computed, effect, OnDestroy, viewChild, AfterViewInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
@@ -38,7 +38,7 @@ import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss'
 })
-export class CalendarComponent implements OnDestroy {
+export class CalendarComponent implements OnDestroy, AfterViewInit {
     // Modern viewChild signal for reactive access to the calendar
 	public readonly calendar = viewChild<FullCalendarComponent>('calendarRef');
 
@@ -78,6 +78,15 @@ export class CalendarComponent implements OnDestroy {
 		this.setupCategorySelectionListener();
         this.setupMobileViewListener();
 	}
+
+    ngAfterViewInit(): void {
+        const isHandset = this.breakpointObserver.isMatched(Breakpoints.Handset);
+        if (isHandset && this.calendarApi) {
+            this.changeView('listMonth');
+            this.currentView.set('listMonth');
+            this.updateTodayStatus();
+        }
+    }
 
 	ngOnDestroy(): void {
 		this.destroy$.next();
