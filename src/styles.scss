@@ -35,7 +35,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     ));
 }
 
-.delete-button {
+.delete-colors {
     @include mat.button-overrides((
         filled-container-color: #b71c1c,
         filled-label-text-color: white,
@@ -44,7 +44,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     ));
     @include mat.icon-button-overrides((
         icon-color: #b71c1c
-    ))
+    ));
+    @include mat.icon-overrides((
+        color: #b71c1c,
+    ));
 }
 
 .no-outline-form-field {

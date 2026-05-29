@@ -186,7 +186,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
 	public openSideNav() {
 		this.dialog.open(SidenavComponent, {
-			position: this.isMobile() ? {} : { top: '90px', left: '30px' },
+			position: this.isMobile() ? { bottom: '120px' } : { top: '90px', left: '30px' },
             width: this.isMobile() ? '90vw' : 'auto',
 			height: 'auto',
 			hasBackdrop: true,
