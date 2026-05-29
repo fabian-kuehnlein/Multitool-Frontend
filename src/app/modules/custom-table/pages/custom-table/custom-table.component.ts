@@ -194,7 +194,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     createTable() {
         this.dialog.open(TableConfigDialog, {
             width: 'auto',
-            minWidth: '600px',
+            minWidth: this.isMobile() ? '90vw' : '600px',
+            maxWidth: '95vw',
             data: { dialogMode: 'CreateTable' }
         }).afterClosed().subscribe(data => {
             if (data) {
@@ -212,7 +213,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.dialog.open(TableConfigDialog, {
             width: 'auto',
-            minWidth: '600px',
+            minWidth: this.isMobile() ? '90vw' : '600px',
+            maxWidth: '95vw',
             data: { dialogMode: 'EditTable', tableName: currentTable.name }
         }).afterClosed().subscribe(data => {
             if (data) {
@@ -278,7 +280,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.dialog.open(TableConfigDialog, {
             width: 'auto',
-            minWidth: '600px',
+            minWidth: this.isMobile() ? '90vw' : '600px',
+            maxWidth: '95vw',
             data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
         }).afterClosed().subscribe(data => {
             if (data === true) {
@@ -301,8 +304,11 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }));
 
         this.dialog.open(ReorderColumnsDialogComponent, {
-            width: 'auto',
-            minWidth: '500px',
+			width: this.isMobile() ? '100vw' : 'auto',
+            height: this.isMobile() ? '100vh' : 'auto',
+			minWidth: this.isMobile() ? '100vw' : '500px',
+            maxWidth: this.isMobile() ? '100vw' : '1500px',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
             data: { columns: cols }
         }).afterClosed().subscribe(result => {
             if (!result) return;

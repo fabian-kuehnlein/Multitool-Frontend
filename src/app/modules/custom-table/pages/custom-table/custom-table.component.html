@@ -55,6 +55,10 @@
                         <mat-icon>more_vert</mat-icon>
                     </button>
                     <mat-menu #settingsMenu="matMenu">
+                        <button mat-menu-item (click)="createTable()">
+                            <mat-icon>add</mat-icon>
+                            <span>Tabelle erstellen</span>
+                        </button>
                         <button mat-menu-item (click)="editTable()" [disabled]="tableService.tableId() === 0">
                             <mat-icon>edit</mat-icon>
                             <span>Tabelle umbenennen</span>
@@ -63,9 +67,9 @@
                             <mat-icon>reorder</mat-icon>
                             <span>Spalten sortieren</span>
                         </button>
-                        <button mat-menu-item (click)="deleteTable()" [disabled]="tableService.tableId() === 0" class="warn-text">
-                            <mat-icon>delete</mat-icon>
-                            <span>Tabelle löschen</span>
+                        <button mat-menu-item (click)="deleteTable()" [disabled]="tableService.tableId() === 0">
+                            <mat-icon class="delete-colors">delete</mat-icon>
+                            <span class="delete-colors">Tabelle löschen</span>
                         </button>
                     </mat-menu>
                 </div>
