@@ -412,8 +412,11 @@
             </div>
             
             @if (removeRowsColumn() && hasCheckedRows()) {
-                <div class="mobile-delete-bar">
-                    <button mat-flat-button (click)="deleteRows()" class="delete-colors full-width-btn">
+                <div class="mobile-action-bar">
+                    <button mat-button (click)="toggleRemoveMode()">
+                        Abbrechen
+                    </button>
+                    <button mat-flat-button (click)="deleteRows()" class="delete-colors">
                         Zeilen löschen
                     </button>
                 </div>

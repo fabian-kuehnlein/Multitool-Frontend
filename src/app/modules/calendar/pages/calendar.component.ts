@@ -1,5 +1,6 @@
 // Angular Core
 import { Component, inject, signal, HostListener, computed, effect, OnDestroy, viewChild, AfterViewInit } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
@@ -36,7 +37,18 @@ import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component
 		ReactiveFormsModule
 	],
 	templateUrl: './calendar.component.html',
-	styleUrl: './calendar.component.scss'
+	styleUrl: './calendar.component.scss',
+	animations: [
+		trigger('fadeSlideInOut', [
+			transition(':enter', [
+				style({ opacity: 0, transform: 'translateY(-10px)' }),
+				animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+			]),
+			transition(':leave', [
+				animate('150ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })),
+			]),
+		]),
+	]
 })
 export class CalendarComponent implements OnDestroy, AfterViewInit {
     // Modern viewChild signal for reactive access to the calendar
@@ -320,6 +332,72 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 		});
 	}
 
+    private eventFallsOnDate(event: any, date: moment.Moment): boolean {
+        const dateStr = date.format('YYYY-MM-DD');
+        
+        // 1. Check if it's a simple event (no rrule)
+        if (!event.rrule) {
+            return moment(event.start).format('YYYY-MM-DD') === dateStr;
+        }
+
+        // 2. Check if it's a recurring event
+        const rrule = event.rrule;
+        const dtstart = moment(rrule.dtstart).startOf('day');
+        const targetDate = moment(date).startOf('day');
+
+        // Before start date
+        if (targetDate.isBefore(dtstart)) return false;
+
+        // After until date
+        if (rrule.until && targetDate.isAfter(moment(rrule.until).startOf('day'))) return false;
+
+        // Check EXDATE
+        if (event.exdate && Array.isArray(event.exdate)) {
+            if (event.exdate.some((ex: string) => moment(ex).format('YYYY-MM-DD') === dateStr)) {
+                return false;
+            }
+        }
+
+        const freq = rrule.freq;
+        const interval = rrule.interval || 1;
+
+        if (freq === 'daily') {
+            const diff = targetDate.diff(dtstart, 'days');
+            return diff % interval === 0;
+        }
+
+        if (freq === 'weekly') {
+            const diff = targetDate.diff(dtstart, 'weeks');
+            if (diff % interval !== 0) {
+                // We also need to check if the target date is in a week that matches the interval
+                // But weekly with BYDAY can span across weeks.
+                // Simplified check:
+                const weeksBetween = Math.floor(targetDate.diff(dtstart, 'days') / 7);
+                if (weeksBetween % interval !== 0) return false;
+            }
+
+            if (rrule.byweekday && Array.isArray(rrule.byweekday)) {
+                const dayName = targetDate.format('dd').toLowerCase(); // 'mo', 'tu', etc.
+                return rrule.byweekday.includes(dayName);
+            }
+            return targetDate.day() === dtstart.day();
+        }
+
+        if (freq === 'monthly') {
+            const diff = targetDate.diff(dtstart, 'months');
+            if (diff % interval !== 0) return false;
+            return targetDate.date() === dtstart.date();
+        }
+
+        if (freq === 'yearly') {
+            const diff = targetDate.diff(dtstart, 'years');
+            if (diff % interval !== 0) return false;
+            return targetDate.date() === dtstart.date() && targetDate.month() === dtstart.month();
+        }
+
+        return false;
+    }
+
 	// --- Calendar Configuration ---
 	public readonly calendarOptions: CalendarOptions = {
 		...defaultCalendarOptions,
@@ -337,18 +415,14 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 						next: (events) => {
                             const mappedEvents = events.map(e => CalendarMapper.toEventInput(e, this.categoryList()));
                             
-                            // Ensure 'Today' is always visible in list view by adding a placeholder if empty
-                            const todayStr = moment().format('YYYY-MM-DD');
-                            const hasEventToday = mappedEvents.some(e => {
-                                const start = moment(e.start as string).format('YYYY-MM-DD');
-                                return start === todayStr;
-                            });
+                            const today = moment();
+                            const hasEventToday = mappedEvents.some(e => this.eventFallsOnDate(e, today));
 
                             if (!hasEventToday && this.currentView() === 'listMonth') {
                                 mappedEvents.push({
                                     id: 'today-placeholder',
                                     title: 'Keine Termine geplant',
-                                    start: todayStr,
+                                    start: today.format('YYYY-MM-DD'),
                                     allDay: true,
                                     display: 'list-item',
                                     extendedProps: { isPlaceholder: true }

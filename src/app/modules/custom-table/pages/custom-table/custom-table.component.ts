@@ -359,9 +359,19 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (rows.length === 0) return;
 
-        this.tableService.deleteRows(this.tableService.tableId(), rows).subscribe({
-            next: () => this.toggleRemoveMode(),
-            error: err => this.snackbarService.openSnackbar(err)
+        this.dialog.open(ConfirmDialogComponent, {
+            data: {
+                title: 'Zeilen löschen',
+                message: 'Möchten Sie die ausgewählten Zeilen wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+                confirmText: 'Zeilen löschen',
+                isDestructive: true
+            }
+        }).afterClosed().subscribe(result => {
+            if (!result) return;
+            this.tableService.deleteRows(this.tableService.tableId(), rows).subscribe({
+                next: () => this.toggleRemoveMode(),
+                error: err => this.snackbarService.openSnackbar(err)
+            });
         });
     }
 
