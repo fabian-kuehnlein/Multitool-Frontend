@@ -202,5 +202,12 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     public close() {
         this.dialogRef.close(null);
     }
+
+    public changeInterval(delta: number) {
+        const control = this.eventForm.get('recurrenceInterval');
+        const currentValue = control?.value || 1;
+        const newValue = Math.max(1, currentValue + delta);
+        control?.setValue(newValue);
+    }
 }
 

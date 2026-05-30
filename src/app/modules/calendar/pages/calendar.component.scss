@@ -100,13 +100,23 @@
     overflow: hidden;
 
     @include bp.mobile {
-        padding: 8px 15px;
+        padding: 12px 15px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
     }
 
     .filter-chips {
         display: flex;
         align-items: center;
         gap: 15px;
+
+        @include bp.mobile {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+        }
 
         .filter-label {
             font-size: 0.9rem;
@@ -118,6 +128,42 @@
             font-size: 0.85rem;
             font-style: italic;
             color: #999;
+        }
+
+        mat-chip-listbox {
+            width: 100%;
+
+            @include bp.mobile {
+                justify-content: center;
+            }
+
+            ::ng-deep .mdc-evolution-chip-set__chips {
+                @include bp.mobile {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 6px;
+                    width: 100%;
+                }
+
+                mat-chip-option {
+                    @include bp.mobile {
+                        margin: 0 !important;
+                        width: 100%;
+                        
+                        .mdc-evolution-chip__cell--primary,
+                        .mdc-evolution-chip__action--primary {
+                            width: 100%;
+                            justify-content: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .close-filter {
+        @include bp.mobile {
+            display: none;
         }
     }
 

@@ -13,10 +13,12 @@ import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { NgClass } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ReorderColumnsDialogComponent } from './components/reorder-columns-dialog/reorder-columns-dialog.component';
 import { SnackbarService } from '../../../../core/services/snackbar.service';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-custom-table',
@@ -27,24 +29,32 @@ import { SnackbarService } from '../../../../core/services/snackbar.service';
     MatTableModule,
     MatCheckboxModule,
     MatDatepickerModule,
-    DragDropModule,
-    NgClass
+    DragDropModule
   ],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild(MatTable) table!: MatTable<any>;
-    @ViewChild('sidebarList', { read: ElementRef }) sidebarList!: ElementRef;
+    @ViewChild('sidebarList', { read: ElementRef }) sidebarList?: ElementRef;
     @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
     private readonly dialog = inject(MatDialog);
     protected readonly tableService = inject(CustomTableService)
     private readonly snackbarService = inject(SnackbarService)
+    private readonly breakpointObserver = inject(BreakpointObserver);
 
     // UI State Signals
     protected readonly removeRowsColumn = signal<boolean>(false);
     protected readonly isSidebarVisible = signal<boolean>(true);
+    protected readonly isFabMenuOpen = signal<boolean>(false);
+
+    public readonly isMobile = toSignal(
+        this.breakpointObserver.observe([Breakpoints.Handset]).pipe(
+            map(result => result.matches)
+        ),
+        { initialValue: false }
+    );
 
     // Pagination Signals
     protected readonly pageSize = signal<number>(10);
@@ -116,20 +126,22 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private setupResizeObserver() {
+        if (!this.sidebarList?.nativeElement) return;
+
         this.resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
-                if (entry.target === this.sidebarList.nativeElement) {
+                if (this.sidebarList && entry.target === this.sidebarList.nativeElement) {
                     this.calculatePageSize();
                 }
             }
         });
+
         this.resizeObserver.observe(this.sidebarList.nativeElement);
-        // Initial calculation
         this.calculatePageSize();
     }
 
     private calculatePageSize() {
-        if (!this.sidebarList) return;
+        if (!this.sidebarList?.nativeElement) return;
         
         const containerHeight = this.sidebarList.nativeElement.clientHeight;
         const itemHeight = 56; // 48px standard + 8px gap
@@ -141,9 +153,6 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private initializeFormControls(rows: RowInfo[], columns: ColumnInfo[]) {
-        // We keep existing controls to avoid losing focus if only data changes
-        // But for a full table load, we might want to refresh.
-        // For simplicity, we just rebuild for now.
         this.formControls = {};
         
         for (const row of rows) {
@@ -169,11 +178,10 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     openSideNav() {
         this.dialog.open(SidenavComponent, {
-            position: { top: '90px', left: '30px' },
-            height: 'auto',
-            minHeight: '100px',
-            maxHeight: '1000px',
-            hasBackdrop: true,
+            position: this.isMobile() ? { bottom: '120px' } : { top: '90px', left: '30px' },
+            width: this.isMobile() ? '90vw' : 'auto',
+			height: 'auto',
+			hasBackdrop: true,
             backdropClass: 'transparent-backdrop',
             data: 'custom-table'
         });
@@ -186,7 +194,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     createTable() {
         this.dialog.open(TableConfigDialog, {
             width: 'auto',
-            minWidth: '600px',
+            minWidth: this.isMobile() ? '90vw' : '600px',
+            maxWidth: '95vw',
             data: { dialogMode: 'CreateTable' }
         }).afterClosed().subscribe(data => {
             if (data) {
@@ -204,7 +213,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.dialog.open(TableConfigDialog, {
             width: 'auto',
-            minWidth: '600px',
+            minWidth: this.isMobile() ? '90vw' : '600px',
+            maxWidth: '95vw',
             data: { dialogMode: 'EditTable', tableName: currentTable.name }
         }).afterClosed().subscribe(data => {
             if (data) {
@@ -241,7 +251,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     deleteColumn(event: MouseEvent, colId: number) {
-        event.stopPropagation(); // Prevent opening the edit dialog
+        event.stopPropagation();
         
         this.dialog.open(ConfirmDialogComponent, {
             data: { 
@@ -270,7 +280,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.dialog.open(TableConfigDialog, {
             width: 'auto',
-            minWidth: '600px',
+            minWidth: this.isMobile() ? '90vw' : '600px',
+            maxWidth: '95vw',
             data: { dialogMode: 'EditColumn', col: col, hasValues: hasValues }
         }).afterClosed().subscribe(data => {
             if (data === true) {
@@ -293,8 +304,11 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }));
 
         this.dialog.open(ReorderColumnsDialogComponent, {
-            width: 'auto',
-            minWidth: '500px',
+			width: this.isMobile() ? '100vw' : 'auto',
+            height: this.isMobile() ? '100vh' : 'auto',
+			minWidth: this.isMobile() ? '100vw' : '500px',
+            maxWidth: this.isMobile() ? '100vw' : '1500px',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
             data: { columns: cols }
         }).afterClosed().subscribe(result => {
             if (!result) return;
@@ -345,10 +359,24 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (rows.length === 0) return;
 
-        this.tableService.deleteRows(this.tableService.tableId(), rows).subscribe({
-            next: () => this.toggleRemoveMode(),
-            error: err => this.snackbarService.openSnackbar(err)
+        this.dialog.open(ConfirmDialogComponent, {
+            data: {
+                title: 'Zeilen löschen',
+                message: 'Möchten Sie die ausgewählten Zeilen wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+                confirmText: 'Zeilen löschen',
+                isDestructive: true
+            }
+        }).afterClosed().subscribe(result => {
+            if (!result) return;
+            this.tableService.deleteRows(this.tableService.tableId(), rows).subscribe({
+                next: () => this.toggleRemoveMode(),
+                error: err => this.snackbarService.openSnackbar(err)
+            });
         });
+    }
+
+    toggleFabMenu() {
+        this.isFabMenuOpen.update(v => !v);
     }
 
     onCellBlur(rowId: number, columnId: number) {

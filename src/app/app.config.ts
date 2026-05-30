@@ -1,5 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID, Injectable } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideMomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
@@ -36,6 +37,7 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
+        provideAnimationsAsync(),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
         provideMomentDateAdapter({
             parse: {

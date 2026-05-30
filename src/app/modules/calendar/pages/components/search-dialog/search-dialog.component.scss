@@ -1,3 +1,5 @@
+@use "../../../../../../breakpoints" as bp;
+
 .search-title {
     display: flex;
     align-items: center;
@@ -8,12 +10,25 @@
     mat-icon {
         color: #1976d2;
     }
+
+    @include bp.mobile {
+        padding: 12px 16px;
+        font-size: 1.2rem;
+    }
 }
 
 .search-content {
     min-width: 700px;
     max-height: 70vh;
     padding-top: 8px !important;
+
+    @include bp.mobile {
+        min-width: unset;
+        width: 100%;
+        max-height: unset;
+        flex: 1;
+        padding: 8px 12px !important;
+    }
 }
 
 .search-header {
@@ -22,6 +37,10 @@
     .search-field {
         width: 100%;
     }
+
+    @include bp.mobile {
+        margin-bottom: 12px;
+    }
 }
 
 .table-container {
@@ -29,6 +48,10 @@
     border: 1px solid #e0e0e0;
     overflow: auto;
     max-height: 50vh;
+
+    @include bp.mobile {
+        max-height: calc(100vh - 200px);
+    }
 }
 
 .table {
@@ -40,12 +63,22 @@
         font-weight: 600;
         color: #444;
         padding: 12px 16px;
+
+        @include bp.mobile {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
     }
 
     td {
         padding: 12px 16px;
         color: #555;
         border-bottom: 1px solid #f0f0f0;
+
+        @include bp.mobile {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
     }
 
     tr:hover td {
@@ -57,6 +90,21 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    // Hide Note column on mobile to save space
+    .mat-column-eventNote {
+        @include bp.mobile {
+            display: none;
+        }
+    }
+
+    // Adjust Action buttons on mobile
+    .mat-column-actions {
+        @include bp.mobile {
+            width: 80px;
+            padding-right: 4px;
+        }
     }
 }
 
@@ -76,10 +124,25 @@
         margin: 0;
         font-size: 1.1rem;
     }
+
+    @include bp.mobile {
+        padding: 40px 0;
+        p {
+            font-size: 1rem;
+        }
+    }
 }
 
 .action-buttons {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
+
+    @include bp.mobile {
+        gap: 0;
+        
+        button {
+            transform: scale(0.85);
+        }
+    }
 }

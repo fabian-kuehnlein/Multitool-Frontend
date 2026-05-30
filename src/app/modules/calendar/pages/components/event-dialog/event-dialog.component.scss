@@ -1,5 +1,13 @@
 @use "../../../../../../_breakpoints" as bp;
 
+:host {
+    @include bp.mobile {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+}
+
 .dialog-title {
     display: flex;
     align-items: center;
@@ -16,19 +24,25 @@
     @include bp.mobile {
         font-size: 1.2rem;
         margin-top: 8px;
+        padding: 16px 16px 8px 16px;
     }
 }
 
 .dialog-form {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
     min-width: 500px;
     max-width: 100%;
 
     @include bp.mobile {
         min-width: unset;
         width: 100%;
+        flex: 1;
+        margin: 0;
+        padding: 8px 16px !important;
+        max-height: unset;
+        gap: 8px;
     }
 }
 
@@ -43,7 +57,8 @@
 
     @include bp.mobile {
         flex-direction: column;
-        gap: 0;
+        gap: 8px;
+        padding-top: 0;
         .title-field, .category-field { width: 100%; }
     }
 }
@@ -54,8 +69,12 @@
     gap: 16px;
 
     @include bp.mobile {
-        grid-template-columns: 1fr;
-        gap: 0;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 12px;
+
+        & > *:first-child {
+            grid-column: span 2;
+        }
     }
 }
 
@@ -67,6 +86,7 @@
     @include bp.mobile {
         flex-direction: column;
         gap: 12px;
+        margin: 8px 0;
     }
 }
 
@@ -77,8 +97,12 @@
     margin-top: 8px;
 
     @include bp.mobile {
-        grid-template-columns: 1fr;
-        gap: 0;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 12px;
+
+        & > *:last-child {
+            grid-column: span 2;
+        }
     }
 }
 
@@ -86,9 +110,12 @@
     grid-template-columns: repeat(4, 1fr);
 
     @include bp.mobile {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+
+        & > *:nth-child(n) { grid-column: span 1; }
     }
 }
+
 
 .dialog-actions {
     padding: 16px 24px;
@@ -108,11 +135,57 @@
         flex-wrap: wrap;
         justify-content: flex-end;
         padding: 16px;
+        margin-top: auto;
+        border-top: 1px solid #eee;
 
         .delete-button {
             width: 100%;
             margin-bottom: 8px;
+            margin-right: 0;
         }
+
+        button:not(.delete-button) {
+            flex: 1;
+        }
+    }
+}
+
+.interval-field {
+    .centered-input {
+        text-align: center;
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+
+    button[mat-icon-button] {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    [matPrefix] {
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
+    [matSuffix] {
+        margin-right: 4px;
+        margin-left: 4px;
     }
 }
 

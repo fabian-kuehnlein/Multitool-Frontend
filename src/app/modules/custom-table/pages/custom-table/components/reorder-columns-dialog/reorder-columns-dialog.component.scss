@@ -1,3 +1,5 @@
+@use "../../../../../../../breakpoints" as bp;
+
 h2 {
     margin-bottom: 0;
 }
@@ -55,10 +57,32 @@ h2 {
 }
 
 .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
     padding: 16px 24px;
+    gap: 8px;
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        padding: 16px;
+        margin-top: auto;
+        border-top: 1px solid #eee;
+
+        .delete-button {
+            width: 100%;
+            margin-bottom: 8px;
+            margin-right: 0;
+        }
+
+        button:not(.delete-button) {
+            flex: 1;
+        }
+    }
 }
 
 /* CDK Drag & Drop Helpers */

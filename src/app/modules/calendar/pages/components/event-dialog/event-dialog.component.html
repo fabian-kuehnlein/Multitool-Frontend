@@ -119,9 +119,15 @@
                     </mat-select>
                 </mat-form-field>
                 
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" class="interval-field">
                     <mat-label>Intervall</mat-label>
-                    <input matInput type="number" formControlName="recurrenceInterval" min="1" />
+                    <button mat-icon-button matPrefix (click)="changeInterval(-1)" type="button">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                    <input matInput type="number" formControlName="recurrenceInterval" min="1" class="centered-input" />
+                    <button mat-icon-button matSuffix (click)="changeInterval(1)" type="button">
+                        <mat-icon>add</mat-icon>
+                    </button>
                     <mat-hint>Alle X {{ getFrequencyLabel() }}</mat-hint>
                 </mat-form-field>
 
@@ -159,7 +165,7 @@
         
     <div mat-dialog-actions align="end" class="dialog-actions">
         @if (isEditMode()) {
-            <button mat-button color="warn" class="delete-button" (click)="delete()">
+            <button mat-button class="delete-colors delete-button" (click)="delete()">
                 <mat-icon>delete</mat-icon>
                 Löschen
             </button>
