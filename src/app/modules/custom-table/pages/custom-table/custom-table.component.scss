@@ -73,6 +73,9 @@
 
     &.mobile-layout {
         flex-direction: column;
+        overflow-y: auto;
+        min-height: 0; // Allow flex container to shrink
+        background-color: #f8f9fa;
     }
 }
 
@@ -111,7 +114,7 @@
             background-color: #f0f4f8;
             border: 2px solid #1976d2;
             color: #1976d2;
-            
+
             mat-icon {
                 color: #1976d2;
             }
@@ -143,6 +146,10 @@
 
     @include bp.mobile {
         padding: 0;
+        flex: 1 0 auto; // Grow to fill space, but don't force overflow visible immediately
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
     }
 }
 
