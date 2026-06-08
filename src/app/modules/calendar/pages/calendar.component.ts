@@ -415,11 +415,44 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 						next: (events) => {
                             const mappedEvents = events.map(e => CalendarMapper.toEventInput(e, this.categoryList()));
                             
+                            // Manual expansion for events with EXDATE
+                            // The FullCalendar RRule plugin is unreliable with EXDATE in the object format
+                            const processedEvents: any[] = [];
+                            const viewStart = moment(fetchInfo.start).startOf('day');
+                            const viewEnd = moment(fetchInfo.end).startOf('day');
+
+                            for (const event of mappedEvents) {
+                                if (event.rrule && event.exdate && Array.isArray(event.exdate) && event.exdate.length > 0) {
+                                    let current = moment(viewStart);
+                                    while (current.isBefore(viewEnd)) {
+                                        if (this.eventFallsOnDate(event, current)) {
+                                            const instance = { ...event };
+                                            delete instance.rrule;
+                                            
+                                            if (event.allDay) {
+                                                instance.start = current.format('YYYY-MM-DD');
+                                                instance.end = current.clone().add(1, 'day').format('YYYY-MM-DD');
+                                            } else {
+                                                const timePart = moment(event.start).format('HH:mm:ss');
+                                                instance.start = current.format('YYYY-MM-DD') + 'T' + timePart;
+                                                if (event.duration) {
+                                                    instance.end = moment(instance.start).add(moment.duration(event.duration)).format('YYYY-MM-DDTHH:mm:ss');
+                                                }
+                                            }
+                                            processedEvents.push(instance);
+                                        }
+                                        current.add(1, 'day');
+                                    }
+                                } else {
+                                    processedEvents.push(event);
+                                }
+                            }
+
                             const today = moment();
-                            const hasEventToday = mappedEvents.some(e => this.eventFallsOnDate(e, today));
+                            const hasEventToday = processedEvents.some(e => this.eventFallsOnDate(e, today));
 
                             if (!hasEventToday && this.currentView() === 'listMonth') {
-                                mappedEvents.push({
+                                processedEvents.push({
                                     id: 'today-placeholder',
                                     title: 'Keine Termine geplant',
                                     start: today.format('YYYY-MM-DD'),
@@ -429,7 +462,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 });
                             }
 
-                            successCallback(mappedEvents);
+                            successCallback(processedEvents);
                         },
 						error: (err) => failureCallback(err)
 					});

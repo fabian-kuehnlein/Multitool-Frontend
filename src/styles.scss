@@ -50,9 +50,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     @include mat.icon-button-overrides((
         icon-color: #b71c1c
     ));
-    @include mat.icon-overrides((
-        color: #b71c1c
-    ));
 }
 
 .no-outline-form-field {

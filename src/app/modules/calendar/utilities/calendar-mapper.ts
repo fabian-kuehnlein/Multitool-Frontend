@@ -117,7 +117,7 @@ export class CalendarMapper {
         return {
             id: event.id,
             title: event.title,
-            note: event.extendedProps['eventNote'] || '',
+            note: event.extendedProps['eventNote']?.trim() || null,
             startDateTime: moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             endDateTime: event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             isAllDay: event.allDay,
