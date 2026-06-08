@@ -332,72 +332,6 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 		});
 	}
 
-    private eventFallsOnDate(event: any, date: moment.Moment): boolean {
-        const dateStr = date.format('YYYY-MM-DD');
-        
-        // 1. Check if it's a simple event (no rrule)
-        if (!event.rrule) {
-            return moment(event.start).format('YYYY-MM-DD') === dateStr;
-        }
-
-        // 2. Check if it's a recurring event
-        const rrule = event.rrule;
-        const dtstart = moment(rrule.dtstart).startOf('day');
-        const targetDate = moment(date).startOf('day');
-
-        // Before start date
-        if (targetDate.isBefore(dtstart)) return false;
-
-        // After until date
-        if (rrule.until && targetDate.isAfter(moment(rrule.until).startOf('day'))) return false;
-
-        // Check EXDATE
-        if (event.exdate && Array.isArray(event.exdate)) {
-            if (event.exdate.some((ex: string) => moment(ex).format('YYYY-MM-DD') === dateStr)) {
-                return false;
-            }
-        }
-
-        const freq = rrule.freq;
-        const interval = rrule.interval || 1;
-
-        if (freq === 'daily') {
-            const diff = targetDate.diff(dtstart, 'days');
-            return diff % interval === 0;
-        }
-
-        if (freq === 'weekly') {
-            const diff = targetDate.diff(dtstart, 'weeks');
-            if (diff % interval !== 0) {
-                // We also need to check if the target date is in a week that matches the interval
-                // But weekly with BYDAY can span across weeks.
-                // Simplified check:
-                const weeksBetween = Math.floor(targetDate.diff(dtstart, 'days') / 7);
-                if (weeksBetween % interval !== 0) return false;
-            }
-
-            if (rrule.byweekday && Array.isArray(rrule.byweekday)) {
-                const dayName = targetDate.format('dd').toLowerCase(); // 'mo', 'tu', etc.
-                return rrule.byweekday.includes(dayName);
-            }
-            return targetDate.day() === dtstart.day();
-        }
-
-        if (freq === 'monthly') {
-            const diff = targetDate.diff(dtstart, 'months');
-            if (diff % interval !== 0) return false;
-            return targetDate.date() === dtstart.date();
-        }
-
-        if (freq === 'yearly') {
-            const diff = targetDate.diff(dtstart, 'years');
-            if (diff % interval !== 0) return false;
-            return targetDate.date() === dtstart.date() && targetDate.month() === dtstart.month();
-        }
-
-        return false;
-    }
-
 	// --- Calendar Configuration ---
 	public readonly calendarOptions: CalendarOptions = {
 		...defaultCalendarOptions,
@@ -425,7 +359,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 if (event.rrule && event.exdate && Array.isArray(event.exdate) && event.exdate.length > 0) {
                                     let current = moment(viewStart);
                                     while (current.isBefore(viewEnd)) {
-                                        if (this.eventFallsOnDate(event, current)) {
+                                        if (CalendarMapper.eventFallsOnDate(event.rrule, current)) {
                                             const instance = { ...event };
                                             delete instance.rrule;
                                             
@@ -449,7 +383,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                             }
 
                             const today = moment();
-                            const hasEventToday = processedEvents.some(e => this.eventFallsOnDate(e, today));
+                            const hasEventToday = processedEvents.some(e => {
+                                if (e.rrule) return CalendarMapper.eventFallsOnDate(e.rrule, today);
+                                return moment(e.start).format('YYYY-MM-DD') === today.format('YYYY-MM-DD');
+                            });
 
                             if (!hasEventToday && this.currentView() === 'listMonth') {
                                 processedEvents.push({

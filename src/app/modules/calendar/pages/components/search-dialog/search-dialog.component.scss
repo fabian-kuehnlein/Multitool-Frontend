@@ -85,6 +85,19 @@
         background-color: #f1f8ff;
     }
 
+    .date-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .recurrence-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: #1976d2;
+        }
+    }
+
     .note-cell {
         max-width: 300px;
         overflow: hidden;

@@ -8,8 +8,11 @@ import { SearchResult } from '../../../models/search-result.model';
 import { CalendarService } from '../../../services/calendar.service';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { FormControl } from '@angular/forms';
+// Third Party
+import moment from 'moment';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { CalendarMapper } from '../../../utilities/calendar-mapper';
 
 @Component({
     selector: 'app-search-dialog',
@@ -65,8 +68,35 @@ export class SearchDialogComponent implements OnDestroy {
         this.calendarService.searchEvents(searchTerm).subscribe({
             next: (events) => {
                 if (events) {
-                    const sortedEvents = events.sort((a, b) => 
-                        new Date(a.startDateTime ?? '').getTime() - new Date(b.startDateTime ?? '').getTime()
+                    const processed = events.map(event => {
+                        // Strip 'Z' to treat as local time and avoid timezone shifts
+                        const cleanStart = event.startDateTime?.replace('Z', '');
+                        const cleanEnd = event.recurrenceEnd?.replace('Z', '');
+                        
+                        let displayDate = cleanStart;
+                        let isNextOccurrence = false;
+
+                        if (event.recurrenceRule && cleanStart) {
+                            const next = this.calculateNextOccurrence(
+                                cleanStart, 
+                                event.recurrenceRule, 
+                                cleanEnd || null
+                            );
+                            if (next) {
+                                displayDate = next.format('YYYY-MM-DDTHH:mm:ss');
+                                isNextOccurrence = true;
+                            }
+                        }
+
+                        return {
+                            ...event,
+                            displayDate,
+                            isNextOccurrence
+                        };
+                    });
+
+                    const sortedEvents = processed.sort((a, b) => 
+                        new Date(a.displayDate ?? '').getTime() - new Date(b.displayDate ?? '').getTime()
                     );
                     this.dataSource.data = sortedEvents;
                 } else {
@@ -82,11 +112,44 @@ export class SearchDialogComponent implements OnDestroy {
         });
     }
 
-    goToDate(date: string) {
-        if (date) {
-            this.dialogRef.close({ data: date })
-        } else {
-            this.dialogRef.close(null);
+    private calculateNextOccurrence(start: string, ruleStr: string, end: string | null): moment.Moment | null {
+        const startDate = moment(start);
+        const today = moment().startOf('day');
+
+        // If it's already in the future, return the start date
+        if (startDate.isSameOrAfter(today)) {
+            return startDate;
+        }
+
+        const rule = CalendarMapper.parseRRuleString(ruleStr);
+        const rrule = {
+            dtstart: start,
+            until: end,
+            ...rule
+        };
+
+        const maxSearchDate = moment().add(2, 'years');
+        let current = moment(today);
+
+        while (current.isBefore(maxSearchDate)) {
+            if (CalendarMapper.eventFallsOnDate(rrule, current)) {
+                // Return current date but keep the original start time
+                return current.set({
+                    hour: startDate.hour(),
+                    minute: startDate.minute(),
+                    second: startDate.second()
+                });
+            }
+            current.add(1, 'day');
+        }
+
+        return null;
+    }
+
+    goToDate(element: any) {
+        const dateToUse = element.displayDate || element.startDateTime;
+        if (dateToUse) {
+            this.dialogRef.close({ data: moment(dateToUse).format('YYYY-MM-DD') });
         }
     }
 

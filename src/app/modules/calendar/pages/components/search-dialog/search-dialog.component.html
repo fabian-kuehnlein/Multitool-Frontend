@@ -38,11 +38,18 @@
                 <ng-container matColumnDef="startDateTime">
                     <th mat-header-cell *matHeaderCellDef> Datum </th>
                     <td mat-cell *matCellDef="let element">
-                        @if ((element.startDateTime | date:'HH:mm:ss') === '00:00:00') {
-                            {{ element.startDateTime | date:'dd.MM.yyyy' }}
-                        } @else {
-                            {{ element.startDateTime | date:'dd.MM.yyyy HH:mm' }}
-                        }
+                        <div class="date-display">
+                            @if (element.recurrenceRule) {
+                                <mat-icon class="recurrence-icon" matTooltip="Wiederkehrendes Ereignis">sync</mat-icon>
+                            }
+                            <span>
+                                @if ((element.displayDate | date:'HH:mm:ss') === '00:00:00') {
+                                    {{ element.displayDate | date:'dd.MM.yyyy' }}
+                                } @else {
+                                    {{ element.displayDate | date:'dd.MM.yyyy HH:mm' }}
+                                }
+                            </span>
+                        </div>
                     </td>
                 </ng-container>
                 
@@ -51,7 +58,7 @@
                     <td mat-cell *matCellDef="let element">
                         <div class="action-buttons">
                             <button mat-icon-button aria-label="Kalender anzeigen" matTooltip="Zu Event springen"
-                            (click)="goToDate(element.startDateTime)">
+                            (click)="goToDate(element)">
                                 <mat-icon>event</mat-icon>
                             </button>
                             <button mat-icon-button aria-label="Löschen" matTooltip="Löschen" class="delete-colors"
