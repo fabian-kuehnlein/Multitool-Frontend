@@ -483,11 +483,27 @@
         align-items: center;
         gap: 8px;
         max-width: 300px;
+        min-width: 0; // Allow flex container to shrink below content size
+        padding: 0 12px;
+
+        ::ng-deep .mdc-button__label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            overflow: hidden; // Critical for truncation
+        }
 
         .current-table-name {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            flex: 1;
+            text-align: left;
+        }
+
+        mat-icon {
+            flex-shrink: 0; // Prevent icons from squashing or disappearing
         }
     }
 
