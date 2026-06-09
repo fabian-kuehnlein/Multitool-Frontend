@@ -1,6 +1,6 @@
 <div class="custom-table-container">
     <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
-        @if (!isMobile()) {
+        @if (!isMobile() && !isTablet()) {
             <!-- Desktop Toolbar -->
             <div class="left-container">
                 <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
@@ -27,9 +27,14 @@
                 </button>
             </div>
         } @else {
-            <!-- Mobile Toolbar -->
+            <!-- Mobile/Tablet Toolbar (Hybrid) -->
             <div class="mobile-header">
                 <div class="table-selector-container">
+                    @if (isTablet()) {
+                        <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" style="margin-right: 16px;">
+                            <mat-icon>home</mat-icon>
+                        </button>
+                    }
                     <button mat-button [matMenuTriggerFor]="tableMenu" class="table-select-button">
                         <mat-icon>table_chart</mat-icon>
                         <span class="current-table-name">
@@ -51,27 +56,34 @@
                 </div>
 
                 <div class="mobile-actions">
-                    <button mat-icon-button [matMenuTriggerFor]="settingsMenu">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
-                    <mat-menu #settingsMenu="matMenu">
-                        <button mat-menu-item (click)="createTable()">
+                    @if (isTablet()) {
+                        <button mat-flat-button color="primary" (click)="createTable()" class="create-button" style="margin-right: 12px;">
                             <mat-icon>add</mat-icon>
                             <span>Tabelle erstellen</span>
                         </button>
-                        <button mat-menu-item (click)="editTable()" [disabled]="tableService.tableId() === 0">
-                            <mat-icon>edit</mat-icon>
-                            <span>Tabelle umbenennen</span>
+                    } @else {
+                        <button mat-icon-button [matMenuTriggerFor]="settingsMenu">
+                            <mat-icon>more_vert</mat-icon>
                         </button>
-                        <button mat-menu-item (click)="reorderColumns()" [disabled]="tableService.tableId() === 0">
-                            <mat-icon>reorder</mat-icon>
-                            <span>Spalten sortieren</span>
-                        </button>
-                        <button mat-menu-item (click)="deleteTable()" [disabled]="tableService.tableId() === 0">
-                            <mat-icon class="delete-colors">delete</mat-icon>
-                            <span class="delete-colors">Tabelle löschen</span>
-                        </button>
-                    </mat-menu>
+                        <mat-menu #settingsMenu="matMenu">
+                            <button mat-menu-item (click)="createTable()">
+                                <mat-icon>add</mat-icon>
+                                <span>Tabelle erstellen</span>
+                            </button>
+                            <button mat-menu-item (click)="editTable()" [disabled]="tableService.tableId() === 0">
+                                <mat-icon>edit</mat-icon>
+                                <span>Tabelle umbenennen</span>
+                            </button>
+                            <button mat-menu-item (click)="reorderColumns()" [disabled]="tableService.tableId() === 0">
+                                <mat-icon>reorder</mat-icon>
+                                <span>Spalten sortieren</span>
+                            </button>
+                            <button mat-menu-item (click)="deleteTable()" [disabled]="tableService.tableId() === 0">
+                                <mat-icon class="delete-colors">delete</mat-icon>
+                                <span class="delete-colors">Tabelle löschen</span>
+                            </button>
+                        </mat-menu>
+                    }
                 </div>
             </div>
         }
@@ -83,7 +95,7 @@
 
     <div class="main-layout" [class.mobile-layout]="isMobile()">
         <!-- Collapsible Sidebar (Desktop only) -->
-        @if (!isMobile()) {
+        @if (!isMobile() && !isTablet()) {
             <div class="table-sidebar" [class.collapsed]="!isSidebarVisible()">
                 <div class="sidebar-header">
                     <span>Meine Tabellen</span>

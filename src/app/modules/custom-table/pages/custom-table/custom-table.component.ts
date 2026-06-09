@@ -50,7 +50,14 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     protected readonly isFabMenuOpen = signal<boolean>(false);
 
     public readonly isMobile = toSignal(
-        this.breakpointObserver.observe([Breakpoints.Handset]).pipe(
+        this.breakpointObserver.observe(['(max-width: 849.98px)']).pipe(
+            map(result => result.matches)
+        ),
+        { initialValue: false }
+    );
+
+    public readonly isTablet = toSignal(
+        this.breakpointObserver.observe(['(min-width: 850px) and (max-width: 1399.98px)']).pipe(
             map(result => result.matches)
         ),
         { initialValue: false }
