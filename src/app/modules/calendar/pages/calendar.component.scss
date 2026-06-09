@@ -134,27 +134,22 @@
             width: 100%;
 
             @include bp.mobile {
-                justify-content: center;
+                justify-content: flex-start;
             }
 
             ::ng-deep .mdc-evolution-chip-set__chips {
                 @include bp.mobile {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
                     gap: 6px;
                     width: 100%;
                 }
 
                 mat-chip-option {
                     @include bp.mobile {
-                        margin: 0 !important;
-                        width: 100%;
-                        
-                        .mdc-evolution-chip__cell--primary,
-                        .mdc-evolution-chip__action--primary {
-                            width: 100%;
-                            justify-content: center;
-                        }
+                        flex: 1 1 calc(45% - 6px); // 2 Spalten Gefühl
+                        max-width: calc(50% - 6px);
                     }
                 }
             }
@@ -305,12 +300,14 @@
     }
 
     // List view customization for mobile
-    .fc-list-day-cushion {
-        background-color: #f8f9fa !important;
-    }
-
     .fc-list-day {
-        background-color: #f8f9fa !important;
+        position: sticky !important;
+        top: 0;
+        z-index: 10 !important;
+        
+        & > th {
+            background-color: #f8f9fa !important;
+        }
     }
 
     .fc-list-event:hover td {
@@ -325,6 +322,7 @@
     @media (max-width: 600px) {
         .fc-list-event {
             background-color: transparent !important;
+            z-index: 1 !important;
             
             .fc-list-event-graphic {
                 padding-right: 8px !important;
@@ -372,15 +370,21 @@
 
 ::ng-deep .fc-list-day.fc-day-past {
     // display: none;
-    opacity: 0.5;
     
-    .fc-list-day-cushion {
+    & > th {
         background-color: #f1f1f1 !important;
+    }
+
+    .fc-list-day-side-text,
+    .fc-list-day-text {
+        opacity: 0.5;
     }
 }
 
 ::ng-deep .fc-list-day.fc-day-today {
-    .fc-list-day-cushion {
+    z-index: 10 !important; // Match other days to allow natural stacking
+    
+    & > th {
         background-color: #fff9c4 !important; // Match the month view's today color
     }
     

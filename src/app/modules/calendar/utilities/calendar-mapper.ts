@@ -80,6 +80,61 @@ export class CalendarMapper {
         return rule;
     }
 
+    /**
+     * Checks if a recurring event (defined by its rrule object) falls on a specific date.
+     */
+    static eventFallsOnDate(rrule: any, date: moment.Moment): boolean {
+        const dateStr = date.format('YYYY-MM-DD');
+        const dtstart = moment(rrule.dtstart).startOf('day');
+        const targetDate = moment(date).startOf('day');
+
+        // Before start date
+        if (targetDate.isBefore(dtstart)) return false;
+
+        // After until date
+        if (rrule.until && targetDate.isAfter(moment(rrule.until).startOf('day'))) return false;
+
+        // Check EXDATE
+        if (rrule.exdate && Array.isArray(rrule.exdate)) {
+            if (rrule.exdate.some((ex: string) => moment(ex).format('YYYY-MM-DD') === dateStr)) {
+                return false;
+            }
+        }
+
+        const freq = rrule.freq;
+        const interval = rrule.interval || 1;
+
+        if (freq === 'daily') {
+            const diff = targetDate.diff(dtstart, 'days');
+            return diff % interval === 0;
+        }
+
+        if (freq === 'weekly') {
+            const weeksBetween = Math.floor(targetDate.diff(dtstart, 'days') / 7);
+            if (weeksBetween % interval !== 0) return false;
+
+            if (rrule.byweekday && Array.isArray(rrule.byweekday)) {
+                const dayName = targetDate.format('dd').toLowerCase();
+                return rrule.byweekday.includes(dayName);
+            }
+            return targetDate.day() === dtstart.day();
+        }
+
+        if (freq === 'monthly') {
+            const diff = targetDate.diff(dtstart, 'months');
+            if (diff % interval !== 0) return false;
+            return targetDate.date() === dtstart.date();
+        }
+
+        if (freq === 'yearly') {
+            const diff = targetDate.diff(dtstart, 'years');
+            if (diff % interval !== 0) return false;
+            return targetDate.date() === dtstart.date() && targetDate.month() === dtstart.month();
+        }
+
+        return false;
+    }
+
     static getDuration(start: string | null | undefined, end: string | null | undefined): string {
         if (!start || !end) return '';
 
@@ -117,7 +172,7 @@ export class CalendarMapper {
         return {
             id: event.id,
             title: event.title,
-            note: event.extendedProps['eventNote'] || '',
+            note: event.extendedProps['eventNote']?.trim() || null,
             startDateTime: moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             endDateTime: event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             isAllDay: event.allDay,
