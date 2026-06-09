@@ -66,12 +66,14 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 	public readonly showFilters = signal<boolean>(false);
 	public readonly isLoading = signal<boolean>(false);
     
-    public readonly isMobile = toSignal(
+    protected readonly isMobile = toSignal(
         this.breakpointObserver.observe([Breakpoints.Handset]).pipe(
             map(result => result.matches)
         ),
         { initialValue: false }
     );
+
+    protected readonly showPastEvents = signal<boolean>(true);
 
 	public readonly categoryList = this.calendarService.categories;
 	public readonly categoryControl = new FormControl<string[]>([]);
