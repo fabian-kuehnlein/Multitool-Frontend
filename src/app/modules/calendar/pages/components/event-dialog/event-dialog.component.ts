@@ -12,7 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
-import { CalendarService } from '../../../services/calendar.service';
+import { CategoryService } from '../../../../../shared/services/category.service';
 import { EventFormService } from './event-form.service';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -39,15 +39,15 @@ import { Subject, takeUntil } from 'rxjs';
 export class EventDialogComponent implements OnInit, OnDestroy {
     private readonly dialogRef = inject(MatDialogRef<EventDialogComponent>);
     private readonly dialog = inject(MatDialog);
-    private readonly calendarService = inject(CalendarService);
+    private readonly categoryService = inject(CategoryService);
     private readonly formService = inject(EventFormService);
     public readonly dialogData = inject(MAT_DIALOG_DATA);
     private readonly destroy$ = new Subject<void>();
 
     // --- Signals & State ---
     public readonly isEditMode = signal<boolean>(false);
-    public readonly isLoadingCategories = computed(() => this.calendarService.categories().length === 0);
-    public readonly categories = this.calendarService.categories;
+    public readonly isLoadingCategories = computed(() => this.categoryService.categories().length === 0);
+    public readonly categories = this.categoryService.categories;
     
     // UI Metadata
     protected readonly weekdayOptions = [

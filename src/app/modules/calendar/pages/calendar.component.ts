@@ -26,6 +26,7 @@ import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-
 import { CalendarMapper } from '../utilities/calendar-mapper';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
+import { CategoryService } from '../../../shared/services/category.service';
 
 @Component({
 	selector: 'app-calendar',
@@ -55,6 +56,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 	public readonly calendar = viewChild<FullCalendarComponent>('calendarRef');
 
 	private readonly calendarService = inject(CalendarService);
+	private readonly categoryService = inject(CategoryService);
 	private readonly dialog = inject(MatDialog);
     private readonly breakpointObserver = inject(BreakpointObserver);
 	private readonly destroy$ = new Subject<void>();
@@ -75,7 +77,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     protected readonly showPastEvents = signal<boolean>(true);
 
-	public readonly categoryList = this.calendarService.categories;
+	public readonly categoryList = this.categoryService.categories;
 	public readonly categoryControl = new FormControl<string[]>([]);
 
 	private readonly categoryControlValue = toSignal(this.categoryControl.valueChanges, { initialValue: [] as string[] });

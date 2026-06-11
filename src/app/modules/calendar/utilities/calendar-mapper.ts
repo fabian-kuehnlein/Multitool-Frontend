@@ -1,6 +1,6 @@
 import { EventInput } from '@fullcalendar/core';
 import { CalendarEvent } from '../models/calendar-event.model';
-import { Category } from '../models/category.model';
+import { Category } from '../../../shared/models/category.model';
 import moment from 'moment';
 
 export class CalendarMapper {
