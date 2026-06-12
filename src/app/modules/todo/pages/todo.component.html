@@ -1,0 +1,221 @@
+<div class="todo-page-container">
+    <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
+        @if (!isMobile() && !isTablet()) {
+            <!-- Desktop Toolbar -->
+            <div class="left-container">
+                <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
+                    <mat-icon>home</mat-icon>
+                </button>
+                
+                <button mat-icon-button (click)="toggleSidebar()" [matTooltip]="isSidebarVisible() ? 'Filter einklappen' : 'Filter ausklappen'">
+                    <mat-icon>{{ isSidebarVisible() ? 'menu_open' : 'menu' }}</mat-icon>
+                </button>
+            </div>
+
+            <div class="middle-container">
+                <h1 class="page-title">To-Do Liste</h1>
+            </div>
+
+            <div class="right-container">
+                <button mat-flat-button color="primary" (click)="onAddTodo()" class="create-button">
+                    <mat-icon>add</mat-icon>
+                    <span>Neue Aufgabe</span>
+                </button>
+            </div>
+        } @else {
+            <!-- Mobile/Tablet Toolbar -->
+            <div class="mobile-header">
+                <div class="left-actions">
+                    <button mat-icon-button (click)="openSideNav()">
+                        <mat-icon>home</mat-icon>
+                    </button>
+                    <span class="mobile-title">To-Dos</span>
+                </div>
+
+                <div class="mobile-actions">
+                    <button mat-icon-button (click)="onAddTodo()" color="primary">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                    <button mat-icon-button [matMenuTriggerFor]="filterMenu">
+                        <mat-icon>filter_list</mat-icon>
+                    </button>
+                    <mat-menu #filterMenu="matMenu">
+                        <button mat-menu-item (click)="setFilterStatus('all')">Alle</button>
+                        <button mat-menu-item (click)="setFilterStatus('active')">Aktiv</button>
+                        <button mat-menu-item (click)="setFilterStatus('completed')">Erledigt</button>
+                    </mat-menu>
+                </div>
+            </div>
+        }
+    </mat-toolbar>
+
+    @if (todoService.loading()) {
+        <mat-progress-bar mode="indeterminate" class="page-loader" [style.top]="isMobile() ? '64px' : '80px'"></mat-progress-bar>
+    }
+
+    <div class="main-layout" [class.mobile-layout]="isMobile()">
+        <!-- Collapsible Sidebar -->
+        @if (!isMobile() && !isTablet()) {
+            <div class="page-sidebar" [class.collapsed]="!isSidebarVisible()">
+                <div class="sidebar-header">
+                    <span>Filter & Status</span>
+                </div>
+                
+                <div class="sidebar-content">
+                    <mat-nav-list class="sidebar-list">
+                        <div class="list-section-header">Status</div>
+                        <a mat-list-item (click)="setFilterStatus('all')" [class.active-item]="filterStatus() === 'all'">
+                            <mat-icon matListItemIcon>list</mat-icon>
+                            <span matListItemTitle>Alle</span>
+                            <span matListItemMeta class="stat-badge">{{ todoService.stats().total }}</span>
+                        </a>
+                        <a mat-list-item (click)="setFilterStatus('active')" [class.active-item]="filterStatus() === 'active'">
+                            <mat-icon matListItemIcon>circle</mat-icon>
+                            <span matListItemTitle>Aktiv</span>
+                            <span matListItemMeta class="stat-badge">{{ todoService.stats().active }}</span>
+                        </a>
+                        <a mat-list-item (click)="setFilterStatus('completed')" [class.active-item]="filterStatus() === 'completed'">
+                            <mat-icon matListItemIcon>check_circle</mat-icon>
+                            <span matListItemTitle>Erledigt</span>
+                            <span matListItemMeta class="stat-badge">{{ todoService.stats().completed }}</span>
+                        </a>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="list-section-header">Priorität</div>
+                        <a mat-list-item (click)="setFilterPriority(null)" [class.active-item]="filterPriority() === null">
+                            <mat-icon matListItemIcon>filter_none</mat-icon>
+                            <span matListItemTitle>Alle Prioritäten</span>
+                        </a>
+                        <a mat-list-item (click)="setFilterPriority(3)" [class.active-item]="filterPriority() === 3">
+                            <mat-icon matListItemIcon [style.color]="getPriorityColor(3)">flag</mat-icon>
+                            <span matListItemTitle>Hoch</span>
+                        </a>
+                        <a mat-list-item (click)="setFilterPriority(2)" [class.active-item]="filterPriority() === 2">
+                            <mat-icon matListItemIcon [style.color]="getPriorityColor(2)">flag</mat-icon>
+                            <span matListItemTitle>Mittel</span>
+                        </a>
+                        <a mat-list-item (click)="setFilterPriority(1)" [class.active-item]="filterPriority() === 1">
+                            <mat-icon matListItemIcon [style.color]="getPriorityColor(1)">flag</mat-icon>
+                            <span matListItemTitle>Niedrig</span>
+                        </a>
+                    </mat-nav-list>
+                </div>
+            </div>
+        }
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <div class="todo-content-card">
+                <div class="todo-header-actions">
+                    <div class="section-title">Aufgaben</div>
+                    <div class="sort-group">
+                        <span class="label">Sortieren nach:</span>
+                        <button mat-button (click)="changeSort('priority')" [color]="sortBy() === 'priority' ? 'primary' : ''">
+                            Priorität
+                            <mat-icon *ngIf="sortBy() === 'priority'">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                        </button>
+                        <button mat-button (click)="changeSort('dueDate')" [color]="sortBy() === 'dueDate' ? 'primary' : ''">
+                            Datum
+                            <mat-icon *ngIf="sortBy() === 'dueDate'">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                        </button>
+                        <button mat-button (click)="changeSort('title')" [color]="sortBy() === 'title' ? 'primary' : ''">
+                            Titel
+                            <mat-icon *ngIf="sortBy() === 'title'">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="scroll-wrapper">
+                    <mat-list class="todo-list">
+                        <!-- Active Todos -->
+                        @if (activeTodos().length > 0) {
+                            <div class="list-section">
+                                @for (todo of activeTodos(); track todo.id) {
+                                    <mat-list-item class="todo-item" [style.border-left-color]="getPriorityColor(todo.priority)">
+                                        <mat-checkbox [checked]="todo.isDone" (change)="onToggleDone(todo)" matListItemTitle>
+                                            <span class="todo-title">{{ todo.title }}</span>
+                                        </mat-checkbox>
+                                        
+                                        <div matListItemLine class="todo-details">
+                                            @if (todo.description) {
+                                                <span class="description">{{ todo.description }}</span>
+                                            }
+                                            <div class="badges">
+                                                @if (getCategory(todo.categoryId); as cat) {
+                                                    <span class="category-badge">
+                                                        <div class="color-dot" [style.background-color]="cat.color"></div>
+                                                        {{ cat.name }}
+                                                    </span>
+                                                }
+                                                <span class="priority-badge" [style.background-color]="getPriorityColor(todo.priority)">
+                                                    {{ getPriorityLabel(todo.priority) }}
+                                                </span>
+                                                @if (todo.dueDate) {
+                                                    <span class="due-date">
+                                                        <mat-icon>event</mat-icon>
+                                                        {{ todo.dueDate | date:'mediumDate' }}
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div matListItemMeta class="item-actions">
+                                            <button mat-icon-button (click)="onEditTodo(todo)" matTooltip="Bearbeiten">
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button mat-icon-button color="warn" (click)="onDeleteTodo(todo)" matTooltip="Löschen">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </div>
+                                    </mat-list-item>
+                                    <mat-divider></mat-divider>
+                                }
+                            </div>
+                        }
+
+                        <!-- Completed Todos in Expansion Panel -->
+                        @if (completedTodos().length > 0) {
+                            <mat-expansion-panel class="completed-panel" [expanded]="filterStatus() === 'completed'">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        Erledigte Aufgaben ({{ completedTodos().length }})
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                
+                                <mat-list>
+                                    @for (todo of completedTodos(); track todo.id) {
+                                        <mat-list-item class="todo-item completed">
+                                            <mat-checkbox [checked]="todo.isDone" (change)="onToggleDone(todo)" matListItemTitle>
+                                                <span class="done-text">{{ todo.title }}</span>
+                                            </mat-checkbox>
+                                            
+                                            <div matListItemMeta class="item-actions">
+                                                <button mat-icon-button color="warn" (click)="onDeleteTodo(todo)" matTooltip="Löschen">
+                                                    <mat-icon>delete</mat-icon>
+                                                </button>
+                                            </div>
+                                        </mat-list-item>
+                                        <mat-divider></mat-divider>
+                                    }
+                                </mat-list>
+                            </mat-expansion-panel>
+                        }
+
+                        @if (filteredTodos().length === 0 && !todoService.loading()) {
+                            <div class="empty-state">
+                                <mat-icon class="empty-icon">task_alt</mat-icon>
+                                <h2>Keine Aufgaben gefunden</h2>
+                                <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
+                                <button mat-stroked-button color="primary" (click)="onAddTodo()">
+                                    <mat-icon>add</mat-icon>
+                                    Aufgabe hinzufügen
+                                </button>
+                            </div>
+                        }
+                    </mat-list>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

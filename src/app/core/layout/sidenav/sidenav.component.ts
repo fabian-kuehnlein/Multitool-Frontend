@@ -32,6 +32,12 @@ export class SidenavComponent {
             description: 'Eigene Listen führen',
             icon: 'table_chart',
             route: '/custom-table',
+        },
+        {
+            name: 'Todos',
+            description: 'Aufgaben organisieren',
+            icon: 'check_circle',
+            route: '/todo',
         }
     ];
 

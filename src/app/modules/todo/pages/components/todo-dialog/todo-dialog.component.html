@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Aufgabe bearbeiten' : 'Neue Aufgabe' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="todoForm" class="todo-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Titel</mat-label>
+      <input matInput formControlName="title" placeholder="Was steht an?">
+      <mat-error *ngIf="todoForm.get('title')?.hasError('required')">
+        Ein Titel wird benötigt
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Beschreibung</mat-label>
+      <textarea matInput formControlName="description" placeholder="Weitere Details hinzufügen..." rows="3"></textarea>
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Kategorie</mat-label>
+        <mat-select formControlName="categoryId">
+          <mat-option *ngFor="let cat of categoryService.categories()" [value]="cat.id">
+            <div class="category-option">
+              <div class="color-dot" [style.background-color]="cat.color"></div>
+              {{ cat.name }}
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="todoForm.get('categoryId')?.hasError('required')">
+          Kategorie auswählen
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Priorität</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option *ngFor="let p of priorities" [value]="p.value">
+            <mat-icon [style.color]="p.color">flag</mat-icon>
+            {{ p.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fällig am</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dueDate">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Abbrechen</button>
+  <button mat-flat-button color="primary" [disabled]="todoForm.invalid" (click)="onSubmit()">
+    {{ isEditMode ? 'Speichern' : 'Erstellen' }}
+  </button>
+</mat-dialog-actions>
