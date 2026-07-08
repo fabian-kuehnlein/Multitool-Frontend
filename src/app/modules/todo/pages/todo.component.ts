@@ -37,6 +37,8 @@ export class TodoComponent implements OnInit {
 
   public readonly isMobile = signal<boolean>(false);
   public readonly isTablet = signal<boolean>(false);
+  readonly expandedTodoIds = signal<Set<string | number>>(new Set());
+  readonly isCompletedExpanded = signal<boolean>(false);
 
   readonly filteredTodos = computed(() => {
     let list = this.todoService.todos();
@@ -112,6 +114,20 @@ export class TodoComponent implements OnInit {
     this.snackbar.openSuccess('Status aktualisiert');
   }
 
+  toggleExpand(todoId: string | number): void {
+    const current = new Set(this.expandedTodoIds());
+    if (current.has(todoId)) {
+      current.delete(todoId);
+    } else {
+      current.add(todoId);
+    }
+    this.expandedTodoIds.set(current);
+  }
+
+  isExpanded(todoId: string | number): boolean {
+    return this.expandedTodoIds().has(todoId);
+  }
+
   onAddTodo(): void {
     const dialogRef = this.dialog.open(TodoDialogComponent, {
       width: '500px',
@@ -184,6 +200,13 @@ export class TodoComponent implements OnInit {
 
   setFilterStatus(status: 'all' | 'active' | 'completed') {
     this.filterStatus.set(status);
+    if (status === 'completed') {
+      this.isCompletedExpanded.set(true);
+    }
+  }
+
+  toggleCompletedCollapse() {
+    this.isCompletedExpanded.set(!this.isCompletedExpanded());
   }
 
   setFilterPriority(priority: Priority | null) {
