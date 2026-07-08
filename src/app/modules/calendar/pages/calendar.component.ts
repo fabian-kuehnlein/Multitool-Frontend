@@ -27,6 +27,7 @@ import { CalendarMapper } from '../utilities/calendar-mapper';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
 	selector: 'app-calendar',
@@ -58,6 +59,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 	private readonly calendarService = inject(CalendarService);
 	private readonly categoryService = inject(CategoryService);
 	private readonly dialog = inject(MatDialog);
+    private readonly route = inject(ActivatedRoute);
     private readonly breakpointObserver = inject(BreakpointObserver);
 	private readonly destroy$ = new Subject<void>();
 
@@ -75,7 +77,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         { initialValue: false }
     );
 
-    protected readonly showPastEvents = signal<boolean>(true);
+    protected readonly showPastEvents = signal<boolean>(false);
 
 	public readonly categoryList = this.categoryService.categories;
 	public readonly categoryControl = new FormControl<string[]>([]);
@@ -102,6 +104,16 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             this.currentView.set('listMonth');
             this.updateTodayStatus();
         }
+
+        this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+            const dateParam = params['date'];
+
+            if (!dateParam) return;
+
+            const date = new Date(dateParam);
+
+            if (date && this.calendarApi) this.calendarApi?.gotoDate(date);
+        });
     }
 
 	ngOnDestroy(): void {
@@ -234,6 +246,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 	public updateEvent(arg: EventClickArg) {
 		const eventData = CalendarMapper.fromFullCalendarEvent(arg.event);
 
+        if (eventData.extendedProps['isTodo'] === true) return;
+
         if (eventData.recurrenceRule) {
             this.dialog.open(RecurrenceChoiceDialogComponent).afterClosed().subscribe(choice => {
                 if (choice) this.openEventDialog(eventData, choice === 'instance');
@@ -289,6 +303,9 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
 	public handleEventDrop(arg: EventDropArg) {
 		const event = arg.event;
+
+        if (event.extendedProps['isTodo'] === true) return;
+
         const isRecurring = !!event.extendedProps['recurrenceRule'];
 		const updatedEvent = CalendarMapper.toCalendarEvent(event);
 

@@ -29,7 +29,8 @@ export class CalendarMapper {
                 categoryId: event.categoryId,
                 categoryColor: color,
                 recurrenceRule: event.recurrenceRule,
-                recurrenceEnd: parseAsLocal(event.recurrenceEnd)
+                recurrenceEnd: parseAsLocal(event.recurrenceEnd),
+                isTodo: event.isTodo || false
             }
         };
 

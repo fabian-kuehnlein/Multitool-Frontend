@@ -11,6 +11,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-todo',
@@ -28,6 +29,7 @@ export class TodoComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(SnackbarService);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly router = inject(Router);
 
   readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
@@ -139,6 +141,10 @@ export class TodoComponent implements OnInit {
         this.snackbar.openSuccess('Aufgabe hinzugefügt');
       }
     });
+  }
+
+  goToDateInCalendar(dueDate: string): void {
+    this.router.navigate(['/calendar'], { queryParams: { date: dueDate } });
   }
 
   onEditTodo(todo: Todo): void {

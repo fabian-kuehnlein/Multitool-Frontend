@@ -8,4 +8,5 @@ export interface CalendarEvent {
   categoryId?: string;
   recurrenceRule?: string | null;
   recurrenceEnd?: string | null;
+  isTodo?: boolean | false;
 }
