@@ -1,0 +1,715 @@
+@use "../../../../_breakpoints" as bp;
+
+:host {
+    display: block;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.todo-page-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 10px 25px;
+    height: 80px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+
+    &.mobile-toolbar {
+        height: 64px;
+        padding: 0 16px;
+    }
+}
+
+.page-loader {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.left-container, .right-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.right-container {
+    justify-content: flex-end;
+}
+
+.middle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.main-layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+
+    &.mobile-layout {
+        flex-direction: column;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+    }
+}
+
+// Collapsible Sidebar
+.page-sidebar {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+
+    &.collapsed {
+        margin-left: -280px;
+    }
+
+    .sidebar-header {
+        padding: 20px 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #555;
+        border-bottom: 1px solid #eee;
+    }
+
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .sidebar-list {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .list-section-header {
+            padding: 16px 12px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .active-item {
+            background-color: #f0f4f8;
+            border-left: 4px solid #1976d2;
+            color: #1976d2;
+
+            mat-icon {
+                color: #1976d2;
+            }
+        }
+
+        .stat-badge {
+            background-color: #eee;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    }
+}
+
+.content-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    gap: 20px;
+
+    @media (max-width: 850px) {
+        padding: 12px;
+        padding-bottom: 125px;
+        overflow: visible;
+        gap: 12px;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 850px) {
+    .scroll-wrapper {
+        overflow: visible;
+        flex: none;
+    }
+}
+
+.mobile-bottom-bar {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.todo-content-card {
+    flex: 1;
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    overflow: hidden;
+
+    @media (max-width: 850px) {
+        height: auto;
+        min-height: auto;
+        flex: none;
+        overflow: visible;
+    }
+
+    &.mobile-card {
+        flex: none;
+        overflow: visible;
+    }
+}
+
+.todo-header-actions {
+    padding: 12px 24px;
+    background-color: #fdfdfd;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+
+    .section-title {
+        margin-right: 32px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .sort-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .label {
+            font-size: 0.8rem;
+            color: #777;
+            margin-right: 8px;
+        }
+
+        button {
+            font-size: 0.85rem;
+            height: 32px;
+            line-height: 32px;
+
+            mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                margin-left: 4px;
+            }
+        }
+    }
+}
+
+.scroll-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.25);
+    }
+}
+
+.todo-list {
+    padding: 0;
+
+    .todo-item {
+        padding: 10px 16px 10px 20px;
+        border-left: 4px solid transparent;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #f9f9f9;
+        }
+
+        &.completed {
+            opacity: 0.7;
+            background-color: #fafafa;
+
+            &:hover {
+                background-color: #f5f5f5;
+            }
+        }
+    }
+
+    // Desktop-Zeile: eine Reihe, Meta-Container rechtsbündig
+    .todo-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 32px;
+
+        mat-checkbox {
+            flex: 1;
+            min-width: 0;
+
+            ::ng-deep .mdc-form-field {
+                width: 100%;
+            }
+
+            ::ng-deep label {
+                overflow: hidden;
+                min-width: 0;
+            }
+        }
+    }
+
+    .todo-title {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .done-text {
+        text-decoration: line-through;
+        color: #999;
+    }
+
+    .todo-meta-container {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .category-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #555;
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            white-space: nowrap;
+
+            .color-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    .todo-description-line {
+        margin-top: 8px;
+        padding-left: 36px;
+        color: #666;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+
+        .description-text {
+            display: block;
+            max-width: 800px;
+            border-left: 2px solid #ddd;
+            padding-left: 12px;
+        }
+    }
+
+    .expand-btn {
+        color: #777;
+        flex-shrink: 0;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+
+        ::ng-deep .mat-mdc-button-touch-target {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        mat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        &.expanded mat-icon {
+            transform: rotate(180deg);
+        }
+    }
+
+    ::ng-deep {
+        .delete-menu-item {
+            color: #f44336 !important;
+
+            mat-icon, .mat-icon {
+                color: #f44336 !important;
+            }
+        }
+    }
+}
+
+.completed-tasks-card {
+    flex: none;
+    min-height: auto;
+    margin: 0;
+
+    .completed-header {
+        justify-content: space-between;
+
+        &:hover {
+            background-color: #fafafa;
+        }
+    }
+
+    .completed-panel-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #555;
+
+        .completed-icon {
+            color: #4caf50;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+    }
+
+    .completed-scroll-wrapper {
+        max-height: 280px;
+    }
+
+    &.full-height-card {
+        flex: 1;
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+
+        @media (max-width: 850px) {
+            min-height: auto;
+            flex: none;
+        }
+
+        .completed-scroll-wrapper {
+            flex: 1;
+            max-height: none !important;
+        }
+    }
+}
+
+.delete-btn {
+    color: #888;
+    transition: color 0.2s, background-color 0.2s;
+
+    &:hover {
+        color: #f44336 !important;
+        background-color: rgba(244, 67, 54, 0.05);
+    }
+}
+
+.empty-state {
+    padding: 80px 24px;
+    text-align: center;
+    color: #999;
+
+    .empty-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        opacity: 0.2;
+        margin-bottom: 16px;
+    }
+
+    h2 {
+        color: #666;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    p {
+        margin-bottom: 24px;
+    }
+}
+
+// Mobile Header (Toolbar)
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .mobile-toolbar & {
+        justify-content: center;
+    }
+
+    .left-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .mobile-actions {
+        display: flex;
+        align-items: center;
+    }
+}
+@media (max-width: 850px) {
+
+    .todo-list {
+        .todo-item {
+            cursor: pointer;
+            padding: 10px 14px 10px 16px;
+
+            &:hover {
+                background-color: #f5f5f5;
+            }
+        }
+
+        .todo-title {
+            font-size: 0.95rem;
+        }
+
+        .mobile-todo-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 32px;
+
+            mat-checkbox {
+                flex: 1;
+                min-width: 0;
+
+                ::ng-deep .mdc-form-field {
+                    width: 100%;
+                }
+
+                ::ng-deep label {
+                    overflow: hidden;
+                    min-width: 0;
+                }
+            }
+        }
+
+        .mobile-main-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mobile-due-date {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.75rem;
+            color: #777;
+            white-space: nowrap;
+
+            mat-icon {
+                font-size: 15px;
+                width: 15px;
+                height: 15px;
+            }
+        }
+
+        .mobile-todo-expanded {
+            margin-top: 10px;
+            padding-left: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: default;
+        }
+
+        .mobile-expanded-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 28px;
+
+            .category-badge {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 16px;
+                color: #555;
+                background-color: #f5f5f5;
+                border: 1px solid #e0e0e0;
+                padding: 2px 8px;
+                border-radius: 12px;
+                white-space: nowrap;
+
+                .color-dot {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    flex-shrink: 0;
+                }
+            }
+
+            .todo-due-date-btn {
+                margin-left: auto;
+            }
+        }
+
+        .mobile-description {
+            color: #666;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            border-left: 2px solid #ddd;
+            padding-left: 12px;
+        }
+
+        .mobile-actions-row {
+            display: flex;
+            gap: 8px;
+
+            .mobile-action-btn {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+        }
+
+        mat-checkbox {
+            padding: 12px 12px 12px 8px;
+            margin: -12px -12px -12px -8px;
+        }
+
+        .category-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            gap: 4px;
+
+            .color-dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
+        button[mat-icon-button] {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+        }
+    }
+}
+
+// FAB-Reihe (innerhalb der mobile-bottom-bar)
+.mobile-action-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mobile-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mobile-fab-left, .mobile-fab-right, .mobile-filter-fab {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .mobile-fab-left {
+        background: white;
+        color: #444;
+    }
+}
+
+// Custom mobile menu styling
+.menu-section-header {
+    padding: 6px 16px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #757575;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background-color: #f5f5f5;
+    margin-top: 4px;
+    margin-bottom: 4px;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.active-menu-item {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    font-weight: 500;
+}

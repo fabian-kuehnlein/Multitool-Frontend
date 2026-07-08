@@ -3,7 +3,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CalendarEvent } from '../models/calendar-event.model';
-import { Category } from '../models/category.model';
 import { CreateCalendarEvent } from '../models/create-calendar-event.model';
 import { Holiday } from '../models/holiday.model';
 import { SearchResult } from '../models/search-result.model';
@@ -42,10 +41,6 @@ export class CalendarHttpService {
 
     deleteEvent(eventId: string): Observable<void> {
         return this.http.delete<void>(`${this.apiURL}/events/${eventId}`);
-    }
-
-    getCategories(): Observable<Category[]> {
-        return this.http.get<Category[]>(`${this.apiURL}/categories`);
     }
 
     getHolidays(year: string): Observable<Holiday[]> {

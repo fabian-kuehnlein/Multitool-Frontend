@@ -47,6 +47,16 @@
 
         <!-- Right Container -->
         <div class="right-container">
+            @if (isMobile()) {
+                <mat-slide-toggle 
+                    class="compact-toggle" 
+                    [checked]="showPastEvents()" 
+                    (change)="showPastEvents.set($event.checked)"
+                    matTooltip="Vergangene Einträge ein/ausblenden">
+                    <mat-icon>history</mat-icon>
+                </mat-slide-toggle>
+            }
+
             @if (!isMobile()) {
                 <button mat-flat-button color="primary" (click)='createEvent()' class="create-button" matTooltip="Neuer Eintrag (Alt + N)">
                     <mat-icon>add</mat-icon>
@@ -91,7 +101,7 @@
         </div>
     }
 
-    <div class="calendar-wrapper">
+    <div class="calendar-wrapper" [class.hide-past]="!showPastEvents()">
         <full-calendar #calendarRef [options]="calendarOptions"></full-calendar>
     </div>
 

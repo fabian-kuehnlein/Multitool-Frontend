@@ -28,6 +28,14 @@ export const defaultCalendarOptions: CalendarOptions = {
         }
 
         const isAllDay = event.allDay;
+
+        const isTodo = event.extendedProps['isTodo'] || false;
+        const isRecurring = !!event.extendedProps['recurrenceRule'];
+
+        var icon = '';
+        if (isTodo) icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">task_alt</span>`
+        if (isRecurring) icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">sync</span>`;
+
         const note = event.extendedProps['eventNote'] || '';
 
         const start = event.start ? new Date(event.start) : null;
@@ -48,7 +56,7 @@ export const defaultCalendarOptions: CalendarOptions = {
             return {
                 html: `
                     <div class="fc-list-event-custom">
-                        <div class="fc-event-title" style="font-weight: 600; color: #333;">${event.title || ''}</div>
+                        <div class="fc-event-title" style="font-weight: 600; color: #333;">${icon} ${event.title || ''}</div>
                         ${note ? `<div class="fc-event-note" style="font-size: 0.85rem; font-style: italic; color: #888; margin-top: 2px;">${note}</div>` : ''}
                     </div>
                 `
@@ -58,7 +66,7 @@ export const defaultCalendarOptions: CalendarOptions = {
         return {
             html: `
                 <div class="fc-event-main-content">
-                    <div class="fc-event-title">${event.title || ''}</div>
+                    <div class="fc-event-title">${icon} ${event.title || ''}</div>
                     ${timeDisplay ? `<div class="fc-event-time">${timeDisplay}</div>` : ''}
                     ${note ? `<div class="fc-event-note">${note}</div>` : ''}
                 </div>
