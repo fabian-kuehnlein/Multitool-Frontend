@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
+
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { Todo, Priority } from '../../../models/todo.model';
 import { CategoryService } from '../../../../../shared/services/category.service';
@@ -9,7 +9,7 @@ import { CategoryService } from '../../../../../shared/services/category.service
 @Component({
   selector: 'app-todo-dialog',
   standalone: true,
-  imports: [CommonModule, UI_MODULES],
+  imports: [UI_MODULES],
   templateUrl: './todo-dialog.component.html',
   styleUrl: './todo-dialog.component.scss',
 })

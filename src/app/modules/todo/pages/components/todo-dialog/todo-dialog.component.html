@@ -4,9 +4,11 @@
     <mat-form-field appearance="outline">
       <mat-label>Titel</mat-label>
       <input matInput formControlName="title" placeholder="Was steht an?">
-      <mat-error *ngIf="todoForm.get('title')?.hasError('required')">
-        Ein Titel wird benötigt
-      </mat-error>
+      @if (todoForm.get('title')?.hasError('required')) {
+        <mat-error>
+          Ein Titel wird benötigt
+        </mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -18,25 +20,31 @@
       <mat-form-field appearance="outline">
         <mat-label>Kategorie</mat-label>
         <mat-select formControlName="categoryId">
-          <mat-option *ngFor="let cat of categoryService.categories()" [value]="cat.id">
-            <div class="category-option">
-              <div class="color-dot" [style.background-color]="cat.color"></div>
-              {{ cat.name }}
-            </div>
-          </mat-option>
+          @for (cat of categoryService.categories(); track cat) {
+            <mat-option [value]="cat.id">
+              <div class="category-option">
+                <div class="color-dot" [style.background-color]="cat.color"></div>
+                {{ cat.name }}
+              </div>
+            </mat-option>
+          }
         </mat-select>
-        <mat-error *ngIf="todoForm.get('categoryId')?.hasError('required')">
-          Kategorie auswählen
-        </mat-error>
+        @if (todoForm.get('categoryId')?.hasError('required')) {
+          <mat-error>
+            Kategorie auswählen
+          </mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Priorität</mat-label>
         <mat-select formControlName="priority">
-          <mat-option *ngFor="let p of priorities" [value]="p.value">
-            <mat-icon [style.color]="p.color">flag</mat-icon>
-            {{ p.label }}
-          </mat-option>
+          @for (p of priorities; track p) {
+            <mat-option [value]="p.value">
+              <mat-icon [style.color]="p.color">flag</mat-icon>
+              {{ p.label }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +14,6 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -23,7 +22,7 @@ import { AuthService } from '../../services/auth.service';
     MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule
-  ],
+],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

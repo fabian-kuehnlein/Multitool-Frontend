@@ -4,25 +4,31 @@
       <mat-card-title>Anmelden</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div *ngIf="isLoading" class="loading-overlay">
-        <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-      </div>
+      @if (isLoading) {
+        <div class="loading-overlay">
+          <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+        </div>
+      }
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" [class.hidden]="isLoading">
         <mat-form-field appearance="outline">
           <mat-label>Benutzername</mat-label>
           <input matInput formControlName="username" placeholder="Benutzername">
-          <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
-            Benutzername ist erforderlich
-          </mat-error>
+          @if (loginForm.get('username')?.hasError('required')) {
+            <mat-error>
+              Benutzername ist erforderlich
+            </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Passwort</mat-label>
           <input matInput type="password" formControlName="password" placeholder="Passwort">
-          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-            Passwort ist erforderlich
-          </mat-error>
+          @if (loginForm.get('password')?.hasError('required')) {
+            <mat-error>
+              Passwort ist erforderlich
+            </mat-error>
+          }
         </mat-form-field>
 
         <div class="actions">
