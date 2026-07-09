@@ -138,7 +138,9 @@ export class TodoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
       if (result) {
-        result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+        if (result.dueDate) {
+            result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+        }
         this.todoService.addTodo(result);
         this.snackbar.openSuccess('Aufgabe hinzugefügt');
       }
@@ -157,7 +159,9 @@ export class TodoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
       if (result) {
-        result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+        if (result.dueDate) {
+            result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+        }
         this.todoService.updateTodo(todo.id, result);
         this.snackbar.openSuccess('Aufgabe aktualisiert');
       }
