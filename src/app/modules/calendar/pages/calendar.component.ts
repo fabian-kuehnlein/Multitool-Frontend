@@ -77,7 +77,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         { initialValue: false }
     );
 
-    protected readonly showPastEvents = signal<boolean>(false);
+    protected readonly showPastEvents = signal<boolean>(this.isMobile() ? false : true);
 
 	public readonly categoryList = this.categoryService.categories;
 	public readonly categoryControl = new FormControl<string[]>([]);
@@ -246,7 +246,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 	public updateEvent(arg: EventClickArg) {
 		const eventData = CalendarMapper.fromFullCalendarEvent(arg.event);
 
-        if (eventData.extendedProps['isTodo'] === true) return;
+        if (eventData.isTodo === true) return;
 
         if (eventData.recurrenceRule) {
             this.dialog.open(RecurrenceChoiceDialogComponent).afterClosed().subscribe(choice => {

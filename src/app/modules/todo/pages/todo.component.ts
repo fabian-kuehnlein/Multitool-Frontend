@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import moment from 'moment';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { map } from 'rxjs';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { TodoService } from '../services/todo.service';
 import { Todo, CreateTodoDto, UpdateTodoDto, Priority } from '../models/todo.model';
@@ -137,6 +137,7 @@ export class TodoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
       if (result) {
+        result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
         this.todoService.addTodo(result);
         this.snackbar.openSuccess('Aufgabe hinzugefügt');
       }
@@ -155,6 +156,7 @@ export class TodoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
       if (result) {
+        result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
         this.todoService.updateTodo(todo.id, result);
         this.snackbar.openSuccess('Aufgabe aktualisiert');
       }

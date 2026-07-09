@@ -162,7 +162,8 @@ export class CalendarMapper {
             isAllDay: event.allDay,
             categoryId: event.extendedProps['categoryId']?.toString() ?? null,
             recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
-            recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null
+            recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null,
+            isTodo: event.extendedProps['isTodo'] ?? false
         };
     }
 
