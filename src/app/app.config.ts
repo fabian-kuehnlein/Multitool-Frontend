@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID, Injectable } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection, LOCALE_ID, Injectable } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideMomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
@@ -36,7 +36,7 @@ export class GermanPaginatorIntl extends MatPaginatorIntl {
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideZonelessChangeDetection(),
         provideRouter(routes),
         provideAnimationsAsync(),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
