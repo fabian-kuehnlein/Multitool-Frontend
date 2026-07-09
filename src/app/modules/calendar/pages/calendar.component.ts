@@ -380,7 +380,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 if (event.rrule && event.exdate && Array.isArray(event.exdate) && event.exdate.length > 0) {
                                     let current = moment(viewStart);
                                     while (current.isBefore(viewEnd)) {
-                                        if (CalendarMapper.eventFallsOnDate(event.rrule, current)) {
+                                        if (CalendarMapper.eventFallsOnDate(event.rrule, current, event.exdate)) {
                                             const instance = { ...event };
                                             delete instance.rrule;
                                             

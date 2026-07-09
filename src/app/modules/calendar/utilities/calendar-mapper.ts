@@ -1,4 +1,4 @@
-import { EventInput } from '@fullcalendar/core';
+import { DateInput, EventInput } from '@fullcalendar/core';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { Category } from '../../../shared/models/category.model';
 import moment from 'moment';
@@ -84,7 +84,7 @@ export class CalendarMapper {
     /**
      * Checks if a recurring event (defined by its rrule object) falls on a specific date.
      */
-    static eventFallsOnDate(rrule: any, date: moment.Moment): boolean {
+    static eventFallsOnDate(rrule: any, date: moment.Moment, exdate?: DateInput | DateInput[]): boolean {
         const dateStr = date.format('YYYY-MM-DD');
         const dtstart = moment(rrule.dtstart).startOf('day');
         const targetDate = moment(date).startOf('day');
@@ -96,8 +96,9 @@ export class CalendarMapper {
         if (rrule.until && targetDate.isAfter(moment(rrule.until).startOf('day'))) return false;
 
         // Check EXDATE
-        if (rrule.exdate && Array.isArray(rrule.exdate)) {
-            if (rrule.exdate.some((ex: string) => moment(ex).format('YYYY-MM-DD') === dateStr)) {
+        if (exdate) {
+            const exdateArray = Array.isArray(exdate) ? exdate : [exdate];
+            if (exdateArray.some((ex) => moment(ex as any).format('YYYY-MM-DD') === dateStr)) {
                 return false;
             }
         }
