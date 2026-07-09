@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
@@ -11,6 +11,7 @@ import { CategoryService } from '../../../../../shared/services/category.service
   standalone: true,
   imports: [UI_MODULES],
   templateUrl: './todo-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './todo-dialog.component.scss',
 })
 export class TodoDialogComponent {

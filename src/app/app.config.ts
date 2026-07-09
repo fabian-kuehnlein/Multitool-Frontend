@@ -11,6 +11,7 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
 import moment from 'moment';
+// @ts-ignore: side-effect locale import has no type declarations
 import 'moment/locale/de';
 
 moment.locale('de');

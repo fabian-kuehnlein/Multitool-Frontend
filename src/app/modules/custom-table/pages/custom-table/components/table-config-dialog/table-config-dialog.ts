@@ -1,4 +1,4 @@
-import { Component, Inject, inject, signal } from '@angular/core';
+import { Component, Inject, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UpsertTableDto, CustomDataType, UpdateColumnDto } from '../../../../models';
@@ -17,6 +17,7 @@ enum DialogMode {
     UI_MODULES
   ],
   templateUrl: './table-config-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './table-config-dialog.scss'
 })
 export class TableConfigDialog {

@@ -1,5 +1,5 @@
 // Angular
-import { Component, Inject, inject, signal, computed, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, inject, signal, computed, effect, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
@@ -34,6 +34,7 @@ import { Subject, takeUntil } from 'rxjs';
   ],
   providers: [EventFormService],
   templateUrl: './event-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './event-dialog.component.scss'
 })
 export class EventDialogComponent implements OnInit, OnDestroy {

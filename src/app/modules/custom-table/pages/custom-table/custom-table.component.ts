@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren, signal, computed, effect, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren, signal, computed, effect, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { UI_MODULES } from '../../../../shared/utilities/material-ui';
 import { MatDialog } from '@angular/material/dialog';
 import { SidenavComponent } from '../../../../core/layout/sidenav/sidenav.component';
@@ -32,6 +32,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     DragDropModule
   ],
   templateUrl: './custom-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {

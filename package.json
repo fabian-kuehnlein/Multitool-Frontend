@@ -11,17 +11,17 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^21.2.18",
-    "@angular/cdk": "^21.2.14",
-    "@angular/common": "^21.2.18",
-    "@angular/compiler": "^21.2.18",
-    "@angular/core": "^21.2.18",
-    "@angular/forms": "^21.2.18",
-    "@angular/material": "^21.2.14",
-    "@angular/material-moment-adapter": "^21.2.14",
-    "@angular/platform-browser": "^21.2.18",
-    "@angular/platform-browser-dynamic": "^21.2.18",
-    "@angular/router": "^21.2.18",
+    "@angular/animations": "^22.0.6",
+    "@angular/cdk": "^22.0.4",
+    "@angular/common": "^22.0.6",
+    "@angular/compiler": "^22.0.6",
+    "@angular/core": "^22.0.6",
+    "@angular/forms": "^22.0.6",
+    "@angular/material": "^22.0.4",
+    "@angular/material-moment-adapter": "^22.0.4",
+    "@angular/platform-browser": "^22.0.6",
+    "@angular/platform-browser-dynamic": "^22.0.6",
+    "@angular/router": "^22.0.6",
     "@fontsource-variable/material-symbols-outlined": "^5.2.45",
     "@fontsource/material-icons": "^5.2.7",
     "@fontsource/roboto": "^5.2.8",
@@ -40,9 +40,9 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular/build": "^21.2.18",
-    "@angular/cli": "^21.2.18",
-    "@angular/compiler-cli": "^21.2.18",
+    "@angular/build": "^22.0.6",
+    "@angular/cli": "^22.0.6",
+    "@angular/compiler-cli": "^22.0.6",
     "@types/jasmine": "~5.1.0",
     "@types/lodash": "^4.17.17",
     "jasmine-core": "~5.2.0",
@@ -51,6 +51,6 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.9.3"
+    "typescript": "~6.0.3"
   }
 }

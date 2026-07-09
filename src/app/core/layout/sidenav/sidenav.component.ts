@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
     standalone: true,
     imports: [MatIconModule, MatSidenavModule, MatListModule, MatDividerModule],
     templateUrl: './sidenav.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './sidenav.component.scss'
 })
 export class SidenavComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common'
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
@@ -23,6 +23,7 @@ import { CalendarMapper } from '../../../utilities/calendar-mapper';
         MatProgressSpinnerModule
     ],
     templateUrl: './search-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './search-dialog.component.scss'
 })
 export class SearchDialogComponent implements OnDestroy {

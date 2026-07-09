@@ -1,5 +1,5 @@
 // Angular Core
-import { Component, inject, signal, HostListener, computed, effect, OnDestroy, viewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, HostListener, computed, effect, OnDestroy, viewChild, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -40,6 +40,7 @@ import { ActivatedRoute } from '@angular/router';
 	],
 	templateUrl: './calendar.component.html',
 	styleUrl: './calendar.component.scss',
+	changeDetection: ChangeDetectionStrategy.Eager,
 	animations: [
 		trigger('fadeSlideInOut', [
 			transition(':enter', [

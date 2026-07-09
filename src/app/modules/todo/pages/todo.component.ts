@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import moment from 'moment';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
     UI_MODULES
   ],
   templateUrl: './todo.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './todo.component.scss',
 })
 export class TodoComponent implements OnInit {
