@@ -1,5 +1,7 @@
 @use "desktop";
 @use "mobile";
+@use "dark-mode";
+@use "fullcalendar-dark" as fcdark;
 
 // ── Host ─────────────────────────────────────────────────────────────────────
 :host {
@@ -19,8 +21,14 @@
     position: relative;
 }
 
-// ── FullCalendar Event Overrides ─────────────────────────────────────────────
+// ── FullCalendar Dark Mode ───────────────────────────────────────────────────
+@include fcdark.fullcalendar-dark-mode;
+
+//
+// FullCalendar Overrides (always active)
+//
 ::ng-deep {
+    // ── Event Styling ─────────────────────────────────────────────────────
     .fc-daygrid-event,
     .fc-timegrid-event {
         border-radius: 6px !important;
@@ -29,13 +37,13 @@
         margin: 1px 2px !important;
         display: flex !important;
         flex-direction: column !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 1px 2px var(--shadow-sm) !important;
         transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out !important;
         cursor: pointer;
 
         &:hover {
             transform: translateY(-1px) !important;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 4px 8px var(--shadow-md) !important;
             z-index: 5 !important;
         }
     }
@@ -49,7 +57,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        color: #fff;
+        color: var(--text-on-primary);
         font-size: 0.825rem;
         line-height: 1.3;
 
@@ -86,51 +94,50 @@
         z-index: 10 !important;
 
         & > th {
-            background-color: #f8f9fa !important;
+            background-color: var(--bg-secondary) !important;
         }
     }
 
     .fc-list-event:hover td {
-        background-color: #f1f3f4 !important;
+        background-color: var(--bg-hover) !important;
     }
 
     .fc-list-event-title {
         font-weight: 500;
     }
-}
 
-// ── FullCalendar Day Overrides ───────────────────────────────────────────────
-::ng-deep .fc-list-day.fc-day-past {
-    & > th {
-        background-color: #f1f1f1 !important;
+    .fc-list-day.fc-day-past {
+        & > th {
+            background-color: var(--bg-hover) !important;
+        }
+
+        .fc-list-day-side-text,
+        .fc-list-day-text {
+            opacity: 0.5;
+        }
     }
 
-    .fc-list-day-side-text,
-    .fc-list-day-text {
-        opacity: 0.5;
-    }
-}
+    .fc-list-day.fc-day-today {
+        z-index: 10 !important;
 
-::ng-deep .fc-list-day.fc-day-today {
-    z-index: 10 !important;
+        & > th {
+            background-color: var(--accent-warning) !important;
+        }
 
-    & > th {
-        background-color: #fff9c4 !important;
+        border-left: 5px solid var(--accent-warning-strong) !important;
     }
 
-    border-left: 5px solid #fbc02d !important;
-}
+    .fc-list-day.fc-day-today .fc-list-day-side-text,
+    .fc-list-day.fc-day-today .fc-list-day-text {
+        font-weight: bold;
+        color: var(--text-primary);
+    }
 
-::ng-deep .fc-list-day.fc-day-today .fc-list-day-side-text,
-::ng-deep .fc-list-day.fc-day-today .fc-list-day-text {
-    font-weight: bold;
-    color: #000;
-}
+    .fc-day-today {
+        background-color: var(--accent-warning) !important;
+    }
 
-::ng-deep .fc-day-today {
-    background-color: #fff9c4 !important;
-}
-
-::ng-deep .fc-day-other {
-    background-color: #f5f5f5;
+    .fc-day-other {
+        background-color: var(--bg-hover);
+    }
 }

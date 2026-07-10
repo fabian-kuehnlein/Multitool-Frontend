@@ -3,8 +3,8 @@
 // ── Sidebar ──────────────────────────────────────────────────────────────────
 .table-sidebar {
     width: 280px;
-    background: white;
-    border-right: 1px solid #ddd;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-default);
     display: flex;
     flex-direction: column;
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -18,8 +18,8 @@
         padding: 20px 25px;
         font-weight: 600;
         font-size: 1.1rem;
-        color: #555;
-        border-bottom: 1px solid #eee;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-light);
     }
 
     .sidebar-list {
@@ -32,12 +32,12 @@
         height: 100%;
 
         .active-item {
-            background-color: #f0f4f8;
-            border: 2px solid #1976d2;
-            color: #1976d2;
+            background-color: var(--accent-primary-light);
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
 
             mat-icon {
-                color: #1976d2;
+                color: var(--accent-primary);
             }
         }
     }
@@ -45,13 +45,13 @@
     .empty-list-message {
         padding: 40px 25px;
         text-align: center;
-        color: #999;
+        color: var(--text-disabled);
         font-style: italic;
     }
 
     .sidebar-paginator {
         background: transparent;
-        border-top: 1px solid #eee;
+        border-top: 1px solid var(--border-light);
     }
 }
 
@@ -62,12 +62,12 @@
     border-spacing: 0;
 
     th {
-        background-color: #ececec;
+        background-color: var(--bg-hover);
         font-weight: 700;
-        color: #222;
+        color: var(--text-primary);
         padding: 0;
-        border-bottom: 3px solid #bbb;
-        border-right: 1px solid #ccc;
+        border-bottom: 3px solid var(--border-strong);
+        border-right: 1px solid var(--border-medium);
         white-space: nowrap;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -79,7 +79,7 @@
         }
 
         &:hover {
-            background-color: #e0e0e0;
+            background-color: var(--border-default);
 
             .delete-col-btn {
                 opacity: 1;
@@ -118,26 +118,26 @@
             font-size: 18px;
             width: 18px;
             height: 18px;
-            color: #000;
+            color: var(--text-primary);
         }
     }
 
     tr:nth-child(odd) {
-        background-color: #ffffff;
+        background-color: var(--bg-surface);
     }
 
     tr:nth-child(even) {
-        background-color: #f2f2f2;
+        background-color: var(--bg-hover);
     }
 
     tr:hover {
-        background-color: #e9ecef !important;
+        background-color: var(--border-light) !important;
     }
 
     td {
         padding: 0;
-        border-bottom: 1px solid #ddd;
-        border-right: 1px solid #ddd;
+        border-bottom: 1px solid var(--border-default);
+        border-right: 1px solid var(--border-default);
         transition: all 0.2s;
         position: relative;
 
@@ -146,16 +146,16 @@
         }
 
         &:focus-within {
-            outline: 2px solid #1976d2;
+            outline: 2px solid var(--accent-primary);
             outline-offset: -2px;
             z-index: 10;
-            background-color: #e3f2fd !important;
+            background-color: var(--accent-primary-light) !important;
         }
     }
 }
 
 .cell-hover:hover {
-    background-color: #f0f0f0;
+    background-color: var(--bg-hover);
 }
 
 .cell-content {
@@ -168,10 +168,10 @@
 
 // ── Row Marked for Deletion ──────────────────────────────────────────────────
 .row-marked-for-deletion {
-    background-color: #fff0f0 !important;
+    background-color: var(--accent-danger-light) !important;
 
     td {
-        border-bottom-color: #ffcdd2 !important;
+        border-bottom-color: var(--accent-danger) !important;
     }
 }
 
@@ -181,8 +181,8 @@
     align-items: center;
     gap: 12px;
     padding: 15px 25px;
-    background: #fdfdfd;
-    border-top: 1px solid #eee;
+    background: var(--bg-surface-alt);
+    border-top: 1px solid var(--border-light);
     flex-shrink: 0;
     overflow-x: auto;
 

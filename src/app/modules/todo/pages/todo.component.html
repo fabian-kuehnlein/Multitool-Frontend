@@ -133,7 +133,7 @@
         </div>
 
         <div class="mobile-actions">
-          <button mat-icon-button (click)="onAddTodo()" color="primary">
+          <button mat-icon-button (click)="onAddTodo()">
             <mat-icon>add</mat-icon>
           </button>
           <button mat-icon-button [matMenuTriggerFor]="filterMenu">
@@ -158,7 +158,7 @@
       </div>
 
       <div class="right-container">
-        <button mat-flat-button color="primary" (click)="onAddTodo()" class="create-button">
+        <button mat-flat-button (click)="onAddTodo()" class="create-button">
           <mat-icon>add</mat-icon>
           <span>Neue Aufgabe</span>
         </button>
@@ -249,7 +249,7 @@
                     <mat-icon class="empty-icon">task_alt</mat-icon>
                     <h2>Keine aktiven Aufgaben</h2>
                     <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
-                    <button mat-stroked-button color="primary" (click)="onAddTodo()">
+                    <button mat-stroked-button (click)="onAddTodo()">
                       <mat-icon>add</mat-icon>
                       Aufgabe hinzufügen
                     </button>
@@ -304,7 +304,7 @@
                       <h2>Keine aktiven Aufgaben</h2>
                       <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
                     }
-                    <button mat-stroked-button color="primary" (click)="onAddTodo()">
+                    <button mat-stroked-button (click)="onAddTodo()">
                       <mat-icon>add</mat-icon>
                       Aufgabe hinzufügen
                     </button>
@@ -363,7 +363,7 @@
           </button>
 
           <!-- Create Button -->
-          <button mat-fab color="primary" class="mobile-fab-right" (click)="onAddTodo()" matTooltip="Aufgabe hinzufügen">
+          <button mat-fab class="mobile-fab-right" (click)="onAddTodo()" matTooltip="Aufgabe hinzufügen">
             <mat-icon>add</mat-icon>
           </button>
         </div>

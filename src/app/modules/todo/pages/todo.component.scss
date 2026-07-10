@@ -25,11 +25,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: white;
+    background: var(--bg-surface);
     padding: 10px 25px;
     height: 80px;
     flex-shrink: 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-default);
     box-sizing: border-box;
 
     &.mobile-toolbar {
@@ -55,7 +55,7 @@
     &.mobile-layout {
         flex-direction: column;
         overflow-y: auto;
-        background-color: #f8f9fa;
+        background-color: var(--bg-secondary);
     }
 }
 
@@ -67,7 +67,7 @@
     padding: 24px;
     box-sizing: border-box;
     overflow-y: auto;
-    background-color: #f8f9fa;
+    background-color: var(--bg-secondary);
     gap: 20px;
 }
 
@@ -84,11 +84,11 @@
         background: transparent;
     }
     &::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.15);
+        background: var(--scrollbar-thumb);
         border-radius: 4px;
     }
     &::-webkit-scrollbar-thumb:hover {
-        background: rgba(0, 0, 0, 0.25);
+        background: var(--scrollbar-thumb-hover);
     }
 }
 
@@ -102,15 +102,15 @@
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: #f9f9f9;
+            background-color: var(--bg-hover);
         }
 
         &.completed {
             opacity: 0.7;
-            background-color: #fafafa;
+            background-color: var(--bg-hover);
 
             &:hover {
-                background-color: #f5f5f5;
+                background-color: var(--bg-hover);
             }
         }
     }
@@ -128,11 +128,11 @@
 
     .done-text {
         text-decoration: line-through;
-        color: #999;
+        color: var(--text-disabled);
     }
 
     .expand-btn {
-        color: #777;
+        color: var(--text-muted);
         flex-shrink: 0;
         display: inline-flex !important;
         align-items: center;
@@ -165,9 +165,9 @@
     align-items: center;
     gap: 6px;
     font-size: 14px;
-    color: #555;
+    color: var(--text-secondary);
     background-color: transparent;
-    border: 1px solid black;
+    border: 1px solid var(--text-primary);
     padding: 2px 8px;
     border-radius: 12px;
     white-space: nowrap;
@@ -184,7 +184,7 @@
 .empty-state {
     padding: 80px 24px;
     text-align: center;
-    color: #999;
+    color: var(--text-disabled);
 
     .empty-icon {
         font-size: 64px;
@@ -195,7 +195,7 @@
     }
 
     h2 {
-        color: #666;
+        color: var(--text-tertiary);
         font-weight: 500;
         margin-bottom: 8px;
     }
@@ -207,11 +207,11 @@
 
 // ── Delete Button ────────────────────────────────────────────────────────────
 .delete-btn {
-    color: #888;
+    color: var(--text-muted);
     transition: color 0.2s, background-color 0.2s;
 
     &:hover {
-        color: #f44336 !important;
-        background-color: rgba(244, 67, 54, 0.05);
+        color: var(--accent-danger) !important;
+        background-color: var(--accent-danger-light);
     }
 }

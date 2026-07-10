@@ -23,11 +23,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: white;
+    background: var(--bg-surface);
     padding: 10px 25px;
     height: 80px;
     flex-shrink: 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-default);
     box-sizing: border-box;
 
     &.mobile-toolbar {
@@ -68,7 +68,7 @@
     font-size: 1.6rem;
     font-weight: 500;
     text-align: center;
-    color: #333;
+    color: var(--text-primary);
 }
 
 // ── Layout ───────────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@
         flex-direction: column;
         overflow-y: auto;
         min-height: 0;
-        background-color: #f8f9fa;
+        background-color: var(--bg-secondary);
     }
 }
 
@@ -93,17 +93,17 @@
     padding: 20px;
     box-sizing: border-box;
     overflow: hidden;
-    background-color: #f8f9fa;
+    background-color: var(--bg-secondary);
 }
 
 .table-content-card {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eee;
+    box-shadow: 0 2px 10px var(--shadow-sm);
+    border: 1px solid var(--border-light);
     overflow: hidden;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .warn-text {
-    color: #f44336;
+    color: var(--accent-danger);
 }
 
 // ── Empty State (no table selected) ──────────────────────────────────────────
@@ -153,7 +153,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #888;
+    color: var(--text-muted);
     gap: 20px;
     text-align: center;
     padding: 0 20px;
@@ -174,6 +174,6 @@
 // ── Menu Delete Colors ───────────────────────────────────────────────────────
 button.mat-mdc-menu-item {
     .mat-icon.delete-colors {
-        color: #b71c1c !important;
+        color: var(--accent-danger-dark) !important;
     }
 }

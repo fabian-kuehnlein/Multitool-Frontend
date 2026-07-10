@@ -21,7 +21,7 @@
             </div>
 
             <div class="right-container">
-                <button mat-flat-button color="primary" (click)="createTable()" class="create-button">
+                <button mat-flat-button (click)="createTable()" class="create-button">
                     <mat-icon>add</mat-icon>
                     <span>Tabelle erstellen</span>
                 </button>
@@ -57,7 +57,7 @@
 
                 <div class="mobile-actions">
                     @if (isTablet()) {
-                        <button mat-flat-button color="primary" (click)="createTable()" class="create-button" style="margin-right: 12px;">
+                        <button mat-flat-button (click)="createTable()" class="create-button" style="margin-right: 12px;">
                             <mat-icon>add</mat-icon>
                             <span>Tabelle erstellen</span>
                         </button>
@@ -320,7 +320,7 @@
                             <div class="empty-state-mobile">
                                 <mat-icon class="empty-icon">post_add</mat-icon>
                                 <p>Diese Tabelle hat noch keine Einträge.</p>
-                                <button mat-stroked-button color="primary" (click)="addRow()">
+                                <button mat-stroked-button (click)="addRow()">
                                     <mat-icon>add</mat-icon>
                                     Erste Zeile hinzufügen
                                 </button>
@@ -380,7 +380,7 @@
                 <div class="empty-state">
                     <mat-icon class="empty-table-icon">table_view</mat-icon>
                     <h2>Wähle eine Tabelle aus oder erstelle eine neue.</h2>
-                    <button mat-flat-button color="primary" (click)="createTable()" style="margin-top: 20px;">
+                    <button mat-flat-button (click)="createTable()" style="margin-top: 20px;">
                         <mat-icon>add</mat-icon>
                         Tabelle erstellen
                     </button>

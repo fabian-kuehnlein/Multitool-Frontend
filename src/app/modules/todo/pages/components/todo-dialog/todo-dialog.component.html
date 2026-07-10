@@ -60,7 +60,7 @@
 
 <mat-dialog-actions align="end" class="dialog-actions">
     <button mat-button (click)="onCancel()">Abbrechen</button>
-    <button mat-flat-button color="primary" [disabled]="todoForm.invalid" (click)="onSubmit()">
+    <button mat-flat-button [disabled]="todoForm.invalid" (click)="onSubmit()">
         <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
         {{ isEditMode ? 'Speichern' : 'Erstellen' }}
     </button>
