@@ -1,5 +1,7 @@
-@use "../../../../_breakpoints" as bp;
+@use "desktop";
+@use "mobile";
 
+// ── Host ─────────────────────────────────────────────────────────────────────
 :host {
     display: block;
     height: 100vh;
@@ -17,284 +19,23 @@
     position: relative;
 }
 
-.toolbar-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: white;
-    padding: 10px 25px;
-    height: 80px;
-    flex-shrink: 0;
-    border-bottom: 1px solid #ddd;
-    box-sizing: border-box;
-
-    @include bp.mobile {
-        padding: 5px 10px;
-        height: 70px;
-    }
-}
-
-.mobile-toolbar {
-    .left-container {
-        flex: 1.5;
-    }
-    .right-container {
-        flex: 1;
-    }
-}
-
-.calendar-loader {
-    position: absolute;
-    top: 80px;
-    left: 0;
-    right: 0;
-    z-index: 100;
-
-    @include bp.mobile {
-        top: 70px;
-    }
-}
-
-.left-container, .right-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-
-    @include bp.mobile {
-        gap: 5px;
-    }
-}
-
-.right-container {
-    justify-content: flex-end;
-
-    .compact-toggle {
-        margin-right: 8px;
-        display: flex;
-        align-items: center;
-        
-        ::ng-deep {
-            .mdc-switch {
-                --mdc-switch-state-layer-size: 32px;
-                --mdc-switch-track-width: 36px;
-                --mdc-switch-track-height: 20px;
-                --mdc-switch-handle-size: 14px;
-            }
-
-            .mdc-label {
-                padding-left: 8px !important;
-                padding-right: 0 !important;
-                display: flex;
-                align-items: center;
-            }
-            
-            .mat-icon {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-                color: #555;
-            }
-        }
-    }
-}
-
-.middle-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.date-title {
-    margin: 0 20px;
-    font-size: 1.6rem;
-    font-weight: 500;
-    text-align: center;
-
-    @include bp.mobile {
-        margin: 0;
-        font-size: 1.2rem;
-        flex: 1;
-        text-align: left;
-    }
-}
-
-.filter-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #fdfdfd;
-    padding: 8px 25px;
-    border-bottom: 1px solid #eee;
-    overflow: hidden;
-
-    @include bp.mobile {
-        padding: 12px 15px;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .filter-chips {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-
-        @include bp.mobile {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .filter-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #666;
-        }
-
-        .no-categories {
-            font-size: 0.85rem;
-            font-style: italic;
-            color: #999;
-        }
-
-        mat-chip-listbox {
-            width: 100%;
-
-            @include bp.mobile {
-                justify-content: flex-start;
-            }
-
-            ::ng-deep .mdc-evolution-chip-set__chips {
-                @include bp.mobile {
-                    display: flex;
-                    flex-direction: row;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                    width: 100%;
-                }
-
-                mat-chip-option {
-                    @include bp.mobile {
-                        flex: 1 1 calc(45% - 6px); // 2 Spalten Gefühl
-                        max-width: calc(50% - 6px);
-                    }
-                }
-            }
-        }
-    }
-
-    .close-filter {
-        @include bp.mobile {
-            display: none;
-        }
-    }
-
-    .color-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-    }
-}
-
-.calendar-wrapper {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 10px 20px 20px;
-    box-sizing: border-box;
-    overflow: hidden;
-
-    &.hide-past {
-        ::ng-deep {
-            .fc-day-past,
-            .fc-event-past,
-            .fc-list-day.fc-day-past {
-                display: none !important;
-            }
-        }
-    }
-
-    @include bp.mobile {
-        padding: 5px 5px 100px;
-    }
-
-    full-calendar {
-        display: block;
-        width: 100%;
-        height: 100%;
-
-        ::ng-deep {
-            .fc {
-                height: 100% !important;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .fc-view-harness {
-                flex: 1;
-                height: 100% !important;
-            }
-
-            .fc-scroller {
-                overflow-y: auto !important;
-            }
-        }
-    }
-}
-
-.mobile-action-container {
-    position: absolute;
-    bottom: 25px;
-    left: 20px;
-    right: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1000;
-
-    .mobile-nav-center {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(8px);
-        padding: 8px 16px;
-        border-radius: 40px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        border: 1px solid #eee;
-    }
-
-    .mobile-fab-left, .mobile-fab-right {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
-
-    .mobile-fab-left {
-        background: white;
-        color: #444;
-    }
-}
-
-// Event Styles
+// ── FullCalendar Event Overrides ─────────────────────────────────────────────
 ::ng-deep {
-    .fc-daygrid-event, .fc-timegrid-event {
+    .fc-daygrid-event,
+    .fc-timegrid-event {
         border-radius: 6px !important;
         border: none !important;
         padding: 3px 6px !important;
         margin: 1px 2px !important;
         display: flex !important;
         flex-direction: column !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out !important;
         cursor: pointer;
 
         &:hover {
             transform: translateY(-1px) !important;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
             z-index: 5 !important;
         }
     }
@@ -338,12 +79,12 @@
         display: none !important;
     }
 
-    // List view customization for mobile
+    // ── List View ────────────────────────────────────────────────────────
     .fc-list-day {
         position: sticky !important;
         top: 0;
         z-index: 10 !important;
-        
+
         & > th {
             background-color: #f8f9fa !important;
         }
@@ -356,60 +97,10 @@
     .fc-list-event-title {
         font-weight: 500;
     }
-
-    // Subtle event styling for mobile agenda
-    @media (max-width: 600px) {
-        .fc-list-event {
-            background-color: transparent !important;
-            z-index: 1 !important;
-            
-            .fc-list-event-graphic {
-                padding-right: 8px !important;
-            }
-
-            .fc-list-event-dot {
-                border-width: 5px !important;
-                border-radius: 3px !important;
-            }
-
-            // Instead of full background, use a left indicator
-            td {
-                background-color: transparent !important;
-                border-top: none !important;
-            }
-
-            .fc-list-event-title {
-                position: relative;
-                padding-left: 12px !important;
-                
-                // Ensure text is visible
-                &, a {
-                    color: #333 !important;
-                    text-decoration: none !important;
-                }
-                
-                &::before {
-                    content: '';
-                    position: absolute;
-                    left: 0;
-                    top: 4px;
-                    bottom: 4px;
-                    width: 4px;
-                    border-radius: 2px;
-                    background-color: var(--event-color, #1976d2);
-                }
-            }
-        }
-    }
 }
 
-// ::ng-deep .fc-list-event.fc-event-past {
-//     display: none;
-// }
-
+// ── FullCalendar Day Overrides ───────────────────────────────────────────────
 ::ng-deep .fc-list-day.fc-day-past {
-    // display: none;
-    
     & > th {
         background-color: #f1f1f1 !important;
     }
@@ -421,13 +112,12 @@
 }
 
 ::ng-deep .fc-list-day.fc-day-today {
-    z-index: 10 !important; // Match other days to allow natural stacking
-    
+    z-index: 10 !important;
+
     & > th {
-        background-color: #fff9c4 !important; // Match the month view's today color
+        background-color: #fff9c4 !important;
     }
-    
-    // Optional: Add a small border to make it even clearer
+
     border-left: 5px solid #fbc02d !important;
 }
 

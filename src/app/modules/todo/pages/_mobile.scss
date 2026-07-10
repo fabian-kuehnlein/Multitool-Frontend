@@ -1,0 +1,292 @@
+@use "variables" as *;
+
+// Mobile-only styles (mobile toolbar, bottom bar, todo rows, overrides)
+
+// ── Mobile Header (Toolbar Inner) ────────────────────────────────────────────
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .mobile-toolbar & {
+        justify-content: center;
+    }
+
+    .left-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .mobile-actions {
+        display: flex;
+        align-items: center;
+    }
+}
+
+// ── Mobile Bottom Bar ────────────────────────────────────────────────────────
+.mobile-bottom-bar {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.mobile-action-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mobile-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mobile-fab-left,
+    .mobile-fab-right,
+    .mobile-filter-fab {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .mobile-fab-left {
+        background: white;
+        color: #444;
+    }
+}
+
+// ── Mobile Menu Styling ──────────────────────────────────────────────────────
+.menu-section-header {
+    padding: 6px 16px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #757575;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background-color: #f5f5f5;
+    margin-top: 4px;
+    margin-bottom: 4px;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.active-menu-item {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    font-weight: 500;
+}
+
+// ── Mobile Overrides ─────────────────────────────────────────────────────────
+@media (max-width: $mobile-max) {
+    .todo-content-card {
+        height: auto;
+        min-height: auto;
+        flex: none;
+        overflow: visible;
+
+        &.mobile-card {
+            flex: none;
+            overflow: visible;
+        }
+    }
+
+    .todo-header-actions {
+        display: none;
+    }
+
+    .scroll-wrapper {
+        overflow: visible;
+        flex: none;
+    }
+
+    // ── Mobile Todo List ──────────────────────────────────────────────────
+    .todo-list {
+        .todo-item {
+            cursor: pointer;
+            padding: 10px 14px 10px 16px;
+
+            &:hover {
+                background-color: #f5f5f5;
+            }
+        }
+
+        .todo-title {
+            font-size: 0.95rem;
+        }
+
+        .expand-btn {
+            color: #777;
+            flex-shrink: 0;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+
+            ::ng-deep .mat-mdc-button-touch-target {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            mat-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+                transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                transform-origin: center;
+            }
+
+            &.expanded mat-icon {
+                transform: rotate(180deg);
+            }
+        }
+
+        .category-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            gap: 4px;
+
+            .color-dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
+        button[mat-icon-button] {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+        }
+    }
+
+    // ── Mobile Todo Main Layout ───────────────────────────────────────────
+    .mobile-todo-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 32px;
+
+        mat-checkbox {
+            flex: 1;
+            min-width: 0;
+
+            ::ng-deep .mdc-form-field {
+                width: 100%;
+            }
+
+            ::ng-deep label {
+                overflow: hidden;
+                min-width: 0;
+            }
+        }
+    }
+
+    .mobile-main-right {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .mobile-due-date {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.75rem;
+        color: #777;
+        white-space: nowrap;
+
+        mat-icon {
+            font-size: 15px;
+            width: 15px;
+            height: 15px;
+        }
+    }
+
+    // ── Mobile Expanded Section ───────────────────────────────────────────
+    .mobile-todo-expanded {
+        margin-top: 10px;
+        padding-left: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        cursor: default;
+    }
+
+    .mobile-expanded-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 28px;
+
+        .category-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            color: #555;
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            white-space: nowrap;
+
+            .color-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+        }
+
+        .todo-due-date-btn {
+            margin-left: auto;
+        }
+    }
+
+    .mobile-description {
+        color: #666;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        border-left: 2px solid #ddd;
+        padding-left: 12px;
+    }
+
+    .mobile-actions-row {
+        display: flex;
+        gap: 8px;
+
+        .mobile-action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+    }
+
+    mat-checkbox {
+        padding: 12px 12px 12px 8px;
+        margin: -12px -12px -12px -8px;
+    }
+}

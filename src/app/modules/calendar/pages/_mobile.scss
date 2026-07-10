@@ -1,0 +1,157 @@
+@use "../../../../_breakpoints" as bp;
+
+// Mobile overrides + mobile-only styles
+
+// ── Mobile Toolbar Layout ────────────────────────────────────────────────────
+.mobile-toolbar {
+    .left-container {
+        flex: 1.5;
+    }
+
+    .right-container {
+        flex: 1;
+    }
+}
+
+// ── Mobile Overrides ─────────────────────────────────────────────────────────
+@include bp.mobile {
+    .toolbar-container {
+        padding: 5px 10px;
+        height: 70px;
+    }
+
+    .calendar-loader {
+        top: 70px;
+    }
+
+    .left-container,
+    .right-container {
+        gap: 5px;
+    }
+
+    .date-title {
+        margin: 0;
+        font-size: 1.2rem;
+        flex: 1;
+        text-align: left;
+    }
+
+    .filter-bar {
+        padding: 12px 15px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .filter-chips {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        width: 100%;
+    }
+
+    mat-chip-listbox {
+        justify-content: flex-start;
+
+        ::ng-deep .mdc-evolution-chip-set__chips {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 6px;
+            width: 100%;
+        }
+
+        ::ng-deep .mdc-evolution-chip-set__chips mat-chip-option {
+            flex: 1 1 calc(45% - 6px);
+            max-width: calc(50% - 6px);
+        }
+    }
+
+    .close-filter {
+        display: none;
+    }
+
+    .calendar-wrapper {
+        padding: 5px 5px 100px;
+    }
+}
+
+// ── Mobile FAB Bar ───────────────────────────────────────────────────────────
+.mobile-action-container {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+
+    .mobile-nav-center {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(8px);
+        padding: 8px 16px;
+        border-radius: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid #eee;
+    }
+
+    .mobile-fab-left,
+    .mobile-fab-right {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .mobile-fab-left {
+        background: white;
+        color: #444;
+    }
+}
+
+// ── Mobile FullCalendar List View ────────────────────────────────────────────
+::ng-deep {
+    @media (max-width: 600px) {
+        .fc-list-event {
+            background-color: transparent !important;
+            z-index: 1 !important;
+
+            .fc-list-event-graphic {
+                padding-right: 8px !important;
+            }
+
+            .fc-list-event-dot {
+                border-width: 5px !important;
+                border-radius: 3px !important;
+            }
+
+            td {
+                background-color: transparent !important;
+                border-top: none !important;
+            }
+
+            .fc-list-event-title {
+                position: relative;
+                padding-left: 12px !important;
+
+                &,
+                a {
+                    color: #333 !important;
+                    text-decoration: none !important;
+                }
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 4px;
+                    bottom: 4px;
+                    width: 4px;
+                    border-radius: 2px;
+                    background-color: var(--event-color, #1976d2);
+                }
+            }
+        }
+    }
+}

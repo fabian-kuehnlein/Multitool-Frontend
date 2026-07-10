@@ -34,7 +34,6 @@ export class TodoComponent implements OnInit {
 
   readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
-  readonly isSidebarVisible = signal<boolean>(true);
   readonly filterStatus = signal<'all' | 'active' | 'completed'>('all');
   readonly filterPriority = signal<Priority | null>(null);
 
@@ -89,10 +88,6 @@ export class TodoComponent implements OnInit {
       backdropClass: 'transparent-backdrop',
       data: 'todo'
     });
-  }
-
-  toggleSidebar() {
-    this.isSidebarVisible.set(!this.isSidebarVisible());
   }
 
   private sortTodos(todos: Todo[]): Todo[] {
