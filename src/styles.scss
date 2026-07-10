@@ -1,54 +1,68 @@
-/* You can add global styles to this file, and also import other style files */
 @use "@angular/material" as mat;
 @use "@fontsource/roboto/300.css" as *;
 @use "@fontsource/roboto/400.css" as *;
 @use "@fontsource/roboto/500.css" as *;
 @use "@fontsource-variable/material-symbols-outlined" as *;
+@use "theme" as *;
+@use "css-variables" as *;
 
+// ── Material Symbols ─────────────────────────────────────────────────────────
 .material-symbols-outlined {
-  font-family: "Material Symbols Outlined Variable";
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px; /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
+    font-family: "Material Symbols Outlined Variable";
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
 }
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-:root {
+// ── Light Theme (Default) ───────────────────────────────────────────────────
+html {
+    @include mat.all-component-themes($light-theme);
+
     @include mat.toolbar-overrides((
-        container-background-color: white
+        container-background-color: var(--bg-surface)
     ));
     @include mat.slide-toggle-overrides((
         label-text-size: 20px,
     ));
     @include mat.sidenav-overrides((
-        content-background-color: white
+        content-background-color: var(--bg-surface)
     ));
 }
 
+// ── Dark Theme ──────────────────────────────────────────────────────────────
+html[data-theme="dark"] {
+    @include mat.all-component-themes($dark-theme);
+
+    @include mat.toolbar-overrides((
+        container-background-color: var(--bg-surface)
+    ));
+    @include mat.sidenav-overrides((
+        content-background-color: var(--bg-surface)
+    ));
+}
+
+// ── Utility Classes ─────────────────────────────────────────────────────────
 .delete-colors {
-    color: #b71c1c;
+    color: var(--accent-danger);
     @include mat.button-overrides((
-        filled-container-color: #b71c1c,
+        filled-container-color: var(--accent-danger),
         filled-label-text-color: white,
-        text-label-text-color: #b71c1c,
-        text-state-layer-color: #b71c1c
+        text-label-text-color: var(--accent-danger),
+        text-state-layer-color: var(--accent-danger)
     ));
     @include mat.icon-button-overrides((
-        icon-color: #b71c1c
+        icon-color: var(--accent-danger)
     ));
 }
 
@@ -58,17 +72,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
         outlined-focus-outline-color: transparent,
         outlined-hover-outline-color: transparent,
         outlined-error-focus-outline-color: transparent
-    ))
+    ));
 }
 
 .white-card {
     @include mat.card-overrides((
-        elevated-container-color: white
-    ))
+        elevated-container-color: var(--bg-surface)
+    ));
 }
 
 .past-date {
-    background-color: #e6e6e6 !important;
+    background-color: var(--bg-hover) !important;
 }
 
 .past-event {
@@ -76,13 +90,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .transparent-backdrop {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--overlay-backdrop);
 }
 
 .error-snackbar {
     @include mat.snack-bar-overrides((
-        container-color: #b71c1c,
-
+        container-color: var(--accent-danger-dark),
     ));
 }
 

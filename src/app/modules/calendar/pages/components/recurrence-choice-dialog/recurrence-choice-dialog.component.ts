@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     <h2 mat-dialog-title class="dialog-title">
-        <mat-icon color="primary">event_repeat</mat-icon>
+        <mat-icon>event_repeat</mat-icon>
         Wiederkehrendes Event
     </h2>
     <mat-dialog-content>
@@ -17,8 +17,8 @@ import { MatIconModule } from '@angular/material/icon';
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <button mat-button (click)="onCancel()">Abbrechen</button>
-        <button mat-stroked-button color="primary" (click)="onChoice('instance')">Nur diesen Termin</button>
-        <button mat-flat-button color="primary" (click)="onChoice('series')">Die gesamte Serie</button>
+        <button mat-stroked-button (click)="onChoice('instance')">Nur diesen Termin</button>
+        <button mat-flat-button (click)="onChoice('series')">Die gesamte Serie</button>
     </mat-dialog-actions>
   `,
   changeDetection: ChangeDetectionStrategy.Eager,

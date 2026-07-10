@@ -58,7 +58,7 @@
             }
 
             @if (!isMobile()) {
-                <button mat-flat-button color="primary" (click)='createEvent()' class="create-button" matTooltip="Neuer Eintrag (Alt + N)">
+                <button mat-flat-button (click)='createEvent()' matTooltip="Neuer Eintrag (Alt + N)">
                     <mat-icon>add</mat-icon>
                     <span>Eintrag erstellen</span>
                 </button>
@@ -112,7 +112,7 @@
             </button>
 
             <div class="mobile-nav-center">
-                <button mat-mini-fab (click)="calendarAction('prev')" color="basic">
+                <button mat-mini-fab (click)="calendarAction('prev')">
                     <mat-icon>chevron_left</mat-icon>
                 </button>
 
@@ -120,12 +120,12 @@
                     <mat-icon>today</mat-icon>
                 </button>
 
-                <button mat-mini-fab (click)="calendarAction('next')" color="basic">
+                <button mat-mini-fab (click)="calendarAction('next')">
                     <mat-icon>chevron_right</mat-icon>
                 </button>
             </div>
 
-            <button mat-fab color="primary" class="mobile-fab-right" (click)="createEvent()" matTooltip="Neuer Eintrag">
+            <button mat-fab class="mobile-fab-right" (click)="createEvent()" matTooltip="Neuer Eintrag">
                 <mat-icon>add</mat-icon>
             </button>
         </div>

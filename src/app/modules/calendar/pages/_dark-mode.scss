@@ -1,0 +1,38 @@
+// FullCalendar Dark Mode — Wrapper Elements
+// Applied via :host-context to all parent containers inside this component
+
+:host-context([data-theme="dark"]) {
+    background-color: var(--bg-primary);
+
+    .calendar-container {
+        background-color: var(--bg-primary);
+    }
+
+    .toolbar-container {
+        background-color: var(--bg-surface) !important;
+        color: var(--text-primary);
+        border-color: var(--border-default);
+    }
+
+    .filter-bar {
+        background-color: var(--bg-surface-alt) !important;
+        border-color: var(--border-default) !important;
+        color: var(--text-primary);
+    }
+
+    .calendar-wrapper {
+        background-color: var(--bg-primary) !important;
+    }
+
+    .date-title {
+        color: var(--text-primary);
+    }
+
+    .filter-label {
+        color: var(--text-secondary);
+    }
+
+    .no-categories {
+        color: var(--text-muted);
+    }
+}

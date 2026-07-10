@@ -23,6 +23,16 @@
     <mat-divider class="sidenav-divider"></mat-divider>
 
     <div class="action-list">
+        <div class="tool-item theme-toggle-item" (click)="themeService.toggle()">
+            <div class="tool-icon">
+                <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            </div>
+            <div class="tool-info">
+                <span class="tool-name">{{ themeService.isDark() ? 'Helles Theme' : 'Dunkles Theme' }}</span>
+                <span class="tool-desc">Erscheinungsbild wechseln</span>
+            </div>
+        </div>
+
         <div class="tool-item logout-item" (click)="logout()">
             <div class="tool-icon logout-icon">
                 <mat-icon>logout</mat-icon>

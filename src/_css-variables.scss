@@ -1,0 +1,139 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// CSS Custom Properties — Light & Dark Theme
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── Light Theme (Default) ────────────────────────────────────────────────────
+:root {
+    // Backgrounds
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f7fa;
+    --bg-surface: #ffffff;
+    --bg-surface-alt: #fafbfc;
+    --bg-hover: #f0f0f0;
+    --bg-active: #d4e6f9;
+    --bg-active-border: #1976d2;
+    --bg-code: #f5f5f5;
+
+    // Text
+    --text-primary: #1a1a1a;
+    --text-secondary: #424242;
+    --text-tertiary: #616161;
+    --text-muted: #757575;
+    --text-disabled: #9e9e9e;
+    --text-on-primary: #ffffff;
+
+    // Borders
+    --border-default: #e0e0e0;
+    --border-light: #eeeeee;
+    --border-medium: #bdbdbd;
+    --border-strong: #9e9e9e;
+
+    // Dividers
+    --divider: #e0e0e0;
+
+    // Shadows
+    --shadow-sm: rgba(0, 0, 0, 0.06);
+    --shadow-md: rgba(0, 0, 0, 0.1);
+    --shadow-lg: rgba(0, 0, 0, 0.14);
+    --shadow-xl: rgba(0, 0, 0, 0.18);
+
+    // Accents — Primary (Blue)
+    --accent-primary: #1565c0;
+    --accent-primary-light: #d4e6f9;
+    --accent-primary-hover: #0d47a1;
+
+    // Accents — Danger (Red)
+    --accent-danger: #d32f2f;
+    --accent-danger-dark: #b71c1c;
+    --accent-danger-light: #fde8e8;
+    --accent-danger-hover: #c62828;
+
+    // Accents — Success (Green)
+    --accent-success: #2e7d32;
+    --accent-success-light: #e8f5e9;
+
+    // Accents — Warning (Yellow)
+    --accent-warning: #fff8e1;
+    --accent-warning-strong: #f9a825;
+
+    // Overlays
+    --overlay-backdrop: rgba(0, 0, 0, 0.25);
+    --overlay-scrim: rgba(0, 0, 0, 0.5);
+
+    // Scrollbar
+    --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+
+    // Priority colors
+    --priority-high: #d32f2f;
+    --priority-medium: #ef6c00;
+    --priority-low: #2e7d32;
+}
+
+// ── Dark Theme ───────────────────────────────────────────────────────────────
+[data-theme="dark"] {
+    // Backgrounds
+    --bg-primary: #0f1318;
+    --bg-secondary: #151a21;
+    --bg-surface: #1a2027;
+    --bg-surface-alt: #1f2730;
+    --bg-hover: #262d38;
+    --bg-active: #0d3b66;
+    --bg-active-border: #4da6ff;
+    --bg-code: #262d38;
+
+    // Text
+    --text-primary: #ecedef;
+    --text-secondary: #c3c6ca;
+    --text-tertiary: #a0a4a8;
+    --text-muted: #787c82;
+    --text-disabled: #565a5f;
+    --text-on-primary: #ffffff;
+
+    // Borders
+    --border-default: #333940;
+    --border-light: #2a3038;
+    --border-medium: #464d57;
+    --border-strong: #5c6370;
+
+    // Dividers
+    --divider: #333940;
+
+    // Shadows
+    --shadow-sm: rgba(0, 0, 0, 0.3);
+    --shadow-md: rgba(0, 0, 0, 0.4);
+    --shadow-lg: rgba(0, 0, 0, 0.5);
+    --shadow-xl: rgba(0, 0, 0, 0.6);
+
+    // Accents — Primary (Blue)
+    --accent-primary: #4da6ff;
+    --accent-primary-light: #0d3b66;
+    --accent-primary-hover: #80c8ff;
+
+    // Accents — Danger (Red)
+    --accent-danger: #ff6b6b;
+    --accent-danger-dark: #ef5350;
+    --accent-danger-light: #3d1a1a;
+    --accent-danger-hover: #ff8a80;
+
+    // Accents — Success (Green)
+    --accent-success: #66bb6a;
+    --accent-success-light: #1b3d1e;
+
+    // Accents — Warning (Yellow)
+    --accent-warning: #3d3500;
+    --accent-warning-strong: #ffd54f;
+
+    // Overlays
+    --overlay-backdrop: rgba(0, 0, 0, 0.6);
+    --overlay-scrim: rgba(0, 0, 0, 0.8);
+
+    // Scrollbar
+    --scrollbar-thumb: rgba(255, 255, 255, 0.12);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.22);
+
+    // Priority colors
+    --priority-high: #ff6b6b;
+    --priority-medium: #ffb74d;
+    --priority-low: #81c784;
+}

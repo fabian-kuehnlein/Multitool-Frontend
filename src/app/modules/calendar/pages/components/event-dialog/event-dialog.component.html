@@ -1,5 +1,5 @@
 <h1 mat-dialog-title class="dialog-title">
-    <mat-icon color="primary">{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+    <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
     <span>{{ !isEditMode() ? "Neues Event erstellen" : "Event bearbeiten"}}</span>
 </h1>
 
@@ -172,7 +172,7 @@
         }
         <button mat-button (click)="close()">Abbrechen</button>
         <button mat-flat-button
-            color="primary"
+           
             (click)="save()"
             [disabled]="eventForm.invalid || !isChanged()">
             <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
