@@ -62,11 +62,13 @@
       (click)="toggleExpand(todo.id)">
       <div class="mobile-todo-main">
         <mat-checkbox [checked]="todo.isDone" (change)="onToggleDone(todo)" (click)="$event.stopPropagation()">
-          <span class="todo-title" [class.done-text]="todo.isDone">{{ todo.title }}</span>
+            @if (!isExpanded(todo.id)) {
+                <span class="todo-title" [class.done-text]="todo.isDone">{{ todo.title }}</span>
+            }
         </mat-checkbox>
 
         <div class="mobile-main-right">
-          @if (todo.dueDate) {
+          @if (todo.dueDate && !isExpanded(todo.id)) {
             <mat-icon>date_range</mat-icon>
           }
           <button mat-icon-button class="expand-btn" [class.expanded]="isExpanded(todo.id)"
@@ -78,7 +80,9 @@
 
       @if (isExpanded(todo.id)) {
         <div class="mobile-todo-expanded" (click)="$event.stopPropagation()">
-          <div class="mobile-expanded-top">
+          <span class="mobile-expanded-title" [class.done-text]="todo.isDone">{{ todo.title }}</span>
+
+          <div class="mobile-expanded-meta">
             @if (getCategory(todo.categoryId); as cat) {
               <span class="category-badge">
                 <div class="color-dot" [style.background-color]="cat.color"></div>

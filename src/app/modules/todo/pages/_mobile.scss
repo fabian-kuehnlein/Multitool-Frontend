@@ -109,6 +109,12 @@
     .scroll-wrapper {
         overflow: visible;
         flex: none;
+        padding: 0;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
     }
 
     // ── Mobile Todo List ──────────────────────────────────────────────────
@@ -232,8 +238,17 @@
         cursor: default;
     }
 
-    .mobile-expanded-top {
-        display: flex;
+    .mobile-expanded-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .mobile-expanded-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         align-items: center;
         gap: 8px;
         min-height: 28px;
@@ -241,13 +256,15 @@
         .category-badge {
             display: flex;
             align-items: center;
+            justify-self: center;
             gap: 6px;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 500;
             color: #555;
-            background-color: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            padding: 2px 8px;
-            border-radius: 12px;
+            background-color: transparent;
+            border: 1px solid black;
+            padding: 4px 10px;
+            border-radius: 16px;
             white-space: nowrap;
 
             .color-dot {
@@ -260,6 +277,7 @@
 
         .todo-due-date-btn {
             margin-left: auto;
+            width: 100%;
         }
     }
 
