@@ -15,39 +15,40 @@ import { CategoryService } from '../../../../../shared/services/category.service
   styleUrl: './todo-dialog.component.scss',
 })
 export class TodoDialogComponent {
-  private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<TodoDialogComponent>);
-  private readonly data = inject<{ todo?: Todo }>(MAT_DIALOG_DATA);
-  protected readonly categoryService = inject(CategoryService);
+    private readonly fb = inject(FormBuilder);
+    private readonly dialogRef = inject(MatDialogRef<TodoDialogComponent>);
+    private readonly data = inject<{ todo?: Todo }>(MAT_DIALOG_DATA);
+    protected readonly categoryService = inject(CategoryService);
 
-  todoForm: FormGroup;
-  isEditMode: boolean;
+    todoForm: FormGroup;
+    isEditMode: boolean;
 
-  priorities = [
-    { value: Priority.Low, label: 'Niedrig', color: '#4caf50' },
-    { value: Priority.Medium, label: 'Mittel', color: '#ff9800' },
-    { value: Priority.High, label: 'Hoch', color: '#f44336' },
-  ];
+    priorities = [
+        { value: Priority.Low, label: 'Niedrig', color: '#4caf50' },
+        { value: Priority.Medium, label: 'Mittel', color: '#ff9800' },
+        { value: Priority.High, label: 'Hoch', color: '#f44336' },
+    ];
 
-  constructor() {
-    this.isEditMode = !!this.data?.todo;
-    this.todoForm = this.fb.group({
-      title: [this.data?.todo?.title || '', [Validators.required]],
-      description: [this.data?.todo?.description || ''],
-      priority: [this.data?.todo?.priority || Priority.Medium, [Validators.required]],
-      dueDate: [this.data?.todo?.dueDate || null],
-      categoryId: [this.data?.todo?.categoryId || '', [Validators.required]],
-    });
-  }
-
-
-  onSubmit(): void {
-    if (this.todoForm.valid) {
-      this.dialogRef.close(this.todoForm.value);
+    constructor() {
+        this.isEditMode = !!this.data?.todo;
+        this.todoForm = this.fb.group({
+            title: [this.data?.todo?.title || '', [Validators.required]],
+            description: [this.data?.todo?.description || ''],
+            priority: [this.data?.todo?.priority || Priority.Medium, [Validators.required]],
+            dueDate: [this.data?.todo?.dueDate || null],
+            categoryId: [this.data?.todo?.categoryId || '', [Validators.required]],
+        });
     }
-  }
 
-  onCancel(): void {
-    this.dialogRef.close();
-  }
+
+    onSubmit(): void {
+        if (this.todoForm.valid) {
+            this.todoForm.value.isDone = this.data?.todo?.isDone || false;
+            this.dialogRef.close(this.todoForm.value);
+        }
+    }
+
+    onCancel(): void {
+        this.dialogRef.close();
+    }
 }

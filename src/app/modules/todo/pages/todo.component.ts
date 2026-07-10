@@ -128,7 +128,11 @@ export class TodoComponent implements OnInit {
 
   onAddTodo(): void {
     const dialogRef = this.dialog.open(TodoDialogComponent, {
-      width: '500px',
+      width: this.isMobile() ? '100vw' : '500px',
+      height: this.isMobile() ? '100vh' : 'auto',
+      minWidth: this.isMobile() ? '100vw' : 'unset',
+      maxWidth: this.isMobile() ? '100vw' : '95vw',
+      panelClass: this.isMobile() ? 'full-screen-dialog' : '',
     });
 
     dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
@@ -148,7 +152,11 @@ export class TodoComponent implements OnInit {
 
   onEditTodo(todo: Todo): void {
     const dialogRef = this.dialog.open(TodoDialogComponent, {
-      width: '500px',
+      width: this.isMobile() ? '100vw' : '500px',
+      height: this.isMobile() ? '100vh' : 'auto',
+      minWidth: this.isMobile() ? '100vw' : 'unset',
+      maxWidth: this.isMobile() ? '100vw' : '95vw',
+      panelClass: this.isMobile() ? 'full-screen-dialog' : '',
       data: { todo },
     });
 

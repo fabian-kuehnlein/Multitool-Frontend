@@ -1,8 +1,8 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { UpdateColumnOrderDto } from '../../../../models';
-import { UI_MODULES } from '../../../../../../shared/utilities/material-ui';
+import { UpdateColumnOrderDto } from '../../../models';
+import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 
 @Component({
   selector: 'app-reorder-columns-dialog',

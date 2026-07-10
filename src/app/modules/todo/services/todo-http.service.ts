@@ -23,8 +23,8 @@ export class TodoHttpService {
     return this.http.put<Todo>(`${this.apiUrl}/${id}`, todo);
   }
 
-  toggleDone(id: string, isDone: boolean): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/toggle`, { isDone });
+  toggleDone(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/toggle`, null);
   }
 
   deleteTodo(id: string): Observable<void> {

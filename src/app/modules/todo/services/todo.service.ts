@@ -55,12 +55,12 @@ export class TodoService {
     this.httpService.updateTodo(id, todoDto).pipe(
       finalize(() => this._loading.set(false))
     ).subscribe({
-      next: (updatedTodo) => {
+      next: () => {
         this._todos.update(todos => {
           const index = todos.findIndex(t => t.id === id);
           if (index !== -1) {
             const newTodos = [...todos];
-            newTodos[index] = updatedTodo;
+            newTodos[index] = { ...newTodos[index], ...todoDto };
             return newTodos;
           }
           return todos;
@@ -70,7 +70,7 @@ export class TodoService {
   }
 
   toggleDone(id: string, isDone: boolean): void {
-    this.httpService.toggleDone(id, isDone).subscribe({
+    this.httpService.toggleDone(id).subscribe({
       next: () => {
         this._todos.update(todos => {
           const index = todos.findIndex(t => t.id === id);

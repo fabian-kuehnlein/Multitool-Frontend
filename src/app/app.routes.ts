@@ -19,7 +19,7 @@ export const routes: Routes = [
   {
     path: 'custom-table',
     canActivate: [authGuard],
-    loadComponent: () => import('./modules/custom-table/pages/custom-table/custom-table.component').then(m => m.CustomTableComponent)
+    loadComponent: () => import('./modules/custom-table/pages/custom-table.component').then(m => m.CustomTableComponent)
   },
   {
     path: 'todo',
