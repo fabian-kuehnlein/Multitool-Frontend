@@ -34,7 +34,6 @@ export class TodoComponent implements OnInit {
 
   readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
-  readonly isSidebarVisible = signal<boolean>(true);
   readonly filterStatus = signal<'all' | 'active' | 'completed'>('all');
   readonly filterPriority = signal<Priority | null>(null);
 
@@ -91,10 +90,6 @@ export class TodoComponent implements OnInit {
     });
   }
 
-  toggleSidebar() {
-    this.isSidebarVisible.set(!this.isSidebarVisible());
-  }
-
   private sortTodos(todos: Todo[]): Todo[] {
     const direction = this.sortDirection() === 'asc' ? 1 : -1;
     const criterion = this.sortBy();
@@ -133,7 +128,11 @@ export class TodoComponent implements OnInit {
 
   onAddTodo(): void {
     const dialogRef = this.dialog.open(TodoDialogComponent, {
-      width: '500px',
+      width: this.isMobile() ? '100vw' : '500px',
+      height: this.isMobile() ? '100vh' : 'auto',
+      minWidth: this.isMobile() ? '100vw' : 'unset',
+      maxWidth: this.isMobile() ? '100vw' : '95vw',
+      panelClass: this.isMobile() ? 'full-screen-dialog' : '',
     });
 
     dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
@@ -153,7 +152,11 @@ export class TodoComponent implements OnInit {
 
   onEditTodo(todo: Todo): void {
     const dialogRef = this.dialog.open(TodoDialogComponent, {
-      width: '500px',
+      width: this.isMobile() ? '100vw' : '500px',
+      height: this.isMobile() ? '100vh' : 'auto',
+      minWidth: this.isMobile() ? '100vw' : 'unset',
+      maxWidth: this.isMobile() ? '100vw' : '95vw',
+      panelClass: this.isMobile() ? 'full-screen-dialog' : '',
       data: { todo },
     });
 

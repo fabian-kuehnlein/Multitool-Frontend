@@ -1,0 +1,210 @@
+// Desktop-only styles (sidebar, data table, footer actions)
+
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+.table-sidebar {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+
+    &.collapsed {
+        margin-left: -280px;
+    }
+
+    .sidebar-header {
+        padding: 20px 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #555;
+        border-bottom: 1px solid #eee;
+    }
+
+    .sidebar-list {
+        overflow: hidden;
+        padding-top: 0;
+        margin: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        height: 100%;
+
+        .active-item {
+            background-color: #f0f4f8;
+            border: 2px solid #1976d2;
+            color: #1976d2;
+
+            mat-icon {
+                color: #1976d2;
+            }
+        }
+    }
+
+    .empty-list-message {
+        padding: 40px 25px;
+        text-align: center;
+        color: #999;
+        font-style: italic;
+    }
+
+    .sidebar-paginator {
+        background: transparent;
+        border-top: 1px solid #eee;
+    }
+}
+
+// ── Data Table ───────────────────────────────────────────────────────────────
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    th {
+        background-color: #ececec;
+        font-weight: 700;
+        color: #222;
+        padding: 0;
+        border-bottom: 3px solid #bbb;
+        border-right: 1px solid #ccc;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        &:hover {
+            background-color: #e0e0e0;
+
+            .delete-col-btn {
+                opacity: 1;
+            }
+        }
+    }
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px 10px 16px;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .column-name {
+        text-transform: uppercase;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .delete-col-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 4px;
+
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: #000;
+        }
+    }
+
+    tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #e9ecef !important;
+    }
+
+    td {
+        padding: 0;
+        border-bottom: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        transition: all 0.2s;
+        position: relative;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        &:focus-within {
+            outline: 2px solid #1976d2;
+            outline-offset: -2px;
+            z-index: 10;
+            background-color: #e3f2fd !important;
+        }
+    }
+}
+
+.cell-hover:hover {
+    background-color: #f0f0f0;
+}
+
+.cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 12px;
+}
+
+// ── Row Marked for Deletion ──────────────────────────────────────────────────
+.row-marked-for-deletion {
+    background-color: #fff0f0 !important;
+
+    td {
+        border-bottom-color: #ffcdd2 !important;
+    }
+}
+
+// ── Footer Actions ───────────────────────────────────────────────────────────
+.table-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 25px;
+    background: #fdfdfd;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+    overflow-x: auto;
+
+    .spacer {
+        flex: 1;
+    }
+
+    button {
+        white-space: nowrap;
+    }
+
+    @media (max-width: 1400px) {
+        gap: 16px;
+        padding: 15px 20px;
+
+        button {
+            padding: 0 16px;
+            font-size: 0.95rem;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+    }
+}

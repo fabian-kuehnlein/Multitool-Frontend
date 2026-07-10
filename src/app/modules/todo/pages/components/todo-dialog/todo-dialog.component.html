@@ -1,65 +1,67 @@
-<h2 mat-dialog-title>{{ isEditMode ? 'Aufgabe bearbeiten' : 'Neue Aufgabe' }}</h2>
-<mat-dialog-content>
-  <form [formGroup]="todoForm" class="todo-form">
-    <mat-form-field appearance="outline">
-      <mat-label>Titel</mat-label>
-      <input matInput formControlName="title" placeholder="Was steht an?">
-      @if (todoForm.get('title')?.hasError('required')) {
-        <mat-error>
-          Ein Titel wird benötigt
-        </mat-error>
-      }
-    </mat-form-field>
+<h1 mat-dialog-title class="dialog-title">
+    <mat-icon color="primary">{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+    <span>{{ isEditMode ? 'Aufgabe bearbeiten' : 'Neue Aufgabe' }}</span>
+</h1>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Beschreibung</mat-label>
-      <textarea matInput formControlName="description" placeholder="Weitere Details hinzufügen..." rows="3"></textarea>
-    </mat-form-field>
+<mat-dialog-content class="dialog-content">
+    <form [formGroup]="todoForm" class="todo-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Titel</mat-label>
+            <input matInput formControlName="title" placeholder="Was steht an?">
+            @if (todoForm.get('title')?.hasError('required')) {
+                <mat-error>Ein Titel wird benötigt</mat-error>
+            }
+        </mat-form-field>
 
-    <div class="row">
-      <mat-form-field appearance="outline">
-        <mat-label>Kategorie</mat-label>
-        <mat-select formControlName="categoryId">
-          @for (cat of categoryService.categories(); track cat) {
-            <mat-option [value]="cat.id">
-              <div class="category-option">
-                <div class="color-dot" [style.background-color]="cat.color"></div>
-                {{ cat.name }}
-              </div>
-            </mat-option>
-          }
-        </mat-select>
-        @if (todoForm.get('categoryId')?.hasError('required')) {
-          <mat-error>
-            Kategorie auswählen
-          </mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Beschreibung</mat-label>
+            <textarea matInput formControlName="description" placeholder="Weitere Details hinzufügen..." rows="3"></textarea>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Priorität</mat-label>
-        <mat-select formControlName="priority">
-          @for (p of priorities; track p) {
-            <mat-option [value]="p.value">
-              <mat-icon [style.color]="p.color">flag</mat-icon>
-              {{ p.label }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
+        <div class="row">
+            <mat-form-field appearance="outline">
+                <mat-label>Kategorie</mat-label>
+                <mat-select formControlName="categoryId">
+                    @for (cat of categoryService.categories(); track cat) {
+                        <mat-option [value]="cat.id">
+                            <div class="category-option">
+                                <div class="color-dot" [style.background-color]="cat.color"></div>
+                                {{ cat.name }}
+                            </div>
+                        </mat-option>
+                    }
+                </mat-select>
+                @if (todoForm.get('categoryId')?.hasError('required')) {
+                    <mat-error>Kategorie auswählen</mat-error>
+                }
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Fällig am</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="dueDate">
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-  </form>
+            <mat-form-field appearance="outline">
+                <mat-label>Priorität</mat-label>
+                <mat-select formControlName="priority">
+                    @for (p of priorities; track p) {
+                        <mat-option [value]="p.value">
+                            <mat-icon [style.color]="p.color">flag</mat-icon>
+                            {{ p.label }}
+                        </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Fällig am</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="dueDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+    </form>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Abbrechen</button>
-  <button mat-flat-button color="primary" [disabled]="todoForm.invalid" (click)="onSubmit()">
-    {{ isEditMode ? 'Speichern' : 'Erstellen' }}
-  </button>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="onCancel()">Abbrechen</button>
+    <button mat-flat-button color="primary" [disabled]="todoForm.invalid" (click)="onSubmit()">
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ isEditMode ? 'Speichern' : 'Erstellen' }}
+    </button>
 </mat-dialog-actions>

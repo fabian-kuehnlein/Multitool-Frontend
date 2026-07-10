@@ -1,21 +1,21 @@
 import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren, signal, computed, effect, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { UI_MODULES } from '../../../../shared/utilities/material-ui';
+import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { MatDialog } from '@angular/material/dialog';
-import { SidenavComponent } from '../../../../core/layout/sidenav/sidenav.component';
+import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { MatCardModule } from '@angular/material/card';
-import { ColumnInfo, CustomDataType, RowInfo, UpdateRowOrderDto } from '../../models';
+import { ColumnInfo, CustomDataType, RowInfo, UpdateRowOrderDto } from '../models';
 import { MatListModule } from '@angular/material/list';
-import { CustomTableService } from '../../services/custom-table.service';
+import { CustomTableService } from '../services/custom-table.service';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { PageEvent } from '@angular/material/paginator';
 import { TableConfigDialog } from './components/table-config-dialog/table-config-dialog';
 import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ReorderColumnsDialogComponent } from './components/reorder-columns-dialog/reorder-columns-dialog.component';
-import { SnackbarService } from '../../../../core/services/snackbar.service';
+import { SnackbarService } from '../../../core/services/snackbar.service';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';

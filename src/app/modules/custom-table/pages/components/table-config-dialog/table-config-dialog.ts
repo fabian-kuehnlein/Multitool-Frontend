@@ -1,9 +1,9 @@
 import { Component, Inject, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { UpsertTableDto, CustomDataType, UpdateColumnDto } from '../../../../models';
-import { UI_MODULES } from '../../../../../../shared/utilities/material-ui';
-import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { UpsertTableDto, CustomDataType, UpdateColumnDto } from '../../../models';
+import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
+import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 enum DialogMode {
     CreateTable = 'CreateTable',
