@@ -26,4 +26,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./modules/todo/pages/todo.component').then(m => m.TodoComponent)
   },
+  {
+    path: 'work-time-planner',
+    canActivate: [authGuard],
+    loadComponent: () => import('./modules/work-time-planner/pages/work-time-planner.component').then(m => m.WorkTimePlannerComponent)
+  },
 ];

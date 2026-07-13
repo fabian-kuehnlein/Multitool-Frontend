@@ -41,6 +41,12 @@ export class SidenavComponent {
             description: 'Aufgaben organisieren',
             icon: 'check_circle',
             route: '/todo',
+        },
+        {
+            name: 'Arbeitszeitplaner',
+            description: 'Arbeitszeiten planen & Überstunden verwalten',
+            icon: 'schedule',
+            route: '/work-time-planner',
         }
     ];
 

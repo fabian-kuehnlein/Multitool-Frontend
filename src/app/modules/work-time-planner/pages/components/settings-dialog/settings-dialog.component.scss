@@ -1,0 +1,38 @@
+:host {
+    display: block;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 300px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-row {
+    display: flex;
+    gap: 12px;
+}
+
+.half-field {
+    flex: 1;
+}
+
+.full-field {
+    width: 100%;
+}
