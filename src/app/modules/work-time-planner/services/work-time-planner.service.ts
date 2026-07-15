@@ -3,6 +3,13 @@ import moment from 'moment';
 import { WorkDay, WorkDayWarning, WorkTimeSettings, WeekSummary, DayStatus } from '../models/work-time-planner.model';
 import { WorkTimePlannerHttpService } from './work-time-planner-http.service';
 
+export interface MonthHoCount {
+    year: number;
+    month: number;
+    monthName: string;
+    count: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,7 +26,7 @@ export class WorkTimePlannerService {
     });
     private readonly _previousWeekSummary = signal<WeekSummary | null>(null);
     private readonly _currentWeekSummary = signal<WeekSummary | null>(null);
-    private readonly _homeOfficeMonthCount = signal<number>(0);
+    private readonly _homeOfficeMonthCounts = signal<MonthHoCount[]>([]);
     private readonly _pendingCreates = new Set<string>();
     private readonly _loading = signal<boolean>(false);
 
@@ -27,6 +34,7 @@ export class WorkTimePlannerService {
     readonly currentWeekStart = this._currentWeekStart.asReadonly();
     readonly settings = this._settings.asReadonly();
     readonly loading = this._loading.asReadonly();
+    readonly homeOfficeMonthCounts = this._homeOfficeMonthCounts.asReadonly();
 
     readonly weekDays = computed(() => {
         const start = moment(this._currentWeekStart());
@@ -55,8 +63,6 @@ export class WorkTimePlannerService {
     readonly homeOfficeDaysThisWeek = computed(() =>
         this.weekDays().filter(d => d.isHomeOffice).length
     );
-
-    readonly homeOfficeMonthCount = this._homeOfficeMonthCount.asReadonly();
 
     getWeekStart(date: Date): string {
         const d = moment(date);
@@ -157,11 +163,56 @@ export class WorkTimePlannerService {
     }
 
     loadHomeOfficeMonthCount(): void {
-        const now = moment();
-        this.httpService.getHomeOfficeMonthCount(now.year(), now.month() + 1).subscribe({
-            next: (res) => this._homeOfficeMonthCount.set(res.homeOfficeDays),
-            error: () => {},
+        const start = moment(this._currentWeekStart());
+        const end = start.clone().add(4, 'days');
+
+        const monthsToQuery = new Map<string, { year: number; month: number }>();
+        const current = start.clone();
+        while (current.isSameOrBefore(end, 'day')) {
+            const key = current.format('YYYY-MM');
+            if (!monthsToQuery.has(key)) {
+                monthsToQuery.set(key, { year: current.year(), month: current.month() + 1 });
+            }
+            current.add(1, 'day');
+        }
+
+        const results: MonthHoCount[] = [];
+        let completed = 0;
+        const total = monthsToQuery.size;
+
+        monthsToQuery.forEach(({ year, month }, key) => {
+            this.httpService.getHomeOfficeMonthCount(year, month).subscribe({
+                next: (res) => {
+                    const m = moment(`${res.year}-${String(res.month).padStart(2, '0')}`, 'YYYY-MM');
+                    results.push({
+                        year: res.year,
+                        month: res.month,
+                        monthName: m.format('MMMM'),
+                        count: res.homeOfficeDays,
+                    });
+                },
+                error: () => {
+                    const m = moment(`${year}-${String(month).padStart(2, '0')}`, 'YYYY-MM');
+                    results.push({
+                        year,
+                        month,
+                        monthName: m.format('MMMM'),
+                        count: 0,
+                    });
+                },
+                complete: () => {
+                    completed++;
+                    if (completed === total) {
+                        results.sort((a, b) => a.year * 100 + a.month - (b.year * 100 + b.month));
+                        this._homeOfficeMonthCounts.set(results);
+                    }
+                },
+            });
         });
+
+        if (monthsToQuery.size === 0) {
+            this._homeOfficeMonthCounts.set([]);
+        }
     }
 
     updateSettings(settings: WorkTimeSettings): void {
@@ -185,7 +236,10 @@ export class WorkTimePlannerService {
             return [...days, toSave];
         });
 
-        if (!toSave.startTime || !toSave.endTime) {
+        const hasMeaningfulData = toSave.startTime || toSave.endTime
+            || toSave.status !== DayStatus.Normal || toSave.isHomeOffice;
+
+        if (!hasMeaningfulData) {
             return;
         }
 
@@ -205,15 +259,16 @@ export class WorkTimePlannerService {
         this.httpService.createWorkDay(toSave).subscribe({
             next: (saved) => {
             const normalized = this.normalizeWorkDay(saved);
-            this._pendingCreates.delete(normalized.date);
+            const calculated = this.calculateWorkDay(normalized);
+            this._pendingCreates.delete(calculated.date);
             this._workDays.update(days => {
-                const idx = days.findIndex(d => d.date === normalized.date);
+                const idx = days.findIndex(d => d.date === calculated.date);
                 if (idx !== -1) {
                 const newDays = [...days];
-                newDays[idx] = normalized;
+                newDays[idx] = calculated;
                 return newDays;
                 }
-                return [...days, normalized];
+                return [...days, calculated];
             });
             this.saveCurrentWeekSummary();
             },
@@ -228,11 +283,7 @@ export class WorkTimePlannerService {
         const willBeHomeOffice = !day.isHomeOffice;
         this.updateWorkDay({ ...day, isHomeOffice: willBeHomeOffice });
 
-        const dateMonth = moment(date).month();
-        const currentMonth = moment().month();
-        if (dateMonth === currentMonth) {
-            this._homeOfficeMonthCount.update(c => willBeHomeOffice ? c + 1 : Math.max(0, c - 1));
-        }
+        setTimeout(() => this.loadHomeOfficeMonthCount(), 500);
     }
 
     toggleDayStatus(date: string, status: DayStatus): void {

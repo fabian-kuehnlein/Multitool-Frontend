@@ -49,11 +49,19 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-primary);
+
+    .desktop & {
+        font-size: 1.1rem;
+    }
 }
 
 .day-date {
     font-size: 0.75rem;
     color: var(--text-tertiary);
+
+    .desktop & {
+        font-size: 0.9rem;
+    }
 }
 
 .day-badges {
@@ -69,6 +77,11 @@
     border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+
+    .desktop & {
+        font-size: 0.75rem;
+        padding: 3px 7px;
+    }
 }
 
 .badge-ho {
@@ -106,6 +119,16 @@
         width: 12px;
         height: 12px;
     }
+
+    .desktop & {
+        padding: 3px 6px;
+
+        mat-icon {
+            font-size: 15px;
+            width: 15px;
+            height: 15px;
+        }
+    }
 }
 
 .time-inputs {
@@ -118,6 +141,11 @@
     color: var(--text-muted);
     font-size: 1.1rem;
     padding-top: 18px;
+
+    .desktop & {
+        font-size: 1.3rem;
+        padding-top: 22px;
+    }
 }
 
 .input-group {
@@ -133,6 +161,10 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+
+    .desktop & {
+        font-size: 0.82rem;
+    }
 }
 
 .time-input {
@@ -147,6 +179,11 @@
     outline: none;
     transition: border-color 0.2s;
     box-sizing: border-box;
+
+    .desktop & {
+        font-size: 1.05rem;
+        padding: 8px 10px;
+    }
 
     &:focus {
         border-color: var(--accent-primary);
@@ -188,7 +225,12 @@
     transition: border-color 0.2s;
     box-sizing: border-box;
     text-align: center;
-    -moz-appearance: textfield;
+
+    .desktop & {
+        font-size: 1rem;
+        padding: 7px 10px;
+        width: 70px;
+    }
 
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
@@ -209,6 +251,10 @@
 .break-unit {
     font-size: 0.75rem;
     color: var(--text-muted);
+
+    .desktop & {
+        font-size: 0.9rem;
+    }
 }
 
 .card-divider {
@@ -225,12 +271,20 @@
 .result-label {
     font-size: 0.78rem;
     color: var(--text-muted);
+
+    .desktop & {
+        font-size: 0.92rem;
+    }
 }
 
 .result-value {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-primary);
+
+    .desktop & {
+        font-size: 1rem;
+    }
 
     &.positive {
         color: var(--accent-success);
@@ -253,6 +307,10 @@
     padding: 16px 0 4px;
     color: var(--text-muted);
     font-size: 0.85rem;
+
+    .desktop & {
+        font-size: 1rem;
+    }
 
     mat-icon {
         font-size: 20px;
@@ -277,6 +335,10 @@
     padding: 5px 7px;
     border-radius: 5px;
     line-height: 1.3;
+
+    .desktop & {
+        font-size: 0.82rem;
+    }
 
     mat-icon {
         font-size: 13px;
@@ -361,16 +423,16 @@
 .status-btn-desktop {
     flex: 1 1 calc(50% - 3px);
     min-width: 0;
-    font-size: 0.72rem;
-    padding: 4px 8px;
+    font-size: 0.88rem;
+    padding: 6px 10px;
     line-height: 1.2;
     border-color: var(--border-default);
     color: var(--text-muted);
 
     mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
         margin-right: 4px;
     }
 

@@ -103,13 +103,15 @@
                 <span class="stat-label">HO-Tage (Woche)</span>
               </div>
             </div>
-            <div class="stat-card">
-              <mat-icon class="stat-icon">home</mat-icon>
-              <div class="stat-info">
-                <span class="stat-value">{{ plannerService.homeOfficeMonthCount() }}</span>
-                <span class="stat-label">HO-Tage (Monat)</span>
+            @for (month of plannerService.homeOfficeMonthCounts(); track month.year + '-' + month.month) {
+              <div class="stat-card">
+                <mat-icon class="stat-icon">home</mat-icon>
+                <div class="stat-info">
+                  <span class="stat-value">{{ month.count }}</span>
+                  <span class="stat-label">HO-Tage ({{ month.monthName }})</span>
+                </div>
               </div>
-            </div>
+            }
           </div>
 
           <mat-divider></mat-divider>

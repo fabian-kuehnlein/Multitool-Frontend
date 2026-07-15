@@ -17,6 +17,10 @@ mat-card-header {
     justify-content: center;
 }
 
+mat-card-title {
+    color: var(--text-on-primary);
+}
+
 form {
     display: flex;
     flex-direction: column;
