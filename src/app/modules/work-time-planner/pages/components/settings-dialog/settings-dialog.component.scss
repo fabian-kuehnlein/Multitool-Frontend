@@ -1,5 +1,12 @@
+@use "../../../../../../_breakpoints" as bp;
+
 :host {
-    display: block;
+    @include bp.mobile {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
 }
 
 .settings-form {
@@ -7,6 +14,16 @@
     flex-direction: column;
     gap: 24px;
     min-width: 300px;
+
+    @include bp.mobile {
+        min-width: unset;
+        max-width: 100%;
+        flex: 1;
+        margin: 0;
+        padding: 8px 16px !important;
+        max-height: unset;
+        gap: 16px;
+    }
 }
 
 .form-section {
@@ -35,4 +52,27 @@
 
 .full-field {
     width: 100%;
+}
+
+.dialog-actions {
+    padding: 16px 24px;
+    gap: 8px;
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        padding: 16px;
+        margin-top: auto;
+        border-top: 1px solid var(--border-light);
+
+        button {
+            flex: 1;
+        }
+    }
 }

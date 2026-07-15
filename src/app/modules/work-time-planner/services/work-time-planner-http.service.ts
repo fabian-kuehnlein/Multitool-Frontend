@@ -12,34 +12,38 @@ export class WorkTimePlannerHttpService {
     private readonly apiUrl = `${environment.MultitoolApi}/api/WorkTimePlanner`;
 
     getWorkDays(startDate: string, endDate: string): Observable<WorkDay[]> {
-        return this.http.get<WorkDay[]>(`${this.apiUrl}?startDate=${startDate}&endDate=${endDate}`);
+        return this.http.get<WorkDay[]>(`${this.apiUrl}/workdays?startDate=${startDate}&endDate=${endDate}`);
     }
 
     createWorkDay(data: Partial<WorkDay>): Observable<WorkDay> {
-        return this.http.post<WorkDay>(this.apiUrl, data);
+        return this.http.post<WorkDay>(`${this.apiUrl}/workdays`, data);
     }
 
-    updateWorkDay(id: string, data: Partial<WorkDay>): Observable<WorkDay> {
-        return this.http.put<WorkDay>(`${this.apiUrl}/${id}`, data);
+    updateWorkDay(id: number, data: Partial<WorkDay>): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/workdays/${id}`, data);
+    }
+
+    deleteWorkDay(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/workdays/${id}`);
     }
 
     getWeekSummary(year: number, weekNumber: number): Observable<WeekSummary | null> {
-        return this.http.get<WeekSummary | null>(`${this.apiUrl}/week-summary?year=${year}&weekNumber=${weekNumber}`);
+        return this.http.get<WeekSummary | null>(`${this.apiUrl}/weeksummary?year=${year}&weekNumber=${weekNumber}`);
     }
 
-    saveWeekSummary(summary: WeekSummary): Observable<WeekSummary> {
-        return this.http.post<WeekSummary>(`${this.apiUrl}/week-summary`, summary);
+    saveWeekSummary(year: number, weekNumber: number): Observable<WeekSummary> {
+        return this.http.post<WeekSummary>(`${this.apiUrl}/weeksummary?year=${year}&weekNumber=${weekNumber}`, null);
     }
 
-    getHomeOfficeMonthCount(year: number, month: number): Observable<number> {
-        return this.http.get<number>(`${this.apiUrl}/homeoffice-count?year=${year}&month=${month}`);
+    getHomeOfficeMonthCount(year: number, month: number): Observable<{ year: number; month: number; homeOfficeDays: number }> {
+        return this.http.get<{ year: number; month: number; homeOfficeDays: number }>(`${this.apiUrl}/homeoffice?year=${year}&month=${month}`);
     }
 
     getSettings(): Observable<WorkTimeSettings> {
         return this.http.get<WorkTimeSettings>(`${this.apiUrl}/settings`);
     }
 
-    updateSettings(settings: WorkTimeSettings): Observable<WorkTimeSettings> {
-        return this.http.put<WorkTimeSettings>(`${this.apiUrl}/settings`, settings);
+    updateSettings(settings: WorkTimeSettings): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/settings`, settings);
     }
 }

@@ -26,6 +26,32 @@
     }
   </mat-toolbar>
 
+  @if (plannerService.loading()) {
+    <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
+      <mat-spinner diameter="48"></mat-spinner>
+      <span class="loading-text">Tage werden geladen...</span>
+    </div>
+  }
+
+  @if (isMobile()) {
+    <div class="week-header">
+      <div class="week-nav">
+        <button mat-icon-button (click)="plannerService.navigateWeek('prev')" matTooltip="Vorherige Woche">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="week-range">{{ plannerService.getWeekRange() }}</span>
+        <button mat-icon-button (click)="plannerService.navigateWeek('next')" matTooltip="Nächste Woche">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        @if (!plannerService.isCurrentWeek()) {
+          <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
+            Heute
+          </button>
+        }
+      </div>
+    </div>
+  }
+
   <div class="main-layout" [class.mobile-layout]="isMobile()">
     @if (!isMobile() && !isTablet()) {
       <div class="page-sidebar">
@@ -99,22 +125,24 @@
     }
 
     <div class="content-wrapper">
-      <div class="week-header">
-        <div class="week-nav">
-          <button mat-icon-button (click)="plannerService.navigateWeek('prev')" matTooltip="Vorherige Woche">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-          <span class="week-range">{{ plannerService.getWeekRange() }}</span>
-          <button mat-icon-button (click)="plannerService.navigateWeek('next')" matTooltip="Nächste Woche">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-          @if (!plannerService.isCurrentWeek()) {
-            <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
-              Heute
+      @if (!isMobile()) {
+        <div class="week-header">
+          <div class="week-nav">
+            <button mat-icon-button (click)="plannerService.navigateWeek('prev')" matTooltip="Vorherige Woche">
+              <mat-icon>chevron_left</mat-icon>
             </button>
-          }
+            <span class="week-range">{{ plannerService.getWeekRange() }}</span>
+            <button mat-icon-button (click)="plannerService.navigateWeek('next')" matTooltip="Nächste Woche">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+            @if (!plannerService.isCurrentWeek()) {
+              <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
+                Heute
+              </button>
+            }
+          </div>
         </div>
-      </div>
+      }
 
       <div class="week-section">
         <div class="week-grid" [class.mobile-grid]="isMobile()">
@@ -123,6 +151,8 @@
               [day]="day"
               [dayName]="getDayName(i)"
               [settings]="plannerService.settings()"
+              [isDesktop]="isDesktop()"
+              [isMobile]="isMobile()"
               (update)="plannerService.updateWorkDay($event)"
               (toggleHomeOffice)="plannerService.toggleHomeOffice($event)"
               (toggleDayStatus)="plannerService.toggleDayStatus($event.date, $event.status)"

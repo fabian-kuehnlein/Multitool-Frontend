@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -27,6 +27,7 @@ export class WorkTimePlannerComponent implements OnInit {
 
   readonly isMobile = signal<boolean>(false);
   readonly isTablet = signal<boolean>(false);
+  readonly isDesktop = computed(() => !this.isMobile() && !this.isTablet());
 
   constructor() {
     this.breakpointObserver.observe(['(max-width: 849.98px)']).subscribe(result => {

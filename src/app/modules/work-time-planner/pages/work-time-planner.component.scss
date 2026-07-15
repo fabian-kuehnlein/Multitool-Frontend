@@ -107,6 +107,7 @@
         gap: 12px;
         align-content: start;
         flex: none;
+        margin-bottom: 20px;
     }
 }
 
@@ -148,4 +149,29 @@
 
 .overtime-negative {
     color: var(--accent-danger) !important;
+}
+
+.page-loading-overlay {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    pointer-events: auto;
+
+    &.mobile-loading {
+        top: 64px;
+    }
+
+    .loading-text {
+        font-size: 0.9rem;
+        color: #fff;
+    }
 }

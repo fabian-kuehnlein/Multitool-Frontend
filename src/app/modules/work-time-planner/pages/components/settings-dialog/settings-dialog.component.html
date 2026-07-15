@@ -38,7 +38,10 @@
   </form>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" class="dialog-actions">
   <button mat-button (click)="close()">Abbrechen</button>
-  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">Speichern</button>
+  <button mat-flat-button (click)="save()" [disabled]="form.invalid">
+    <mat-icon>save</mat-icon>
+    Speichern
+  </button>
 </mat-dialog-actions>

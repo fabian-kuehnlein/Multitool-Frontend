@@ -104,24 +104,47 @@
     </div>
   }
 
-  <div class="status-row">
-    <button mat-icon-button class="status-btn" [class.active-holiday]="day.status === DayStatus.Holiday" (click)="onDayStatusToggle(DayStatus.Holiday)" matTooltip="Feiertag">
-      <mat-icon>celebration</mat-icon>
-    </button>
-    <button mat-icon-button class="status-btn" [class.active-vacation]="day.status === DayStatus.Vacation" (click)="onDayStatusToggle(DayStatus.Vacation)" matTooltip="Urlaub">
-      <mat-icon>flight</mat-icon>
-    </button>
-    <button mat-icon-button class="status-btn" [class.active-sick]="day.status === DayStatus.Sick" (click)="onDayStatusToggle(DayStatus.Sick)" matTooltip="Krank">
-      <mat-icon>sick</mat-icon>
-    </button>
+  <div class="status-row" [class.desktop-status-row]="isDesktop" [class.mobile-status-row]="isMobile">
+    @if (isDesktop) {
+      <button mat-stroked-button class="status-btn-desktop" [class.active-holiday]="day.status === DayStatus.Holiday" (click)="onDayStatusToggle(DayStatus.Holiday)">
+        <mat-icon>celebration</mat-icon>
+        Feiertag
+      </button>
+      <button mat-stroked-button class="status-btn-desktop" [class.active-vacation]="day.status === DayStatus.Vacation" (click)="onDayStatusToggle(DayStatus.Vacation)">
+        <mat-icon>flight</mat-icon>
+        Urlaub
+      </button>
+      <button mat-stroked-button class="status-btn-desktop" [class.active-sick]="day.status === DayStatus.Sick" (click)="onDayStatusToggle(DayStatus.Sick)">
+        <mat-icon>sick</mat-icon>
+        Krank
+      </button>
+      <button mat-stroked-button class="status-btn-desktop" [class.active-ho]="day.isHomeOffice" (click)="onHomeOfficeToggle()">
+        <mat-icon>home</mat-icon>
+        HO
+      </button>
+      <button mat-stroked-button class="status-btn-desktop" [class.active-lock]="day.isLocked" (click)="onLockToggle()">
+        <mat-icon>{{ day.isLocked ? 'lock' : 'lock_open' }}</mat-icon>
+        {{ day.isLocked ? 'Sperren' : 'Entsperren' }}
+      </button>
+    } @else {
+      <button mat-icon-button class="status-btn" [class.active-holiday]="day.status === DayStatus.Holiday" (click)="onDayStatusToggle(DayStatus.Holiday)" matTooltip="Feiertag">
+        <mat-icon>celebration</mat-icon>
+      </button>
+      <button mat-icon-button class="status-btn" [class.active-vacation]="day.status === DayStatus.Vacation" (click)="onDayStatusToggle(DayStatus.Vacation)" matTooltip="Urlaub">
+        <mat-icon>flight</mat-icon>
+      </button>
+      <button mat-icon-button class="status-btn" [class.active-sick]="day.status === DayStatus.Sick" (click)="onDayStatusToggle(DayStatus.Sick)" matTooltip="Krank">
+        <mat-icon>sick</mat-icon>
+      </button>
 
-    <div class="status-spacer"></div>
+      <div class="status-spacer"></div>
 
-    <button mat-icon-button class="ho-toggle" [class.active]="day.isHomeOffice" (click)="onHomeOfficeToggle()" matTooltip="Homeoffice">
-      <mat-icon>home</mat-icon>
-    </button>
-    <button mat-icon-button class="lock-toggle" [class.active]="day.isLocked" (click)="onLockToggle()" matTooltip="{{ day.isLocked ? 'Entsperren' : 'Sperren' }}">
-      <mat-icon>{{ day.isLocked ? 'lock' : 'lock_open' }}</mat-icon>
-    </button>
+      <button mat-icon-button class="ho-toggle" [class.active]="day.isHomeOffice" (click)="onHomeOfficeToggle()" matTooltip="Homeoffice">
+        <mat-icon>home</mat-icon>
+      </button>
+      <button mat-icon-button class="lock-toggle" [class.active]="day.isLocked" (click)="onLockToggle()" matTooltip="{{ day.isLocked ? 'Entsperren' : 'Sperren' }}">
+        <mat-icon>{{ day.isLocked ? 'lock' : 'lock_open' }}</mat-icon>
+      </button>
+    }
   </div>
 </div>

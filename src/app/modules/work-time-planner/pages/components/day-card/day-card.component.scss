@@ -351,3 +351,103 @@
         color: var(--text-secondary) !important;
     }
 }
+
+.desktop-status-row {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.status-btn-desktop {
+    flex: 1 1 calc(50% - 3px);
+    min-width: 0;
+    font-size: 0.72rem;
+    padding: 4px 8px;
+    line-height: 1.2;
+    border-color: var(--border-default);
+    color: var(--text-muted);
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+    }
+
+    &.active-holiday {
+        background: var(--accent-success-light) !important;
+        border-color: var(--accent-success);
+        color: var(--accent-success) !important;
+
+        mat-icon {
+            color: var(--accent-success) !important;
+        }
+    }
+
+    &.active-vacation {
+        background: var(--accent-warning) !important;
+        border-color: var(--accent-warning-strong);
+        color: var(--accent-warning-strong) !important;
+
+        mat-icon {
+            color: var(--accent-warning-strong) !important;
+        }
+    }
+
+    &.active-sick {
+        background: #fce4ec !important;
+        border-color: #c62828;
+        color: #c62828 !important;
+
+        mat-icon {
+            color: #c62828 !important;
+        }
+    }
+
+    &.active-ho {
+        background: var(--accent-primary-light) !important;
+        border-color: var(--accent-primary);
+        color: var(--accent-primary) !important;
+
+        mat-icon {
+            color: var(--accent-primary) !important;
+        }
+    }
+
+    &.active-lock {
+        background: var(--bg-hover) !important;
+        border-color: var(--text-secondary);
+        color: var(--text-secondary) !important;
+
+        mat-icon {
+            color: var(--text-secondary) !important;
+        }
+    }
+}
+
+[data-theme="dark"] .status-btn-desktop.active-sick {
+    background: #3d1a1a !important;
+    border-color: #ff6b6b;
+    color: #ff6b6b !important;
+
+    mat-icon {
+        color: #ff6b6b !important;
+    }
+}
+
+.mobile-status-row {
+    gap: 8px;
+    padding-top: 4px;
+
+    button[mat-icon-button] {
+        width: 44px;
+        height: 44px;
+        padding: 10px;
+
+        mat-icon {
+            font-size: 22px;
+            width: 22px;
+            height: 22px;
+        }
+    }
+}

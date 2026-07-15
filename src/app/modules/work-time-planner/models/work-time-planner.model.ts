@@ -6,7 +6,7 @@ export enum DayStatus {
 }
 
 export interface WorkDay {
-  id: string;
+  id: number;
   date: string;
   startTime: string | null;
   endTime: string | null;

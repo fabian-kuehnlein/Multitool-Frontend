@@ -17,6 +17,8 @@ export class DayCardComponent {
   @Input({ required: true }) day!: WorkDay;
   @Input({ required: true }) dayName!: string;
   @Input({ required: true }) settings!: WorkTimeSettings;
+  @Input() isDesktop = false;
+  @Input() isMobile = false;
   @Output() update = new EventEmitter<WorkDay>();
   @Output() toggleHomeOffice = new EventEmitter<string>();
   @Output() toggleDayStatus = new EventEmitter<{ date: string; status: DayStatus }>();
