@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    MultitoolApi: 'http://localhost:5100'
+    MultitoolApi: 'http://localhost:5100',
 };

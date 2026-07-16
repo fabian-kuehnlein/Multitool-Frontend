@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { Category } from '../models/category.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class CategoryHttpService {
     private readonly http = inject(HttpClient);

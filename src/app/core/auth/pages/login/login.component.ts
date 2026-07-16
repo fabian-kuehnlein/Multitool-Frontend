@@ -1,6 +1,12 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+    FormsModule,
+    ReactiveFormsModule,
+    FormBuilder,
+    FormGroup,
+    Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,54 +17,58 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule
-],
-  templateUrl: './login.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './login.component.scss'
+    selector: 'app-login',
+    standalone: true,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+    ],
+    templateUrl: './login.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  isLoading = false;
+    loginForm: FormGroup;
+    isLoading = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {
-    this.loginForm = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required]
-    });
-  }
-
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      const { username, password } = this.loginForm.value;
-      this.authService.login(username, password).subscribe({
-        next: () => {
-          this.router.navigate(['/calendar']);
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.snackBar.open('Login fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.', 'Schließen', {
-            duration: 3000
-          });
-          console.error('Login error:', err);
-        }
-      });
+    constructor(
+        private fb: FormBuilder,
+        private authService: AuthService,
+        private router: Router,
+        private snackBar: MatSnackBar,
+    ) {
+        this.loginForm = this.fb.group({
+            username: ['', Validators.required],
+            password: ['', Validators.required],
+        });
     }
-  }
+
+    onSubmit(): void {
+        if (this.loginForm.valid) {
+            this.isLoading = true;
+            const { username, password } = this.loginForm.value;
+            this.authService.login(username, password).subscribe({
+                next: () => {
+                    this.router.navigate(['/calendar']);
+                },
+                error: (err) => {
+                    this.isLoading = false;
+                    this.snackBar.open(
+                        'Login fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.',
+                        'Schließen',
+                        {
+                            duration: 3000,
+                        },
+                    );
+                    console.error('Login error:', err);
+                },
+            });
+        }
+    }
 }

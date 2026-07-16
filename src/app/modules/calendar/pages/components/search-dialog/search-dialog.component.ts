@@ -1,12 +1,24 @@
-import { Component, inject, OnInit, OnDestroy, signal, effect, ChangeDetectionStrategy } from '@angular/core';
+import {
+    Component,
+    inject,
+    OnInit,
+    OnDestroy,
+    signal,
+    effect,
+    ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common'
+import { DatePipe } from '@angular/common';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SearchResult } from '../../../models/search-result.model';
 import { CalendarService } from '../../../services/calendar.service';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogRef,
+    MatDialog,
+} from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 // Third Party
 import moment from 'moment';
@@ -16,15 +28,10 @@ import { CalendarMapper } from '../../../utilities/calendar-mapper';
 
 @Component({
     selector: 'app-search-dialog',
-    imports: [
-        UI_MODULES,
-        MatTableModule,
-        DatePipe,
-        MatProgressSpinnerModule
-    ],
+    imports: [UI_MODULES, MatTableModule, DatePipe, MatProgressSpinnerModule],
     templateUrl: './search-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './search-dialog.component.scss'
+    styleUrl: './search-dialog.component.scss',
 })
 export class SearchDialogComponent implements OnDestroy {
     private readonly calendarService = inject(CalendarService);
@@ -33,8 +40,14 @@ export class SearchDialogComponent implements OnDestroy {
     public dialog = inject(MatDialog);
     private destroy$ = new Subject<void>();
 
-    public readonly displayedColumns: string[] = ['eventTitle', 'eventNote', 'startDateTime', 'actions'];
-    public dataSource: MatTableDataSource<SearchResult> = new MatTableDataSource<SearchResult>([]);
+    public readonly displayedColumns: string[] = [
+        'eventTitle',
+        'eventNote',
+        'startDateTime',
+        'actions',
+    ];
+    public dataSource: MatTableDataSource<SearchResult> =
+        new MatTableDataSource<SearchResult>([]);
     public readonly isLoading = signal<boolean>(false);
 
     searchControl = new FormControl<string>(this.dialogData || '');
@@ -42,9 +55,9 @@ export class SearchDialogComponent implements OnDestroy {
     private readonly searchTerm = toSignal(
         this.searchControl.valueChanges.pipe(
             debounceTime(300),
-            distinctUntilChanged()
+            distinctUntilChanged(),
         ),
-        { initialValue: this.dialogData || '' }
+        { initialValue: this.dialogData || '' },
     );
 
     constructor() {
@@ -69,22 +82,27 @@ export class SearchDialogComponent implements OnDestroy {
         this.calendarService.searchEvents(searchTerm).subscribe({
             next: (events) => {
                 if (events) {
-                    const processed = events.map(event => {
+                    const processed = events.map((event) => {
                         // Strip 'Z' to treat as local time and avoid timezone shifts
-                        const cleanStart = event.startDateTime?.replace('Z', '');
+                        const cleanStart = event.startDateTime?.replace(
+                            'Z',
+                            '',
+                        );
                         const cleanEnd = event.recurrenceEnd?.replace('Z', '');
-                        
+
                         let displayDate = cleanStart;
                         let isNextOccurrence = false;
 
                         if (event.recurrenceRule && cleanStart) {
                             const next = this.calculateNextOccurrence(
-                                cleanStart, 
-                                event.recurrenceRule, 
-                                cleanEnd || null
+                                cleanStart,
+                                event.recurrenceRule,
+                                cleanEnd || null,
                             );
                             if (next) {
-                                displayDate = next.format('YYYY-MM-DDTHH:mm:ss');
+                                displayDate = next.format(
+                                    'YYYY-MM-DDTHH:mm:ss',
+                                );
                                 isNextOccurrence = true;
                             }
                         }
@@ -92,12 +110,14 @@ export class SearchDialogComponent implements OnDestroy {
                         return {
                             ...event,
                             displayDate,
-                            isNextOccurrence
+                            isNextOccurrence,
                         };
                     });
 
-                    const sortedEvents = processed.sort((a, b) => 
-                        new Date(a.displayDate ?? '').getTime() - new Date(b.displayDate ?? '').getTime()
+                    const sortedEvents = processed.sort(
+                        (a, b) =>
+                            new Date(a.displayDate ?? '').getTime() -
+                            new Date(b.displayDate ?? '').getTime(),
                     );
                     this.dataSource.data = sortedEvents;
                 } else {
@@ -109,11 +129,15 @@ export class SearchDialogComponent implements OnDestroy {
                 console.error('Search failed', error);
                 this.dataSource.data = [];
                 this.isLoading.set(false);
-            }
+            },
         });
     }
 
-    private calculateNextOccurrence(start: string, ruleStr: string, end: string | null): moment.Moment | null {
+    private calculateNextOccurrence(
+        start: string,
+        ruleStr: string,
+        end: string | null,
+    ): moment.Moment | null {
         const startDate = moment(start);
         const today = moment().startOf('day');
 
@@ -126,7 +150,7 @@ export class SearchDialogComponent implements OnDestroy {
         const rrule = {
             dtstart: start,
             until: end,
-            ...rule
+            ...rule,
         };
 
         const maxSearchDate = moment().add(2, 'years');
@@ -138,7 +162,7 @@ export class SearchDialogComponent implements OnDestroy {
                 return current.set({
                     hour: startDate.hour(),
                     minute: startDate.minute(),
-                    second: startDate.second()
+                    second: startDate.second(),
                 });
             }
             current.add(1, 'day');
@@ -150,32 +174,40 @@ export class SearchDialogComponent implements OnDestroy {
     goToDate(element: any) {
         const dateToUse = element.displayDate || element.startDateTime;
         if (dateToUse) {
-            this.dialogRef.close({ data: moment(dateToUse).format('YYYY-MM-DD') });
+            this.dialogRef.close({
+                data: moment(dateToUse).format('YYYY-MM-DD'),
+            });
         }
     }
 
     delete(deleteId: string) {
         if (deleteId) {
-            this.dialog.open(ConfirmDialogComponent, {
-                data: {
-                    title: 'Ereignis löschen',
-                    message: 'Möchten Sie dieses Ereignis wirklich löschen?',
-                    confirmText: 'Löschen',
-                    isDestructive: true
-                }
-            })
-            .afterClosed().subscribe(result => {
-                if (result) {
-                    this.calendarService.deleteEvent(deleteId).subscribe({
-                        next: () => {
-                            this.dataSource.data = this.dataSource.data.filter(event => event.eventId !== deleteId);
-                        },
-						error: (error: any) => {
-                            console.error('Error deleting event:', error);
-						}
-					});
-                }
-            });
+            this.dialog
+                .open(ConfirmDialogComponent, {
+                    data: {
+                        title: 'Ereignis löschen',
+                        message:
+                            'Möchten Sie dieses Ereignis wirklich löschen?',
+                        confirmText: 'Löschen',
+                        isDestructive: true,
+                    },
+                })
+                .afterClosed()
+                .subscribe((result) => {
+                    if (result) {
+                        this.calendarService.deleteEvent(deleteId).subscribe({
+                            next: () => {
+                                this.dataSource.data =
+                                    this.dataSource.data.filter(
+                                        (event) => event.eventId !== deleteId,
+                                    );
+                            },
+                            error: (error: any) => {
+                                console.error('Error deleting event:', error);
+                            },
+                        });
+                    }
+                });
         }
     }
 

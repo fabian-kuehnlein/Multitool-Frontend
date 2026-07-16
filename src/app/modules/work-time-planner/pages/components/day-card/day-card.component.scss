@@ -11,7 +11,9 @@
     border-radius: 12px;
     padding: 14px;
     gap: 8px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 
     &:hover {
         border-color: var(--border-medium);

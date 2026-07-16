@@ -1,6 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import moment from 'moment';
-import { WorkDay, WorkDayWarning, WorkTimeSettings, WeekSummary, DayStatus } from '../models/work-time-planner.model';
+import {
+    WorkDay,
+    WorkDayWarning,
+    WorkTimeSettings,
+    WeekSummary,
+    DayStatus,
+} from '../models/work-time-planner.model';
 import { WorkTimePlannerHttpService } from './work-time-planner-http.service';
 
 export interface MonthHoCount {
@@ -11,13 +17,15 @@ export interface MonthHoCount {
 }
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class WorkTimePlannerService {
     private readonly httpService = inject(WorkTimePlannerHttpService);
 
     private readonly _workDays = signal<WorkDay[]>([]);
-    private readonly _currentWeekStart = signal<string>(this.getWeekStart(new Date()));
+    private readonly _currentWeekStart = signal<string>(
+        this.getWeekStart(new Date()),
+    );
     private readonly _settings = signal<WorkTimeSettings>({
         dailyTargetMinutes: 480,
         breakRule6h: 30,
@@ -41,27 +49,33 @@ export class WorkTimePlannerService {
         return Array.from({ length: 5 }, (_, i) => {
             const date = start.clone().add(i, 'days');
             const dateStr = date.format('YYYY-MM-DD');
-            const existing = this._workDays().find(wd => wd.date === dateStr);
+            const existing = this._workDays().find((wd) => wd.date === dateStr);
             return existing || this.createDefaultWorkDay(dateStr);
         });
     });
 
     readonly weeklyWorkMinutes = computed(() =>
-        this.weekDays().reduce((sum, d) => sum + d.workMinutes, 0)
+        this.weekDays().reduce((sum, d) => sum + d.workMinutes, 0),
     );
 
     readonly weeklyOvertimeMinutes = computed(() =>
-        this.weekDays().reduce((sum, d) => sum + d.overtimeMinutes, 0)
+        this.weekDays().reduce((sum, d) => sum + d.overtimeMinutes, 0),
     );
 
-    readonly weeklyTargetMinutes = computed(() => this._settings().dailyTargetMinutes * 5);
+    readonly weeklyTargetMinutes = computed(
+        () => this._settings().dailyTargetMinutes * 5,
+    );
 
-    readonly baseOvertime = computed(() => this._previousWeekSummary()?.totalOvertime ?? 0);
+    readonly baseOvertime = computed(
+        () => this._previousWeekSummary()?.totalOvertime ?? 0,
+    );
 
-    readonly totalOvertime = computed(() => this.baseOvertime() + this.weeklyOvertimeMinutes());
+    readonly totalOvertime = computed(
+        () => this.baseOvertime() + this.weeklyOvertimeMinutes(),
+    );
 
-    readonly homeOfficeDaysThisWeek = computed(() =>
-        this.weekDays().filter(d => d.isHomeOffice).length
+    readonly homeOfficeDaysThisWeek = computed(
+        () => this.weekDays().filter((d) => d.isHomeOffice).length,
     );
 
     getWeekStart(date: Date): string {
@@ -115,7 +129,9 @@ export class WorkTimePlannerService {
             this._currentWeekStart.set(this.getWeekStart(new Date()));
         } else {
             const offset = direction === 'next' ? 7 : -7;
-            const newStart = moment(this._currentWeekStart()).add(offset, 'days').format('YYYY-MM-DD');
+            const newStart = moment(this._currentWeekStart())
+                .add(offset, 'days')
+                .format('YYYY-MM-DD');
             this._currentWeekStart.set(newStart);
         }
 
@@ -133,12 +149,16 @@ export class WorkTimePlannerService {
         this._loading.set(true);
         this.httpService.getWorkDays(start, end).subscribe({
             next: (days) => {
-            const normalized = days.map(d => this.normalizeWorkDay(d));
-            const calculated = normalized.map(d => this.calculateWorkDay(d));
-            this._workDays.update(existing => {
-                const nonWeek = existing.filter(e => e.date < start || e.date >= end);
-                return [...nonWeek, ...calculated];
-            });
+                const normalized = days.map((d) => this.normalizeWorkDay(d));
+                const calculated = normalized.map((d) =>
+                    this.calculateWorkDay(d),
+                );
+                this._workDays.update((existing) => {
+                    const nonWeek = existing.filter(
+                        (e) => e.date < start || e.date >= end,
+                    );
+                    return [...nonWeek, ...calculated];
+                });
             },
             error: () => {},
             complete: () => this._loading.set(false),
@@ -154,10 +174,12 @@ export class WorkTimePlannerService {
         });
 
         const prevWeek = currentMoment.clone().subtract(1, 'week');
-        this.httpService.getWeekSummary(prevWeek.year(), prevWeek.isoWeek()).subscribe({
-            next: (summary) => this._previousWeekSummary.set(summary),
-            error: () => this._previousWeekSummary.set(null),
-        });
+        this.httpService
+            .getWeekSummary(prevWeek.year(), prevWeek.isoWeek())
+            .subscribe({
+                next: (summary) => this._previousWeekSummary.set(summary),
+                error: () => this._previousWeekSummary.set(null),
+            });
 
         this.loadHomeOfficeMonthCount();
     }
@@ -166,12 +188,18 @@ export class WorkTimePlannerService {
         const start = moment(this._currentWeekStart());
         const end = start.clone().add(4, 'days');
 
-        const monthsToQuery = new Map<string, { year: number; month: number }>();
+        const monthsToQuery = new Map<
+            string,
+            { year: number; month: number }
+        >();
         const current = start.clone();
         while (current.isSameOrBefore(end, 'day')) {
             const key = current.format('YYYY-MM');
             if (!monthsToQuery.has(key)) {
-                monthsToQuery.set(key, { year: current.year(), month: current.month() + 1 });
+                monthsToQuery.set(key, {
+                    year: current.year(),
+                    month: current.month() + 1,
+                });
             }
             current.add(1, 'day');
         }
@@ -183,7 +211,10 @@ export class WorkTimePlannerService {
         monthsToQuery.forEach(({ year, month }, key) => {
             this.httpService.getHomeOfficeMonthCount(year, month).subscribe({
                 next: (res) => {
-                    const m = moment(`${res.year}-${String(res.month).padStart(2, '0')}`, 'YYYY-MM');
+                    const m = moment(
+                        `${res.year}-${String(res.month).padStart(2, '0')}`,
+                        'YYYY-MM',
+                    );
                     results.push({
                         year: res.year,
                         month: res.month,
@@ -192,7 +223,10 @@ export class WorkTimePlannerService {
                     });
                 },
                 error: () => {
-                    const m = moment(`${year}-${String(month).padStart(2, '0')}`, 'YYYY-MM');
+                    const m = moment(
+                        `${year}-${String(month).padStart(2, '0')}`,
+                        'YYYY-MM',
+                    );
                     results.push({
                         year,
                         month,
@@ -203,7 +237,12 @@ export class WorkTimePlannerService {
                 complete: () => {
                     completed++;
                     if (completed === total) {
-                        results.sort((a, b) => a.year * 100 + a.month - (b.year * 100 + b.month));
+                        results.sort(
+                            (a, b) =>
+                                a.year * 100 +
+                                a.month -
+                                (b.year * 100 + b.month),
+                        );
                         this._homeOfficeMonthCounts.set(results);
                     }
                 },
@@ -217,27 +256,38 @@ export class WorkTimePlannerService {
 
     updateSettings(settings: WorkTimeSettings): void {
         this._settings.set(settings);
-        this._workDays.update(days => days.map(d => this.calculateWorkDay(d)));
-        this.httpService.updateSettings(settings).subscribe({ error: () => {} });
+        this._workDays.update((days) =>
+            days.map((d) => this.calculateWorkDay(d)),
+        );
+        this.httpService
+            .updateSettings(settings)
+            .subscribe({ error: () => {} });
     }
 
     updateWorkDay(updated: WorkDay): void {
         const calculated = this.calculateWorkDay(updated);
-        const existing = this._workDays().find(d => d.date === calculated.date);
-        const toSave = existing?.id ? { ...calculated, id: existing.id } : calculated;
+        const existing = this._workDays().find(
+            (d) => d.date === calculated.date,
+        );
+        const toSave = existing?.id
+            ? { ...calculated, id: existing.id }
+            : calculated;
 
-        this._workDays.update(days => {
-            const idx = days.findIndex(d => d.date === toSave.date);
+        this._workDays.update((days) => {
+            const idx = days.findIndex((d) => d.date === toSave.date);
             if (idx !== -1) {
-            const newDays = [...days];
-            newDays[idx] = toSave;
-            return newDays;
+                const newDays = [...days];
+                newDays[idx] = toSave;
+                return newDays;
             }
             return [...days, toSave];
         });
 
-        const hasMeaningfulData = toSave.startTime || toSave.endTime
-            || toSave.status !== DayStatus.Normal || toSave.isHomeOffice;
+        const hasMeaningfulData =
+            toSave.startTime ||
+            toSave.endTime ||
+            toSave.status !== DayStatus.Normal ||
+            toSave.isHomeOffice;
 
         if (!hasMeaningfulData) {
             return;
@@ -245,8 +295,8 @@ export class WorkTimePlannerService {
 
         if (toSave.id) {
             this.httpService.updateWorkDay(toSave.id, toSave).subscribe({
-            next: () => this.saveCurrentWeekSummary(),
-            error: () => {},
+                next: () => this.saveCurrentWeekSummary(),
+                error: () => {},
             });
             return;
         }
@@ -258,22 +308,24 @@ export class WorkTimePlannerService {
         this._pendingCreates.add(toSave.date);
         this.httpService.createWorkDay(toSave).subscribe({
             next: (saved) => {
-            const normalized = this.normalizeWorkDay(saved);
-            const calculated = this.calculateWorkDay(normalized);
-            this._pendingCreates.delete(calculated.date);
-            this._workDays.update(days => {
-                const idx = days.findIndex(d => d.date === calculated.date);
-                if (idx !== -1) {
-                const newDays = [...days];
-                newDays[idx] = calculated;
-                return newDays;
-                }
-                return [...days, calculated];
-            });
-            this.saveCurrentWeekSummary();
+                const normalized = this.normalizeWorkDay(saved);
+                const calculated = this.calculateWorkDay(normalized);
+                this._pendingCreates.delete(calculated.date);
+                this._workDays.update((days) => {
+                    const idx = days.findIndex(
+                        (d) => d.date === calculated.date,
+                    );
+                    if (idx !== -1) {
+                        const newDays = [...days];
+                        newDays[idx] = calculated;
+                        return newDays;
+                    }
+                    return [...days, calculated];
+                });
+                this.saveCurrentWeekSummary();
             },
             error: () => {
-            this._pendingCreates.delete(toSave.date);
+                this._pendingCreates.delete(toSave.date);
             },
         });
     }
@@ -283,7 +335,9 @@ export class WorkTimePlannerService {
     }
 
     toggleHomeOffice(date: string): void {
-        const day = this._workDays().find(d => d.date === date) || this.createDefaultWorkDay(date);
+        const day =
+            this._workDays().find((d) => d.date === date) ||
+            this.createDefaultWorkDay(date);
         if (this.isHomeOfficeDisabled(day)) return;
 
         const willBeHomeOffice = !day.isHomeOffice;
@@ -293,7 +347,9 @@ export class WorkTimePlannerService {
     }
 
     toggleDayStatus(date: string, status: DayStatus): void {
-        const day = this._workDays().find(d => d.date === date) || this.createDefaultWorkDay(date);
+        const day =
+            this._workDays().find((d) => d.date === date) ||
+            this.createDefaultWorkDay(date);
         const newStatus = day.status === status ? DayStatus.Normal : status;
         const updated = { ...day, status: newStatus };
         if (newStatus !== DayStatus.Normal) {
@@ -303,7 +359,7 @@ export class WorkTimePlannerService {
     }
 
     toggleLock(date: string): void {
-        const day = this._workDays().find(d => d.date === date);
+        const day = this._workDays().find((d) => d.date === date);
         if (!day) return;
         this.updateWorkDay({ ...day, isLocked: !day.isLocked });
     }
@@ -324,30 +380,38 @@ export class WorkTimePlannerService {
             const totalMinutes = end.diff(start, 'minutes');
 
             if (breakMinutes === 0) {
-            if (totalMinutes > 540) breakMinutes = this._settings().breakRule9h;
-            else if (totalMinutes > 360) breakMinutes = this._settings().breakRule6h;
+                if (totalMinutes > 540)
+                    breakMinutes = this._settings().breakRule9h;
+                else if (totalMinutes > 360)
+                    breakMinutes = this._settings().breakRule6h;
             }
 
             workMinutes = Math.max(0, totalMinutes - breakMinutes);
             overtimeMinutes = workMinutes - this._settings().dailyTargetMinutes;
 
-            if (breakMinutes < this._settings().breakRule9h && totalMinutes > 540) {
-            warnings.push({
-                type: 'PauseTooShort',
-                message: `Bei ${Math.round(totalMinutes / 60)}h Arbeitszeit sind mindestens ${this._settings().breakRule9h} Minuten Pause vorgeschrieben`,
-            });
-            } else if (breakMinutes < this._settings().breakRule6h && totalMinutes > 360) {
-            warnings.push({
-                type: 'PauseTooShort',
-                message: `Bei ${Math.round(totalMinutes / 60)}h Arbeitszeit sind mindestens ${this._settings().breakRule6h} Minuten Pause vorgeschrieben`,
-            });
+            if (
+                breakMinutes < this._settings().breakRule9h &&
+                totalMinutes > 540
+            ) {
+                warnings.push({
+                    type: 'PauseTooShort',
+                    message: `Bei ${Math.round(totalMinutes / 60)}h Arbeitszeit sind mindestens ${this._settings().breakRule9h} Minuten Pause vorgeschrieben`,
+                });
+            } else if (
+                breakMinutes < this._settings().breakRule6h &&
+                totalMinutes > 360
+            ) {
+                warnings.push({
+                    type: 'PauseTooShort',
+                    message: `Bei ${Math.round(totalMinutes / 60)}h Arbeitszeit sind mindestens ${this._settings().breakRule6h} Minuten Pause vorgeschrieben`,
+                });
             }
 
             if (totalMinutes > 600) {
-            warnings.push({
-                type: 'Over10Hours',
-                message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag',
-            });
+                warnings.push({
+                    type: 'Over10Hours',
+                    message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag',
+                });
             }
         }
 
@@ -361,7 +425,9 @@ export class WorkTimePlannerService {
             weekNumber: currentMoment.isoWeek(),
             totalOvertime: this.totalOvertime(),
         };
-        this.httpService.saveWeekSummary(summary.year, summary.weekNumber).subscribe({ error: () => {} });
+        this.httpService
+            .saveWeekSummary(summary.year, summary.weekNumber)
+            .subscribe({ error: () => {} });
     }
 
     getWeekRange(): string {

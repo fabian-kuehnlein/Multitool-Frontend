@@ -7,12 +7,12 @@ import { Todo, Priority } from '../../../models/todo.model';
 import { CategoryService } from '../../../../../shared/services/category.service';
 
 @Component({
-  selector: 'app-todo-dialog',
-  standalone: true,
-  imports: [UI_MODULES],
-  templateUrl: './todo-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './todo-dialog.component.scss',
+    selector: 'app-todo-dialog',
+    standalone: true,
+    imports: [UI_MODULES],
+    templateUrl: './todo-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './todo-dialog.component.scss',
 })
 export class TodoDialogComponent {
     private readonly fb = inject(FormBuilder);
@@ -34,12 +34,17 @@ export class TodoDialogComponent {
         this.todoForm = this.fb.group({
             title: [this.data?.todo?.title || '', [Validators.required]],
             description: [this.data?.todo?.description || ''],
-            priority: [this.data?.todo?.priority || Priority.Medium, [Validators.required]],
+            priority: [
+                this.data?.todo?.priority || Priority.Medium,
+                [Validators.required],
+            ],
             dueDate: [this.data?.todo?.dueDate || null],
-            categoryId: [this.data?.todo?.categoryId || '', [Validators.required]],
+            categoryId: [
+                this.data?.todo?.categoryId || '',
+                [Validators.required],
+            ],
         });
     }
-
 
     onSubmit(): void {
         if (this.todoForm.valid) {

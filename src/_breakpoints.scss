@@ -4,19 +4,19 @@ $breakpoint-md: 1280px;
 $breakpoint-lg: 1920px;
 
 @mixin mobile {
-  @media (max-width: #{$breakpoint-xs}) {
-    @content;
-  }
+    @media (max-width: #{$breakpoint-xs}) {
+        @content;
+    }
 }
 
 @mixin tablet {
-  @media (max-width: #{$breakpoint-sm}) {
-    @content;
-  }
+    @media (max-width: #{$breakpoint-sm}) {
+        @content;
+    }
 }
 
 @mixin desktop {
-  @media (min-width: #{$breakpoint-sm + 1px}) {
-    @content;
-  }
+    @media (min-width: #{$breakpoint-sm + 1px}) {
+        @content;
+    }
 }

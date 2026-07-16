@@ -1,7 +1,7 @@
-import { CustomDataType } from "../enums/custom-data-type.model";
+import { CustomDataType } from '../enums/custom-data-type.model';
 
 export interface UpdateColumnDto {
-  name: string;
-  colOrder: number;
-  dataType?: CustomDataType;
+    name: string;
+    colOrder: number;
+    dataType?: CustomDataType;
 }

@@ -1,4 +1,4 @@
-import { CalendarOptions } from "@fullcalendar/core/index.js";
+import { CalendarOptions } from '@fullcalendar/core/index.js';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -12,7 +12,7 @@ export const defaultCalendarOptions: CalendarOptions = {
         timeGridPlugin,
         listPlugin,
         interactionPlugin,
-        rrulePlugin
+        rrulePlugin,
     ],
     locales: [deLocale],
     locale: 'de',
@@ -23,8 +23,8 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         if (event.display === 'background') {
             return {
-                html: `<div class="fc-event-background" title="${event.title || ''}">${event.title || ''}</div>`
-            }
+                html: `<div class="fc-event-background" title="${event.title || ''}">${event.title || ''}</div>`,
+            };
         }
 
         const isAllDay = event.allDay;
@@ -33,24 +33,32 @@ export const defaultCalendarOptions: CalendarOptions = {
         const isRecurring = !!event.extendedProps['recurrenceRule'];
 
         var icon = '';
-        if (isTodo) icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">task_alt</span>`
-        if (isRecurring) icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">sync</span>`;
+        if (isTodo)
+            icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">task_alt</span>`;
+        if (isRecurring)
+            icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">sync</span>`;
 
         const note = event.extendedProps['eventNote'] || '';
 
         const start = event.start ? new Date(event.start) : null;
         const end = event.end ? new Date(event.end) : null;
 
-        const startStr = start?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const endStr = end?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const startStr = start?.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+        const endStr = end?.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
 
         const timeDisplay = isAllDay
             ? ''
             : startStr
-                ? endStr
-                    ? `${startStr} – ${endStr}`
-                    : `${startStr}`
-                : '';
+              ? endStr
+                  ? `${startStr} – ${endStr}`
+                  : `${startStr}`
+              : '';
 
         if (isListView) {
             return {
@@ -59,7 +67,7 @@ export const defaultCalendarOptions: CalendarOptions = {
                         <div class="fc-event-title" style="font-weight: 600; color: #333;">${icon} ${event.title || ''}</div>
                         ${note ? `<div class="fc-event-note" style="font-size: 0.85rem; font-style: italic; color: #888; margin-top: 2px;">${note}</div>` : ''}
                     </div>
-                `
+                `,
             };
         }
 
@@ -70,8 +78,8 @@ export const defaultCalendarOptions: CalendarOptions = {
                     ${timeDisplay ? `<div class="fc-event-time">${timeDisplay}</div>` : ''}
                     ${note ? `<div class="fc-event-note">${note}</div>` : ''}
                 </div>
-            `
-        }
+            `,
+        };
     },
     headerToolbar: false,
     initialView: 'dayGridMonth',
@@ -85,12 +93,12 @@ export const defaultCalendarOptions: CalendarOptions = {
     fixedWeekCount: false,
     eventTimeFormat: {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     },
     dayCellClassNames: (arg) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         const cellDate = new Date(arg.date);
         cellDate.setHours(0, 0, 0, 0);
 
@@ -116,12 +124,14 @@ export const defaultCalendarOptions: CalendarOptions = {
         if (categoryColor) {
             if (isListView) {
                 // Apply color to the dot and a left border
-                const dot = el.querySelector('.fc-list-event-dot') as HTMLElement;
+                const dot = el.querySelector(
+                    '.fc-list-event-dot',
+                ) as HTMLElement;
                 if (dot) {
                     dot.style.borderColor = categoryColor;
                     dot.style.backgroundColor = categoryColor;
                 }
-                
+
                 // For our custom indicator
                 el.style.setProperty('--event-color', categoryColor);
             } else {
@@ -137,14 +147,14 @@ export const defaultCalendarOptions: CalendarOptions = {
 
         const end = event.end
             ? new Date(event.end)
-            : event.start 
-                ? new Date(event.start)
-                : new Date();
+            : event.start
+              ? new Date(event.start)
+              : new Date();
         end.setHours(0, 0, 0, 0);
 
         if (end.getTime() < today.getTime()) {
             el.classList.add('past-event');
             el.style.opacity = '0.6';
         }
-    }
-}
+    },
+};

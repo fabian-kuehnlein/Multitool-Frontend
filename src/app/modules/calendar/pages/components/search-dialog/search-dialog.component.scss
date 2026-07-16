@@ -6,7 +6,7 @@
     gap: 12px;
     padding: 16px 24px;
     margin: 0;
-    
+
     mat-icon {
         color: #1976d2;
     }
@@ -33,7 +33,7 @@
 
 .search-header {
     margin-bottom: 24px;
-    
+
     .search-field {
         width: 100%;
     }
@@ -121,7 +121,8 @@
     }
 }
 
-.no-results, .loading-container {
+.no-results,
+.loading-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -129,7 +130,8 @@
     padding: 60px 0;
     color: #888;
 
-    mat-icon, mat-spinner {
+    mat-icon,
+    mat-spinner {
         margin-bottom: 16px;
     }
 
@@ -153,7 +155,7 @@
 
     @include bp.mobile {
         gap: 0;
-        
+
         button {
             transform: scale(0.85);
         }

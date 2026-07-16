@@ -9,7 +9,11 @@
 // ── Material Symbols ─────────────────────────────────────────────────────────
 .material-symbols-outlined {
     font-family: "Material Symbols Outlined Variable";
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-variation-settings:
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
     font-weight: normal;
     font-style: normal;
     font-size: 24px;
@@ -22,63 +26,87 @@
     direction: ltr;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 // ── Light Theme (Default) ───────────────────────────────────────────────────
 html {
     @include mat.all-component-themes($light-theme);
 
-    @include mat.toolbar-overrides((
-        container-background-color: var(--bg-surface)
-    ));
-    @include mat.slide-toggle-overrides((
-        label-text-size: 20px,
-    ));
-    @include mat.sidenav-overrides((
-        content-background-color: var(--bg-surface)
-    ));
+    @include mat.toolbar-overrides(
+        (
+            container-background-color: var(--bg-surface),
+        )
+    );
+    @include mat.slide-toggle-overrides(
+        (
+            label-text-size: 20px,
+        )
+    );
+    @include mat.sidenav-overrides(
+        (
+            content-background-color: var(--bg-surface),
+        )
+    );
 }
 
 // ── Dark Theme ──────────────────────────────────────────────────────────────
 html[data-theme="dark"] {
     @include mat.all-component-themes($dark-theme);
 
-    @include mat.toolbar-overrides((
-        container-background-color: var(--bg-surface)
-    ));
-    @include mat.sidenav-overrides((
-        content-background-color: var(--bg-surface)
-    ));
+    @include mat.toolbar-overrides(
+        (
+            container-background-color: var(--bg-surface),
+        )
+    );
+    @include mat.sidenav-overrides(
+        (
+            content-background-color: var(--bg-surface),
+        )
+    );
 }
 
 // ── Utility Classes ─────────────────────────────────────────────────────────
 .delete-colors {
     color: var(--accent-danger);
-    @include mat.button-overrides((
-        filled-container-color: var(--accent-danger),
-        filled-label-text-color: white,
-        text-label-text-color: var(--accent-danger),
-        text-state-layer-color: var(--accent-danger)
-    ));
-    @include mat.icon-button-overrides((
-        icon-color: var(--accent-danger)
-    ));
+    @include mat.button-overrides(
+        (
+            filled-container-color: var(--accent-danger),
+            filled-label-text-color: white,
+            text-label-text-color: var(--accent-danger),
+            text-state-layer-color: var(--accent-danger),
+        )
+    );
+    @include mat.icon-button-overrides(
+        (
+            icon-color: var(--accent-danger),
+        )
+    );
 }
 
 .no-outline-form-field {
-    @include mat.form-field-overrides((
-        outlined-outline-color: transparent,
-        outlined-focus-outline-color: transparent,
-        outlined-hover-outline-color: transparent,
-        outlined-error-focus-outline-color: transparent
-    ));
+    @include mat.form-field-overrides(
+        (
+            outlined-outline-color: transparent,
+            outlined-focus-outline-color: transparent,
+            outlined-hover-outline-color: transparent,
+            outlined-error-focus-outline-color: transparent,
+        )
+    );
 }
 
 .white-card {
-    @include mat.card-overrides((
-        elevated-container-color: var(--bg-surface)
-    ));
+    @include mat.card-overrides(
+        (
+            elevated-container-color: var(--bg-surface),
+        )
+    );
 }
 
 .past-date {
@@ -94,9 +122,11 @@ html[data-theme="dark"] {
 }
 
 .error-snackbar {
-    @include mat.snack-bar-overrides((
-        container-color: var(--accent-danger-dark),
-    ));
+    @include mat.snack-bar-overrides(
+        (
+            container-color: var(--accent-danger-dark),
+        )
+    );
 }
 
 .multiline-snackbar {

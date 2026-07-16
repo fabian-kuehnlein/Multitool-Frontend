@@ -1,17 +1,19 @@
 <div class="sidenav-container">
     <h2 class="launcher-title">Workspace Tools</h2>
-    
+
     <div class="tool-grid">
         @for (tool of tools; track tool.route) {
-            <div class="tool-item" 
-                 [class.active]="isCurrentRoute(tool.route)"
-                 (click)="navigate(tool.route)">
+            <div
+                class="tool-item"
+                [class.active]="isCurrentRoute(tool.route)"
+                (click)="navigate(tool.route)"
+            >
                 <div class="tool-icon">
-                    <mat-icon>{{tool.icon}}</mat-icon>
+                    <mat-icon>{{ tool.icon }}</mat-icon>
                 </div>
                 <div class="tool-info">
-                    <span class="tool-name">{{tool.name}}</span>
-                    <span class="tool-desc">{{tool.description}}</span>
+                    <span class="tool-name">{{ tool.name }}</span>
+                    <span class="tool-desc">{{ tool.description }}</span>
                 </div>
                 @if (isCurrentRoute(tool.route)) {
                     <div class="active-indicator"></div>
@@ -23,12 +25,19 @@
     <mat-divider class="sidenav-divider"></mat-divider>
 
     <div class="action-list">
-        <div class="tool-item theme-toggle-item" (click)="themeService.toggle()">
+        <div
+            class="tool-item theme-toggle-item"
+            (click)="themeService.toggle()"
+        >
             <div class="tool-icon">
-                <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+                <mat-icon>{{
+                    themeService.isDark() ? "light_mode" : "dark_mode"
+                }}</mat-icon>
             </div>
             <div class="tool-info">
-                <span class="tool-name">{{ themeService.isDark() ? 'Helles Theme' : 'Dunkles Theme' }}</span>
+                <span class="tool-name">{{
+                    themeService.isDark() ? "Helles Theme" : "Dunkles Theme"
+                }}</span>
                 <span class="tool-desc">Erscheinungsbild wechseln</span>
             </div>
         </div>

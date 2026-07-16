@@ -8,7 +8,7 @@ import { SearchResult } from '../models/search-result.model';
 import moment from 'moment';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class CalendarService {
     private readonly httpService = inject(CalendarHttpService);
@@ -18,10 +18,14 @@ export class CalendarService {
 
     private readonly holidayCache = new Map<string, Holiday[]>();
 
-    getEvents(startDate: string, endDate: string, categories: string[] | null): Observable<CalendarEvent[]> {
-        return this.httpService.getEventsByRange(startDate, endDate, categories).pipe(
-            tap(events => this._events.set(events))
-        );
+    getEvents(
+        startDate: string,
+        endDate: string,
+        categories: string[] | null,
+    ): Observable<CalendarEvent[]> {
+        return this.httpService
+            .getEventsByRange(startDate, endDate, categories)
+            .pipe(tap((events) => this._events.set(events)));
     }
 
     createEvent(event: CreateCalendarEvent): Observable<number> {
@@ -42,13 +46,18 @@ export class CalendarService {
      * @param date The date to exclude (formatted as YYYY-MM-DD).
      */
     excludeDateFromSeries(seriesId: string, date: string): Observable<void> {
-        const seriesEvent = this._events().find(e => String(e.id) === String(seriesId));
+        const seriesEvent = this._events().find(
+            (e) => String(e.id) === String(seriesId),
+        );
         if (!seriesEvent) {
             return throwError(() => new Error('Series event not found'));
         }
 
         const updatedSeries = { ...seriesEvent };
-        updatedSeries.recurrenceRule = this.addExcludeDateToRule(updatedSeries.recurrenceRule, date);
+        updatedSeries.recurrenceRule = this.addExcludeDateToRule(
+            updatedSeries.recurrenceRule,
+            date,
+        );
 
         return this.updateEvent(updatedSeries);
     }
@@ -56,7 +65,10 @@ export class CalendarService {
     /**
      * Helper to append a date to the EXDATE part of an RRule string.
      */
-    private addExcludeDateToRule(rule: string | null | undefined, date: string): string {
+    private addExcludeDateToRule(
+        rule: string | null | undefined,
+        date: string,
+    ): string {
         const rrule = rule || '';
         if (rrule.includes('EXDATE=')) {
             return rrule.replace(/EXDATE=([^;]*)/, (match, p1) => {
@@ -77,9 +89,9 @@ export class CalendarService {
             return of(cached);
         }
 
-        return this.httpService.getHolidays(year).pipe(
-            tap(holidays => this.holidayCache.set(year, holidays))
-        );
+        return this.httpService
+            .getHolidays(year)
+            .pipe(tap((holidays) => this.holidayCache.set(year, holidays)));
     }
 
     searchEvents(query: string): Observable<SearchResult[]> {

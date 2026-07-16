@@ -1,4 +1,4 @@
 export interface UpdateColumnOrderDto {
-  columnId: number,
-  colOrder: number
+    columnId: number;
+    colOrder: number;
 }

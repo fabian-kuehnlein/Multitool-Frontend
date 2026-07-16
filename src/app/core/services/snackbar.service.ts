@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class SnackbarService {
     private readonly _snackbar = inject(MatSnackBar);
@@ -10,14 +10,14 @@ export class SnackbarService {
     openSuccess(message: string) {
         this._snackbar.open(message, 'X', {
             duration: 3000,
-            panelClass: ['success-snackbar']
+            panelClass: ['success-snackbar'],
         });
     }
 
     openError(message: string) {
         this._snackbar.open(message, 'X', {
             duration: 5000,
-            panelClass: ['error-snackbar']
+            panelClass: ['error-snackbar'],
         });
     }
 
@@ -37,30 +37,34 @@ export class SnackbarService {
         this._snackbar.open(
             `Ein Problem in deiner Anfrage ist aufgetreten.
             Bitte prüfe deine Eingaben und versuche es erneut!`,
-            'Close', { duration: 5000 }
-        )
+            'Close',
+            { duration: 5000 },
+        );
     }
 
     snackbar500() {
         this._snackbar.open(
             `Der angefragte Service ist gerade nicht erreichbar.
             Bitte versuche es zu einem anderen Zeitpunkt erneut!`,
-            'Close', { duration: 5000 }
-        )
+            'Close',
+            { duration: 5000 },
+        );
     }
 
     snackbarConnectionError() {
         this._snackbar.open(
             `Es konnte keine Verbindung zum Server hergestellt werden.
             Bitte prüfe deine Internetverbindung und versuche es erneut!`,
-            'Close', { duration: 5000 }
-        )
+            'Close',
+            { duration: 5000 },
+        );
     }
 
     snackbarUnknown(message: string) {
         this._snackbar.open(
             `Ein unbekannter Fehler ist aufgetreten: ${message}`,
-            'Close', { duration: 5000 }
-        )
+            'Close',
+            { duration: 5000 },
+        );
     }
 }

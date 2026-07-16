@@ -52,14 +52,21 @@
     align-items: flex-start;
     padding-top: 8px;
 
-    .title-field { flex: 1.5; }
-    .category-field { flex: 1; }
+    .title-field {
+        flex: 1.5;
+    }
+    .category-field {
+        flex: 1;
+    }
 
     @include bp.mobile {
         flex-direction: column;
         gap: 8px;
         padding-top: 0;
-        .title-field, .category-field { width: 100%; }
+        .title-field,
+        .category-field {
+            width: 100%;
+        }
     }
 }
 
@@ -112,10 +119,11 @@
     @include bp.mobile {
         grid-template-columns: 1fr 1fr;
 
-        & > *:nth-child(n) { grid-column: span 1; }
+        & > *:nth-child(n) {
+            grid-column: span 1;
+        }
     }
 }
-
 
 .dialog-actions {
     padding: 16px 24px;
@@ -166,7 +174,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         mat-icon {
             font-size: 20px;
             width: 20px;
@@ -189,7 +197,8 @@
     }
 }
 
-.category-trigger, .category-option {
+.category-trigger,
+.category-option {
     display: flex;
     align-items: center;
     gap: 8px;

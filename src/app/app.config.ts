@@ -1,11 +1,23 @@
-import { ApplicationConfig, provideZonelessChangeDetection, LOCALE_ID, Injectable } from '@angular/core';
+import {
+    ApplicationConfig,
+    provideZonelessChangeDetection,
+    LOCALE_ID,
+    Injectable,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideMomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
+import {
+    provideMomentDateAdapter,
+    MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+} from '@angular/material-moment-adapter';
 import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+    provideHttpClient,
+    withFetch,
+    withInterceptors,
+} from '@angular/common/http';
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
@@ -21,15 +33,19 @@ registerLocaleData(localeDe, 'de');
 @Injectable()
 export class GermanPaginatorIntl extends MatPaginatorIntl {
     override itemsPerPageLabel = 'Elemente pro Seite:';
-    override nextPageLabel     = 'Nächste Seite';
+    override nextPageLabel = 'Nächste Seite';
     override previousPageLabel = 'Vorige Seite';
-    override firstPageLabel    = 'Erste Seite';
-    override lastPageLabel     = 'Letzte Seite';
+    override firstPageLabel = 'Erste Seite';
+    override lastPageLabel = 'Letzte Seite';
 
-    override getRangeLabel = (page: number, pageSize: number, length: number) => {
+    override getRangeLabel = (
+        page: number,
+        pageSize: number,
+        length: number,
+    ) => {
         if (!length || pageSize === 0) return `0 von ${length}`;
         const start = page * pageSize + 1;
-        const end   = Math.min(length, (page + 1) * pageSize);
+        const end = Math.min(length, (page + 1) * pageSize);
         return `${start} - ${end} von ${length}`;
     };
 }
@@ -43,7 +59,7 @@ export const appConfig: ApplicationConfig = {
         provideMomentDateAdapter({
             parse: {
                 dateInput: ['DD.MM.YYYY', 'D.M.YYYY'],
-                timeInput: 'HH:mm'
+                timeInput: 'HH:mm',
             },
             display: {
                 dateInput: 'DD.MM.YYYY',
@@ -52,21 +68,24 @@ export const appConfig: ApplicationConfig = {
                 monthYearA11yLabel: 'MMMM YYYY',
 
                 timeInput: 'HH:mm',
-                timeOptionLabel: 'HH:mm'
+                timeOptionLabel: 'HH:mm',
             },
         }),
         { provide: LOCALE_ID, useValue: 'de' },
-        { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: false }},
-        { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { autoFocus: false }},
+        {
+            provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+            useValue: { useUtc: false },
+        },
+        { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { autoFocus: false } },
         { provide: MatPaginatorIntl, useClass: GermanPaginatorIntl },
-        { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+        {
+            provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
             useValue: {
                 duration: 5000,
                 horizontalPosition: 'center',
                 verticalPosition: 'top',
-                panelClass: ['error-snackbar', 'multiline-snackbar']
-            }
-        }
-    ]
+                panelClass: ['error-snackbar', 'multiline-snackbar'],
+            },
+        },
+    ],
 };
-

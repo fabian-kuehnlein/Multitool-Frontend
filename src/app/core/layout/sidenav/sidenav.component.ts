@@ -14,7 +14,7 @@ import { ThemeService } from '../../services/theme.service';
     imports: [MatIconModule, MatSidenavModule, MatListModule, MatDividerModule],
     templateUrl: './sidenav.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './sidenav.component.scss'
+    styleUrl: './sidenav.component.scss',
 })
 export class SidenavComponent {
     private readonly router = inject(Router);
@@ -47,7 +47,7 @@ export class SidenavComponent {
             description: 'Arbeitszeiten planen & Überstunden verwalten',
             icon: 'schedule',
             route: '/work-time-planner',
-        }
+        },
     ];
 
     navigate(route: string) {

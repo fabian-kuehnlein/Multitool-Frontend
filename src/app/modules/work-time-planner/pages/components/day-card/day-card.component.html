@@ -1,150 +1,242 @@
-<div class="day-card" [class.today]="isToday" [class.absent]="isAbsent" [class.locked]="day.isLocked" [class.desktop]="isDesktop">
-  <div class="day-header">
-    <div class="day-title-row">
-      <span class="day-name">{{ dayName }}</span>
-      <span class="day-date">{{ formattedDate }}</span>
-    </div>
-    <div class="day-badges">
-      @if (day.isHomeOffice) {
-        <span class="badge badge-ho">HO</span>
-      }
-      @if (day.status === DayStatus.Holiday) {
-        <span class="badge badge-holiday">F</span>
-      }
-      @if (day.status === DayStatus.Vacation) {
-        <span class="badge badge-vacation">U</span>
-      }
-      @if (day.status === DayStatus.Sick) {
-        <span class="badge badge-sick">K</span>
-      }
-      @if (day.isLocked) {
-        <span class="badge badge-locked">
-          <mat-icon>lock</mat-icon>
-        </span>
-      }
-    </div>
-  </div>
-
-  @if (!isAbsent) {
-    <div class="time-inputs">
-      <div class="input-group">
-        <label class="input-label">Start</label>
-        <input
-          type="time"
-          class="time-input"
-          [value]="day.startTime || ''"
-          [disabled]="day.isLocked"
-          (change)="onStartTimeChange($any($event.target).value)"
-        />
-      </div>
-      <span class="time-separator">–</span>
-      <div class="input-group">
-        <label class="input-label">Ende</label>
-        <input
-          type="time"
-          class="time-input"
-          [value]="day.endTime || ''"
-          [disabled]="day.isLocked"
-          (change)="onEndTimeChange($any($event.target).value)"
-        />
-      </div>
-    </div>
-
-    <div class="break-row">
-      <label class="input-label">Pause</label>
-      <div class="break-input-wrapper">
-        <input
-          type="number"
-          class="break-input"
-          [value]="day.breakMinutes"
-          min="0"
-          max="120"
-          step="5"
-          [disabled]="day.isLocked"
-          (change)="onBreakChange(+$any($event.target).value)"
-        />
-        <span class="break-unit">min</span>
-      </div>
-    </div>
-
-    <mat-divider class="card-divider"></mat-divider>
-
-    <div class="result-row">
-      <span class="result-label">Arbeitszeit</span>
-      <span class="result-value" [class.positive]="day.workMinutes >= settings.dailyTargetMinutes" [class.negative]="day.workMinutes < settings.dailyTargetMinutes && day.workMinutes > 0">
-        {{ hasData ? formatMinutes(day.workMinutes) : '–' }}
-      </span>
-    </div>
-
-    <div class="result-row">
-      <span class="result-label">Überstunden</span>
-      <span class="result-value overtime" [class.positive]="day.overtimeMinutes >= 0" [class.negative]="day.overtimeMinutes < 0">
-        {{ hasData ? formatMinutes(day.overtimeMinutes) : '–' }}
-      </span>
-    </div>
-  } @else {
-    <div class="absence-info">
-      <mat-icon>{{ day.status === DayStatus.Holiday ? 'celebration' : day.status === DayStatus.Sick ? 'sick' : 'flight' }}</mat-icon>
-      <span>{{ day.status === DayStatus.Holiday ? 'Feiertag' : day.status === DayStatus.Sick ? 'Krank' : 'Urlaub' }}</span>
-    </div>
-    <div class="result-row">
-      <span class="result-label">Arbeitszeit</span>
-      <span class="result-value">{{ formatMinutes(day.workMinutes) }}</span>
-    </div>
-  }
-
-  @if (day.warnings.length > 0) {
-    <div class="warnings">
-      @for (warning of day.warnings; track warning.type) {
-        <div class="warning-item">
-          <mat-icon>warning</mat-icon>
-          <span>{{ warning.message }}</span>
+<div
+    class="day-card"
+    [class.today]="isToday"
+    [class.absent]="isAbsent"
+    [class.locked]="day.isLocked"
+    [class.desktop]="isDesktop"
+>
+    <div class="day-header">
+        <div class="day-title-row">
+            <span class="day-name">{{ dayName }}</span>
+            <span class="day-date">{{ formattedDate }}</span>
         </div>
-      }
+        <div class="day-badges">
+            @if (day.isHomeOffice) {
+                <span class="badge badge-ho">HO</span>
+            }
+            @if (day.status === DayStatus.Holiday) {
+                <span class="badge badge-holiday">F</span>
+            }
+            @if (day.status === DayStatus.Vacation) {
+                <span class="badge badge-vacation">U</span>
+            }
+            @if (day.status === DayStatus.Sick) {
+                <span class="badge badge-sick">K</span>
+            }
+            @if (day.isLocked) {
+                <span class="badge badge-locked">
+                    <mat-icon>lock</mat-icon>
+                </span>
+            }
+        </div>
     </div>
-  }
 
-  <div class="status-row" [class.desktop-status-row]="isDesktop" [class.mobile-status-row]="isMobile">
-    @if (isDesktop) {
-      <button mat-stroked-button class="status-btn-desktop" [class.active-holiday]="day.status === DayStatus.Holiday" (click)="onDayStatusToggle(DayStatus.Holiday)">
-        <mat-icon>celebration</mat-icon>
-        Feiertag
-      </button>
-      <button mat-stroked-button class="status-btn-desktop" [class.active-vacation]="day.status === DayStatus.Vacation" (click)="onDayStatusToggle(DayStatus.Vacation)">
-        <mat-icon>flight</mat-icon>
-        Urlaub
-      </button>
-      <button mat-stroked-button class="status-btn-desktop" [class.active-sick]="day.status === DayStatus.Sick" (click)="onDayStatusToggle(DayStatus.Sick)">
-        <mat-icon>sick</mat-icon>
-        Krank
-      </button>
-      <button mat-stroked-button class="status-btn-desktop" [class.active-ho]="day.isHomeOffice" (click)="onHomeOfficeToggle()">
-        <mat-icon>home</mat-icon>
-        HO
-      </button>
-      <button mat-stroked-button class="status-btn-desktop" [class.active-lock]="day.isLocked" (click)="onLockToggle()">
-        <mat-icon>{{ day.isLocked ? 'lock_open' : 'lock' }}</mat-icon>
-        {{ day.isLocked ? 'Entsperren' : 'Sperren' }}
-      </button>
+    @if (!isAbsent) {
+        <div class="time-inputs">
+            <div class="input-group">
+                <label class="input-label">Start</label>
+                <input
+                    type="time"
+                    class="time-input"
+                    [value]="day.startTime || ''"
+                    [disabled]="day.isLocked"
+                    (change)="onStartTimeChange($any($event.target).value)"
+                />
+            </div>
+            <span class="time-separator">–</span>
+            <div class="input-group">
+                <label class="input-label">Ende</label>
+                <input
+                    type="time"
+                    class="time-input"
+                    [value]="day.endTime || ''"
+                    [disabled]="day.isLocked"
+                    (change)="onEndTimeChange($any($event.target).value)"
+                />
+            </div>
+        </div>
+
+        <div class="break-row">
+            <label class="input-label">Pause</label>
+            <div class="break-input-wrapper">
+                <input
+                    type="number"
+                    class="break-input"
+                    [value]="day.breakMinutes"
+                    min="0"
+                    max="120"
+                    step="5"
+                    [disabled]="day.isLocked"
+                    (change)="onBreakChange(+$any($event.target).value)"
+                />
+                <span class="break-unit">min</span>
+            </div>
+        </div>
+
+        <mat-divider class="card-divider"></mat-divider>
+
+        <div class="result-row">
+            <span class="result-label">Arbeitszeit</span>
+            <span
+                class="result-value"
+                [class.positive]="
+                    day.workMinutes >= settings.dailyTargetMinutes
+                "
+                [class.negative]="
+                    day.workMinutes < settings.dailyTargetMinutes &&
+                    day.workMinutes > 0
+                "
+            >
+                {{ hasData ? formatMinutes(day.workMinutes) : "–" }}
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">Überstunden</span>
+            <span
+                class="result-value overtime"
+                [class.positive]="day.overtimeMinutes >= 0"
+                [class.negative]="day.overtimeMinutes < 0"
+            >
+                {{ hasData ? formatMinutes(day.overtimeMinutes) : "–" }}
+            </span>
+        </div>
     } @else {
-      <button mat-icon-button class="status-btn" [class.active-holiday]="day.status === DayStatus.Holiday" (click)="onDayStatusToggle(DayStatus.Holiday)" matTooltip="Feiertag">
-        <mat-icon>celebration</mat-icon>
-      </button>
-      <button mat-icon-button class="status-btn" [class.active-vacation]="day.status === DayStatus.Vacation" (click)="onDayStatusToggle(DayStatus.Vacation)" matTooltip="Urlaub">
-        <mat-icon>flight</mat-icon>
-      </button>
-      <button mat-icon-button class="status-btn" [class.active-sick]="day.status === DayStatus.Sick" (click)="onDayStatusToggle(DayStatus.Sick)" matTooltip="Krank">
-        <mat-icon>sick</mat-icon>
-      </button>
-
-      <div class="status-spacer"></div>
-
-      <button mat-icon-button class="ho-toggle" [class.active]="day.isHomeOffice" (click)="onHomeOfficeToggle()" matTooltip="Homeoffice">
-        <mat-icon>home</mat-icon>
-      </button>
-      <button mat-icon-button class="lock-toggle" [class.active]="day.isLocked" (click)="onLockToggle()" matTooltip="{{ day.isLocked ? 'Entsperren' : 'Sperren' }}">
-        <mat-icon>{{ day.isLocked ? 'lock_open' : 'lock' }}</mat-icon>
-      </button>
+        <div class="absence-info">
+            <mat-icon>{{
+                day.status === DayStatus.Holiday
+                    ? "celebration"
+                    : day.status === DayStatus.Sick
+                      ? "sick"
+                      : "flight"
+            }}</mat-icon>
+            <span>{{
+                day.status === DayStatus.Holiday
+                    ? "Feiertag"
+                    : day.status === DayStatus.Sick
+                      ? "Krank"
+                      : "Urlaub"
+            }}</span>
+        </div>
+        <div class="result-row">
+            <span class="result-label">Arbeitszeit</span>
+            <span class="result-value">{{
+                formatMinutes(day.workMinutes)
+            }}</span>
+        </div>
     }
-  </div>
+
+    @if (day.warnings.length > 0) {
+        <div class="warnings">
+            @for (warning of day.warnings; track warning.type) {
+                <div class="warning-item">
+                    <mat-icon>warning</mat-icon>
+                    <span>{{ warning.message }}</span>
+                </div>
+            }
+        </div>
+    }
+
+    <div
+        class="status-row"
+        [class.desktop-status-row]="isDesktop"
+        [class.mobile-status-row]="isMobile"
+    >
+        @if (isDesktop) {
+            <button
+                mat-stroked-button
+                class="status-btn-desktop"
+                [class.active-holiday]="day.status === DayStatus.Holiday"
+                (click)="onDayStatusToggle(DayStatus.Holiday)"
+            >
+                <mat-icon>celebration</mat-icon>
+                Feiertag
+            </button>
+            <button
+                mat-stroked-button
+                class="status-btn-desktop"
+                [class.active-vacation]="day.status === DayStatus.Vacation"
+                (click)="onDayStatusToggle(DayStatus.Vacation)"
+            >
+                <mat-icon>flight</mat-icon>
+                Urlaub
+            </button>
+            <button
+                mat-stroked-button
+                class="status-btn-desktop"
+                [class.active-sick]="day.status === DayStatus.Sick"
+                (click)="onDayStatusToggle(DayStatus.Sick)"
+            >
+                <mat-icon>sick</mat-icon>
+                Krank
+            </button>
+            <button
+                mat-stroked-button
+                class="status-btn-desktop"
+                [class.active-ho]="day.isHomeOffice"
+                (click)="onHomeOfficeToggle()"
+            >
+                <mat-icon>home</mat-icon>
+                HO
+            </button>
+            <button
+                mat-stroked-button
+                class="status-btn-desktop"
+                [class.active-lock]="day.isLocked"
+                (click)="onLockToggle()"
+            >
+                <mat-icon>{{ day.isLocked ? "lock_open" : "lock" }}</mat-icon>
+                {{ day.isLocked ? "Entsperren" : "Sperren" }}
+            </button>
+        } @else {
+            <button
+                mat-icon-button
+                class="status-btn"
+                [class.active-holiday]="day.status === DayStatus.Holiday"
+                (click)="onDayStatusToggle(DayStatus.Holiday)"
+                matTooltip="Feiertag"
+            >
+                <mat-icon>celebration</mat-icon>
+            </button>
+            <button
+                mat-icon-button
+                class="status-btn"
+                [class.active-vacation]="day.status === DayStatus.Vacation"
+                (click)="onDayStatusToggle(DayStatus.Vacation)"
+                matTooltip="Urlaub"
+            >
+                <mat-icon>flight</mat-icon>
+            </button>
+            <button
+                mat-icon-button
+                class="status-btn"
+                [class.active-sick]="day.status === DayStatus.Sick"
+                (click)="onDayStatusToggle(DayStatus.Sick)"
+                matTooltip="Krank"
+            >
+                <mat-icon>sick</mat-icon>
+            </button>
+
+            <div class="status-spacer"></div>
+
+            <button
+                mat-icon-button
+                class="ho-toggle"
+                [class.active]="day.isHomeOffice"
+                (click)="onHomeOfficeToggle()"
+                matTooltip="Homeoffice"
+            >
+                <mat-icon>home</mat-icon>
+            </button>
+            <button
+                mat-icon-button
+                class="lock-toggle"
+                [class.active]="day.isLocked"
+                (click)="onLockToggle()"
+                matTooltip="{{ day.isLocked ? 'Entsperren' : 'Sperren' }}"
+            >
+                <mat-icon>{{ day.isLocked ? "lock_open" : "lock" }}</mat-icon>
+            </button>
+        }
+    </div>
 </div>

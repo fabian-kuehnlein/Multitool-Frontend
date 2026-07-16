@@ -18,7 +18,9 @@ export class ThemeService {
                 this.isDark.set(false);
                 document.documentElement.removeAttribute('data-theme');
             } else {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const prefersDark = window.matchMedia(
+                    '(prefers-color-scheme: dark)',
+                ).matches;
                 this.isDark.set(prefersDark);
                 if (prefersDark) {
                     document.documentElement.setAttribute('data-theme', 'dark');
@@ -41,6 +43,6 @@ export class ThemeService {
     }
 
     toggle(): void {
-        this.isDark.update(v => !v);
+        this.isDark.update((v) => !v);
     }
 }
