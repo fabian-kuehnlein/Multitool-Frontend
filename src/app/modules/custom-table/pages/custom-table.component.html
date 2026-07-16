@@ -90,7 +90,9 @@
     </mat-toolbar>
 
     @if (tableService.loading()) {
-        <mat-progress-bar mode="indeterminate" class="table-loader" [style.top]="isMobile() ? '64px' : '80px'"></mat-progress-bar>
+        <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
     }
 
     <div class="main-layout" [class.mobile-layout]="isMobile()">

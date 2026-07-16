@@ -123,8 +123,8 @@
         HO
       </button>
       <button mat-stroked-button class="status-btn-desktop" [class.active-lock]="day.isLocked" (click)="onLockToggle()">
-        <mat-icon>{{ day.isLocked ? 'lock' : 'lock_open' }}</mat-icon>
-        {{ day.isLocked ? 'Sperren' : 'Entsperren' }}
+        <mat-icon>{{ day.isLocked ? 'lock_open' : 'lock' }}</mat-icon>
+        {{ day.isLocked ? 'Entsperren' : 'Sperren' }}
       </button>
     } @else {
       <button mat-icon-button class="status-btn" [class.active-holiday]="day.status === DayStatus.Holiday" (click)="onDayStatusToggle(DayStatus.Holiday)" matTooltip="Feiertag">
@@ -143,7 +143,7 @@
         <mat-icon>home</mat-icon>
       </button>
       <button mat-icon-button class="lock-toggle" [class.active]="day.isLocked" (click)="onLockToggle()" matTooltip="{{ day.isLocked ? 'Entsperren' : 'Sperren' }}">
-        <mat-icon>{{ day.isLocked ? 'lock' : 'lock_open' }}</mat-icon>
+        <mat-icon>{{ day.isLocked ? 'lock_open' : 'lock' }}</mat-icon>
       </button>
     }
   </div>

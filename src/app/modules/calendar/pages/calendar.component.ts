@@ -69,7 +69,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 	public readonly isToday = signal<boolean>(true);
 	public readonly currentView = signal<string>('dayGridMonth');
 	public readonly showFilters = signal<boolean>(false);
-	public readonly isLoading = signal<boolean>(false);
+	public readonly loading = signal<boolean>(false);
     
     protected readonly isMobile = toSignal(
         this.breakpointObserver.observe([Breakpoints.Handset]).pipe(
@@ -363,7 +363,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 this.title.set(api.view.title);
             }
         },
-		loading: (isLoading) => this.isLoading.set(isLoading),
+		loading: (isLoading) => this.loading.set(isLoading),
 		eventSources: [
 			{
 				events: (fetchInfo, successCallback, failureCallback) => {

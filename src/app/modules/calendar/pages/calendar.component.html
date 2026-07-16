@@ -74,8 +74,10 @@
         </div>
     </mat-toolbar>
 
-    @if (isLoading()) {
-        <mat-progress-bar mode="indeterminate" class="calendar-loader"></mat-progress-bar>
+    @if (loading()) {
+        <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
     }
 
     @if (showFilters()) {

@@ -29,12 +29,16 @@
   @if (plannerService.loading()) {
     <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
       <mat-spinner diameter="48"></mat-spinner>
-      <span class="loading-text">Tage werden geladen...</span>
     </div>
   }
 
   @if (isMobile()) {
     <div class="week-header">
+      @if (!plannerService.isCurrentWeek()) {
+        <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
+          Heute
+        </button>
+      }
       <div class="week-nav">
         <button mat-icon-button (click)="plannerService.navigateWeek('prev')" matTooltip="Vorherige Woche">
           <mat-icon>chevron_left</mat-icon>
@@ -43,11 +47,6 @@
         <button mat-icon-button (click)="plannerService.navigateWeek('next')" matTooltip="Nächste Woche">
           <mat-icon>chevron_right</mat-icon>
         </button>
-        @if (!plannerService.isCurrentWeek()) {
-          <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
-            Heute
-          </button>
-        }
       </div>
     </div>
   }
@@ -129,6 +128,11 @@
     <div class="content-wrapper">
       @if (!isMobile()) {
         <div class="week-header">
+          @if (!plannerService.isCurrentWeek()) {
+            <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
+              Heute
+            </button>
+          }
           <div class="week-nav">
             <button mat-icon-button (click)="plannerService.navigateWeek('prev')" matTooltip="Vorherige Woche">
               <mat-icon>chevron_left</mat-icon>
@@ -137,11 +141,6 @@
             <button mat-icon-button (click)="plannerService.navigateWeek('next')" matTooltip="Nächste Woche">
               <mat-icon>chevron_right</mat-icon>
             </button>
-            @if (!plannerService.isCurrentWeek()) {
-              <button mat-button (click)="plannerService.navigateWeek('current')" class="today-btn">
-                Heute
-              </button>
-            }
           </div>
         </div>
       }

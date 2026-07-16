@@ -10,7 +10,6 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -35,7 +34,6 @@ export const UI_MODULES = [
     MatMenuModule,
     MatButtonToggleModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule,
     MatPaginatorModule,
     MatSlideToggleModule,
     MatCheckboxModule,

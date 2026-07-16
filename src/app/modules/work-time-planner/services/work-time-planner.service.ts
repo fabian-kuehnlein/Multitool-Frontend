@@ -278,8 +278,14 @@ export class WorkTimePlannerService {
         });
     }
 
+    isHomeOfficeDisabled(day: WorkDay): boolean {
+        return day.status !== DayStatus.Normal;
+    }
+
     toggleHomeOffice(date: string): void {
         const day = this._workDays().find(d => d.date === date) || this.createDefaultWorkDay(date);
+        if (this.isHomeOfficeDisabled(day)) return;
+
         const willBeHomeOffice = !day.isHomeOffice;
         this.updateWorkDay({ ...day, isHomeOffice: willBeHomeOffice });
 
@@ -288,7 +294,11 @@ export class WorkTimePlannerService {
 
     toggleDayStatus(date: string, status: DayStatus): void {
         const day = this._workDays().find(d => d.date === date) || this.createDefaultWorkDay(date);
-        const updated = { ...day, status: day.status === status ? DayStatus.Normal : status };
+        const newStatus = day.status === status ? DayStatus.Normal : status;
+        const updated = { ...day, status: newStatus };
+        if (newStatus !== DayStatus.Normal) {
+            updated.isHomeOffice = false;
+        }
         this.updateWorkDay(updated);
     }
 
