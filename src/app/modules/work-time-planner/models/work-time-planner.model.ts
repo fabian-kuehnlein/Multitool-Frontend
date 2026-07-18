@@ -20,7 +20,7 @@ export interface WorkDay {
 }
 
 export interface WorkDayWarning {
-    type: 'PauseTooShort' | 'Over10Hours' | 'Over48HoursWeek';
+    type: 'PauseTooShort' | 'Over10Hours' | 'Under6Hours';
     message: string;
 }
 

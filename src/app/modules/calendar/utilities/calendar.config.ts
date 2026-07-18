@@ -64,7 +64,7 @@ export const defaultCalendarOptions: CalendarOptions = {
             return {
                 html: `
                     <div class="fc-list-event-custom">
-                        <div class="fc-event-title" style="font-weight: 600; color: #333;">${icon} ${event.title || ''}</div>
+                        <div class="fc-event-title" style="color: var(--text-primary);">${icon} ${event.title || ''}</div>
                         ${note ? `<div class="fc-event-note" style="font-size: 0.85rem; font-style: italic; color: #888; margin-top: 2px;">${note}</div>` : ''}
                     </div>
                 `,

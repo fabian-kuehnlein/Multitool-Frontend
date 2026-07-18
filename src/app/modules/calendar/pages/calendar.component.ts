@@ -78,7 +78,6 @@ import { ActivatedRoute } from '@angular/router';
     ],
 })
 export class CalendarComponent implements OnDestroy, AfterViewInit {
-    // Modern viewChild signal for reactive access to the calendar
     public readonly calendar = viewChild<FullCalendarComponent>('calendarRef');
 
     private readonly calendarService = inject(CalendarService);

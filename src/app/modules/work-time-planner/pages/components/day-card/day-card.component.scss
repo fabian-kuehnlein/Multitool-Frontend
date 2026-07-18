@@ -102,13 +102,8 @@
 }
 
 .badge-sick {
-    background: #fce4ec;
-    color: #c62828;
-}
-
-[data-theme="dark"] .badge-sick {
-    background: #3d1a1a;
-    color: #ff6b6b;
+    background: var(--accent-danger-light);
+    color: var(--accent-danger);
 }
 
 .badge-locked {
@@ -385,18 +380,10 @@
 }
 
 .status-btn.active-sick {
-    background: #fce4ec !important;
+    background: var(--accent-danger-light) !important;
 
     mat-icon {
-        color: #c62828 !important;
-    }
-}
-
-[data-theme="dark"] .status-btn.active-sick {
-    background: #3d1a1a !important;
-
-    mat-icon {
-        color: #ff6b6b !important;
+        color: var(--accent-danger) !important;
     }
 }
 
@@ -459,12 +446,12 @@
     }
 
     &.active-sick {
-        background: #fce4ec !important;
-        border-color: #c62828;
-        color: #c62828 !important;
+        background: var(--accent-danger-light) !important;
+        border-color: var(--accent-danger);
+        color: var(--accent-danger) !important;
 
         mat-icon {
-            color: #c62828 !important;
+            color: var(--accent-danger) !important;
         }
     }
 
@@ -486,16 +473,6 @@
         mat-icon {
             color: var(--text-secondary) !important;
         }
-    }
-}
-
-[data-theme="dark"] .status-btn-desktop.active-sick {
-    background: #3d1a1a !important;
-    border-color: #ff6b6b;
-    color: #ff6b6b !important;
-
-    mat-icon {
-        color: #ff6b6b !important;
     }
 }
 

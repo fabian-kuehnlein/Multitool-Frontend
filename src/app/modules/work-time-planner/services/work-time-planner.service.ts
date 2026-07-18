@@ -407,11 +407,10 @@ export class WorkTimePlannerService {
                 });
             }
 
-            if (totalMinutes > 600) {
-                warnings.push({
-                    type: 'Over10Hours',
-                    message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag',
-                });
+            if (workMinutes < 360) {
+                warnings.push({ type: 'Under6Hours', message: 'Weniger als 6 Stunden Arbeitszeit an einem Tag' });
+            } else if (workMinutes > 600) {
+                warnings.push({ type: 'Over10Hours', message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag' });
             }
         }
 
