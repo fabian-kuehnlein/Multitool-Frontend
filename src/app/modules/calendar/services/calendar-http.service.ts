@@ -8,13 +8,17 @@ import { Holiday } from '../models/holiday.model';
 import { SearchResult } from '../models/search-result.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class CalendarHttpService {
     private readonly http = inject(HttpClient);
     private readonly apiURL = `${environment.MultitoolApi}/api/Calendar`;
 
-    getEventsByRange(startDate: string, endDate: string, categories: string[] | null): Observable<CalendarEvent[]> {
+    getEventsByRange(
+        startDate: string,
+        endDate: string,
+        categories: string[] | null,
+    ): Observable<CalendarEvent[]> {
         let params = new HttpParams()
             .set('startDate', startDate)
             .set('endDate', endDate);
@@ -23,12 +27,16 @@ export class CalendarHttpService {
             params = params.set('categories', categories.join(','));
         }
 
-        return this.http.get<CalendarEvent[]>(`${this.apiURL}/events`, { params });
+        return this.http.get<CalendarEvent[]>(`${this.apiURL}/events`, {
+            params,
+        });
     }
 
     searchEvents(searchString: string): Observable<SearchResult[]> {
         const params = new HttpParams().set('searchString', searchString);
-        return this.http.get<SearchResult[]>(`${this.apiURL}/events/search`, { params });
+        return this.http.get<SearchResult[]>(`${this.apiURL}/events/search`, {
+            params,
+        });
     }
 
     createEvent(event: CreateCalendarEvent): Observable<number> {

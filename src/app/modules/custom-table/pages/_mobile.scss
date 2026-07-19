@@ -55,9 +55,7 @@
     flex-direction: column;
     gap: 16px;
     padding: 16px;
-    padding-bottom: 120px;
-    flex: 1;
-    min-height: 100%;
+    overflow: auto;
 
     .row-card {
         padding: 8px 0;
@@ -169,7 +167,7 @@
         }
 
         &::before {
-            content: '';
+            content: "";
             position: absolute;
             width: 56px;
             height: 56px;
@@ -297,6 +295,7 @@
         overflow: visible;
         display: flex;
         flex-direction: column;
+        margin-bottom: 5rem;
     }
 
     .table-content-card {

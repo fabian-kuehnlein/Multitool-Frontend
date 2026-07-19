@@ -141,8 +141,14 @@
                     text-decoration: none !important;
                 }
 
+                .fc-event-title,
+                .fc-event-note {
+                    overflow-wrap: break-word;
+                    word-break: break-word;
+                }
+
                 &::before {
-                    content: '';
+                    content: "";
                     position: absolute;
                     left: 0;
                     top: 4px;

@@ -1,19 +1,29 @@
 import { DateInput, EventInput } from '@fullcalendar/core';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { Category } from '../../../shared/models/category.model';
-import moment from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+
+dayjs.extend(duration);
 
 export class CalendarMapper {
-    static toEventInput(event: CalendarEvent, categories: Category[]): EventInput {
-        const category = categories.find(c => String(c.id) === String(event.categoryId));
+    static toEventInput(
+        event: CalendarEvent,
+        categories: Category[],
+    ): EventInput {
+        const category = categories.find(
+            (c) => String(c.id) === String(event.categoryId),
+        );
         const color = category?.color || '#1976d2';
 
         // Helper to strip 'Z' and ensure we parse as local time
         const parseAsLocal = (dateStr: string | null | undefined) => {
             if (!dateStr) return undefined;
             // Remove 'Z' if present to prevent UTC conversion by the browser
-            const cleanStr = dateStr.endsWith('Z') ? dateStr.slice(0, -1) : dateStr;
-            return moment(cleanStr).toDate();
+            const cleanStr = dateStr.endsWith('Z')
+                ? dateStr.slice(0, -1)
+                : dateStr;
+            return dayjs(cleanStr).toDate();
         };
 
         const input: EventInput = {
@@ -30,8 +40,8 @@ export class CalendarMapper {
                 categoryColor: color,
                 recurrenceRule: event.recurrenceRule,
                 recurrenceEnd: parseAsLocal(event.recurrenceEnd),
-                isTodo: event.isTodo || false
-            }
+                isTodo: event.isTodo || false,
+            },
         };
 
         if (event.recurrenceRule) {
@@ -39,16 +49,19 @@ export class CalendarMapper {
             const { exdate, ...rruleOptions } = parsedRule;
 
             input['rrule'] = {
-                dtstart: event.startDateTime?.replace('Z', ''), 
+                dtstart: event.startDateTime?.replace('Z', ''),
                 until: event.recurrenceEnd?.replace('Z', '') ?? undefined,
-                ...rruleOptions
+                ...rruleOptions,
             };
 
             if (exdate) {
                 input['exdate'] = exdate;
             }
 
-            input['duration'] = this.getDuration(event.startDateTime, event.endDateTime);
+            input['duration'] = this.getDuration(
+                event.startDateTime,
+                event.endDateTime,
+            );
         }
 
         return input;
@@ -70,7 +83,9 @@ export class CalendarMapper {
                     rule.interval = parseInt(value);
                     break;
                 case 'BYDAY':
-                    rule.byweekday = value.split(',').map(day => day.toLowerCase());
+                    rule.byweekday = value
+                        .split(',')
+                        .map((day) => day.toLowerCase());
                     break;
                 case 'EXDATE':
                     rule.exdate = value.split(',');
@@ -84,21 +99,33 @@ export class CalendarMapper {
     /**
      * Checks if a recurring event (defined by its rrule object) falls on a specific date.
      */
-    static eventFallsOnDate(rrule: any, date: moment.Moment, exdate?: DateInput | DateInput[]): boolean {
+    static eventFallsOnDate(
+        rrule: any,
+        date: Dayjs,
+        exdate?: DateInput | DateInput[],
+    ): boolean {
         const dateStr = date.format('YYYY-MM-DD');
-        const dtstart = moment(rrule.dtstart).startOf('day');
-        const targetDate = moment(date).startOf('day');
+        const dtstart = dayjs(rrule.dtstart).startOf('day');
+        const targetDate = dayjs(date).startOf('day');
 
         // Before start date
         if (targetDate.isBefore(dtstart)) return false;
 
         // After until date
-        if (rrule.until && targetDate.isAfter(moment(rrule.until).startOf('day'))) return false;
+        if (
+            rrule.until &&
+            targetDate.isAfter(dayjs(rrule.until).startOf('day'))
+        )
+            return false;
 
         // Check EXDATE
         if (exdate) {
             const exdateArray = Array.isArray(exdate) ? exdate : [exdate];
-            if (exdateArray.some((ex) => moment(ex as any).format('YYYY-MM-DD') === dateStr)) {
+            if (
+                exdateArray.some(
+                    (ex) => dayjs(ex as any).format('YYYY-MM-DD') === dateStr,
+                )
+            ) {
                 return false;
             }
         }
@@ -107,12 +134,14 @@ export class CalendarMapper {
         const interval = rrule.interval || 1;
 
         if (freq === 'daily') {
-            const diff = targetDate.diff(dtstart, 'days');
+            const diff = targetDate.diff(dtstart, 'day');
             return diff % interval === 0;
         }
 
         if (freq === 'weekly') {
-            const weeksBetween = Math.floor(targetDate.diff(dtstart, 'days') / 7);
+            const weeksBetween = Math.floor(
+                targetDate.diff(dtstart, 'day') / 7,
+            );
             if (weeksBetween % interval !== 0) return false;
 
             if (rrule.byweekday && Array.isArray(rrule.byweekday)) {
@@ -123,29 +152,35 @@ export class CalendarMapper {
         }
 
         if (freq === 'monthly') {
-            const diff = targetDate.diff(dtstart, 'months');
+            const diff = targetDate.diff(dtstart, 'month');
             if (diff % interval !== 0) return false;
             return targetDate.date() === dtstart.date();
         }
 
         if (freq === 'yearly') {
-            const diff = targetDate.diff(dtstart, 'years');
+            const diff = targetDate.diff(dtstart, 'year');
             if (diff % interval !== 0) return false;
-            return targetDate.date() === dtstart.date() && targetDate.month() === dtstart.month();
+            return (
+                targetDate.date() === dtstart.date() &&
+                targetDate.month() === dtstart.month()
+            );
         }
 
         return false;
     }
 
-    static getDuration(start: string | null | undefined, end: string | null | undefined): string {
+    static getDuration(
+        start: string | null | undefined,
+        end: string | null | undefined,
+    ): string {
         if (!start || !end) return '';
 
-        const startMoment = moment(start);
-        const endMoment = moment(end);
+        const startMoment = dayjs(start);
+        const endMoment = dayjs(end);
 
         if (!startMoment.isValid() || !endMoment.isValid()) return '';
 
-        return moment.duration(endMoment.diff(startMoment)).toISOString();
+        return dayjs.duration(endMoment.diff(startMoment)).toISOString();
     }
 
     /**
@@ -158,13 +193,17 @@ export class CalendarMapper {
             eventNote: event.extendedProps['eventNote'] || null,
             startDateTime: event.start,
             endDateTime: event.end
-                ? (event.allDay ? moment(event.end).subtract(1, 'day').toDate() : new Date(event.end))
-                : (event.extendedProps['recurrenceRule'] ? event.start : null),
+                ? event.allDay
+                    ? dayjs(event.end).subtract(1, 'day').toDate()
+                    : new Date(event.end)
+                : event.extendedProps['recurrenceRule']
+                  ? event.start
+                  : null,
             isAllDay: event.allDay,
             categoryId: event.extendedProps['categoryId']?.toString() ?? null,
             recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
             recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null,
-            isTodo: event.extendedProps['isTodo'] ?? false
+            isTodo: event.extendedProps['isTodo'] ?? false,
         };
     }
 
@@ -176,10 +215,12 @@ export class CalendarMapper {
             id: event.id,
             title: event.title,
             note: event.extendedProps['eventNote']?.trim() || null,
-            startDateTime: moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
-            endDateTime: event.end ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss') : moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
+            startDateTime: dayjs(event.start).format('YYYY-MM-DDTHH:mm:ss'),
+            endDateTime: event.end
+                ? dayjs(event.end).format('YYYY-MM-DDTHH:mm:ss')
+                : dayjs(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             isAllDay: event.allDay,
-            categoryId: event.extendedProps['categoryId'] || ''
+            categoryId: event.extendedProps['categoryId'] || '',
         };
     }
 }

@@ -1,4 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    ChangeDetectionStrategy,
+    inject,
+} from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './core/services/theme.service';
@@ -8,7 +13,7 @@ import { ThemeService } from './core/services/theme.service';
     imports: [RouterOutlet],
     templateUrl: './app.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './app.component.scss'
+    styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
     private readonly matIconReg = inject(MatIconRegistry);

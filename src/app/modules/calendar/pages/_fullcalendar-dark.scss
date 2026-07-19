@@ -83,6 +83,15 @@
                 background-color: var(--bg-primary) !important;
             }
 
+            .fc-daygrid-day.fc-day-past {
+                background-color: var(--bg-primary) !important;
+                opacity: 0.55;
+            }
+
+            .fc-daygrid-day.fc-day-past.fc-day-today {
+                opacity: 1;
+            }
+
             .fc-daygrid-day-number {
                 color: var(--text-primary) !important;
             }
@@ -93,7 +102,7 @@
             }
 
             .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
-                color: var(--text-muted) !important;
+                color: var(--text-secondary) !important;
             }
 
             .fc-daygrid-bg {
@@ -335,7 +344,7 @@
 
             // ── Outside Days ──────────────────────────────────────────────
             .fc-day-other .fc-daygrid-day-number {
-                color: var(--text-disabled) !important;
+                color: var(--text-secondary) !important;
             }
         }
     }

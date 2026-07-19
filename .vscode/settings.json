@@ -1,9 +1,7 @@
 {
-  // hart 4 Leerzeichen pro Tab
-  "editor.tabSize": 4,
-  // Tabs in Leerzeichen umwandeln
-  "editor.insertSpaces": true,
-  // Automatische Erkennung ausschalten,
-  // sonst würde VS Code Tab-Größe überschreiben
-  "editor.detectIndentation": false
+    // hart 4 spaces per tab
+    "editor.tabSize": 4,
+    // transform tabs into spaces
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
 }

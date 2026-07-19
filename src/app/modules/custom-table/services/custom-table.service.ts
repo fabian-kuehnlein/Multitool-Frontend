@@ -1,10 +1,17 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { UpsertTableDto, TableDetail, TableOverview, UpdateColumnDto, UpdateColumnOrderDto, UpdateRowOrderDto } from '../models';
+import {
+    UpsertTableDto,
+    TableDetail,
+    TableOverview,
+    UpdateColumnDto,
+    UpdateColumnOrderDto,
+    UpdateRowOrderDto,
+} from '../models';
 import { CustomTableHttpService } from './custom-table-http.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class CustomTableService {
     private readonly httpService = inject(CustomTableHttpService);
@@ -20,14 +27,20 @@ export class CustomTableService {
     public readonly loading = this._loading.asReadonly();
 
     // Derived Signals
-    public readonly tableId = computed(() => this._currentTable()?.tableId ?? 0);
+    public readonly tableId = computed(
+        () => this._currentTable()?.tableId ?? 0,
+    );
     public readonly columns = computed(() => {
         const table = this._currentTable();
-        return table ? [...table.columns].sort((a, b) => a.colOrder - b.colOrder) : [];
+        return table
+            ? [...table.columns].sort((a, b) => a.colOrder - b.colOrder)
+            : [];
     });
     public readonly rows = computed(() => {
         const table = this._currentTable();
-        return table ? [...table.rows].sort((a, b) => a.rowOrder - b.rowOrder) : [];
+        return table
+            ? [...table.rows].sort((a, b) => a.rowOrder - b.rowOrder)
+            : [];
     });
 
     // --- State Management Actions ---
@@ -35,31 +48,31 @@ export class CustomTableService {
     fetchTableList(): void {
         this._loading.set(true);
         this.httpService.getListOfTables().subscribe({
-            next: list => {
+            next: (list) => {
                 this._tableList.set(list);
                 this._loading.set(false);
             },
-            error: () => this._loading.set(false)
+            error: () => this._loading.set(false),
         });
     }
 
     loadTable(tableId: number): void {
         this._loading.set(true);
         this.httpService.getTable(tableId).subscribe({
-            next: table => {
+            next: (table) => {
                 this._currentTable.set(table);
                 this._loading.set(false);
             },
-            error: () => this._loading.set(false)
+            error: () => this._loading.set(false),
         });
     }
 
     createTable(dto: UpsertTableDto): Observable<number> {
         return this.httpService.createTable(dto).pipe(
-            tap(id => {
+            tap((id) => {
                 this.fetchTableList();
                 this.loadTable(id);
-            })
+            }),
         );
     }
 
@@ -68,7 +81,7 @@ export class CustomTableService {
             tap(() => {
                 this.fetchTableList();
                 this.loadTable(tableId);
-            })
+            }),
         );
     }
 
@@ -79,38 +92,38 @@ export class CustomTableService {
                 if (this.tableId() === tableId) {
                     this._currentTable.set(null);
                 }
-            })
+            }),
         );
     }
 
     createColumn(tableId: number): Observable<number> {
-        return this.httpService.createColumn(tableId).pipe(
-            tap(() => this.loadTable(tableId))
-        );
+        return this.httpService
+            .createColumn(tableId)
+            .pipe(tap(() => this.loadTable(tableId)));
     }
 
     updateColumn(columnId: number, dto: UpdateColumnDto): Observable<number> {
-        return this.httpService.updateColumn(columnId, dto).pipe(
-            tap(() => this.loadTable(this.tableId()))
-        );
+        return this.httpService
+            .updateColumn(columnId, dto)
+            .pipe(tap(() => this.loadTable(this.tableId())));
     }
 
     updateColumnOrder(dto: UpdateColumnOrderDto[]): Observable<number> {
-        return this.httpService.updateColumnOrder(dto).pipe(
-            tap(() => this.loadTable(this.tableId()))
-        );
+        return this.httpService
+            .updateColumnOrder(dto)
+            .pipe(tap(() => this.loadTable(this.tableId())));
     }
 
     deleteColumn(tableId: number, columnId: number): Observable<any> {
-        return this.httpService.deleteColumn(tableId, columnId).pipe(
-            tap(() => this.loadTable(tableId))
-        );
+        return this.httpService
+            .deleteColumn(tableId, columnId)
+            .pipe(tap(() => this.loadTable(tableId)));
     }
 
     createRow(tableId: number): Observable<number> {
-        return this.httpService.createRow(tableId).pipe(
-            tap(() => this.loadTable(tableId))
-        );
+        return this.httpService
+            .createRow(tableId)
+            .pipe(tap(() => this.loadTable(tableId)));
     }
 
     updateRowOrder(rows: UpdateRowOrderDto[]): Observable<any> {
@@ -118,9 +131,9 @@ export class CustomTableService {
     }
 
     deleteRows(tableId: number, rows: number[]): Observable<any> {
-        return this.httpService.deleteRows(tableId, rows).pipe(
-            tap(() => this.loadTable(tableId))
-        );
+        return this.httpService
+            .deleteRows(tableId, rows)
+            .pipe(tap(() => this.loadTable(tableId)));
     }
 
     upsertCell(rowId: number, columnId: number, value: any): Observable<void> {

@@ -3,7 +3,7 @@ import { CategoryHttpService } from './category-http.service';
 import { Category } from '../models/category.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class CategoryService {
     private readonly httpService = inject(CategoryHttpService);
@@ -19,8 +19,8 @@ export class CategoryService {
     }
 
     public loadCategories(): void {
-        this.httpService.getCategories().subscribe(
-            categories => this._categories.set(categories)
-        );
+        this.httpService
+            .getCategories()
+            .subscribe((categories) => this._categories.set(categories));
     }
 }

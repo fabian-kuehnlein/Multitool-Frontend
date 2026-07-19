@@ -1,11 +1,23 @@
-import { Component, inject, OnInit, computed, signal, ChangeDetectionStrategy } from '@angular/core';
-import moment from 'moment';
+import {
+    Component,
+    inject,
+    OnInit,
+    computed,
+    signal,
+    ChangeDetectionStrategy,
+} from '@angular/core';
+import dayjs from 'dayjs';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { TodoService } from '../services/todo.service';
-import { Todo, CreateTodoDto, UpdateTodoDto, Priority } from '../models/todo.model';
+import {
+    Todo,
+    CreateTodoDto,
+    UpdateTodoDto,
+    Priority,
+} from '../models/todo.model';
 import { TodoDialogComponent } from './components/todo-dialog/todo-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SnackbarService } from '../../../core/services/snackbar.service';
@@ -14,223 +26,246 @@ import { CategoryService } from '../../../shared/services/category.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-todo',
-  standalone: true,
-  imports: [
-    CommonModule,
-    UI_MODULES
-  ],
-  templateUrl: './todo.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './todo.component.scss',
+    selector: 'app-todo',
+    standalone: true,
+    imports: [CommonModule, UI_MODULES],
+    templateUrl: './todo.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './todo.component.scss',
 })
 export class TodoComponent implements OnInit {
-  protected readonly todoService = inject(TodoService);
-  protected readonly categoryService = inject(CategoryService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackbar = inject(SnackbarService);
-  private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly router = inject(Router);
+    protected readonly todoService = inject(TodoService);
+    protected readonly categoryService = inject(CategoryService);
+    private readonly dialog = inject(MatDialog);
+    private readonly snackbar = inject(SnackbarService);
+    private readonly breakpointObserver = inject(BreakpointObserver);
+    private readonly router = inject(Router);
 
-  readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
-  readonly sortDirection = signal<'asc' | 'desc'>('asc');
-  readonly filterStatus = signal<'all' | 'active' | 'completed'>('all');
-  readonly filterPriority = signal<Priority | null>(null);
+    readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
+    readonly sortDirection = signal<'asc' | 'desc'>('asc');
+    readonly filterStatus = signal<'all' | 'active' | 'completed'>('all');
+    readonly filterPriority = signal<Priority | null>(null);
 
-  public readonly isMobile = signal<boolean>(false);
-  public readonly isTablet = signal<boolean>(false);
-  readonly expandedTodoIds = signal<Set<string | number>>(new Set());
-  readonly isCompletedExpanded = signal<boolean>(false);
+    public readonly isMobile = signal<boolean>(false);
+    public readonly isTablet = signal<boolean>(false);
+    readonly expandedTodoIds = signal<Set<string | number>>(new Set());
+    readonly isCompletedExpanded = signal<boolean>(false);
 
-  readonly filteredTodos = computed(() => {
-    let list = this.todoService.todos();
+    readonly filteredTodos = computed(() => {
+        let list = this.todoService.todos();
 
-    if (this.filterStatus() === 'active') {
-      list = list.filter(t => !t.isDone);
-    } else if (this.filterStatus() === 'completed') {
-      list = list.filter(t => t.isDone);
-    }
-
-    if (this.filterPriority() !== null) {
-      list = list.filter(t => t.priority === this.filterPriority());
-    }
-
-    return this.sortTodos(list);
-  });
-
-  readonly activeTodos = computed(() => {
-    return this.filteredTodos().filter((t) => !t.isDone);
-  });
-
-  readonly completedTodos = computed(() => {
-    return this.filteredTodos().filter((t) => t.isDone);
-  });
-
-  constructor() {
-    this.breakpointObserver.observe(['(max-width: 849.98px)']).subscribe(result => {
-      this.isMobile.set(result.matches);
-    });
-    this.breakpointObserver.observe(['(min-width: 850px) and (max-width: 1399.98px)']).subscribe(result => {
-      this.isTablet.set(result.matches);
-    });
-  }
-
-  ngOnInit(): void {
-    this.todoService.loadTodos();
-  }
-
-  openSideNav() {
-    this.dialog.open(SidenavComponent, {
-      position: this.isMobile() ? { bottom: '120px' } : { top: '90px', left: '30px' },
-      width: this.isMobile() ? '90vw' : 'auto',
-      height: 'auto',
-      hasBackdrop: true,
-      backdropClass: 'transparent-backdrop',
-      data: 'todo'
-    });
-  }
-
-  private sortTodos(todos: Todo[]): Todo[] {
-    const direction = this.sortDirection() === 'asc' ? 1 : -1;
-    const criterion = this.sortBy();
-
-    return [...todos].sort((a, b) => {
-      if (criterion === 'priority') {
-        return (a.priority - b.priority) * direction * -1;
-      }
-      if (criterion === 'dueDate') {
-        if (!a.dueDate) return 1;
-        if (!b.dueDate) return -1;
-        return (new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) * direction;
-      }
-      return a.title.localeCompare(b.title) * direction;
-    });
-  }
-
-  onToggleDone(todo: Todo): void {
-    this.todoService.toggleDone(todo.id, !todo.isDone);
-    this.snackbar.openSuccess('Status aktualisiert');
-  }
-
-  toggleExpand(todoId: string | number): void {
-    const current = new Set(this.expandedTodoIds());
-    if (current.has(todoId)) {
-      current.delete(todoId);
-    } else {
-      current.add(todoId);
-    }
-    this.expandedTodoIds.set(current);
-  }
-
-  isExpanded(todoId: string | number): boolean {
-    return this.expandedTodoIds().has(todoId);
-  }
-
-  onAddTodo(): void {
-    const dialogRef = this.dialog.open(TodoDialogComponent, {
-      width: this.isMobile() ? '100vw' : '500px',
-      height: this.isMobile() ? '100vh' : 'auto',
-      minWidth: this.isMobile() ? '100vw' : 'unset',
-      maxWidth: this.isMobile() ? '100vw' : '95vw',
-      panelClass: this.isMobile() ? 'full-screen-dialog' : '',
-    });
-
-    dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
-      if (result) {
-        if (result.dueDate) {
-            result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+        if (this.filterStatus() === 'active') {
+            list = list.filter((t) => !t.isDone);
+        } else if (this.filterStatus() === 'completed') {
+            list = list.filter((t) => t.isDone);
         }
-        this.todoService.addTodo(result);
-        this.snackbar.openSuccess('Aufgabe hinzugefügt');
-      }
-    });
-  }
 
-  goToDateInCalendar(dueDate: string): void {
-    this.router.navigate(['/calendar'], { queryParams: { date: dueDate } });
-  }
-
-  onEditTodo(todo: Todo): void {
-    const dialogRef = this.dialog.open(TodoDialogComponent, {
-      width: this.isMobile() ? '100vw' : '500px',
-      height: this.isMobile() ? '100vh' : 'auto',
-      minWidth: this.isMobile() ? '100vw' : 'unset',
-      maxWidth: this.isMobile() ? '100vw' : '95vw',
-      panelClass: this.isMobile() ? 'full-screen-dialog' : '',
-      data: { todo },
-    });
-
-    dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
-      if (result) {
-        if (result.dueDate) {
-            result.dueDate = moment(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+        if (this.filterPriority() !== null) {
+            list = list.filter((t) => t.priority === this.filterPriority());
         }
-        this.todoService.updateTodo(todo.id, result);
-        this.snackbar.openSuccess('Aufgabe aktualisiert');
-      }
-    });
-  }
 
-  onDeleteTodo(todo: Todo): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Löschen',
-        message: `Möchtest du "${todo.title}" wirklich löschen?`,
-      },
+        return this.sortTodos(list);
     });
 
-    dialogRef.afterClosed().subscribe((confirm) => {
-      if (confirm) {
-        this.todoService.deleteTodo(todo.id);
-        this.snackbar.openSuccess('Aufgabe gelöscht');
-      }
+    readonly activeTodos = computed(() => {
+        return this.filteredTodos().filter((t) => !t.isDone);
     });
-  }
 
-  changeSort(criterion: 'priority' | 'dueDate' | 'title'): void {
-    if (this.sortBy() === criterion) {
-      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.sortBy.set(criterion);
-      this.sortDirection.set('desc');
+    readonly completedTodos = computed(() => {
+        return this.filteredTodos().filter((t) => t.isDone);
+    });
+
+    constructor() {
+        this.breakpointObserver
+            .observe(['(max-width: 849.98px)'])
+            .subscribe((result) => {
+                this.isMobile.set(result.matches);
+            });
+        this.breakpointObserver
+            .observe(['(min-width: 850px) and (max-width: 1399.98px)'])
+            .subscribe((result) => {
+                this.isTablet.set(result.matches);
+            });
     }
-  }
 
-  getPriorityColor(priority: Priority): string {
-    switch (priority) {
-      case Priority.High: return '#f44336';
-      case Priority.Medium: return '#ff9800';
-      case Priority.Low: return '#4caf50';
-      default: return '#9e9e9e';
+    ngOnInit(): void {
+        this.todoService.loadTodos();
     }
-  }
 
-  getPriorityLabel(priority: Priority): string {
-    switch (priority) {
-      case Priority.High: return 'Hoch';
-      case Priority.Medium: return 'Mittel';
-      case Priority.Low: return 'Niedrig';
-      default: return 'Normal';
+    openSideNav() {
+        this.dialog.open(SidenavComponent, {
+            position: this.isMobile()
+                ? { bottom: '120px' }
+                : { top: '90px', left: '30px' },
+            width: this.isMobile() ? '90vw' : 'auto',
+            height: 'auto',
+            hasBackdrop: true,
+            backdropClass: 'transparent-backdrop',
+            data: 'todo',
+        });
     }
-  }
 
-  setFilterStatus(status: 'all' | 'active' | 'completed') {
-    this.filterStatus.set(status);
-    if (status === 'completed') {
-      this.isCompletedExpanded.set(true);
+    private sortTodos(todos: Todo[]): Todo[] {
+        const direction = this.sortDirection() === 'asc' ? 1 : -1;
+        const criterion = this.sortBy();
+
+        return [...todos].sort((a, b) => {
+            if (criterion === 'priority') {
+                return (a.priority - b.priority) * direction * -1;
+            }
+            if (criterion === 'dueDate') {
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return (
+                    (new Date(a.dueDate).getTime() -
+                        new Date(b.dueDate).getTime()) *
+                    direction
+                );
+            }
+            return a.title.localeCompare(b.title) * direction;
+        });
     }
-  }
 
-  toggleCompletedCollapse() {
-    this.isCompletedExpanded.set(!this.isCompletedExpanded());
-  }
+    onToggleDone(todo: Todo): void {
+        this.todoService.toggleDone(todo.id, !todo.isDone);
+        this.snackbar.openSuccess('Status aktualisiert');
+    }
 
-  setFilterPriority(priority: Priority | null) {
-    this.filterPriority.set(priority);
-  }
+    toggleExpand(todoId: string | number): void {
+        const current = new Set(this.expandedTodoIds());
+        if (current.has(todoId)) {
+            current.delete(todoId);
+        } else {
+            current.add(todoId);
+        }
+        this.expandedTodoIds.set(current);
+    }
 
-  getCategory(categoryId: string | number) {
-    const id = categoryId.toString();
-    return this.categoryService.categories().find(c => c.id.toString() === id);
-  }
+    isExpanded(todoId: string | number): boolean {
+        return this.expandedTodoIds().has(todoId);
+    }
+
+    onAddTodo(): void {
+        const dialogRef = this.dialog.open(TodoDialogComponent, {
+            width: this.isMobile() ? '100vw' : '500px',
+            height: this.isMobile() ? '100vh' : 'auto',
+            minWidth: this.isMobile() ? '100vw' : 'unset',
+            maxWidth: this.isMobile() ? '100vw' : '95vw',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+        });
+
+        dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
+            if (result) {
+                if (result.dueDate) {
+                    result.dueDate = dayjs(result.dueDate).format(
+                        'YYYY-MM-DDTHH:mm:ss',
+                    );
+                }
+                this.todoService.addTodo(result);
+                this.snackbar.openSuccess('Aufgabe hinzugefügt');
+            }
+        });
+    }
+
+    goToDateInCalendar(dueDate: string): void {
+        this.router.navigate(['/calendar'], { queryParams: { date: dueDate } });
+    }
+
+    onEditTodo(todo: Todo): void {
+        const dialogRef = this.dialog.open(TodoDialogComponent, {
+            width: this.isMobile() ? '100vw' : '500px',
+            height: this.isMobile() ? '100vh' : 'auto',
+            minWidth: this.isMobile() ? '100vw' : 'unset',
+            maxWidth: this.isMobile() ? '100vw' : '95vw',
+            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+            data: { todo },
+        });
+
+        dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
+            if (result) {
+                if (result.dueDate) {
+                    result.dueDate = dayjs(result.dueDate).format(
+                        'YYYY-MM-DDTHH:mm:ss',
+                    );
+                }
+                this.todoService.updateTodo(todo.id, result);
+                this.snackbar.openSuccess('Aufgabe aktualisiert');
+            }
+        });
+    }
+
+    onDeleteTodo(todo: Todo): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            data: {
+                title: 'Löschen',
+                message: `Möchtest du "${todo.title}" wirklich löschen?`,
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((confirm) => {
+            if (confirm) {
+                this.todoService.deleteTodo(todo.id);
+                this.snackbar.openSuccess('Aufgabe gelöscht');
+            }
+        });
+    }
+
+    changeSort(criterion: 'priority' | 'dueDate' | 'title'): void {
+        if (this.sortBy() === criterion) {
+            this.sortDirection.set(
+                this.sortDirection() === 'asc' ? 'desc' : 'asc',
+            );
+        } else {
+            this.sortBy.set(criterion);
+            this.sortDirection.set('desc');
+        }
+    }
+
+    getPriorityColor(priority: Priority): string {
+        switch (priority) {
+            case Priority.High:
+                return '#f44336';
+            case Priority.Medium:
+                return '#ff9800';
+            case Priority.Low:
+                return '#4caf50';
+            default:
+                return '#9e9e9e';
+        }
+    }
+
+    getPriorityLabel(priority: Priority): string {
+        switch (priority) {
+            case Priority.High:
+                return 'Hoch';
+            case Priority.Medium:
+                return 'Mittel';
+            case Priority.Low:
+                return 'Niedrig';
+            default:
+                return 'Normal';
+        }
+    }
+
+    setFilterStatus(status: 'all' | 'active' | 'completed') {
+        this.filterStatus.set(status);
+        if (status === 'completed') {
+            this.isCompletedExpanded.set(true);
+        }
+    }
+
+    toggleCompletedCollapse() {
+        this.isCompletedExpanded.set(!this.isCompletedExpanded());
+    }
+
+    setFilterPriority(priority: Priority | null) {
+        this.filterPriority.set(priority);
+    }
+
+    getCategory(categoryId: string | number) {
+        const id = categoryId.toString();
+        return this.categoryService
+            .categories()
+            .find((c) => c.id.toString() === id);
+    }
 }

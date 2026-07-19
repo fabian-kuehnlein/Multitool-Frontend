@@ -1,6 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import moment from 'moment';
+import {
+    FormBuilder,
+    FormGroup,
+    Validators,
+    AbstractControl,
+    ValidationErrors,
+    ValidatorFn,
+} from '@angular/forms';
+import dayjs from 'dayjs';
 import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
 import { CalendarEvent } from '../../../models/calendar-event.model';
 
@@ -12,50 +19,68 @@ export class EventFormService {
      * Initializes the form with default values or patches it with existing event data.
      */
     public buildForm(): FormGroup {
-        return this.fb.group({
-            eventTitle: ['', [Validators.required, Validators.maxLength(100)]],
-            eventNote: ['', [Validators.maxLength(200)]],
-            startDate: [null, [Validators.required]],
-            startTime: [null],
-            endDate: [null],
-            endTime: [null],
-            isAllDay: [false],
-            categoryId: [1, [Validators.required]],
-            isRecurring: [false],
-            recurrenceFrequency: ['WEEKLY'],
-            recurrenceInterval: [1],
-            recurrenceByDay: [[]],
-            recurrenceEndDate: [null],
-            exDates: [[]]
-        }, { validators: this.formValidator() });
+        return this.fb.group(
+            {
+                eventTitle: [
+                    '',
+                    [Validators.required, Validators.maxLength(100)],
+                ],
+                eventNote: ['', [Validators.maxLength(200)]],
+                startDate: [null, [Validators.required]],
+                startTime: [null],
+                endDate: [null],
+                endTime: [null],
+                isAllDay: [false],
+                categoryId: [1, [Validators.required]],
+                isRecurring: [false],
+                recurrenceFrequency: ['WEEKLY'],
+                recurrenceInterval: [1],
+                recurrenceByDay: [[]],
+                recurrenceEndDate: [null],
+                exDates: [[]],
+            },
+            { validators: this.formValidator() },
+        );
     }
 
     /**
      * Maps form values back to a CreateCalendarEvent model.
      */
     public getCreateEventData(formValue: any): CreateCalendarEvent {
-        const recurrenceRule = formValue.isRecurring ? this.buildRecurrenceString(formValue) : null;
-        const recurrenceEnd = (formValue.isRecurring && formValue.recurrenceEndDate && recurrenceRule)
-            ? this.formatDate(formValue.recurrenceEndDate, undefined, { isRecurring: true })
+        const recurrenceRule = formValue.isRecurring
+            ? this.buildRecurrenceString(formValue)
             : null;
+        const recurrenceEnd =
+            formValue.isRecurring &&
+            formValue.recurrenceEndDate &&
+            recurrenceRule
+                ? this.formatDate(formValue.recurrenceEndDate, undefined, {
+                      isRecurring: true,
+                  })
+                : null;
 
         return {
             title: formValue.eventTitle,
-            note: formValue.eventNote?.trim() === "" ? null : formValue.eventNote,
+            note:
+                formValue.eventNote?.trim() === '' ? null : formValue.eventNote,
             startDateTime: this.formatDate(
                 formValue.startDate,
                 formValue.startTime,
-                { isAllDay: formValue.isAllDay }
+                { isAllDay: formValue.isAllDay },
             )!,
             endDateTime: this.formatDate(
                 formValue.endDate ?? formValue.startDate,
                 formValue.endTime ?? formValue.startTime,
-                { isAllDay: formValue.isAllDay, addDay: true, fallbackDate: formValue.startDate }
+                {
+                    isAllDay: formValue.isAllDay,
+                    addDay: true,
+                    fallbackDate: formValue.startDate,
+                },
             ),
             isAllDay: formValue.isAllDay,
             categoryId: formValue.categoryId,
             recurrenceRule: recurrenceRule,
-            recurrenceEnd: recurrenceEnd
+            recurrenceEnd: recurrenceEnd,
         };
     }
 
@@ -66,7 +91,7 @@ export class EventFormService {
         const createData = this.getCreateEventData(formValue);
         return {
             ...createData,
-            id
+            id,
         };
     }
 
@@ -76,53 +101,68 @@ export class EventFormService {
     public formatDate(
         date: Date | null,
         time?: Date,
-        options: { isAllDay?: boolean; isRecurring?: boolean; addDay?: boolean; fallbackDate?: Date } = {}
+        options: {
+            isAllDay?: boolean;
+            isRecurring?: boolean;
+            addDay?: boolean;
+            fallbackDate?: Date;
+        } = {},
     ): string | null {
-        const { isAllDay = false, isRecurring = false, addDay = false, fallbackDate = null } = options;
+        const {
+            isAllDay = false,
+            isRecurring = false,
+            addDay = false,
+            fallbackDate = null,
+        } = options;
         const finalDate = date ?? fallbackDate;
 
         if (!finalDate) return null;
 
-        const dateMoment = moment(finalDate);
+        const dateMoment = dayjs(finalDate);
+
+        let result = dateMoment;
 
         if (isAllDay || isRecurring) {
             if (isAllDay && addDay) {
-                dateMoment.add(1, 'day');
+                result = result.add(1, 'day');
             }
-            dateMoment.startOf('day');
+            result = result.startOf('day');
         } else if (time) {
-            const timeMoment = moment(time);
-            dateMoment.set({
-                hour: timeMoment.hour(),
-                minute: timeMoment.minute(),
-                second: 0,
-                millisecond: 0
-            });
+            const timeMoment = dayjs(time);
+            result = result.hour(timeMoment.hour());
+            result = result.minute(timeMoment.minute());
+            result = result.second(0);
+            result = result.millisecond(0);
         } else {
-            dateMoment.startOf('day');
+            result = result.startOf('day');
         }
 
-        return dateMoment.format('YYYY-MM-DDTHH:mm:ss');
+        return result.format('YYYY-MM-DDTHH:mm:ss');
     }
 
     /**
      * Builds an RRule string from form values.
      */
     public buildRecurrenceString(formValue: any): string | null {
-        const { recurrenceFrequency: freq, recurrenceInterval: interval, recurrenceByDay: byDay, exDates } = formValue;
-        
+        const {
+            recurrenceFrequency: freq,
+            recurrenceInterval: interval,
+            recurrenceByDay: byDay,
+            exDates,
+        } = formValue;
+
         const validInterval = interval && interval > 0;
         const validByDay = Array.isArray(byDay) && byDay.length > 0;
-        
+
         if (!freq || (!validInterval && !validByDay)) return null;
-        
+
         let rule = `FREQ=${freq}`;
         if (validInterval) rule += `;INTERVAL=${interval}`;
         if (validByDay) rule += `;BYDAY=${byDay.join(',')}`;
         if (Array.isArray(exDates) && exDates.length > 0) {
             rule += `;EXDATE=${exDates.join(',')}`;
         }
-        
+
         return rule;
     }
 
@@ -133,15 +173,28 @@ export class EventFormService {
         if (!ruleString) return null;
 
         const parts = ruleString.split(';');
-        const rule: any = { freq: 'WEEKLY', interval: 1, byDay: [], exDates: [] };
+        const rule: any = {
+            freq: 'WEEKLY',
+            interval: 1,
+            byDay: [],
+            exDates: [],
+        };
 
-        parts.forEach(part => {
+        parts.forEach((part) => {
             const [key, value] = part.split('=');
             switch (key) {
-                case 'FREQ': rule.freq = value; break;
-                case 'INTERVAL': rule.interval = parseInt(value, 10); break;
-                case 'BYDAY': rule.byDay = value.split(','); break;
-                case 'EXDATE': rule.exDates = value.split(','); break;
+                case 'FREQ':
+                    rule.freq = value;
+                    break;
+                case 'INTERVAL':
+                    rule.interval = parseInt(value, 10);
+                    break;
+                case 'BYDAY':
+                    rule.byDay = value.split(',');
+                    break;
+                case 'EXDATE':
+                    rule.exDates = value.split(',');
+                    break;
             }
         });
 
@@ -166,7 +219,10 @@ export class EventFormService {
             if (isRecurring) {
                 const interval = group.get('recurrenceInterval')?.value;
                 const byDay = group.get('recurrenceByDay')?.value;
-                if (!(interval > 0 || (Array.isArray(byDay) && byDay.length > 0))) {
+                if (!(
+                    interval > 0 ||
+                    (Array.isArray(byDay) && byDay.length > 0)
+                )) {
                     errors['recurrenceInvalid'] = true;
                 }
             }

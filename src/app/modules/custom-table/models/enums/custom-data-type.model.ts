@@ -1,7 +1,7 @@
 export enum CustomDataType {
-    String  = 'string',
-    Int     = 'int',
+    String = 'string',
+    Int = 'int',
     Decimal = 'decimal',
-    Date    = 'date',
-    Bool    = 'bool'
+    Date = 'date',
+    Bool = 'bool',
 }

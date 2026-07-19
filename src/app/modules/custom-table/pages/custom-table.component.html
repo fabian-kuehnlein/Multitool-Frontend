@@ -3,25 +3,46 @@
         @if (!isMobile() && !isTablet()) {
             <!-- Desktop Toolbar -->
             <div class="left-container">
-                <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
+                <button
+                    mat-icon-button
+                    matTooltip="Tool wechseln"
+                    (click)="openSideNav()"
+                    class="sidenav-toggle"
+                >
                     <mat-icon>home</mat-icon>
                 </button>
-                
-                <button mat-icon-button (click)="toggleSidebar()" [matTooltip]="isSidebarVisible() ? 'Tabellenliste einklappen' : 'Tabellenliste ausklappen'">
-                    <mat-icon>{{ isSidebarVisible() ? 'menu_open' : 'menu' }}</mat-icon>
+
+                <button
+                    mat-icon-button
+                    (click)="toggleSidebar()"
+                    [matTooltip]="
+                        isSidebarVisible()
+                            ? 'Tabellenliste einklappen'
+                            : 'Tabellenliste ausklappen'
+                    "
+                >
+                    <mat-icon>{{
+                        isSidebarVisible() ? "menu_open" : "menu"
+                    }}</mat-icon>
                 </button>
             </div>
 
             <div class="middle-container">
                 @if (tableService.tableId() !== 0) {
-                    <h1 class="table-title">{{ tableService.currentTable()?.name }}</h1>
+                    <h1 class="table-title">
+                        {{ tableService.currentTable()?.name }}
+                    </h1>
                 } @else {
                     <h1 class="table-title">Custom Tables</h1>
                 }
             </div>
 
             <div class="right-container">
-                <button mat-flat-button (click)="createTable()" class="create-button">
+                <button
+                    mat-flat-button
+                    (click)="createTable()"
+                    class="create-button"
+                >
                     <mat-icon>add</mat-icon>
                     <span>Tabelle erstellen</span>
                 </button>
@@ -31,38 +52,72 @@
             <div class="mobile-header">
                 <div class="table-selector-container">
                     @if (isTablet()) {
-                        <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" style="margin-right: 16px;">
+                        <button
+                            mat-icon-button
+                            matTooltip="Tool wechseln"
+                            (click)="openSideNav()"
+                            style="margin-right: 16px"
+                        >
                             <mat-icon>home</mat-icon>
                         </button>
                     }
-                    <button mat-button [matMenuTriggerFor]="tableMenu" class="table-select-button">
+                    <button
+                        mat-button
+                        [matMenuTriggerFor]="tableMenu"
+                        class="table-select-button"
+                    >
                         <mat-icon>table_chart</mat-icon>
                         <span class="current-table-name">
-                            {{ tableService.currentTable()?.name || 'Tabellen' }}
+                            {{
+                                tableService.currentTable()?.name || "Tabellen"
+                            }}
                         </span>
                         <mat-icon>arrow_drop_down</mat-icon>
                     </button>
                     <mat-menu #tableMenu="matMenu" class="mobile-table-menu">
-                        @for (table of tableService.tableList(); track table.tableId) {
-                            <button mat-menu-item (click)="loadTable(table.tableId)">
-                                <mat-icon [color]="table.tableId === tableService.tableId() ? 'primary' : ''">table_chart</mat-icon>
+                        @for (
+                            table of tableService.tableList();
+                            track table.tableId
+                        ) {
+                            <button
+                                mat-menu-item
+                                (click)="loadTable(table.tableId)"
+                            >
+                                <mat-icon
+                                    [color]="
+                                        table.tableId === tableService.tableId()
+                                            ? 'primary'
+                                            : ''
+                                    "
+                                    >table_chart</mat-icon
+                                >
                                 <span>{{ table.name }}</span>
                             </button>
                         }
                         @if (tableService.tableList().length === 0) {
-                            <button mat-menu-item disabled>Keine Tabellen vorhanden</button>
+                            <button mat-menu-item disabled>
+                                Keine Tabellen vorhanden
+                            </button>
                         }
                     </mat-menu>
                 </div>
 
                 <div class="mobile-actions">
                     @if (isTablet()) {
-                        <button mat-flat-button (click)="createTable()" class="create-button" style="margin-right: 12px;">
+                        <button
+                            mat-flat-button
+                            (click)="createTable()"
+                            class="create-button"
+                            style="margin-right: 12px"
+                        >
                             <mat-icon>add</mat-icon>
                             <span>Tabelle erstellen</span>
                         </button>
                     } @else {
-                        <button mat-icon-button [matMenuTriggerFor]="settingsMenu">
+                        <button
+                            mat-icon-button
+                            [matMenuTriggerFor]="settingsMenu"
+                        >
                             <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #settingsMenu="matMenu">
@@ -70,17 +125,33 @@
                                 <mat-icon>add</mat-icon>
                                 <span>Tabelle erstellen</span>
                             </button>
-                            <button mat-menu-item (click)="editTable()" [disabled]="tableService.tableId() === 0">
+                            <button
+                                mat-menu-item
+                                (click)="editTable()"
+                                [disabled]="tableService.tableId() === 0"
+                            >
                                 <mat-icon>edit</mat-icon>
                                 <span>Tabelle umbenennen</span>
                             </button>
-                            <button mat-menu-item (click)="reorderColumns()" [disabled]="tableService.tableId() === 0">
+                            <button
+                                mat-menu-item
+                                (click)="reorderColumns()"
+                                [disabled]="tableService.tableId() === 0"
+                            >
                                 <mat-icon>reorder</mat-icon>
                                 <span>Spalten sortieren</span>
                             </button>
-                            <button mat-menu-item (click)="deleteTable()" [disabled]="tableService.tableId() === 0">
-                                <mat-icon class="delete-colors">delete</mat-icon>
-                                <span class="delete-colors">Tabelle löschen</span>
+                            <button
+                                mat-menu-item
+                                (click)="deleteTable()"
+                                [disabled]="tableService.tableId() === 0"
+                            >
+                                <mat-icon class="delete-colors"
+                                    >delete</mat-icon
+                                >
+                                <span class="delete-colors"
+                                    >Tabelle löschen</span
+                                >
                             </button>
                         </mat-menu>
                     }
@@ -90,7 +161,9 @@
     </mat-toolbar>
 
     @if (tableService.loading()) {
-        <mat-progress-bar mode="indeterminate" class="table-loader" [style.top]="isMobile() ? '64px' : '80px'"></mat-progress-bar>
+        <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
     }
 
     <div class="main-layout" [class.mobile-layout]="isMobile()">
@@ -102,9 +175,15 @@
                 </div>
                 <mat-nav-list class="sidebar-list" #sidebarList>
                     @for (table of paginatedTableList(); track table.tableId) {
-                        <a mat-list-item (click)="loadTable(table.tableId)" [class.active-item]="table.tableId === tableService.tableId()">
+                        <a
+                            mat-list-item
+                            (click)="loadTable(table.tableId)"
+                            [class.active-item]="
+                                table.tableId === tableService.tableId()
+                            "
+                        >
                             <mat-icon matListItemIcon>table_chart</mat-icon>
-                            <span matListItemTitle>{{table.name}}</span>
+                            <span matListItemTitle>{{ table.name }}</span>
                         </a>
                     }
                     @if (tableService.tableList().length === 0) {
@@ -113,12 +192,14 @@
                 </mat-nav-list>
 
                 @if (tableService.tableList().length > pageSize()) {
-                    <mat-paginator [length]="tableService.tableList().length"
-                                  [pageSize]="pageSize()"
-                                  [pageIndex]="pageIndex()"
-                                  [hidePageSize]="true"
-                                  (page)="onPageChange($event)"
-                                  class="sidebar-paginator">
+                    <mat-paginator
+                        [length]="tableService.tableList().length"
+                        [pageSize]="pageSize()"
+                        [pageIndex]="pageIndex()"
+                        [hidePageSize]="true"
+                        (page)="onPageChange($event)"
+                        class="sidebar-paginator"
+                    >
                     </mat-paginator>
                 }
             </div>
@@ -130,112 +211,276 @@
                 <div class="table-content-card">
                     @if (!isMobile()) {
                         <!-- Desktop View -->
-                        <div class="scroll-wrapper" cdkDropList (cdkDropListDropped)="dropRow($event)" [cdkDropListData]="dataSource.data">
-                            <table mat-table [dataSource]="dataSource" class="table">
+                        <div
+                            class="scroll-wrapper"
+                            cdkDropList
+                            (cdkDropListDropped)="dropRow($event)"
+                            [cdkDropListData]="dataSource.data"
+                        >
+                            <table
+                                mat-table
+                                [dataSource]="dataSource"
+                                class="table"
+                            >
                                 @if (!removeRowsColumn()) {
-                                    <ng-container [matColumnDef]="'drag'" sticky>
-                                        <th mat-header-cell *matHeaderCellDef></th>
+                                    <ng-container
+                                        [matColumnDef]="'drag'"
+                                        sticky
+                                    >
+                                        <th
+                                            mat-header-cell
+                                            *matHeaderCellDef
+                                        ></th>
                                         <td mat-cell *matCellDef="let row">
                                             <div class="cell-content">
-                                                <mat-icon cdkDragHandle>reorder</mat-icon>
+                                                <mat-icon cdkDragHandle
+                                                    >reorder</mat-icon
+                                                >
                                             </div>
                                         </td>
                                     </ng-container>
                                 }
-                                    
+
                                 @if (removeRowsColumn()) {
-                                    <ng-container [matColumnDef]="'delete'" sticky>
+                                    <ng-container
+                                        [matColumnDef]="'delete'"
+                                        sticky
+                                    >
                                         <th mat-header-cell *matHeaderCellDef>
                                             <div class="cell-content">
-                                                <mat-icon class="delete-colors">delete</mat-icon>
+                                                <mat-icon class="delete-colors"
+                                                    >delete</mat-icon
+                                                >
                                             </div>
                                         </th>
                                         <td mat-cell *matCellDef="let row">
                                             <div class="cell-content">
-                                                <mat-checkbox [formControl]="removeControls[row.rowId]"></mat-checkbox>
+                                                <mat-checkbox
+                                                    [formControl]="
+                                                        removeControls[
+                                                            row.rowId
+                                                        ]
+                                                    "
+                                                ></mat-checkbox>
                                             </div>
                                         </td>
                                     </ng-container>
                                 }
 
                                 <!-- Dynamic Columns -->
-                                @for (col of tableService.columns(); track col.columnId) {
-                                    <ng-container [matColumnDef]="col.columnId.toString()">
-                                        <th mat-header-cell *matHeaderCellDef class="column-header-cell">
-                                            <div class="header-container" (click)="editColumn(col.columnId)">
-                                                <span class="column-name">{{col.name || 'Unbenannt'}}</span>
-                                                <button mat-icon-button class="delete-col-btn" (click)="deleteColumn($event, col.columnId)" matTooltip="Spalte löschen">
+                                @for (
+                                    col of tableService.columns();
+                                    track col.columnId
+                                ) {
+                                    <ng-container
+                                        [matColumnDef]="col.columnId.toString()"
+                                    >
+                                        <th
+                                            mat-header-cell
+                                            *matHeaderCellDef
+                                            class="column-header-cell"
+                                        >
+                                            <div
+                                                class="header-container"
+                                                (click)="
+                                                    editColumn(col.columnId)
+                                                "
+                                            >
+                                                <span class="column-name">{{
+                                                    col.name || "Unbenannt"
+                                                }}</span>
+                                                <button
+                                                    mat-icon-button
+                                                    class="delete-col-btn"
+                                                    (click)="
+                                                        deleteColumn(
+                                                            $event,
+                                                            col.columnId
+                                                        )
+                                                    "
+                                                    matTooltip="Spalte löschen"
+                                                >
                                                     <mat-icon>close</mat-icon>
                                                 </button>
                                             </div>
                                         </th>
-                                        <td mat-cell *matCellDef="let row" class="cell-hover" (click)="focusOwnCell($event)">
+                                        <td
+                                            mat-cell
+                                            *matCellDef="let row"
+                                            class="cell-hover"
+                                            (click)="focusOwnCell($event)"
+                                        >
                                             @switch (col.dataType) {
-                                                @case ('string') {
-                                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
-                                                        <input matInput
+                                                @case ("string") {
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        subscriptSizing="dynamic"
+                                                        class="no-outline-form-field"
+                                                    >
+                                                        <input
+                                                            matInput
                                                             type="text"
-                                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                            [formControl]="
+                                                                formControls[
+                                                                    row.rowId +
+                                                                        '_' +
+                                                                        col.columnId
+                                                                ]
+                                                            "
+                                                            (blur)="
+                                                                onCellBlur(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
+                                                        />
                                                     </mat-form-field>
                                                 }
 
-                                                @case ('int') {
-                                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
-                                                        <input matInput class="no-spinner"
+                                                @case ("int") {
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        subscriptSizing="dynamic"
+                                                        class="no-outline-form-field"
+                                                    >
+                                                        <input
+                                                            matInput
+                                                            class="no-spinner"
                                                             type="number"
-                                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                            (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                            [formControl]="
+                                                                formControls[
+                                                                    row.rowId +
+                                                                        '_' +
+                                                                        col.columnId
+                                                                ]
+                                                            "
+                                                            (blur)="
+                                                                onCellBlur(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
+                                                        />
                                                     </mat-form-field>
                                                 }
 
-                                                @case ('decimal') {
-                                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
-                                                        <input matInput class="no-spinner"
-                                                        type="number"
-                                                        step="0.01"
-                                                        [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                        (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                @case ("decimal") {
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        subscriptSizing="dynamic"
+                                                        class="no-outline-form-field"
+                                                    >
+                                                        <input
+                                                            matInput
+                                                            class="no-spinner"
+                                                            type="number"
+                                                            step="0.01"
+                                                            [formControl]="
+                                                                formControls[
+                                                                    row.rowId +
+                                                                        '_' +
+                                                                        col.columnId
+                                                                ]
+                                                            "
+                                                            (blur)="
+                                                                onCellBlur(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
+                                                        />
                                                     </mat-form-field>
                                                 }
 
-                                                @case ('date') { 
-                                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field date-cell">
-                                                        <input matInput [matDatepicker]="picker" class="date-cell"
-                                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                            (dateChange)="onCellBlur(row.rowId, col.columnId)">
-                                                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                                                        <mat-datepicker #picker></mat-datepicker>
+                                                @case ("date") {
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        subscriptSizing="dynamic"
+                                                        class="no-outline-form-field date-cell"
+                                                    >
+                                                        <input
+                                                            matInput
+                                                            [matDatepicker]="
+                                                                picker
+                                                            "
+                                                            class="date-cell"
+                                                            [formControl]="
+                                                                formControls[
+                                                                    row.rowId +
+                                                                        '_' +
+                                                                        col.columnId
+                                                                ]
+                                                            "
+                                                            (dateChange)="
+                                                                onCellBlur(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
+                                                        />
+                                                        <mat-datepicker-toggle
+                                                            matIconSuffix
+                                                            [for]="picker"
+                                                        ></mat-datepicker-toggle>
+                                                        <mat-datepicker
+                                                            #picker
+                                                        ></mat-datepicker>
                                                     </mat-form-field>
-
                                                 }
 
-                                                @case ('bool') {
+                                                @case ("bool") {
                                                     <div class="cell-content">
                                                         <mat-checkbox
-                                                            [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                            (change)="onCellBlur(row.rowId, col.columnId)">
+                                                            [formControl]="
+                                                                formControls[
+                                                                    row.rowId +
+                                                                        '_' +
+                                                                        col.columnId
+                                                                ]
+                                                            "
+                                                            (change)="
+                                                                onCellBlur(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
+                                                        >
                                                         </mat-checkbox>
                                                     </div>
                                                 }
 
                                                 @default {
                                                     <div class="cell-content">
-                                                        <p>Datentyp nicht erkannt!</p>
+                                                        <p>
+                                                            Datentyp nicht
+                                                            erkannt!
+                                                        </p>
                                                     </div>
                                                 }
                                             }
                                         </td>
                                     </ng-container>
                                 }
-                                
-                                <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                                <tr mat-row
+
+                                <tr
+                                    mat-header-row
+                                    *matHeaderRowDef="
+                                        displayedColumns();
+                                        sticky: true
+                                    "
+                                ></tr>
+                                <tr
+                                    mat-row
                                     cdkDrag
                                     [cdkDragDisabled]="removeRowsColumn()"
-                                    *matRowDef="let row; columns: displayedColumns();"
-                                    [class.row-marked-for-deletion]="removeControls[row.rowId].value">
-                                </tr>
+                                    *matRowDef="
+                                        let row;
+                                        columns: displayedColumns()
+                                    "
+                                    [class.row-marked-for-deletion]="
+                                        removeControls[row.rowId].value
+                                    "
+                                ></tr>
                             </table>
                         </div>
                     } @else {
@@ -243,70 +488,211 @@
                         @if (dataSource.data.length > 0) {
                             <div class="mobile-wrapper">
                                 @for (row of dataSource.data; track row.rowId) {
-                                    <mat-card class="row-card" [class.marked-for-deletion]="removeControls[row.rowId].value">
-                                        
+                                    <mat-card
+                                        class="row-card"
+                                        [class.marked-for-deletion]="
+                                            removeControls[row.rowId].value
+                                        "
+                                    >
                                         @if (removeRowsColumn()) {
-                                            <div class="mobile-row-delete-overlay" (click)="removeControls[row.rowId].setValue(!removeControls[row.rowId].value)">
-                                                <mat-checkbox [formControl]="removeControls[row.rowId]" (click)="$event.stopPropagation()"></mat-checkbox>
+                                            <div
+                                                class="mobile-row-delete-overlay"
+                                                (click)="
+                                                    removeControls[
+                                                        row.rowId
+                                                    ].setValue(
+                                                        !removeControls[
+                                                            row.rowId
+                                                        ].value
+                                                    )
+                                                "
+                                            >
+                                                <mat-checkbox
+                                                    [formControl]="
+                                                        removeControls[
+                                                            row.rowId
+                                                        ]
+                                                    "
+                                                    (click)="
+                                                        $event.stopPropagation()
+                                                    "
+                                                ></mat-checkbox>
                                             </div>
                                         }
 
-                                        @for (col of tableService.columns(); track col.columnId) {
+                                        @for (
+                                            col of tableService.columns();
+                                            track col.columnId
+                                        ) {
                                             <div class="row-field">
-                                                <div class="field-label" (click)="editColumn(col.columnId)">{{ col.name || 'Unbenannt' }}</div>
-                                                <div class="field-value" [class.centered-value]="col.dataType === 'bool'">
+                                                <div
+                                                    class="field-label"
+                                                    (click)="
+                                                        editColumn(col.columnId)
+                                                    "
+                                                >
+                                                    {{
+                                                        col.name || "Unbenannt"
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="field-value"
+                                                    [class.centered-value]="
+                                                        col.dataType === 'bool'
+                                                    "
+                                                >
                                                     @switch (col.dataType) {
-                                                        @case ('string') {
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
-                                                                <input matInput
+                                                        @case ("string") {
+                                                            <mat-form-field
+                                                                appearance="outline"
+                                                                subscriptSizing="dynamic"
+                                                                class="no-outline-form-field"
+                                                            >
+                                                                <input
+                                                                    matInput
                                                                     type="text"
-                                                                    [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                                    (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                                    [formControl]="
+                                                                        formControls[
+                                                                            row.rowId +
+                                                                                '_' +
+                                                                                col.columnId
+                                                                        ]
+                                                                    "
+                                                                    (blur)="
+                                                                        onCellBlur(
+                                                                            row.rowId,
+                                                                            col.columnId
+                                                                        )
+                                                                    "
+                                                                />
                                                             </mat-form-field>
                                                         }
 
-                                                        @case ('int') {
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
-                                                                <input matInput class="no-spinner"
+                                                        @case ("int") {
+                                                            <mat-form-field
+                                                                appearance="outline"
+                                                                subscriptSizing="dynamic"
+                                                                class="no-outline-form-field"
+                                                            >
+                                                                <input
+                                                                    matInput
+                                                                    class="no-spinner"
                                                                     type="number"
-                                                                    [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                                    (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                                    [formControl]="
+                                                                        formControls[
+                                                                            row.rowId +
+                                                                                '_' +
+                                                                                col.columnId
+                                                                        ]
+                                                                    "
+                                                                    (blur)="
+                                                                        onCellBlur(
+                                                                            row.rowId,
+                                                                            col.columnId
+                                                                        )
+                                                                    "
+                                                                />
                                                             </mat-form-field>
                                                         }
 
-                                                        @case ('decimal') {
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field">
-                                                                <input matInput class="no-spinner"
-                                                                type="number"
-                                                                step="0.01"
-                                                                [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                                (blur)="onCellBlur(row.rowId, col.columnId)">
+                                                        @case ("decimal") {
+                                                            <mat-form-field
+                                                                appearance="outline"
+                                                                subscriptSizing="dynamic"
+                                                                class="no-outline-form-field"
+                                                            >
+                                                                <input
+                                                                    matInput
+                                                                    class="no-spinner"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    [formControl]="
+                                                                        formControls[
+                                                                            row.rowId +
+                                                                                '_' +
+                                                                                col.columnId
+                                                                        ]
+                                                                    "
+                                                                    (blur)="
+                                                                        onCellBlur(
+                                                                            row.rowId,
+                                                                            col.columnId
+                                                                        )
+                                                                    "
+                                                                />
                                                             </mat-form-field>
                                                         }
 
-                                                        @case ('date') { 
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="no-outline-form-field date-cell">
-                                                                <input matInput [matDatepicker]="picker" class="date-cell"
-                                                                    [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                                    (dateChange)="onCellBlur(row.rowId, col.columnId)">
-                                                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                                                                <mat-datepicker #picker></mat-datepicker>
+                                                        @case ("date") {
+                                                            <mat-form-field
+                                                                appearance="outline"
+                                                                subscriptSizing="dynamic"
+                                                                class="no-outline-form-field date-cell"
+                                                            >
+                                                                <input
+                                                                    matInput
+                                                                    [matDatepicker]="
+                                                                        picker
+                                                                    "
+                                                                    class="date-cell"
+                                                                    [formControl]="
+                                                                        formControls[
+                                                                            row.rowId +
+                                                                                '_' +
+                                                                                col.columnId
+                                                                        ]
+                                                                    "
+                                                                    (dateChange)="
+                                                                        onCellBlur(
+                                                                            row.rowId,
+                                                                            col.columnId
+                                                                        )
+                                                                    "
+                                                                />
+                                                                <mat-datepicker-toggle
+                                                                    matIconSuffix
+                                                                    [for]="
+                                                                        picker
+                                                                    "
+                                                                ></mat-datepicker-toggle>
+                                                                <mat-datepicker
+                                                                    #picker
+                                                                ></mat-datepicker>
                                                             </mat-form-field>
-
                                                         }
 
-                                                        @case ('bool') {
-                                                            <div class="cell-content">
+                                                        @case ("bool") {
+                                                            <div
+                                                                class="cell-content"
+                                                            >
                                                                 <mat-checkbox
-                                                                    [formControl]="formControls[row.rowId + '_' + col.columnId]"
-                                                                    (change)="onCellBlur(row.rowId, col.columnId)">
+                                                                    [formControl]="
+                                                                        formControls[
+                                                                            row.rowId +
+                                                                                '_' +
+                                                                                col.columnId
+                                                                        ]
+                                                                    "
+                                                                    (change)="
+                                                                        onCellBlur(
+                                                                            row.rowId,
+                                                                            col.columnId
+                                                                        )
+                                                                    "
+                                                                >
                                                                 </mat-checkbox>
                                                             </div>
                                                         }
 
                                                         @default {
-                                                            <div class="cell-content">
-                                                                <p>Datentyp nicht erkannt!</p>
+                                                            <div
+                                                                class="cell-content"
+                                                            >
+                                                                <p>
+                                                                    Datentyp
+                                                                    nicht
+                                                                    erkannt!
+                                                                </p>
                                                             </div>
                                                         }
                                                     }
@@ -336,13 +722,19 @@
                                     <mat-icon>add</mat-icon>
                                     Zeile hinzufügen
                                 </button>
-                                
-                                <button mat-stroked-button (click)="addColumn()">
+
+                                <button
+                                    mat-stroked-button
+                                    (click)="addColumn()"
+                                >
                                     <mat-icon>view_column</mat-icon>
                                     Spalte hinzufügen
                                 </button>
 
-                                <button mat-stroked-button (click)="reorderColumns()">
+                                <button
+                                    mat-stroked-button
+                                    (click)="reorderColumns()"
+                                >
                                     <mat-icon>swap_horiz</mat-icon>
                                     Anordnung
                                 </button>
@@ -354,17 +746,30 @@
                                     Umbenennen
                                 </button>
 
-                                <button mat-button class="delete-colors" (click)="toggleRemoveMode()">
+                                <button
+                                    mat-button
+                                    class="delete-colors"
+                                    (click)="toggleRemoveMode()"
+                                >
                                     <mat-icon>remove_circle_outline</mat-icon>
                                     Zeilen löschen
                                 </button>
 
-                                <button mat-button class="delete-colors" (click)="deleteTable()">
+                                <button
+                                    mat-button
+                                    class="delete-colors"
+                                    (click)="deleteTable()"
+                                >
                                     <mat-icon>delete_forever</mat-icon>
                                     Tabelle löschen
                                 </button>
                             } @else {
-                                <button mat-flat-button class="delete-colors" (click)="deleteRows()" [disabled]="!hasCheckedRows()">
+                                <button
+                                    mat-flat-button
+                                    class="delete-colors"
+                                    (click)="deleteRows()"
+                                    [disabled]="!hasCheckedRows()"
+                                >
                                     <mat-icon>delete</mat-icon>
                                     Ausgewählte Zeilen löschen
                                 </button>
@@ -380,7 +785,11 @@
                 <div class="empty-state">
                     <mat-icon class="empty-table-icon">table_view</mat-icon>
                     <h2>Wähle eine Tabelle aus oder erstelle eine neue.</h2>
-                    <button mat-flat-button (click)="createTable()" style="margin-top: 20px;">
+                    <button
+                        mat-flat-button
+                        (click)="createTable()"
+                        style="margin-top: 20px"
+                    >
                         <mat-icon>add</mat-icon>
                         Tabelle erstellen
                     </button>
@@ -392,7 +801,12 @@
     @if (isMobile()) {
         <!-- Mobile Navigation (Bottom Left) -->
         <div class="mobile-nav-container">
-            <button mat-fab color="accent" (click)="openSideNav()" class="home-fab">
+            <button
+                mat-fab
+                color="accent"
+                (click)="openSideNav()"
+                class="home-fab"
+            >
                 <mat-icon>home</mat-icon>
             </button>
         </div>
@@ -402,33 +816,59 @@
             <div class="mobile-fab-container">
                 @if (!removeRowsColumn()) {
                     <div class="fab-menu" [class.active]="isFabMenuOpen()">
-                        <button mat-mini-fab matTooltip="Zeile hinzufügen" (click)="addRow(); isFabMenuOpen.set(false)">
+                        <button
+                            mat-mini-fab
+                            matTooltip="Zeile hinzufügen"
+                            (click)="addRow(); isFabMenuOpen.set(false)"
+                        >
                             <mat-icon>splitscreen_add</mat-icon>
                         </button>
-                        <button mat-mini-fab matTooltip="Spalte hinzufügen" (click)="addColumn(); isFabMenuOpen.set(false)">
+                        <button
+                            mat-mini-fab
+                            matTooltip="Spalte hinzufügen"
+                            (click)="addColumn(); isFabMenuOpen.set(false)"
+                        >
                             <mat-icon>add_column_right</mat-icon>
                         </button>
-                        <button mat-mini-fab class=""
-                                matTooltip="Zeilen löschen" (click)="toggleRemoveMode(); isFabMenuOpen.set(false)">
-                            <mat-icon class="delete-colors">playlist_remove</mat-icon>
+                        <button
+                            mat-mini-fab
+                            class=""
+                            matTooltip="Zeilen löschen"
+                            (click)="
+                                toggleRemoveMode(); isFabMenuOpen.set(false)
+                            "
+                        >
+                            <mat-icon class="delete-colors"
+                                >playlist_remove</mat-icon
+                            >
                         </button>
                     </div>
                     <button mat-fab (click)="toggleFabMenu()">
-                        <mat-icon>{{ isFabMenuOpen() ? 'close' : 'add' }}</mat-icon>
+                        <mat-icon>{{
+                            isFabMenuOpen() ? "close" : "add"
+                        }}</mat-icon>
                     </button>
                 } @else {
-                    <button mat-fab (click)="toggleRemoveMode()" matTooltip="Löschvorgang abbrechen">
+                    <button
+                        mat-fab
+                        (click)="toggleRemoveMode()"
+                        matTooltip="Löschvorgang abbrechen"
+                    >
                         <mat-icon>close</mat-icon>
                     </button>
                 }
             </div>
-            
+
             @if (removeRowsColumn() && hasCheckedRows()) {
                 <div class="mobile-action-bar">
                     <button mat-button (click)="toggleRemoveMode()">
                         Abbrechen
                     </button>
-                    <button mat-flat-button (click)="deleteRows()" class="delete-colors">
+                    <button
+                        mat-flat-button
+                        (click)="deleteRows()"
+                        class="delete-colors"
+                    >
                         Zeilen löschen
                     </button>
                 </div>

@@ -1,411 +1,759 @@
 <div class="todo-page-container">
-  <!-- Reusable Row-Templates -->
+    <!-- Reusable Row-Templates -->
 
-  <!-- Desktop-Zeile -->
-  <ng-template #desktopRow let-todo>
-    <div class="todo-item" [class.completed]="todo.isDone" [style.border-left-color]="getPriorityColor(todo.priority)">
-      <div class="todo-row">
-        <mat-checkbox [checked]="todo.isDone" (change)="onToggleDone(todo)">
-          <span class="todo-title" [class.done-text]="todo.isDone">{{ todo.title }}</span>
-        </mat-checkbox>
+    <!-- Desktop-Zeile -->
+    <ng-template #desktopRow let-todo>
+        <div
+            class="todo-item"
+            [class.completed]="todo.isDone"
+            [style.border-left-color]="getPriorityColor(todo.priority)"
+        >
+            <div class="todo-row">
+                <mat-checkbox
+                    [checked]="todo.isDone"
+                    (change)="onToggleDone(todo)"
+                >
+                    <span class="todo-title" [class.done-text]="todo.isDone">{{
+                        todo.title
+                    }}</span>
+                </mat-checkbox>
 
-        <div class="todo-meta-container">
-          @if (todo.description) {
-            <button mat-icon-button class="expand-btn" [class.expanded]="isExpanded(todo.id)"
-              (click)="toggleExpand(todo.id)" matTooltip="Beschreibung anzeigen">
-              <mat-icon>expand_more</mat-icon>
-            </button>
-          }
-
-          @if (getCategory(todo.categoryId); as cat) {
-            <span class="category-badge">
-              <div class="color-dot" [style.background-color]="cat.color"></div>
-              {{ cat.name }}
-            </span>
-          }
-
-          @if (todo.dueDate) {
-            <button matButton (click)="goToDateInCalendar(todo.dueDate)">
-              <mat-icon>event</mat-icon>
-              <span>{{ todo.dueDate | date:'dd.MM.yyyy' }}</span>
-            </button>
-          }
-
-          <button mat-icon-button [matMenuTriggerFor]="todoMenu" matTooltip="Optionen">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #todoMenu="matMenu">
-            <button mat-menu-item (click)="onEditTodo(todo)">
-              <mat-icon>edit</mat-icon>
-              <span>Bearbeiten</span>
-            </button>
-            <button mat-menu-item (click)="onDeleteTodo(todo)">
-              <mat-icon>delete</mat-icon>
-              <span>Löschen</span>
-            </button>
-          </mat-menu>
-        </div>
-      </div>
-
-      @if (todo.description && isExpanded(todo.id)) {
-        <div class="todo-description-line">
-          <span class="description-text">{{ todo.description }}</span>
-        </div>
-      }
-    </div>
-  </ng-template>
-
-  <!-- Mobile-Zeile -->
-  <ng-template #mobileRow let-todo>
-    <div class="todo-item mobile-todo-item" [class.completed]="todo.isDone"
-      [style.border-left-color]="getPriorityColor(todo.priority)"
-      (click)="toggleExpand(todo.id)">
-      <div class="mobile-todo-main">
-        <mat-checkbox [checked]="todo.isDone" (change)="onToggleDone(todo)" (click)="$event.stopPropagation()">
-            @if (!isExpanded(todo.id)) {
-                <span class="todo-title" [class.done-text]="todo.isDone">{{ todo.title }}</span>
-            }
-        </mat-checkbox>
-
-        <div class="mobile-main-right">
-          @if (todo.dueDate && !isExpanded(todo.id)) {
-            <mat-icon>date_range</mat-icon>
-          }
-          <button mat-icon-button class="expand-btn" [class.expanded]="isExpanded(todo.id)"
-            (click)="$event.stopPropagation(); toggleExpand(todo.id)">
-            <mat-icon>expand_more</mat-icon>
-          </button>
-        </div>
-      </div>
-
-      @if (isExpanded(todo.id)) {
-        <div class="mobile-todo-expanded" (click)="$event.stopPropagation()">
-          <span class="mobile-expanded-title" [class.done-text]="todo.isDone">{{ todo.title }}</span>
-
-          <div class="mobile-expanded-meta">
-            @if (getCategory(todo.categoryId); as cat) {
-              <span class="category-badge">
-                <div class="color-dot" [style.background-color]="cat.color"></div>
-                {{ cat.name }}
-              </span>
-            }
-
-            @if (todo.dueDate) {
-              <button matButton class="todo-due-date-btn" (click)="goToDateInCalendar(todo.dueDate)">
-                <mat-icon>event</mat-icon>
-                <span>{{ todo.dueDate | date:'dd.MM.yyyy' }}</span>
-              </button>
-            }
-          </div>
-
-          @if (todo.description) {
-            <div class="mobile-description">{{ todo.description }}</div>
-          }
-
-          <div class="mobile-actions-row">
-            <button matButton class="mobile-action-btn" (click)="onEditTodo(todo); $event.stopPropagation()">
-              <mat-icon>edit</mat-icon>
-              <span>Bearbeiten</span>
-            </button>
-            <button matButton class="mobile-action-btn delete-colors" (click)="onDeleteTodo(todo); $event.stopPropagation()">
-              <mat-icon>delete</mat-icon>
-              <span>Löschen</span>
-            </button>
-          </div>
-        </div>
-      }
-    </div>
-  </ng-template>
-
-  <!-- Toolbar -->
-  <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
-    @if (isMobile()) {
-      <div class="mobile-header">
-        <span class="mobile-title">To-Do Liste</span>
-      </div>
-    } @else if (isTablet()) {
-      <div class="mobile-header">
-        <div class="left-actions">
-          <button mat-icon-button (click)="openSideNav()">
-            <mat-icon>home</mat-icon>
-          </button>
-          <span class="mobile-title">To-Dos</span>
-        </div>
-
-        <div class="mobile-actions">
-          <button mat-icon-button (click)="onAddTodo()">
-            <mat-icon>add</mat-icon>
-          </button>
-          <button mat-icon-button [matMenuTriggerFor]="filterMenu">
-            <mat-icon>filter_list</mat-icon>
-          </button>
-          <mat-menu #filterMenu="matMenu">
-            <button mat-menu-item (click)="setFilterStatus('all')">Alle</button>
-            <button mat-menu-item (click)="setFilterStatus('active')">Aktiv</button>
-            <button mat-menu-item (click)="setFilterStatus('completed')">Erledigt</button>
-          </mat-menu>
-        </div>
-      </div>
-    } @else {
-      <div class="left-container">
-        <button mat-icon-button matTooltip="Tool wechseln" (click)="openSideNav()" class="sidenav-toggle">
-          <mat-icon>home</mat-icon>
-        </button>
-      </div>
-
-      <div class="middle-container">
-        <h1 class="page-title">To-Do Liste</h1>
-      </div>
-
-      <div class="right-container">
-        <button mat-flat-button (click)="onAddTodo()" class="create-button">
-          <mat-icon>add</mat-icon>
-          <span>Neue Aufgabe</span>
-        </button>
-      </div>
-    }
-  </mat-toolbar>
-
-  @if (todoService.loading()) {
-    <mat-progress-bar mode="indeterminate" class="page-loader" [style.top]="isMobile() ? '64px' : '80px'"></mat-progress-bar>
-  }
-
-  <div class="main-layout" [class.mobile-layout]="isMobile()">
-    <!-- Sidebar -->
-    @if (!isMobile() && !isTablet()) {
-      <div class="page-sidebar">
-        <div class="sidebar-header">
-          <span>Filter & Status</span>
-        </div>
-
-        <div class="sidebar-content">
-          <mat-nav-list class="sidebar-list">
-            <div class="list-section-header">Status</div>
-            <a mat-list-item (click)="setFilterStatus('all')" [class.active-item]="filterStatus() === 'all'">
-              <mat-icon matListItemIcon>list</mat-icon>
-              <span matListItemTitle>Alle</span>
-              <span matListItemMeta class="stat-badge">{{ todoService.stats().total }}</span>
-            </a>
-            <a mat-list-item (click)="setFilterStatus('active')" [class.active-item]="filterStatus() === 'active'">
-              <mat-icon matListItemIcon>circle</mat-icon>
-              <span matListItemTitle>Aktiv</span>
-              <span matListItemMeta class="stat-badge">{{ todoService.stats().active }}</span>
-            </a>
-            <a mat-list-item (click)="setFilterStatus('completed')" [class.active-item]="filterStatus() === 'completed'">
-              <mat-icon matListItemIcon>check_circle</mat-icon>
-              <span matListItemTitle>Erledigt</span>
-              <span matListItemMeta class="stat-badge">{{ todoService.stats().completed }}</span>
-            </a>
-
-            <mat-divider></mat-divider>
-
-            <div class="list-section-header">Priorität</div>
-            <a mat-list-item (click)="setFilterPriority(null)" [class.active-item]="filterPriority() === null">
-              <mat-icon matListItemIcon>filter_none</mat-icon>
-              <span matListItemTitle>Alle Prioritäten</span>
-            </a>
-            <a mat-list-item (click)="setFilterPriority(3)" [class.active-item]="filterPriority() === 3">
-              <mat-icon matListItemIcon [style.color]="getPriorityColor(3)">flag</mat-icon>
-              <span matListItemTitle>Hoch</span>
-            </a>
-            <a mat-list-item (click)="setFilterPriority(2)" [class.active-item]="filterPriority() === 2">
-              <mat-icon matListItemIcon [style.color]="getPriorityColor(2)">flag</mat-icon>
-              <span matListItemTitle>Mittel</span>
-            </a>
-            <a mat-list-item (click)="setFilterPriority(1)" [class.active-item]="filterPriority() === 1">
-              <mat-icon matListItemIcon [style.color]="getPriorityColor(1)">flag</mat-icon>
-              <span matListItemTitle>Niedrig</span>
-            </a>
-          </mat-nav-list>
-        </div>
-      </div>
-    }
-
-    <!-- Main Content Area -->
-    <div class="content-wrapper">
-      @if (isMobile()) {
-        <div class="todo-content-card mobile-card">
-          <div class="scroll-wrapper">
-            <mat-list class="todo-list">
-              @if (filterStatus() === 'completed') {
-                @for (todo of completedTodos(); track todo.id) {
-                  <ng-container *ngTemplateOutlet="mobileRow; context: { $implicit: todo }"></ng-container>
-                  <mat-divider></mat-divider>
-                }
-                @if (completedTodos().length === 0 && !todoService.loading()) {
-                  <div class="empty-state">
-                    <mat-icon class="empty-icon">check_circle_outline</mat-icon>
-                    <h2>Keine erledigten Aufgaben</h2>
-                    <p>Du hast noch keine Aufgaben abgeschlossen.</p>
-                  </div>
-                }
-              } @else {
-                @for (todo of activeTodos(); track todo.id) {
-                  <ng-container *ngTemplateOutlet="mobileRow; context: { $implicit: todo }"></ng-container>
-                  <mat-divider></mat-divider>
-                }
-                @if (activeTodos().length === 0 && !todoService.loading()) {
-                  <div class="empty-state">
-                    <mat-icon class="empty-icon">task_alt</mat-icon>
-                    <h2>Keine aktiven Aufgaben</h2>
-                    <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
-                    <button mat-stroked-button (click)="onAddTodo()">
-                      <mat-icon>add</mat-icon>
-                      Aufgabe hinzufügen
-                    </button>
-                  </div>
-                }
-              }
-            </mat-list>
-          </div>
-        </div>
-      } @else {
-        @if (filterStatus() !== 'completed' || completedTodos().length === 0) {
-          <div class="todo-content-card">
-            <div class="todo-header-actions">
-              <div class="section-title">Aufgaben</div>
-              <div class="sort-group">
-                <span class="label">Sortieren nach:</span>
-                <button mat-button (click)="changeSort('priority')" [color]="sortBy() === 'priority' ? 'primary' : ''">
-                  Priorität
-                  @if (sortBy() === 'priority') {
-                    <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                  }
-                </button>
-                <button mat-button (click)="changeSort('dueDate')" [color]="sortBy() === 'dueDate' ? 'primary' : ''">
-                  Datum
-                  @if (sortBy() === 'dueDate') {
-                    <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                  }
-                </button>
-                <button mat-button (click)="changeSort('title')" [color]="sortBy() === 'title' ? 'primary' : ''">
-                  Titel
-                  @if (sortBy() === 'title') {
-                    <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                  }
-                </button>
-              </div>
-            </div>
-
-            <div class="scroll-wrapper">
-              <mat-list class="todo-list">
-                @for (todo of activeTodos(); track todo.id) {
-                  <ng-container *ngTemplateOutlet="desktopRow; context: { $implicit: todo }"></ng-container>
-                  <mat-divider></mat-divider>
-                }
-
-                @if (activeTodos().length === 0 && !todoService.loading()) {
-                  <div class="empty-state">
-                    <mat-icon class="empty-icon">task_alt</mat-icon>
-                    @if (filterStatus() === 'completed') {
-                      <h2>Keine erledigten Aufgaben gefunden</h2>
-                      <p>Du hast noch keine Aufgaben abgeschlossen.</p>
-                    } @else {
-                      <h2>Keine aktiven Aufgaben</h2>
-                      <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
+                <div class="todo-meta-container">
+                    @if (todo.description) {
+                        <button
+                            mat-icon-button
+                            class="expand-btn"
+                            [class.expanded]="isExpanded(todo.id)"
+                            (click)="toggleExpand(todo.id)"
+                            matTooltip="Beschreibung anzeigen"
+                        >
+                            <mat-icon>expand_more</mat-icon>
+                        </button>
                     }
-                    <button mat-stroked-button (click)="onAddTodo()">
-                      <mat-icon>add</mat-icon>
-                      Aufgabe hinzufügen
+
+                    @if (getCategory(todo.categoryId); as cat) {
+                        <span class="category-badge">
+                            <div
+                                class="color-dot"
+                                [style.background-color]="cat.color"
+                            ></div>
+                            {{ cat.name }}
+                        </span>
+                    }
+
+                    @if (todo.dueDate) {
+                        <button
+                            matButton
+                            (click)="goToDateInCalendar(todo.dueDate)"
+                        >
+                            <mat-icon>event</mat-icon>
+                            <span>{{ todo.dueDate | date: "dd.MM.yyyy" }}</span>
+                        </button>
+                    }
+
+                    <button
+                        mat-icon-button
+                        [matMenuTriggerFor]="todoMenu"
+                        matTooltip="Optionen"
+                    >
+                        <mat-icon>more_vert</mat-icon>
                     </button>
-                  </div>
-                }
-              </mat-list>
-            </div>
-          </div>
-        }
-
-        <!-- Erledigte Aufgaben in eigenem Panel darunter -->
-        @if (completedTodos().length > 0) {
-          <div class="todo-content-card completed-tasks-card" [class.full-height-card]="filterStatus() === 'completed'">
-            <div class="todo-header-actions completed-header" (click)="toggleCompletedCollapse()" style="cursor: pointer;">
-              <div class="completed-panel-title">
-                <mat-icon class="completed-icon">check_circle_outline</mat-icon>
-                <span>Erledigte Aufgaben ({{ completedTodos().length }})</span>
-              </div>
-              <button mat-icon-button class="expand-btn" [class.expanded]="isCompletedExpanded()" (click)="$event.stopPropagation(); toggleCompletedCollapse()">
-                <mat-icon>expand_more</mat-icon>
-              </button>
+                    <mat-menu #todoMenu="matMenu">
+                        <button mat-menu-item (click)="onEditTodo(todo)">
+                            <mat-icon>edit</mat-icon>
+                            <span>Bearbeiten</span>
+                        </button>
+                        <button mat-menu-item (click)="onDeleteTodo(todo)">
+                            <mat-icon>delete</mat-icon>
+                            <span>Löschen</span>
+                        </button>
+                    </mat-menu>
+                </div>
             </div>
 
-            @if (isCompletedExpanded()) {
-              <div class="completed-scroll-wrapper scroll-wrapper">
-                <mat-list class="todo-list completed-list">
-                  @for (todo of completedTodos(); track todo.id) {
-                    <ng-container *ngTemplateOutlet="desktopRow; context: { $implicit: todo }"></ng-container>
-                    <mat-divider></mat-divider>
-                  }
-                </mat-list>
-              </div>
+            @if (todo.description && isExpanded(todo.id)) {
+                <div class="todo-description-line">
+                    <span class="description-text">{{ todo.description }}</span>
+                </div>
             }
-          </div>
-        }
-      }
-    </div>
-  </div>
-
-  @if (isMobile()) {
-    <div class="mobile-bottom-bar">
-      <div class="mobile-action-container">
-        <button mat-fab class="mobile-fab-left" (click)="openSideNav()" matTooltip="Tool wechseln">
-          <mat-icon>home</mat-icon>
-        </button>
-
-        <button mat-fab extended (click)="setFilterStatus(filterStatus() === 'completed' ? 'active' : 'completed')">
-          <mat-icon>compare_arrows</mat-icon>
-          {{ filterStatus() === 'completed' ? 'Aktive' : 'Erledigte' }}
-        </button>
-
-        <div class="mobile-actions-right">
-          <!-- Filter & Sort Menu Trigger -->
-          <button mat-fab class="mobile-filter-fab" [matMenuTriggerFor]="mobileFilterMenu" [color]="filterPriority() !== null || sortBy() !== 'priority' ? 'accent' : 'basic'" matTooltip="Filter & Sortieren">
-            <mat-icon>filter_list</mat-icon>
-          </button>
-
-          <!-- Create Button -->
-          <button mat-fab class="mobile-fab-right" (click)="onAddTodo()" matTooltip="Aufgabe hinzufügen">
-            <mat-icon>add</mat-icon>
-          </button>
         </div>
-      </div>
+    </ng-template>
 
-      <mat-menu #mobileFilterMenu="matMenu" class="mobile-todo-menu">
-        <!-- Priority Header -->
-        <div class="menu-section-header">Priorität</div>
-        <button mat-menu-item (click)="setFilterPriority(null)" [class.active-menu-item]="filterPriority() === null">
-          <mat-icon>filter_none</mat-icon>
-          <span>Alle</span>
-        </button>
-        <button mat-menu-item (click)="setFilterPriority(3)" [class.active-menu-item]="filterPriority() === 3">
-          <mat-icon [style.color]="getPriorityColor(3)">flag</mat-icon>
-          <span>Hoch</span>
-        </button>
-        <button mat-menu-item (click)="setFilterPriority(2)" [class.active-menu-item]="filterPriority() === 2">
-          <mat-icon [style.color]="getPriorityColor(2)">flag</mat-icon>
-          <span>Mittel</span>
-        </button>
-        <button mat-menu-item (click)="setFilterPriority(1)" [class.active-menu-item]="filterPriority() === 1">
-          <mat-icon [style.color]="getPriorityColor(1)">flag</mat-icon>
-          <span>Niedrig</span>
-        </button>
+    <!-- Mobile-Zeile -->
+    <ng-template #mobileRow let-todo>
+        <div
+            class="todo-item mobile-todo-item"
+            [class.completed]="todo.isDone"
+            [style.border-left-color]="getPriorityColor(todo.priority)"
+            (click)="toggleExpand(todo.id)"
+        >
+            <div class="mobile-todo-main">
+                <mat-checkbox
+                    [checked]="todo.isDone"
+                    (change)="onToggleDone(todo)"
+                    (click)="$event.stopPropagation()"
+                >
+                    @if (!isExpanded(todo.id)) {
+                        <span
+                            class="todo-title"
+                            [class.done-text]="todo.isDone"
+                            >{{ todo.title }}</span
+                        >
+                    }
+                </mat-checkbox>
 
-        <mat-divider></mat-divider>
+                <div class="mobile-main-right">
+                    @if (todo.dueDate && !isExpanded(todo.id)) {
+                        <mat-icon>date_range</mat-icon>
+                    }
+                    <button
+                        mat-icon-button
+                        class="expand-btn"
+                        [class.expanded]="isExpanded(todo.id)"
+                        (click)="
+                            $event.stopPropagation(); toggleExpand(todo.id)
+                        "
+                    >
+                        <mat-icon>expand_more</mat-icon>
+                    </button>
+                </div>
+            </div>
 
-        <!-- Sorting Header -->
-        <div class="menu-section-header">Sortieren nach</div>
-        <button mat-menu-item (click)="changeSort('priority')" [class.active-menu-item]="sortBy() === 'priority'">
-          <mat-icon>star</mat-icon>
-          <span>Priorität {{ sortBy() === 'priority' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}</span>
-        </button>
-        <button mat-menu-item (click)="changeSort('dueDate')" [class.active-menu-item]="sortBy() === 'dueDate'">
-          <mat-icon>event</mat-icon>
-          <span>Datum {{ sortBy() === 'dueDate' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}</span>
-        </button>
-        <button mat-menu-item (click)="changeSort('title')" [class.active-menu-item]="sortBy() === 'title'">
-          <mat-icon>sort_by_alpha</mat-icon>
-          <span>Titel {{ sortBy() === 'title' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}</span>
-        </button>
-      </mat-menu>
+            @if (isExpanded(todo.id)) {
+                <div
+                    class="mobile-todo-expanded"
+                    (click)="$event.stopPropagation()"
+                >
+                    <span
+                        class="mobile-expanded-title"
+                        [class.done-text]="todo.isDone"
+                        >{{ todo.title }}</span
+                    >
+
+                    <div class="mobile-expanded-meta">
+                        @if (getCategory(todo.categoryId); as cat) {
+                            <span class="category-badge">
+                                <div
+                                    class="color-dot"
+                                    [style.background-color]="cat.color"
+                                ></div>
+                                {{ cat.name }}
+                            </span>
+                        }
+
+                        @if (todo.dueDate) {
+                            <button
+                                matButton
+                                class="todo-due-date-btn"
+                                (click)="goToDateInCalendar(todo.dueDate)"
+                            >
+                                <mat-icon>event</mat-icon>
+                                <span>{{
+                                    todo.dueDate | date: "dd.MM.yyyy"
+                                }}</span>
+                            </button>
+                        }
+                    </div>
+
+                    @if (todo.description) {
+                        <div class="mobile-description">
+                            {{ todo.description }}
+                        </div>
+                    }
+
+                    <div class="mobile-actions-row">
+                        <button
+                            matButton
+                            class="mobile-action-btn"
+                            (click)="onEditTodo(todo); $event.stopPropagation()"
+                        >
+                            <mat-icon>edit</mat-icon>
+                            <span>Bearbeiten</span>
+                        </button>
+                        <button
+                            matButton
+                            class="mobile-action-btn delete-colors"
+                            (click)="
+                                onDeleteTodo(todo); $event.stopPropagation()
+                            "
+                        >
+                            <mat-icon>delete</mat-icon>
+                            <span>Löschen</span>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </ng-template>
+
+    <!-- Toolbar -->
+    <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
+        @if (isMobile()) {
+            <div class="mobile-header">
+                <span class="mobile-title">To-Do Liste</span>
+            </div>
+        } @else if (isTablet()) {
+            <div class="mobile-header">
+                <div class="left-actions">
+                    <button mat-icon-button (click)="openSideNav()">
+                        <mat-icon>home</mat-icon>
+                    </button>
+                    <span class="mobile-title">To-Dos</span>
+                </div>
+
+                <div class="mobile-actions">
+                    <button mat-icon-button (click)="onAddTodo()">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                    <button mat-icon-button [matMenuTriggerFor]="filterMenu">
+                        <mat-icon>filter_list</mat-icon>
+                    </button>
+                    <mat-menu #filterMenu="matMenu">
+                        <button mat-menu-item (click)="setFilterStatus('all')">
+                            Alle
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="setFilterStatus('active')"
+                        >
+                            Aktiv
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="setFilterStatus('completed')"
+                        >
+                            Erledigt
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+        } @else {
+            <div class="left-container">
+                <button
+                    mat-icon-button
+                    matTooltip="Tool wechseln"
+                    (click)="openSideNav()"
+                    class="sidenav-toggle"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
+            </div>
+
+            <div class="middle-container">
+                <h1 class="page-title">To-Do Liste</h1>
+            </div>
+
+            <div class="right-container">
+                <button
+                    mat-flat-button
+                    (click)="onAddTodo()"
+                    class="create-button"
+                >
+                    <mat-icon>add</mat-icon>
+                    <span>Neue Aufgabe</span>
+                </button>
+            </div>
+        }
+    </mat-toolbar>
+
+    @if (todoService.loading()) {
+        <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
+    }
+
+    <div class="main-layout" [class.mobile-layout]="isMobile()">
+        <!-- Sidebar -->
+        @if (!isMobile() && !isTablet()) {
+            <div class="page-sidebar">
+                <div class="sidebar-header">
+                    <span>Filter & Status</span>
+                </div>
+
+                <div class="sidebar-content">
+                    <mat-nav-list class="sidebar-list">
+                        <div class="list-section-header">Status</div>
+                        <a
+                            mat-list-item
+                            (click)="setFilterStatus('all')"
+                            [class.active-item]="filterStatus() === 'all'"
+                        >
+                            <mat-icon matListItemIcon>list</mat-icon>
+                            <span matListItemTitle>Alle</span>
+                            <span matListItemMeta class="stat-badge">{{
+                                todoService.stats().total
+                            }}</span>
+                        </a>
+                        <a
+                            mat-list-item
+                            (click)="setFilterStatus('active')"
+                            [class.active-item]="filterStatus() === 'active'"
+                        >
+                            <mat-icon matListItemIcon>circle</mat-icon>
+                            <span matListItemTitle>Aktiv</span>
+                            <span matListItemMeta class="stat-badge">{{
+                                todoService.stats().active
+                            }}</span>
+                        </a>
+                        <a
+                            mat-list-item
+                            (click)="setFilterStatus('completed')"
+                            [class.active-item]="filterStatus() === 'completed'"
+                        >
+                            <mat-icon matListItemIcon>check_circle</mat-icon>
+                            <span matListItemTitle>Erledigt</span>
+                            <span matListItemMeta class="stat-badge">{{
+                                todoService.stats().completed
+                            }}</span>
+                        </a>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="list-section-header">Priorität</div>
+                        <a
+                            mat-list-item
+                            (click)="setFilterPriority(null)"
+                            [class.active-item]="filterPriority() === null"
+                        >
+                            <mat-icon matListItemIcon>filter_none</mat-icon>
+                            <span matListItemTitle>Alle Prioritäten</span>
+                        </a>
+                        <a
+                            mat-list-item
+                            (click)="setFilterPriority(3)"
+                            [class.active-item]="filterPriority() === 3"
+                        >
+                            <mat-icon
+                                matListItemIcon
+                                [style.color]="getPriorityColor(3)"
+                                >flag</mat-icon
+                            >
+                            <span matListItemTitle>Hoch</span>
+                        </a>
+                        <a
+                            mat-list-item
+                            (click)="setFilterPriority(2)"
+                            [class.active-item]="filterPriority() === 2"
+                        >
+                            <mat-icon
+                                matListItemIcon
+                                [style.color]="getPriorityColor(2)"
+                                >flag</mat-icon
+                            >
+                            <span matListItemTitle>Mittel</span>
+                        </a>
+                        <a
+                            mat-list-item
+                            (click)="setFilterPriority(1)"
+                            [class.active-item]="filterPriority() === 1"
+                        >
+                            <mat-icon
+                                matListItemIcon
+                                [style.color]="getPriorityColor(1)"
+                                >flag</mat-icon
+                            >
+                            <span matListItemTitle>Niedrig</span>
+                        </a>
+                    </mat-nav-list>
+                </div>
+            </div>
+        }
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            @if (isMobile()) {
+                <div class="todo-content-card mobile-card">
+                    <div class="scroll-wrapper">
+                        <mat-list class="todo-list">
+                            @if (filterStatus() === "completed") {
+                                @for (todo of completedTodos(); track todo.id) {
+                                    <ng-container
+                                        *ngTemplateOutlet="
+                                            mobileRow;
+                                            context: { $implicit: todo }
+                                        "
+                                    ></ng-container>
+                                    <mat-divider></mat-divider>
+                                }
+                                @if (
+                                    completedTodos().length === 0 &&
+                                    !todoService.loading()
+                                ) {
+                                    <div class="empty-state">
+                                        <mat-icon class="empty-icon"
+                                            >check_circle_outline</mat-icon
+                                        >
+                                        <h2>Keine erledigten Aufgaben</h2>
+                                        <p>
+                                            Du hast noch keine Aufgaben
+                                            abgeschlossen.
+                                        </p>
+                                    </div>
+                                }
+                            } @else {
+                                @for (todo of activeTodos(); track todo.id) {
+                                    <ng-container
+                                        *ngTemplateOutlet="
+                                            mobileRow;
+                                            context: { $implicit: todo }
+                                        "
+                                    ></ng-container>
+                                    <mat-divider></mat-divider>
+                                }
+                                @if (
+                                    activeTodos().length === 0 &&
+                                    !todoService.loading()
+                                ) {
+                                    <div class="empty-state">
+                                        <mat-icon class="empty-icon"
+                                            >task_alt</mat-icon
+                                        >
+                                        <h2>Keine aktiven Aufgaben</h2>
+                                        <p>
+                                            Passe deine Filter an oder erstelle
+                                            eine neue Aufgabe.
+                                        </p>
+                                        <button
+                                            mat-stroked-button
+                                            (click)="onAddTodo()"
+                                        >
+                                            <mat-icon>add</mat-icon>
+                                            Aufgabe hinzufügen
+                                        </button>
+                                    </div>
+                                }
+                            }
+                        </mat-list>
+                    </div>
+                </div>
+            } @else {
+                @if (
+                    filterStatus() !== "completed" ||
+                    completedTodos().length === 0
+                ) {
+                    <div class="todo-content-card">
+                        <div class="todo-header-actions">
+                            <div class="section-title">Aufgaben</div>
+                            <div class="sort-group">
+                                <span class="label">Sortieren nach:</span>
+                                <button
+                                    mat-button
+                                    (click)="changeSort('priority')"
+                                    [color]="
+                                        sortBy() === 'priority' ? 'primary' : ''
+                                    "
+                                >
+                                    Priorität
+                                    @if (sortBy() === "priority") {
+                                        <mat-icon>{{
+                                            sortDirection() === "asc"
+                                                ? "arrow_upward"
+                                                : "arrow_downward"
+                                        }}</mat-icon>
+                                    }
+                                </button>
+                                <button
+                                    mat-button
+                                    (click)="changeSort('dueDate')"
+                                    [color]="
+                                        sortBy() === 'dueDate' ? 'primary' : ''
+                                    "
+                                >
+                                    Datum
+                                    @if (sortBy() === "dueDate") {
+                                        <mat-icon>{{
+                                            sortDirection() === "asc"
+                                                ? "arrow_upward"
+                                                : "arrow_downward"
+                                        }}</mat-icon>
+                                    }
+                                </button>
+                                <button
+                                    mat-button
+                                    (click)="changeSort('title')"
+                                    [color]="
+                                        sortBy() === 'title' ? 'primary' : ''
+                                    "
+                                >
+                                    Titel
+                                    @if (sortBy() === "title") {
+                                        <mat-icon>{{
+                                            sortDirection() === "asc"
+                                                ? "arrow_upward"
+                                                : "arrow_downward"
+                                        }}</mat-icon>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="scroll-wrapper">
+                            <mat-list class="todo-list">
+                                @for (todo of activeTodos(); track todo.id) {
+                                    <ng-container
+                                        *ngTemplateOutlet="
+                                            desktopRow;
+                                            context: { $implicit: todo }
+                                        "
+                                    ></ng-container>
+                                    <mat-divider></mat-divider>
+                                }
+
+                                @if (
+                                    activeTodos().length === 0 &&
+                                    !todoService.loading()
+                                ) {
+                                    <div class="empty-state">
+                                        <mat-icon class="empty-icon"
+                                            >task_alt</mat-icon
+                                        >
+                                        @if (filterStatus() === "completed") {
+                                            <h2>
+                                                Keine erledigten Aufgaben
+                                                gefunden
+                                            </h2>
+                                            <p>
+                                                Du hast noch keine Aufgaben
+                                                abgeschlossen.
+                                            </p>
+                                        } @else {
+                                            <h2>Keine aktiven Aufgaben</h2>
+                                            <p>
+                                                Passe deine Filter an oder
+                                                erstelle eine neue Aufgabe.
+                                            </p>
+                                        }
+                                        <button
+                                            mat-stroked-button
+                                            (click)="onAddTodo()"
+                                        >
+                                            <mat-icon>add</mat-icon>
+                                            Aufgabe hinzufügen
+                                        </button>
+                                    </div>
+                                }
+                            </mat-list>
+                        </div>
+                    </div>
+                }
+
+                <!-- Erledigte Aufgaben in eigenem Panel darunter -->
+                @if (completedTodos().length > 0) {
+                    <div
+                        class="todo-content-card completed-tasks-card"
+                        [class.full-height-card]="
+                            filterStatus() === 'completed'
+                        "
+                    >
+                        <div
+                            class="todo-header-actions completed-header"
+                            (click)="toggleCompletedCollapse()"
+                            style="cursor: pointer"
+                        >
+                            <div class="completed-panel-title">
+                                <mat-icon class="completed-icon"
+                                    >check_circle_outline</mat-icon
+                                >
+                                <span
+                                    >Erledigte Aufgaben ({{
+                                        completedTodos().length
+                                    }})</span
+                                >
+                            </div>
+                            <button
+                                mat-icon-button
+                                class="expand-btn"
+                                [class.expanded]="isCompletedExpanded()"
+                                (click)="
+                                    $event.stopPropagation();
+                                    toggleCompletedCollapse()
+                                "
+                            >
+                                <mat-icon>expand_more</mat-icon>
+                            </button>
+                        </div>
+
+                        @if (isCompletedExpanded()) {
+                            <div
+                                class="completed-scroll-wrapper scroll-wrapper"
+                            >
+                                <mat-list class="todo-list completed-list">
+                                    @for (
+                                        todo of completedTodos();
+                                        track todo.id
+                                    ) {
+                                        <ng-container
+                                            *ngTemplateOutlet="
+                                                desktopRow;
+                                                context: { $implicit: todo }
+                                            "
+                                        ></ng-container>
+                                        <mat-divider></mat-divider>
+                                    }
+                                </mat-list>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
     </div>
-  }
+
+    @if (isMobile()) {
+        <div class="mobile-bottom-bar">
+            <div class="mobile-action-container">
+                <button
+                    mat-fab
+                    class="mobile-fab-left"
+                    (click)="openSideNav()"
+                    matTooltip="Tool wechseln"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
+
+                <button
+                    mat-fab
+                    extended
+                    (click)="
+                        setFilterStatus(
+                            filterStatus() === 'completed'
+                                ? 'active'
+                                : 'completed'
+                        )
+                    "
+                >
+                    <mat-icon>compare_arrows</mat-icon>
+                    {{
+                        filterStatus() === "completed" ? "Aktive" : "Erledigte"
+                    }}
+                </button>
+
+                <div class="mobile-actions-right">
+                    <!-- Filter & Sort Menu Trigger -->
+                    <button
+                        mat-fab
+                        class="mobile-filter-fab"
+                        [matMenuTriggerFor]="mobileFilterMenu"
+                        [color]="
+                            filterPriority() !== null || sortBy() !== 'priority'
+                                ? 'accent'
+                                : 'basic'
+                        "
+                        matTooltip="Filter & Sortieren"
+                    >
+                        <mat-icon>filter_list</mat-icon>
+                    </button>
+
+                    <!-- Create Button -->
+                    <button
+                        mat-fab
+                        class="mobile-fab-right"
+                        (click)="onAddTodo()"
+                        matTooltip="Aufgabe hinzufügen"
+                    >
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <mat-menu #mobileFilterMenu="matMenu" class="mobile-todo-menu">
+                <!-- Priority Header -->
+                <div class="menu-section-header">Priorität</div>
+                <button
+                    mat-menu-item
+                    (click)="setFilterPriority(null)"
+                    [class.active-menu-item]="filterPriority() === null"
+                >
+                    <mat-icon>filter_none</mat-icon>
+                    <span>Alle</span>
+                </button>
+                <button
+                    mat-menu-item
+                    (click)="setFilterPriority(3)"
+                    [class.active-menu-item]="filterPriority() === 3"
+                >
+                    <mat-icon [style.color]="getPriorityColor(3)"
+                        >flag</mat-icon
+                    >
+                    <span>Hoch</span>
+                </button>
+                <button
+                    mat-menu-item
+                    (click)="setFilterPriority(2)"
+                    [class.active-menu-item]="filterPriority() === 2"
+                >
+                    <mat-icon [style.color]="getPriorityColor(2)"
+                        >flag</mat-icon
+                    >
+                    <span>Mittel</span>
+                </button>
+                <button
+                    mat-menu-item
+                    (click)="setFilterPriority(1)"
+                    [class.active-menu-item]="filterPriority() === 1"
+                >
+                    <mat-icon [style.color]="getPriorityColor(1)"
+                        >flag</mat-icon
+                    >
+                    <span>Niedrig</span>
+                </button>
+
+                <mat-divider></mat-divider>
+
+                <!-- Sorting Header -->
+                <div class="menu-section-header">Sortieren nach</div>
+                <button
+                    mat-menu-item
+                    (click)="changeSort('priority')"
+                    [class.active-menu-item]="sortBy() === 'priority'"
+                >
+                    <mat-icon>star</mat-icon>
+                    <span
+                        >Priorität
+                        {{
+                            sortBy() === "priority"
+                                ? sortDirection() === "asc"
+                                    ? "↑"
+                                    : "↓"
+                                : ""
+                        }}</span
+                    >
+                </button>
+                <button
+                    mat-menu-item
+                    (click)="changeSort('dueDate')"
+                    [class.active-menu-item]="sortBy() === 'dueDate'"
+                >
+                    <mat-icon>event</mat-icon>
+                    <span
+                        >Datum
+                        {{
+                            sortBy() === "dueDate"
+                                ? sortDirection() === "asc"
+                                    ? "↑"
+                                    : "↓"
+                                : ""
+                        }}</span
+                    >
+                </button>
+                <button
+                    mat-menu-item
+                    (click)="changeSort('title')"
+                    [class.active-menu-item]="sortBy() === 'title'"
+                >
+                    <mat-icon>sort_by_alpha</mat-icon>
+                    <span
+                        >Titel
+                        {{
+                            sortBy() === "title"
+                                ? sortDirection() === "asc"
+                                    ? "↑"
+                                    : "↓"
+                                : ""
+                        }}</span
+                    >
+                </button>
+            </mat-menu>
+        </div>
+    }
 </div>

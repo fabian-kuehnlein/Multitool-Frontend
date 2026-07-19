@@ -1,7 +1,7 @@
 <div class="confirm-dialog-container">
     <div class="dialog-header">
         <div class="icon-container" [class.destructive]="isDestructive">
-            <mat-icon>{{ isDestructive ? 'warning' : 'info' }}</mat-icon>
+            <mat-icon>{{ isDestructive ? "warning" : "info" }}</mat-icon>
         </div>
         <h2 mat-dialog-title>{{ title }}</h2>
     </div>
@@ -14,10 +14,12 @@
         <button mat-button (click)="dialogRef.close(false)" class="cancel-btn">
             {{ cancelText }}
         </button>
-        <button mat-flat-button 
-                (click)="dialogRef.close(true)" 
-                class="confirm-btn"
-                [class.delete-colors]="isDestructive">
+        <button
+            mat-flat-button
+            (click)="dialogRef.close(true)"
+            class="confirm-btn"
+            [class.delete-colors]="isDestructive"
+        >
             {{ confirmText }}
         </button>
     </mat-dialog-actions>

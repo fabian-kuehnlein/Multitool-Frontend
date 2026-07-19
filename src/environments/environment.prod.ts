@@ -1,5 +1,4 @@
-
 export const environment = {
-  production: true,
-  MultitoolApi: 'undefined'
+    production: true,
+    MultitoolApi: 'undefined',
 };

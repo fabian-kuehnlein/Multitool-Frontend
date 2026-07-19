@@ -1,0 +1,93 @@
+@use "variables" as *;
+
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .mobile-toolbar & {
+        justify-content: center;
+    }
+
+    .left-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .mobile-actions {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.mobile-bottom-bar {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.mobile-action-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mobile-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mobile-fab-left,
+    .mobile-filter-fab {
+        box-shadow: 0 4px 12px var(--shadow-lg);
+    }
+
+    .mobile-fab-left {
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+    }
+}
+
+@media (max-width: $mobile-max) {
+    .main-layout {
+        padding-bottom: 100px;
+    }
+
+    .week-header {
+        position: relative;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 16px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .week-range {
+        font-size: 1rem;
+        min-width: 160px;
+    }
+
+    .week-summary {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .summary-row {
+        justify-content: space-between;
+    }
+}

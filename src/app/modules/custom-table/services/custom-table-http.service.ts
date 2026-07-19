@@ -2,10 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { UpsertTableDto, TableDetail, TableOverview, UpdateColumnDto, UpdateColumnOrderDto, UpdateRowOrderDto } from '../models';
+import {
+    UpsertTableDto,
+    TableDetail,
+    TableOverview,
+    UpdateColumnDto,
+    UpdateColumnOrderDto,
+    UpdateRowOrderDto,
+} from '../models';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class CustomTableHttpService {
     private readonly http = inject(HttpClient);
@@ -24,7 +31,9 @@ export class CustomTableHttpService {
     }
 
     updateTable(tableId: number, newName: string): Observable<number> {
-        return this.http.put<number>(`${this.apiURL}/tables/${tableId}`, { name: newName });
+        return this.http.put<number>(`${this.apiURL}/tables/${tableId}`, {
+            name: newName,
+        });
     }
 
     deleteTable(tableId: number): Observable<any> {
@@ -32,7 +41,10 @@ export class CustomTableHttpService {
     }
 
     createColumn(tableId: number): Observable<number> {
-        return this.http.post<number>(`${this.apiURL}/tables/${tableId}/columns`, null);
+        return this.http.post<number>(
+            `${this.apiURL}/tables/${tableId}/columns`,
+            null,
+        );
     }
 
     updateColumn(columnId: number, dto: UpdateColumnDto): Observable<number> {
@@ -44,11 +56,16 @@ export class CustomTableHttpService {
     }
 
     deleteColumn(tableId: number, columnId: number): Observable<any> {
-        return this.http.delete(`${this.apiURL}/tables/${tableId}/columns/${columnId}`);
+        return this.http.delete(
+            `${this.apiURL}/tables/${tableId}/columns/${columnId}`,
+        );
     }
 
     createRow(tableId: number): Observable<number> {
-        return this.http.post<number>(`${this.apiURL}/tables/${tableId}/rows`, null);
+        return this.http.post<number>(
+            `${this.apiURL}/tables/${tableId}/rows`,
+            null,
+        );
     }
 
     updateRowOrder(rows: UpdateRowOrderDto[]): Observable<any> {
@@ -56,11 +73,17 @@ export class CustomTableHttpService {
     }
 
     deleteRows(tableId: number, rows: number[]): Observable<any> {
-        return this.http.delete(`${this.apiURL}/tables/${tableId}/rows`, { body: rows });
+        return this.http.delete(`${this.apiURL}/tables/${tableId}/rows`, {
+            body: rows,
+        });
     }
 
     upsertCell(rowId: number, columnId: number, value: any): Observable<void> {
         const headers = { 'Content-Type': 'application/json' };
-        return this.http.put<void>(`${this.apiURL}/rows/${rowId}/cells/${columnId}`, JSON.stringify(value), { headers });
+        return this.http.put<void>(
+            `${this.apiURL}/rows/${rowId}/cells/${columnId}`,
+            JSON.stringify(value),
+            { headers },
+        );
     }
 }
