@@ -33,8 +33,11 @@ import {
 import { defaultCalendarOptions } from '../utilities/calendar.config';
 
 // Third Party
-import moment from 'moment';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { debounceTime, Subject, takeUntil, map } from 'rxjs';
+
+dayjs.extend(duration);
 
 // App Services, Components & Utilities
 import { CalendarService } from '../services/calendar.service';
@@ -263,9 +266,9 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         if (!api) return;
 
         const view = api.view;
-        const start = moment(view.currentStart).startOf('day');
-        const end = moment(view.currentEnd).startOf('day');
-        const today = moment().startOf('day');
+        const start = dayjs(view.currentStart).startOf('day');
+        const end = dayjs(view.currentEnd).startOf('day');
+        const today = dayjs().startOf('day');
 
         this.isToday.set(today.isSameOrAfter(start) && today.isBefore(end));
     }
@@ -379,7 +382,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     }
 
     private excludeDateFromSeries(instance: any) {
-        const dateToExclude = moment(instance.startDateTime).format(
+        const dateToExclude = dayjs(instance.startDateTime).format(
             'YYYY-MM-DD',
         );
         this.calendarService
@@ -485,10 +488,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 // Manual expansion for events with EXDATE
                                 // The FullCalendar RRule plugin is unreliable with EXDATE in the object format
                                 const processedEvents: any[] = [];
-                                const viewStart = moment(
+                                const viewStart = dayjs(
                                     fetchInfo.start,
                                 ).startOf('day');
-                                const viewEnd = moment(fetchInfo.end).startOf(
+                                const viewEnd = dayjs(fetchInfo.end).startOf(
                                     'day',
                                 );
 
@@ -499,7 +502,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                         Array.isArray(event.exdate) &&
                                         event.exdate.length > 0
                                     ) {
-                                        let current = moment(viewStart);
+                                        let current = dayjs(viewStart);
                                         while (current.isBefore(viewEnd)) {
                                             if (
                                                 CalendarMapper.eventFallsOnDate(
@@ -517,12 +520,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                                             'YYYY-MM-DD',
                                                         );
                                                     instance.end = current
-                                                        .clone()
                                                         .add(1, 'day')
                                                         .format('YYYY-MM-DD');
                                                 } else {
-                                                    const timePart = moment(
-                                                        event.start,
+                                                    const timePart = dayjs(
+                                                        event.start as string,
                                                     ).format('HH:mm:ss');
                                                     instance.start =
                                                         current.format(
@@ -531,12 +533,12 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                                         'T' +
                                                         timePart;
                                                     if (event.duration) {
-                                                        instance.end = moment(
+                                                        instance.end = dayjs(
                                                             instance.start,
                                                         )
                                                             .add(
-                                                                moment.duration(
-                                                                    event.duration,
+                                                                dayjs.duration(
+                                                                    event.duration as string,
                                                                 ),
                                                             )
                                                             .format(
@@ -546,14 +548,14 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                                 }
                                                 processedEvents.push(instance);
                                             }
-                                            current.add(1, 'day');
+                                            current = current.add(1, 'day');
                                         }
                                     } else {
                                         processedEvents.push(event);
                                     }
                                 }
 
-                                const today = moment();
+                                const today = dayjs();
                                 const hasEventToday = processedEvents.some(
                                     (e) => {
                                         if (e.rrule)
@@ -562,7 +564,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                                 today,
                                             );
                                         return (
-                                            moment(e.start).format(
+                                            dayjs(e.start).format(
                                                 'YYYY-MM-DD',
                                             ) === today.format('YYYY-MM-DD')
                                         );
@@ -598,10 +600,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 successCallback(
                                     holidays.map((h, i) => ({
                                         id: `holiday-${i}`,
-                                        start: moment(h.date).format(
+                                        start: dayjs(h.date).format(
                                             'YYYY-MM-DD',
                                         ),
-                                        end: moment(h.date)
+                                        end: dayjs(h.date)
                                             .add(1, 'day')
                                             .format('YYYY-MM-DD'),
                                         display: 'background',

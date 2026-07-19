@@ -17,10 +17,6 @@
                 "build": {
                     "builder": "@angular/build:application",
                     "options": {
-                        "allowedCommonJsDependencies": [
-                            "moment",
-                            "moment/locale/de"
-                        ],
                         "outputPath": "dist/multitool-frontend",
                         "index": "src/index.html",
                         "browser": "src/main.ts",

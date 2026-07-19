@@ -1,5 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+
+dayjs.extend(isoWeek);
 import {
     WorkDay,
     WorkDayWarning,
@@ -45,9 +48,9 @@ export class WorkTimePlannerService {
     readonly homeOfficeMonthCounts = this._homeOfficeMonthCounts.asReadonly();
 
     readonly weekDays = computed(() => {
-        const start = moment(this._currentWeekStart());
+        const start = dayjs(this._currentWeekStart());
         return Array.from({ length: 5 }, (_, i) => {
-            const date = start.clone().add(i, 'days');
+            const date = start.add(i, 'day');
             const dateStr = date.format('YYYY-MM-DD');
             const existing = this._workDays().find((wd) => wd.date === dateStr);
             return existing || this.createDefaultWorkDay(dateStr);
@@ -79,14 +82,14 @@ export class WorkTimePlannerService {
     );
 
     getWeekStart(date: Date): string {
-        const d = moment(date);
+        const d = dayjs(date);
         const day = d.day();
         const diff = day === 0 ? -6 : 1 - day;
-        return d.add(diff, 'days').format('YYYY-MM-DD');
+        return d.add(diff, 'day').format('YYYY-MM-DD');
     }
 
     private normalizeDate(date: string | Date): string {
-        return moment(date).format('YYYY-MM-DD');
+        return dayjs(date).format('YYYY-MM-DD');
     }
 
     private normalizeTime(time: string | null): string | null {
@@ -129,8 +132,8 @@ export class WorkTimePlannerService {
             this._currentWeekStart.set(this.getWeekStart(new Date()));
         } else {
             const offset = direction === 'next' ? 7 : -7;
-            const newStart = moment(this._currentWeekStart())
-                .add(offset, 'days')
+            const newStart = dayjs(this._currentWeekStart())
+                .add(offset, 'day')
                 .format('YYYY-MM-DD');
             this._currentWeekStart.set(newStart);
         }
@@ -144,7 +147,7 @@ export class WorkTimePlannerService {
 
     loadWorkDays(): void {
         const start = this._currentWeekStart();
-        const end = moment(start).add(5, 'days').format('YYYY-MM-DD');
+        const end = dayjs(start).add(5, 'day').format('YYYY-MM-DD');
 
         this._loading.set(true);
         this.httpService.getWorkDays(start, end).subscribe({
@@ -164,7 +167,7 @@ export class WorkTimePlannerService {
             complete: () => this._loading.set(false),
         });
 
-        const currentMoment = moment(start);
+        const currentMoment = dayjs(start);
         const year = currentMoment.year();
         const weekNumber = currentMoment.isoWeek();
 
@@ -173,7 +176,7 @@ export class WorkTimePlannerService {
             error: () => this._currentWeekSummary.set(null),
         });
 
-        const prevWeek = currentMoment.clone().subtract(1, 'week');
+        const prevWeek = currentMoment.subtract(1, 'week');
         this.httpService
             .getWeekSummary(prevWeek.year(), prevWeek.isoWeek())
             .subscribe({
@@ -185,14 +188,14 @@ export class WorkTimePlannerService {
     }
 
     loadHomeOfficeMonthCount(): void {
-        const start = moment(this._currentWeekStart());
-        const end = start.clone().add(4, 'days');
+        const start = dayjs(this._currentWeekStart());
+        const end = start.add(4, 'day');
 
         const monthsToQuery = new Map<
             string,
             { year: number; month: number }
         >();
-        const current = start.clone();
+        let current = start;
         while (current.isSameOrBefore(end, 'day')) {
             const key = current.format('YYYY-MM');
             if (!monthsToQuery.has(key)) {
@@ -201,7 +204,7 @@ export class WorkTimePlannerService {
                     month: current.month() + 1,
                 });
             }
-            current.add(1, 'day');
+            current = current.add(1, 'day');
         }
 
         const results: MonthHoCount[] = [];
@@ -211,7 +214,7 @@ export class WorkTimePlannerService {
         monthsToQuery.forEach(({ year, month }, key) => {
             this.httpService.getHomeOfficeMonthCount(year, month).subscribe({
                 next: (res) => {
-                    const m = moment(
+                    const m = dayjs(
                         `${res.year}-${String(res.month).padStart(2, '0')}`,
                         'YYYY-MM',
                     );
@@ -223,7 +226,7 @@ export class WorkTimePlannerService {
                     });
                 },
                 error: () => {
-                    const m = moment(
+                    const m = dayjs(
                         `${year}-${String(month).padStart(2, '0')}`,
                         'YYYY-MM',
                     );
@@ -375,9 +378,9 @@ export class WorkTimePlannerService {
             overtimeMinutes = 0;
             breakMinutes = 0;
         } else if (day.startTime && day.endTime) {
-            const start = moment(day.startTime, 'HH:mm');
-            const end = moment(day.endTime, 'HH:mm');
-            const totalMinutes = end.diff(start, 'minutes');
+            const start = dayjs(day.startTime, 'HH:mm');
+            const end = dayjs(day.endTime, 'HH:mm');
+            const totalMinutes = end.diff(start, 'minute');
 
             if (breakMinutes === 0) {
                 if (totalMinutes > 540)
@@ -418,7 +421,7 @@ export class WorkTimePlannerService {
     }
 
     private saveCurrentWeekSummary(): void {
-        const currentMoment = moment(this._currentWeekStart());
+        const currentMoment = dayjs(this._currentWeekStart());
         const summary: WeekSummary = {
             year: currentMoment.year(),
             weekNumber: currentMoment.isoWeek(),
@@ -430,12 +433,12 @@ export class WorkTimePlannerService {
     }
 
     getWeekRange(): string {
-        const start = moment(this._currentWeekStart());
-        const end = start.clone().add(4, 'days');
+        const start = dayjs(this._currentWeekStart());
+        const end = start.add(4, 'day');
         return `${start.format('DD.MM.')} – ${end.format('DD.MM.YYYY')}`;
     }
 
     getWeekNumber(): number {
-        return moment(this._currentWeekStart()).isoWeek();
+        return dayjs(this._currentWeekStart()).isoWeek();
     }
 }

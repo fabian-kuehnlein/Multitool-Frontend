@@ -6,10 +6,6 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import {
-    provideMomentDateAdapter,
-    MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-} from '@angular/material-moment-adapter';
 import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
@@ -22,11 +18,11 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
-import moment from 'moment';
-// @ts-ignore: side-effect locale import has no type declarations
-import 'moment/locale/de';
+import dayjs from 'dayjs';
+import 'dayjs/locale/de';
+import { provideDayjsAdapter } from './core/date/dayjs-adapter';
 
-moment.locale('de');
+dayjs.locale('de');
 
 registerLocaleData(localeDe, 'de');
 
@@ -56,26 +52,8 @@ export const appConfig: ApplicationConfig = {
         provideRouter(routes),
         provideAnimationsAsync(),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-        provideMomentDateAdapter({
-            parse: {
-                dateInput: ['DD.MM.YYYY', 'D.M.YYYY'],
-                timeInput: 'HH:mm',
-            },
-            display: {
-                dateInput: 'DD.MM.YYYY',
-                monthYearLabel: 'MMM YYYY',
-                dateA11yLabel: 'LL',
-                monthYearA11yLabel: 'MMMM YYYY',
-
-                timeInput: 'HH:mm',
-                timeOptionLabel: 'HH:mm',
-            },
-        }),
+        provideDayjsAdapter(),
         { provide: LOCALE_ID, useValue: 'de' },
-        {
-            provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-            useValue: { useUtc: false },
-        },
         { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { autoFocus: false } },
         { provide: MatPaginatorIntl, useClass: GermanPaginatorIntl },
         {

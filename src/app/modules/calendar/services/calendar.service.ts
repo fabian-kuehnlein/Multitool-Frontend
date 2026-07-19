@@ -5,7 +5,6 @@ import { CalendarEvent } from '../models/calendar-event.model';
 import { CreateCalendarEvent } from '../models/create-calendar-event.model';
 import { Holiday } from '../models/holiday.model';
 import { SearchResult } from '../models/search-result.model';
-import moment from 'moment';
 
 @Injectable({
     providedIn: 'root',

@@ -21,7 +21,7 @@ import {
 } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 // Third Party
-import moment from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { CalendarMapper } from '../../../utilities/calendar-mapper';
@@ -137,9 +137,9 @@ export class SearchDialogComponent implements OnDestroy {
         start: string,
         ruleStr: string,
         end: string | null,
-    ): moment.Moment | null {
-        const startDate = moment(start);
-        const today = moment().startOf('day');
+    ): Dayjs | null {
+        const startDate = dayjs(start);
+        const today = dayjs().startOf('day');
 
         // If it's already in the future, return the start date
         if (startDate.isSameOrAfter(today)) {
@@ -153,19 +153,18 @@ export class SearchDialogComponent implements OnDestroy {
             ...rule,
         };
 
-        const maxSearchDate = moment().add(2, 'years');
-        let current = moment(today);
+        const maxSearchDate = dayjs().add(2, 'year');
+        let current = dayjs(today);
 
         while (current.isBefore(maxSearchDate)) {
             if (CalendarMapper.eventFallsOnDate(rrule, current)) {
                 // Return current date but keep the original start time
-                return current.set({
-                    hour: startDate.hour(),
-                    minute: startDate.minute(),
-                    second: startDate.second(),
-                });
+                return current
+                    .hour(startDate.hour())
+                    .minute(startDate.minute())
+                    .second(startDate.second());
             }
-            current.add(1, 'day');
+            current = current.add(1, 'day');
         }
 
         return null;
@@ -175,7 +174,7 @@ export class SearchDialogComponent implements OnDestroy {
         const dateToUse = element.displayDate || element.startDateTime;
         if (dateToUse) {
             this.dialogRef.close({
-                data: moment(dateToUse).format('YYYY-MM-DD'),
+                data: dayjs(dateToUse).format('YYYY-MM-DD'),
             });
         }
     }

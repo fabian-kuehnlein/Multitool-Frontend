@@ -18,7 +18,7 @@ mat-card-header {
 }
 
 mat-card-title {
-    color: var(--text-on-primary);
+    color: var(--text-on-primary) !important;
 }
 
 form {

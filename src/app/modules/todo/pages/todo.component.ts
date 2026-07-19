@@ -6,7 +6,7 @@ import {
     signal,
     ChangeDetectionStrategy,
 } from '@angular/core';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -157,7 +157,7 @@ export class TodoComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
             if (result) {
                 if (result.dueDate) {
-                    result.dueDate = moment(result.dueDate).format(
+                    result.dueDate = dayjs(result.dueDate).format(
                         'YYYY-MM-DDTHH:mm:ss',
                     );
                 }
@@ -184,7 +184,7 @@ export class TodoComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
             if (result) {
                 if (result.dueDate) {
-                    result.dueDate = moment(result.dueDate).format(
+                    result.dueDate = dayjs(result.dueDate).format(
                         'YYYY-MM-DDTHH:mm:ss',
                     );
                 }

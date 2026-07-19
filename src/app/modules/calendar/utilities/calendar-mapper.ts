@@ -1,7 +1,10 @@
 import { DateInput, EventInput } from '@fullcalendar/core';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { Category } from '../../../shared/models/category.model';
-import moment from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+
+dayjs.extend(duration);
 
 export class CalendarMapper {
     static toEventInput(
@@ -20,7 +23,7 @@ export class CalendarMapper {
             const cleanStr = dateStr.endsWith('Z')
                 ? dateStr.slice(0, -1)
                 : dateStr;
-            return moment(cleanStr).toDate();
+            return dayjs(cleanStr).toDate();
         };
 
         const input: EventInput = {
@@ -98,12 +101,12 @@ export class CalendarMapper {
      */
     static eventFallsOnDate(
         rrule: any,
-        date: moment.Moment,
+        date: Dayjs,
         exdate?: DateInput | DateInput[],
     ): boolean {
         const dateStr = date.format('YYYY-MM-DD');
-        const dtstart = moment(rrule.dtstart).startOf('day');
-        const targetDate = moment(date).startOf('day');
+        const dtstart = dayjs(rrule.dtstart).startOf('day');
+        const targetDate = dayjs(date).startOf('day');
 
         // Before start date
         if (targetDate.isBefore(dtstart)) return false;
@@ -111,7 +114,7 @@ export class CalendarMapper {
         // After until date
         if (
             rrule.until &&
-            targetDate.isAfter(moment(rrule.until).startOf('day'))
+            targetDate.isAfter(dayjs(rrule.until).startOf('day'))
         )
             return false;
 
@@ -120,7 +123,7 @@ export class CalendarMapper {
             const exdateArray = Array.isArray(exdate) ? exdate : [exdate];
             if (
                 exdateArray.some(
-                    (ex) => moment(ex as any).format('YYYY-MM-DD') === dateStr,
+                    (ex) => dayjs(ex as any).format('YYYY-MM-DD') === dateStr,
                 )
             ) {
                 return false;
@@ -131,13 +134,13 @@ export class CalendarMapper {
         const interval = rrule.interval || 1;
 
         if (freq === 'daily') {
-            const diff = targetDate.diff(dtstart, 'days');
+            const diff = targetDate.diff(dtstart, 'day');
             return diff % interval === 0;
         }
 
         if (freq === 'weekly') {
             const weeksBetween = Math.floor(
-                targetDate.diff(dtstart, 'days') / 7,
+                targetDate.diff(dtstart, 'day') / 7,
             );
             if (weeksBetween % interval !== 0) return false;
 
@@ -149,13 +152,13 @@ export class CalendarMapper {
         }
 
         if (freq === 'monthly') {
-            const diff = targetDate.diff(dtstart, 'months');
+            const diff = targetDate.diff(dtstart, 'month');
             if (diff % interval !== 0) return false;
             return targetDate.date() === dtstart.date();
         }
 
         if (freq === 'yearly') {
-            const diff = targetDate.diff(dtstart, 'years');
+            const diff = targetDate.diff(dtstart, 'year');
             if (diff % interval !== 0) return false;
             return (
                 targetDate.date() === dtstart.date() &&
@@ -172,12 +175,12 @@ export class CalendarMapper {
     ): string {
         if (!start || !end) return '';
 
-        const startMoment = moment(start);
-        const endMoment = moment(end);
+        const startMoment = dayjs(start);
+        const endMoment = dayjs(end);
 
         if (!startMoment.isValid() || !endMoment.isValid()) return '';
 
-        return moment.duration(endMoment.diff(startMoment)).toISOString();
+        return dayjs.duration(endMoment.diff(startMoment)).toISOString();
     }
 
     /**
@@ -191,7 +194,7 @@ export class CalendarMapper {
             startDateTime: event.start,
             endDateTime: event.end
                 ? event.allDay
-                    ? moment(event.end).subtract(1, 'day').toDate()
+                    ? dayjs(event.end).subtract(1, 'day').toDate()
                     : new Date(event.end)
                 : event.extendedProps['recurrenceRule']
                   ? event.start
@@ -212,10 +215,10 @@ export class CalendarMapper {
             id: event.id,
             title: event.title,
             note: event.extendedProps['eventNote']?.trim() || null,
-            startDateTime: moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
+            startDateTime: dayjs(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             endDateTime: event.end
-                ? moment(event.end).format('YYYY-MM-DDTHH:mm:ss')
-                : moment(event.start).format('YYYY-MM-DDTHH:mm:ss'),
+                ? dayjs(event.end).format('YYYY-MM-DDTHH:mm:ss')
+                : dayjs(event.start).format('YYYY-MM-DDTHH:mm:ss'),
             isAllDay: event.allDay,
             categoryId: event.extendedProps['categoryId'] || '',
         };

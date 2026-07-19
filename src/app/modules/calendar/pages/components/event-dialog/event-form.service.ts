@@ -7,7 +7,7 @@ import {
     ValidationErrors,
     ValidatorFn,
 } from '@angular/forms';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
 import { CalendarEvent } from '../../../models/calendar-event.model';
 
@@ -118,26 +118,26 @@ export class EventFormService {
 
         if (!finalDate) return null;
 
-        const dateMoment = moment(finalDate);
+        const dateMoment = dayjs(finalDate);
+
+        let result = dateMoment;
 
         if (isAllDay || isRecurring) {
             if (isAllDay && addDay) {
-                dateMoment.add(1, 'day');
+                result = result.add(1, 'day');
             }
-            dateMoment.startOf('day');
+            result = result.startOf('day');
         } else if (time) {
-            const timeMoment = moment(time);
-            dateMoment.set({
-                hour: timeMoment.hour(),
-                minute: timeMoment.minute(),
-                second: 0,
-                millisecond: 0,
-            });
+            const timeMoment = dayjs(time);
+            result = result.hour(timeMoment.hour());
+            result = result.minute(timeMoment.minute());
+            result = result.second(0);
+            result = result.millisecond(0);
         } else {
-            dateMoment.startOf('day');
+            result = result.startOf('day');
         }
 
-        return dateMoment.format('YYYY-MM-DDTHH:mm:ss');
+        return result.format('YYYY-MM-DDTHH:mm:ss');
     }
 
     /**
