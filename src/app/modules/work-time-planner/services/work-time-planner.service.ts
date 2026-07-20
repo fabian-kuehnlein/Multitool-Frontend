@@ -382,31 +382,29 @@ export class WorkTimePlannerService {
             const end = dayjs(day.endTime, 'HH:mm');
             const totalMinutes = end.diff(start, 'minute');
 
+            const rawWorkMinutes = totalMinutes - breakMinutes;
+
             if (breakMinutes === 0) {
-                if (totalMinutes > 540)
+                if (rawWorkMinutes > 540)
                     breakMinutes = this._settings().breakRule9h;
-                else if (totalMinutes > 360)
+                else if (rawWorkMinutes > 360)
                     breakMinutes = this._settings().breakRule6h;
             }
 
             workMinutes = Math.max(0, totalMinutes - breakMinutes);
             overtimeMinutes = workMinutes - this._settings().dailyTargetMinutes;
 
-            if (
-                breakMinutes < this._settings().breakRule9h &&
-                totalMinutes > 540
-            ) {
+            if (breakMinutes < this._settings().breakRule9h &&
+                workMinutes > 540) {
                 warnings.push({
                     type: 'PauseTooShort',
-                    message: `Bei ${Math.round(totalMinutes / 60)}h Arbeitszeit sind mindestens ${this._settings().breakRule9h} Minuten Pause vorgeschrieben`,
+                    message: `Bei über 9h Arbeitszeit sind mindestens ${this._settings().breakRule9h} Minuten Pause vorgeschrieben`,
                 });
-            } else if (
-                breakMinutes < this._settings().breakRule6h &&
-                totalMinutes > 360
-            ) {
+            } else if (breakMinutes < this._settings().breakRule6h &&
+                    workMinutes > 360) {
                 warnings.push({
                     type: 'PauseTooShort',
-                    message: `Bei ${Math.round(totalMinutes / 60)}h Arbeitszeit sind mindestens ${this._settings().breakRule6h} Minuten Pause vorgeschrieben`,
+                    message: `Bei über 6h Arbeitszeit sind mindestens ${this._settings().breakRule6h} Minuten Pause vorgeschrieben`,
                 });
             }
 
