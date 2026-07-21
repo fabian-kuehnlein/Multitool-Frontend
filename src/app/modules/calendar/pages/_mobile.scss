@@ -1,8 +1,6 @@
 @use "../../../../_breakpoints" as bp;
 
-// Mobile overrides + mobile-only styles
-
-// ── Mobile Toolbar Layout ────────────────────────────────────────────────────
+// Mobile Toolbar Layout
 .mobile-toolbar {
     .left-container {
         flex: 1.5;
@@ -13,7 +11,7 @@
     }
 }
 
-// ── Mobile Overrides ─────────────────────────────────────────────────────────
+// Mobile Overrides 
 @include bp.mobile {
     .toolbar-container {
         padding: 5px 10px;
@@ -76,7 +74,7 @@
     }
 }
 
-// ── Mobile FAB Bar ───────────────────────────────────────────────────────────
+// Mobile FAB Bar
 .mobile-action-container {
     position: absolute;
     bottom: 25px;
@@ -107,57 +105,5 @@
     .mobile-fab-left {
         background: var(--bg-surface);
         color: var(--text-secondary);
-    }
-}
-
-// ── Mobile FullCalendar List View ────────────────────────────────────────────
-::ng-deep {
-    @media (max-width: 600px) {
-        .fc-list-event {
-            background-color: transparent !important;
-            z-index: 1 !important;
-
-            .fc-list-event-graphic {
-                padding-right: 8px !important;
-            }
-
-            .fc-list-event-dot {
-                border-width: 5px !important;
-                border-radius: 3px !important;
-            }
-
-            td {
-                background-color: transparent !important;
-                border-top: none !important;
-            }
-
-            .fc-list-event-title {
-                position: relative;
-                padding-left: 12px !important;
-
-                &,
-                a {
-                    color: var(--text-primary) !important;
-                    text-decoration: none !important;
-                }
-
-                .fc-event-title,
-                .fc-event-note {
-                    overflow-wrap: break-word;
-                    word-break: break-word;
-                }
-
-                &::before {
-                    content: "";
-                    position: absolute;
-                    left: 0;
-                    top: 4px;
-                    bottom: 4px;
-                    width: 4px;
-                    border-radius: 2px;
-                    background-color: var(--event-color, var(--accent-primary));
-                }
-            }
-        }
     }
 }

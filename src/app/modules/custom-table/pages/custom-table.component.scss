@@ -29,11 +29,6 @@
     flex-shrink: 0;
     border-bottom: 1px solid var(--border-default);
     box-sizing: border-box;
-
-    &.mobile-toolbar {
-        height: 64px;
-        padding: 0 16px;
-    }
 }
 
 // ── Toolbar Containers ───────────────────────────────────────────────────────
@@ -68,13 +63,6 @@
     flex: 1;
     display: flex;
     overflow: hidden;
-
-    &.mobile-layout {
-        flex-direction: column;
-        overflow-y: auto;
-        min-height: 0;
-        background-color: var(--bg-secondary);
-    }
 }
 
 .content-wrapper {

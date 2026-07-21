@@ -81,14 +81,14 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     public readonly isMobile = toSignal(
         this.breakpointObserver
-            .observe(['(max-width: 849.98px)'])
+            .observe(['(max-width: 600px)'])
             .pipe(map((result) => result.matches)),
         { initialValue: false },
     );
 
     public readonly isTablet = toSignal(
         this.breakpointObserver
-            .observe(['(min-width: 850px) and (max-width: 1399.98px)'])
+            .observe(['(min-width: 600.02px) and (max-width: 960px)'])
             .pipe(map((result) => result.matches)),
         { initialValue: false },
     );
