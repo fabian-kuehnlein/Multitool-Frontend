@@ -1,4 +1,4 @@
-@use "variables" as *;
+@use "../../../../_breakpoints" as bp;
 
 .mobile-header {
     display: flex;
@@ -60,7 +60,7 @@
     }
 }
 
-@media (max-width: $mobile-max) {
+@include bp.mobile {
     .main-layout {
         padding-bottom: 100px;
     }

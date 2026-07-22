@@ -1,4 +1,4 @@
-@use "variables" as *;
+@use "../../../../_breakpoints" as bp;
 
 // Mobile-only styles (mobile toolbar, bottom bar, todo rows, overrides)
 
@@ -89,7 +89,7 @@
 }
 
 // ── Mobile Overrides ─────────────────────────────────────────────────────────
-@media (max-width: $mobile-max) {
+@include bp.mobile {
     .main-layout {
         padding-bottom: 100px;
     }
