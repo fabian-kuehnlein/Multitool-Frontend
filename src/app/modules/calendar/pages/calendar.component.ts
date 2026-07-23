@@ -607,7 +607,6 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                             .add(1, 'day')
                                             .format('YYYY-MM-DD'),
                                         display: 'background',
-                                        color: '#FFCDD2',
                                         title: h.name,
                                     })),
                                 ),

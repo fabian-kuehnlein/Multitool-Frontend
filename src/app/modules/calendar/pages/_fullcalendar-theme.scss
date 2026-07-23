@@ -3,6 +3,10 @@
 
 @mixin fullcalendar-dark-mode {
     ::ng-deep {
+        .fc-bg-event {
+            background-color: var(--calendar-holiday-bg) !important;
+        }
+
         [data-theme="dark"] {
             // ── CSS Variables for FullCalendar ────────────────────────────
             .fc {
@@ -119,10 +123,6 @@
             }
 
             // ── BG Events ─────────────────────────────────────────────────
-            .fc-bg-event {
-                background: var(--bg-hover) !important;
-                opacity: 0.6 !important;
-            }
 
             .fc-non-business {
                 background: var(--bg-hover) !important;
