@@ -43,9 +43,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { ReorderColumnsDialogComponent } from './components/reorder-columns-dialog/reorder-columns-dialog.component';
 import { SnackbarService } from '../../../core/services/snackbar.service';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { MediaService } from '../../../core/services/media.service';
 
 @Component({
     selector: 'app-custom-table',
@@ -72,26 +70,15 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly dialog = inject(MatDialog);
     protected readonly tableService = inject(CustomTableService);
     private readonly snackbarService = inject(SnackbarService);
-    private readonly breakpointObserver = inject(BreakpointObserver);
+    private readonly media = inject(MediaService);
 
     // UI State Signals
     protected readonly removeRowsColumn = signal<boolean>(false);
     protected readonly isSidebarVisible = signal<boolean>(true);
     protected readonly isFabMenuOpen = signal<boolean>(false);
 
-    public readonly isMobile = toSignal(
-        this.breakpointObserver
-            .observe(['(max-width: 600px)'])
-            .pipe(map((result) => result.matches)),
-        { initialValue: false },
-    );
-
-    public readonly isTablet = toSignal(
-        this.breakpointObserver
-            .observe(['(min-width: 600.02px) and (max-width: 960px)'])
-            .pipe(map((result) => result.matches)),
-        { initialValue: false },
-    );
+    readonly isMobile = this.media.isMobile;
+    readonly isTablet = this.media.isTablet;
 
     // Pagination Signals
     protected readonly pageSize = signal<number>(10);

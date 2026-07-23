@@ -9,7 +9,6 @@ import {
 import dayjs from 'dayjs';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { TodoService } from '../services/todo.service';
 import {
@@ -23,6 +22,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
+import { MediaService } from '../../../core/services/media.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -38,7 +38,7 @@ export class TodoComponent implements OnInit {
     protected readonly categoryService = inject(CategoryService);
     private readonly dialog = inject(MatDialog);
     private readonly snackbar = inject(SnackbarService);
-    private readonly breakpointObserver = inject(BreakpointObserver);
+    private readonly media = inject(MediaService);
     private readonly router = inject(Router);
 
     readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
@@ -46,8 +46,9 @@ export class TodoComponent implements OnInit {
     readonly filterStatus = signal<'all' | 'active' | 'completed'>('all');
     readonly filterPriority = signal<Priority | null>(null);
 
-    public readonly isMobile = signal<boolean>(false);
-    public readonly isTablet = signal<boolean>(false);
+    readonly isMobile = this.media.isMobile;
+    readonly isTablet = this.media.isTablet;
+
     readonly expandedTodoIds = signal<Set<string | number>>(new Set());
     readonly isCompletedExpanded = signal<boolean>(false);
 
@@ -75,29 +76,16 @@ export class TodoComponent implements OnInit {
         return this.filteredTodos().filter((t) => t.isDone);
     });
 
-    constructor() {
-        this.breakpointObserver
-            .observe(['(max-width: 849.98px)'])
-            .subscribe((result) => {
-                this.isMobile.set(result.matches);
-            });
-        this.breakpointObserver
-            .observe(['(min-width: 850px) and (max-width: 1399.98px)'])
-            .subscribe((result) => {
-                this.isTablet.set(result.matches);
-            });
-    }
-
     ngOnInit(): void {
         this.todoService.loadTodos();
     }
 
     openSideNav() {
         this.dialog.open(SidenavComponent, {
-            position: this.isMobile()
+            position: this.media.isMobile()
                 ? { bottom: '120px' }
                 : { top: '90px', left: '30px' },
-            width: this.isMobile() ? '90vw' : 'auto',
+            width: this.media.isMobile() ? '90vw' : 'auto',
             height: 'auto',
             hasBackdrop: true,
             backdropClass: 'transparent-backdrop',
@@ -147,11 +135,11 @@ export class TodoComponent implements OnInit {
 
     onAddTodo(): void {
         const dialogRef = this.dialog.open(TodoDialogComponent, {
-            width: this.isMobile() ? '100vw' : '500px',
-            height: this.isMobile() ? '100vh' : 'auto',
-            minWidth: this.isMobile() ? '100vw' : 'unset',
-            maxWidth: this.isMobile() ? '100vw' : '95vw',
-            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+            width: this.media.isMobile() ? '100vw' : '500px',
+            height: this.media.isMobile() ? '100vh' : 'auto',
+            minWidth: this.media.isMobile() ? '100vw' : 'unset',
+            maxWidth: this.media.isMobile() ? '100vw' : '95vw',
+            panelClass: this.media.isMobile() ? 'full-screen-dialog' : '',
         });
 
         dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
@@ -173,11 +161,11 @@ export class TodoComponent implements OnInit {
 
     onEditTodo(todo: Todo): void {
         const dialogRef = this.dialog.open(TodoDialogComponent, {
-            width: this.isMobile() ? '100vw' : '500px',
-            height: this.isMobile() ? '100vh' : 'auto',
-            minWidth: this.isMobile() ? '100vw' : 'unset',
-            maxWidth: this.isMobile() ? '100vw' : '95vw',
-            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+            width: this.media.isMobile() ? '100vw' : '500px',
+            height: this.media.isMobile() ? '100vh' : 'auto',
+            minWidth: this.media.isMobile() ? '100vw' : 'unset',
+            maxWidth: this.media.isMobile() ? '100vw' : '95vw',
+            panelClass: this.media.isMobile() ? 'full-screen-dialog' : '',
             data: { todo },
         });
 

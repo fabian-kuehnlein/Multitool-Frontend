@@ -2,18 +2,16 @@ import {
     Component,
     inject,
     OnInit,
-    signal,
-    computed,
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { WorkTimePlannerService } from '../services/work-time-planner.service';
 import { DayCardComponent } from './components/day-card/day-card.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
+import { MediaService } from '../../../core/services/media.service';
 
 @Component({
     selector: 'app-work-time-planner',
@@ -26,24 +24,13 @@ import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component
 export class WorkTimePlannerComponent implements OnInit {
     protected readonly plannerService = inject(WorkTimePlannerService);
     private readonly dialog = inject(MatDialog);
-    private readonly breakpointObserver = inject(BreakpointObserver);
+    private readonly media = inject(MediaService);
 
-    readonly isMobile = signal<boolean>(false);
-    readonly isTablet = signal<boolean>(false);
-    readonly isDesktop = computed(() => !this.isMobile() && !this.isTablet());
+    readonly isMobile = this.media.isMobile;
+    readonly isTablet = this.media.isTablet;
+    readonly isDesktop = this.media.isDesktop;
 
-    constructor() {
-        this.breakpointObserver
-            .observe(['(max-width: 849.98px)'])
-            .subscribe((result) => {
-                this.isMobile.set(result.matches);
-            });
-        this.breakpointObserver
-            .observe(['(min-width: 850px) and (max-width: 1399.98px)'])
-            .subscribe((result) => {
-                this.isTablet.set(result.matches);
-            });
-    }
+    constructor() {}
 
     ngOnInit(): void {
         this.plannerService.loadWorkDays();

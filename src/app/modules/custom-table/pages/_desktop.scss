@@ -195,18 +195,4 @@
     button {
         white-space: nowrap;
     }
-
-    @media (max-width: bp.$breakpoint-md) {
-        gap: 16px;
-        padding: 15px 20px;
-
-        button {
-            padding: 0 16px;
-            font-size: 0.95rem;
-        }
-
-        .spacer {
-            flex: 1;
-        }
-    }
 }
