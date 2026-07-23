@@ -38,34 +38,73 @@
     }
 
     @if (isMobile()) {
-        <div class="week-header">
-            @if (!plannerService.isCurrentWeek()) {
-                <button
-                    mat-button
-                    (click)="plannerService.navigateWeek('current')"
-                    class="today-btn"
+        <div class="mobile-overtime-summary">
+            <div class="mobile-stat-card">
+                <mat-icon
+                    class="stat-icon"
+                    [class.overtime-positive]="
+                        plannerService.weeklyOvertimeMinutes() >= 0
+                    "
+                    [class.overtime-negative]="
+                        plannerService.weeklyOvertimeMinutes() < 0
+                    "
                 >
-                    Heute
-                </button>
-            }
-            <div class="week-nav">
-                <button
-                    mat-icon-button
-                    (click)="plannerService.navigateWeek('prev')"
-                    matTooltip="Vorherige Woche"
+                    {{
+                        plannerService.weeklyOvertimeMinutes() >= 0
+                            ? "trending_up"
+                            : "trending_down"
+                    }}
+                </mat-icon>
+                <div class="stat-info">
+                    <span
+                        class="stat-value"
+                        [class.overtime-positive]="
+                            plannerService.weeklyOvertimeMinutes() >= 0
+                        "
+                        [class.overtime-negative]="
+                            plannerService.weeklyOvertimeMinutes() < 0
+                        "
+                    >
+                        {{
+                            formatMinutes(
+                                plannerService.weeklyOvertimeMinutes()
+                            )
+                        }}
+                    </span>
+                    <span class="stat-label">Überstunden (Woche)</span>
+                </div>
+            </div>
+
+            <div class="mobile-stat-card">
+                <mat-icon
+                    class="stat-icon"
+                    [class.overtime-positive]="
+                        plannerService.totalOvertime() >= 0
+                    "
+                    [class.overtime-negative]="
+                        plannerService.totalOvertime() < 0
+                    "
                 >
-                    <mat-icon>chevron_left</mat-icon>
-                </button>
-                <span class="week-range">{{
-                    plannerService.getWeekRange()
-                }}</span>
-                <button
-                    mat-icon-button
-                    (click)="plannerService.navigateWeek('next')"
-                    matTooltip="Nächste Woche"
-                >
-                    <mat-icon>chevron_right</mat-icon>
-                </button>
+                    {{
+                        plannerService.totalOvertime() >= 0
+                            ? "account_balance"
+                            : "warning"
+                    }}
+                </mat-icon>
+                <div class="stat-info">
+                    <span
+                        class="stat-value"
+                        [class.overtime-positive]="
+                            plannerService.totalOvertime() >= 0
+                        "
+                        [class.overtime-negative]="
+                            plannerService.totalOvertime() < 0
+                        "
+                    >
+                        {{ formatMinutes(plannerService.totalOvertime()) }}
+                    </span>
+                    <span class="stat-label">Gesamtkonto</span>
+                </div>
             </div>
         </div>
     }
@@ -369,27 +408,50 @@
     </div>
 
     @if (isMobile()) {
-        <div class="mobile-bottom-bar">
-            <div class="mobile-action-container">
+        <div class="mobile-action-container">
+            <button
+                mat-fab
+                class="mobile-fab-left"
+                (click)="openSideNav()"
+                matTooltip="Tool wechseln"
+            >
+                <mat-icon>home</mat-icon>
+            </button>
+
+            <div class="mobile-nav-center">
                 <button
-                    mat-fab
-                    class="mobile-fab-left"
-                    (click)="openSideNav()"
-                    matTooltip="Tool wechseln"
+                    mat-mini-fab
+                    (click)="plannerService.navigateWeek('prev')"
+                    matTooltip="Vorherige Woche"
                 >
-                    <mat-icon>home</mat-icon>
+                    <mat-icon>chevron_left</mat-icon>
                 </button>
-                <div class="mobile-actions-right">
-                    <button
-                        mat-fab
-                        class="mobile-filter-fab"
-                        (click)="openSettings()"
-                        matTooltip="Einstellungen"
-                    >
-                        <mat-icon>settings</mat-icon>
-                    </button>
-                </div>
+                <button
+                    mat-mini-fab
+                    (click)="plannerService.navigateWeek('current')"
+                    [color]="plannerService.isCurrentWeek() ? 'basic' : 'primary'"
+                    [disabled]="plannerService.isCurrentWeek()"
+                    matTooltip="Heute"
+                >
+                    <mat-icon>today</mat-icon>
+                </button>
+                <button
+                    mat-mini-fab
+                    (click)="plannerService.navigateWeek('next')"
+                    matTooltip="Nächste Woche"
+                >
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
             </div>
+
+            <button
+                mat-fab
+                class="mobile-fab-right"
+                (click)="openSettings()"
+                matTooltip="Einstellungen"
+            >
+                <mat-icon>settings</mat-icon>
+            </button>
         </div>
     }
 </div>

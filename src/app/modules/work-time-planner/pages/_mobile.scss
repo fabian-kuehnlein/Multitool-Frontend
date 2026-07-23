@@ -1,4 +1,4 @@
-@use "variables" as *;
+@use "../../../../_breakpoints" as bp;
 
 .mobile-header {
     display: flex;
@@ -27,31 +27,86 @@
     }
 }
 
-.mobile-bottom-bar {
+// ── Mobile Überstunden-Übersicht (ersetzt die Wochennavigation oben) ────────
+.mobile-overtime-summary {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
+}
+
+.mobile-stat-card {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-surface);
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+
+    .stat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        color: var(--accent-primary);
+        flex-shrink: 0;
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .stat-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+// ── Mobile Bottom-Bar (analog zum Calendar-Modul) ───────────────────────────
+.mobile-action-container {
     position: absolute;
     bottom: 25px;
     left: 20px;
     right: 20px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 1000;
-}
-
-.mobile-action-container {
-    display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 1000;
 
-    .mobile-actions-right {
+    .mobile-nav-center {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 12px;
+        background: var(--bg-surface);
+        backdrop-filter: blur(8px);
+        padding: 8px 16px;
+        border-radius: 40px;
+        box-shadow: 0 4px 15px var(--shadow-lg);
+        border: 1px solid var(--border-light);
     }
 
     .mobile-fab-left,
-    .mobile-filter-fab {
-        box-shadow: 0 4px 12px var(--shadow-lg);
+    .mobile-fab-right {
+        box-shadow: 0 4px 12px var(--shadow-xl);
     }
 
     .mobile-fab-left {
@@ -60,34 +115,8 @@
     }
 }
 
-@media (max-width: $mobile-max) {
+@include bp.mobile {
     .main-layout {
         padding-bottom: 100px;
-    }
-
-    .week-header {
-        position: relative;
-        flex-shrink: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 8px 16px;
-        background: var(--bg-secondary);
-        border-bottom: 1px solid var(--border-light);
-    }
-
-    .week-range {
-        font-size: 1rem;
-        min-width: 160px;
-    }
-
-    .week-summary {
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px 16px;
-    }
-
-    .summary-row {
-        justify-content: space-between;
     }
 }

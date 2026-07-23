@@ -1,4 +1,19 @@
+@use "../../../../_breakpoints" as bp;
+
 // Mobile-only styles + responsive overrides
+
+// ── Toolbar / Layout state overrides (moved from custom-table.component.scss) ─
+.toolbar-container.mobile-toolbar {
+    height: 64px;
+    padding: 0 16px;
+}
+
+.main-layout.mobile-layout {
+    flex-direction: column;
+    overflow-y: auto;
+    min-height: 0;
+    background-color: var(--bg-secondary);
+}
 
 // ── Mobile Header ────────────────────────────────────────────────────────────
 .mobile-header {
@@ -272,7 +287,7 @@
 }
 
 // ── Responsive Overrides ─────────────────────────────────────────────────────
-@media (max-width: 1100px) {
+@media (max-width: bp.$breakpoint-md) {
     .left-container,
     .right-container {
         gap: 8px;
@@ -288,7 +303,7 @@
     }
 }
 
-@media (max-width: 850px) {
+@include bp.mobile {
     .content-wrapper {
         padding: 0;
         flex: 1 0 auto;

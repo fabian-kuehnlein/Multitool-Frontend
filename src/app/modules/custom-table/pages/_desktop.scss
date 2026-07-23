@@ -1,3 +1,5 @@
+@use "../../../../_breakpoints" as bp;
+
 // Desktop-only styles (sidebar, data table, footer actions)
 
 // ── Sidebar ──────────────────────────────────────────────────────────────────
@@ -194,7 +196,7 @@
         white-space: nowrap;
     }
 
-    @media (max-width: 1400px) {
+    @media (max-width: bp.$breakpoint-md) {
         gap: 16px;
         padding: 15px 20px;
 

@@ -1,5 +1,3 @@
-@use "variables" as *;
-
 // Desktop-only styles (toolbar layout, sidebar, todo rows, sort header, completed panel)
 
 // ── Toolbar Desktop Layout ───────────────────────────────────────────────────
@@ -89,23 +87,19 @@
 
 // ── Desktop Content Card ─────────────────────────────────────────────────────
 .todo-content-card {
-    @media (min-width: #{$mobile-max + 0.02px}) {
-        flex: 1;
-        min-height: 350px;
-        display: flex;
-        flex-direction: column;
-    }
+    flex: 1;
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
 }
 
 // ── Desktop Header Actions (Sort) ────────────────────────────────────────────
 .todo-header-actions {
-    @media (min-width: #{$mobile-max + 0.02px}) {
-        padding: 12px 24px;
-        background-color: var(--bg-surface-alt);
-        border-bottom: 1px solid var(--border-light);
-        display: flex;
-        align-items: center;
-    }
+    padding: 12px 24px;
+    background-color: var(--bg-surface-alt);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
 
     .section-title {
         margin-right: 32px;
