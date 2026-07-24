@@ -17,12 +17,19 @@ export class MediaService {
 
     readonly isTablet = toSignal(
         this.breakpointObserver
-            .observe(['(min-width: 600.02px) and (max-width: 960px)'])
+            .observe(['(min-width: 601px) and (max-width: 1024px)'])
+            .pipe(map((result) => result.matches)),
+        { initialValue: false },
+    );
+
+    readonly isLaptop = toSignal(
+        this.breakpointObserver
+            .observe(['(min-width: 1025px) and (max-width: 1640px)'])
             .pipe(map((result) => result.matches)),
         { initialValue: false },
     );
 
     readonly isDesktop = computed(
-        () => !this.isMobile() && !this.isTablet(),
+        () => !this.isMobile() && !this.isTablet() && !this.isLaptop(),
     );
 }

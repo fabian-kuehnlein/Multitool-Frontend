@@ -79,6 +79,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
+    readonly isLaptop = this.media.isLaptop;
 
     // Pagination Signals
     protected readonly pageSize = signal<number>(10);

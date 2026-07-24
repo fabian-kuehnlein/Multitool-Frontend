@@ -195,4 +195,15 @@
     button {
         white-space: nowrap;
     }
+
+    &.compact-footer {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 12px 16px;
+
+        .spacer {
+            display: none;
+        }
+    }
 }

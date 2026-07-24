@@ -202,11 +202,13 @@
                 </div>
 
                 <div class="mobile-actions">
-                    <button mat-icon-button (click)="onAddTodo()">
+                    <button mat-flat-button (click)="onAddTodo()">
                         <mat-icon>add</mat-icon>
+                        <span>Neue Aufgabe</span>
                     </button>
-                    <button mat-icon-button [matMenuTriggerFor]="filterMenu">
+                    <button mat-flat-button [matMenuTriggerFor]="filterMenu">
                         <mat-icon>filter_list</mat-icon>
+                        <span>Filter</span>
                     </button>
                     <mat-menu #filterMenu="matMenu">
                         <button mat-menu-item (click)="setFilterStatus('all')">

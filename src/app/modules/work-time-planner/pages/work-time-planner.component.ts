@@ -28,6 +28,7 @@ export class WorkTimePlannerComponent implements OnInit {
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
+    readonly isLaptop = this.media.isLaptop;
     readonly isDesktop = this.media.isDesktop;
 
     constructor() {}

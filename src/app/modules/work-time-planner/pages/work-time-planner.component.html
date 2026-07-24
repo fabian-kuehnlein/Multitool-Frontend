@@ -291,7 +291,7 @@
             }
 
             <div class="week-section">
-                <div class="week-grid" [class.mobile-grid]="isMobile()">
+                <div class="week-grid" [class.mobile-grid]="isMobile()" [class.laptop-grid]="isTablet() || isLaptop()">
                     @for (
                         day of plannerService.weekDays();
                         track day.date;
@@ -319,7 +319,7 @@
                 </div>
 
                 @if (!isMobile()) {
-                    <div class="week-summary">
+                    <div class="week-summary" [class.compact-summary]="isTablet() || isLaptop()">
                         <div class="summary-row">
                             <span class="summary-label">Wochenziel:</span>
                             <span class="summary-value">{{
