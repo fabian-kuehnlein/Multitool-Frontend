@@ -126,6 +126,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.initCategoryControl();
         this.setupCategorySelectionListener();
         this.setupMobileViewListener();
+        this.setupPastEventsToggle();
     }
 
     ngAfterViewInit(): void {
@@ -168,6 +169,16 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                     this.currentView.set('dayGridMonth');
                 }
                 this.updateTodayStatus();
+            }
+        });
+    }
+
+    private setupPastEventsToggle() {
+        effect(() => {
+            const show = this.showPastEvents();
+            const api = this.calendarApi;
+            if (api) {
+                api.refetchEvents();
             }
         });
     }
@@ -548,6 +559,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 }
 
                                 const today = dayjs();
+                                const todayStr = today.format('YYYY-MM-DD');
                                 const hasEventToday = processedEvents.some(
                                     (e) => {
                                         if (e.rrule)
@@ -555,11 +567,20 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                                 e.rrule,
                                                 today,
                                             );
-                                        return (
-                                            dayjs(e.start).format(
-                                                'YYYY-MM-DD',
-                                            ) === today.format('YYYY-MM-DD')
+                                        const start = dayjs(e.start).format(
+                                            'YYYY-MM-DD',
                                         );
+                                        if (start === todayStr) return true;
+                                        if (e.end) {
+                                            const end = dayjs(
+                                                e.end,
+                                            ).format('YYYY-MM-DD');
+                                            return (
+                                                start < todayStr &&
+                                                end > todayStr
+                                            );
+                                        }
+                                        return false;
                                     },
                                 );
 
@@ -577,7 +598,34 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                     });
                                 }
 
-                                successCallback(processedEvents);
+                                let finalEvents = processedEvents;
+                                if (!this.showPastEvents()) {
+                                    const todayStart = dayjs().startOf('day');
+                                    finalEvents = [];
+                                    for (const event of processedEvents) {
+                                        const eventEnd = dayjs(
+                                            event.end || event.start,
+                                        );
+                                        const eventStart = dayjs(event.start);
+                                        if (eventEnd.isBefore(todayStart))
+                                            continue;
+                                        if (
+                                            event.allDay &&
+                                            eventStart.isBefore(todayStart)
+                                        ) {
+                                            finalEvents.push({
+                                                ...event,
+                                                start: todayStart.format(
+                                                    'YYYY-MM-DD',
+                                                ),
+                                            });
+                                        } else {
+                                            finalEvents.push(event);
+                                        }
+                                    }
+                                }
+
+                                successCallback(finalEvents);
                             },
                             error: (err) => failureCallback(err),
                         });
