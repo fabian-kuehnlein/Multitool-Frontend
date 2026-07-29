@@ -716,7 +716,7 @@
 
                     @if (!isMobile()) {
                         <!-- Desktop Footer Actions -->
-                        <div class="table-footer-actions">
+                        <div class="table-footer-actions" [class.compact-footer]="isTablet()">
                             @if (!removeRowsColumn()) {
                                 <button mat-stroked-button (click)="addRow()">
                                     <mat-icon>add</mat-icon>

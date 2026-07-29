@@ -287,22 +287,6 @@
 }
 
 // ── Responsive Overrides ─────────────────────────────────────────────────────
-@media (max-width: bp.$breakpoint-md) {
-    .left-container,
-    .right-container {
-        gap: 8px;
-
-        button span {
-            display: none;
-        }
-
-        .create-button {
-            min-width: 40px;
-            padding: 0 8px;
-        }
-    }
-}
-
 @include bp.mobile {
     .content-wrapper {
         padding: 0;

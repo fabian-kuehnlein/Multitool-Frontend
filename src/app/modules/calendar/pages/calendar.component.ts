@@ -18,7 +18,6 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 // Angular Material
 import { MatDialog } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 // FullCalendar
 import {
@@ -35,7 +34,7 @@ import { defaultCalendarOptions } from '../utilities/calendar.config';
 // Third Party
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { debounceTime, Subject, takeUntil, map } from 'rxjs';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 dayjs.extend(duration);
 
@@ -48,6 +47,7 @@ import { CalendarMapper } from '../utilities/calendar-mapper';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
+import { MediaService } from '../../../core/services/media.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -87,7 +87,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private readonly categoryService = inject(CategoryService);
     private readonly dialog = inject(MatDialog);
     private readonly route = inject(ActivatedRoute);
-    private readonly breakpointObserver = inject(BreakpointObserver);
+    private readonly media = inject(MediaService);
     private readonly destroy$ = new Subject<void>();
 
     // --- Signals & State ---
@@ -97,15 +97,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     public readonly showFilters = signal<boolean>(false);
     public readonly loading = signal<boolean>(false);
 
-    protected readonly isMobile = toSignal(
-        this.breakpointObserver
-            .observe([Breakpoints.Handset])
-            .pipe(map((result) => result.matches)),
-        { initialValue: false },
-    );
+    protected readonly isMobile = this.media.isMobile;
 
     protected readonly showPastEvents = signal<boolean>(
-        this.isMobile() ? false : true,
+        this.media.isMobile() ? false : true,
     );
 
     public readonly categoryList = this.categoryService.categories;
@@ -131,13 +126,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.initCategoryControl();
         this.setupCategorySelectionListener();
         this.setupMobileViewListener();
+        this.setupPastEventsToggle();
     }
 
     ngAfterViewInit(): void {
-        const isHandset = this.breakpointObserver.isMatched(
-            Breakpoints.Handset,
-        );
-        if (isHandset && this.calendarApi) {
+        if (this.media.isMobile() && this.calendarApi) {
             this.changeView('listMonth');
             this.currentView.set('listMonth');
             this.updateTodayStatus();
@@ -165,7 +158,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private setupMobileViewListener() {
         effect(() => {
             const api = this.calendarApi;
-            const mobile = this.isMobile();
+            const mobile = this.media.isMobile();
 
             if (api) {
                 if (mobile) {
@@ -176,6 +169,16 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                     this.currentView.set('dayGridMonth');
                 }
                 this.updateTodayStatus();
+            }
+        });
+    }
+
+    private setupPastEventsToggle() {
+        effect(() => {
+            const show = this.showPastEvents();
+            const api = this.calendarApi;
+            if (api) {
+                api.refetchEvents();
             }
         });
     }
@@ -275,10 +278,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     public openSideNav() {
         this.dialog.open(SidenavComponent, {
-            position: this.isMobile()
+            position: this.media.isMobile()
                 ? { bottom: '120px' }
                 : { top: '90px', left: '30px' },
-            width: this.isMobile() ? '90vw' : 'auto',
+            width: this.media.isMobile() ? '90vw' : 'auto',
             height: 'auto',
             hasBackdrop: true,
             backdropClass: 'transparent-backdrop',
@@ -294,11 +297,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         const anchorDate = api.getDate();
         this.dialog
             .open(EventDialogComponent, {
-                width: this.isMobile() ? '100vw' : 'auto',
-                height: this.isMobile() ? '100vh' : 'auto',
-                minWidth: this.isMobile() ? '100vw' : '600px',
-                maxWidth: this.isMobile() ? '100vw' : '1500px',
-                panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+                width: this.media.isMobile() ? '100vw' : 'auto',
+                height: this.media.isMobile() ? '100vh' : 'auto',
+                minWidth: this.media.isMobile() ? '100vw' : '600px',
+                maxWidth: this.media.isMobile() ? '100vw' : '1500px',
+                panelClass: this.media.isMobile() ? 'full-screen-dialog' : '',
                 data: { anchorDate, event: null },
             })
             .afterClosed()
@@ -331,11 +334,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     private openEventDialog(eventData: any, isInstance: boolean = false) {
         const dialogConfig = {
-            width: this.isMobile() ? '100vw' : 'auto',
-            height: this.isMobile() ? '100vh' : 'auto',
-            minWidth: this.isMobile() ? '100vw' : '600px',
-            maxWidth: this.isMobile() ? '100vw' : '1500px',
-            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+            width: this.media.isMobile() ? '100vw' : 'auto',
+            height: this.media.isMobile() ? '100vh' : 'auto',
+            minWidth: this.media.isMobile() ? '100vw' : '600px',
+            maxWidth: this.media.isMobile() ? '100vw' : '1500px',
+            panelClass: this.media.isMobile() ? 'full-screen-dialog' : '',
             data: {
                 event: isInstance
                     ? {
@@ -440,11 +443,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     public openSearchResult() {
         this.dialog
             .open(SearchDialogComponent, {
-                width: this.isMobile() ? '100vw' : 'auto',
-                height: this.isMobile() ? '100vh' : 'auto',
-                minWidth: this.isMobile() ? '100vw' : '600px',
-                maxWidth: this.isMobile() ? '100vw' : '1500px',
-                panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+                width: this.media.isMobile() ? '100vw' : 'auto',
+                height: this.media.isMobile() ? '100vh' : 'auto',
+                minWidth: this.media.isMobile() ? '100vw' : '600px',
+                maxWidth: this.media.isMobile() ? '100vw' : '1500px',
+                panelClass: this.media.isMobile() ? 'full-screen-dialog' : '',
             })
             .afterClosed()
             .subscribe((result) => {
@@ -556,6 +559,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 }
 
                                 const today = dayjs();
+                                const todayStr = today.format('YYYY-MM-DD');
                                 const hasEventToday = processedEvents.some(
                                     (e) => {
                                         if (e.rrule)
@@ -563,11 +567,20 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                                 e.rrule,
                                                 today,
                                             );
-                                        return (
-                                            dayjs(e.start).format(
-                                                'YYYY-MM-DD',
-                                            ) === today.format('YYYY-MM-DD')
+                                        const start = dayjs(e.start).format(
+                                            'YYYY-MM-DD',
                                         );
+                                        if (start === todayStr) return true;
+                                        if (e.end) {
+                                            const end = dayjs(
+                                                e.end,
+                                            ).format('YYYY-MM-DD');
+                                            return (
+                                                start < todayStr &&
+                                                end > todayStr
+                                            );
+                                        }
+                                        return false;
                                     },
                                 );
 
@@ -585,7 +598,34 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                     });
                                 }
 
-                                successCallback(processedEvents);
+                                let finalEvents = processedEvents;
+                                if (!this.showPastEvents()) {
+                                    const todayStart = dayjs().startOf('day');
+                                    finalEvents = [];
+                                    for (const event of processedEvents) {
+                                        const eventEnd = dayjs(
+                                            event.end || event.start,
+                                        );
+                                        const eventStart = dayjs(event.start);
+                                        if (eventEnd.isBefore(todayStart))
+                                            continue;
+                                        if (
+                                            event.allDay &&
+                                            eventStart.isBefore(todayStart)
+                                        ) {
+                                            finalEvents.push({
+                                                ...event,
+                                                start: todayStart.format(
+                                                    'YYYY-MM-DD',
+                                                ),
+                                            });
+                                        } else {
+                                            finalEvents.push(event);
+                                        }
+                                    }
+                                }
+
+                                successCallback(finalEvents);
                             },
                             error: (err) => failureCallback(err),
                         });
