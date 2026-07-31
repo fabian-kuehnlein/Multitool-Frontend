@@ -56,8 +56,10 @@ export class CustomTableService {
         });
     }
 
-    loadTable(tableId: number): void {
-        this._loading.set(true);
+    loadTable(tableId: number, showLoading = true): void {
+        if (showLoading) {
+            this._loading.set(true);
+        }
         this.httpService.getTable(tableId).subscribe({
             next: (table) => {
                 this._currentTable.set(table);
@@ -127,6 +129,17 @@ export class CustomTableService {
     }
 
     updateRowOrder(rows: UpdateRowOrderDto[]): Observable<any> {
+        const table = this._currentTable();
+        if (table) {
+            const orderMap = new Map(rows.map((r) => [r.rowId, r.rowOrder]));
+            this._currentTable.set({
+                ...table,
+                rows: table.rows.map((row) => ({
+                    ...row,
+                    rowOrder: orderMap.get(row.rowId) ?? row.rowOrder,
+                })),
+            });
+        }
         return this.httpService.updateRowOrder(rows);
     }
 

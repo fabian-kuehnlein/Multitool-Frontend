@@ -410,7 +410,10 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.tableService.updateRowOrder(updateDtos).subscribe({
             next: () =>
-                this.tableService.loadTable(this.tableService.tableId()),
+                this.tableService.loadTable(
+                    this.tableService.tableId(),
+                    false,
+                ),
             error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
