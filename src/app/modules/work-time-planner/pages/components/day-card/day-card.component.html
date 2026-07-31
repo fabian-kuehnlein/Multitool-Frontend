@@ -35,24 +35,40 @@
         <div class="time-inputs">
             <div class="input-group">
                 <label class="input-label">Start</label>
-                <input
-                    type="time"
-                    class="time-input"
-                    [value]="day.startTime || ''"
-                    [disabled]="day.isLocked"
-                    (change)="onStartTimeChange($any($event.target).value)"
-                />
+                <div class="time-input-wrapper">
+                    <input
+                        type="time"
+                        class="time-input"
+                        [value]="day.startTime || ''"
+                        [disabled]="day.isLocked"
+                        (change)="onStartTimeChange($any($event.target).value)"
+                    />
+                    <mat-icon
+                        class="time-picker-icon"
+                        tabindex="-1"
+                        aria-hidden="true"
+                        >schedule</mat-icon
+                    >
+                </div>
             </div>
             <span class="time-separator">–</span>
             <div class="input-group">
                 <label class="input-label">Ende</label>
-                <input
-                    type="time"
-                    class="time-input"
-                    [value]="day.endTime || ''"
-                    [disabled]="day.isLocked"
-                    (change)="onEndTimeChange($any($event.target).value)"
-                />
+                <div class="time-input-wrapper">
+                    <input
+                        type="time"
+                        class="time-input"
+                        [value]="day.endTime || ''"
+                        [disabled]="day.isLocked"
+                        (change)="onEndTimeChange($any($event.target).value)"
+                    />
+                    <mat-icon
+                        class="time-picker-icon"
+                        tabindex="-1"
+                        aria-hidden="true"
+                        >schedule</mat-icon
+                    >
+                </div>
             </div>
         </div>
 
