@@ -115,6 +115,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     public formControls: { [key: string]: FormControl } = {};
     public removeControls: { [rowId: number]: FormControl } = {};
     public dataSource = new MatTableDataSource<RowInfo>();
+    private initialCellValues: { [key: string]: any } = {};
 
     constructor() {
         // Automatically sync dataSource and formControls when table data changes
@@ -466,12 +467,33 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isFabMenuOpen.update((v) => !v);
     }
 
+    onCellFocus(rowId: number, columnId: number) {
+        const key = `${rowId}_${columnId}`;
+        this.initialCellValues[key] = this.formControls[key]?.value;
+    }
+
     onCellBlur(rowId: number, columnId: number) {
         const key = `${rowId}_${columnId}`;
-        const value = this.formControls[key].value;
-        this.tableService.upsertCell(rowId, columnId, value).subscribe({
+        const control = this.formControls[key];
+        const initialValue = this.initialCellValues[key];
+
+        delete this.initialCellValues[key];
+
+        if (this.valuesAreEqual(initialValue, control.value)) {
+            return;
+        }
+
+        this.tableService.upsertCell(rowId, columnId, control.value).subscribe({
             error: (err) => this.snackbarService.openSnackbar(err),
         });
+    }
+
+    private valuesAreEqual(a: any, b: any): boolean {
+        if (a === b) return true;
+        if (a instanceof Date && b instanceof Date) {
+            return a.getTime() === b.getTime();
+        }
+        return false;
     }
 
     focusOwnCell(event: MouseEvent) {

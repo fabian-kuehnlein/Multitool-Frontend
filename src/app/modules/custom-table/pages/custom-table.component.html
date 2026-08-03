@@ -327,6 +327,12 @@
                                                                         col.columnId
                                                                 ]
                                                             "
+                                                            (focus)="
+                                                                onCellFocus(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
                                                             (blur)="
                                                                 onCellBlur(
                                                                     row.rowId,
@@ -353,6 +359,12 @@
                                                                         '_' +
                                                                         col.columnId
                                                                 ]
+                                                            "
+                                                            (focus)="
+                                                                onCellFocus(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
                                                             "
                                                             (blur)="
                                                                 onCellBlur(
@@ -381,6 +393,12 @@
                                                                         '_' +
                                                                         col.columnId
                                                                 ]
+                                                            "
+                                                            (focus)="
+                                                                onCellFocus(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
                                                             "
                                                             (blur)="
                                                                 onCellBlur(
@@ -411,6 +429,12 @@
                                                                         col.columnId
                                                                 ]
                                                             "
+                                                            (focus)="
+                                                                onCellFocus(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
+                                                            "
                                                             (dateChange)="
                                                                 onCellBlur(
                                                                     row.rowId,
@@ -437,6 +461,12 @@
                                                                         '_' +
                                                                         col.columnId
                                                                 ]
+                                                            "
+                                                            (focus)="
+                                                                onCellFocus(
+                                                                    row.rowId,
+                                                                    col.columnId
+                                                                )
                                                             "
                                                             (change)="
                                                                 onCellBlur(
@@ -548,23 +578,29 @@
                                                                 subscriptSizing="dynamic"
                                                                 class="no-outline-form-field"
                                                             >
-                                                                <input
-                                                                    matInput
-                                                                    type="text"
-                                                                    [formControl]="
-                                                                        formControls[
-                                                                            row.rowId +
-                                                                                '_' +
-                                                                                col.columnId
-                                                                        ]
-                                                                    "
-                                                                    (blur)="
-                                                                        onCellBlur(
-                                                                            row.rowId,
-                                                                            col.columnId
-                                                                        )
-                                                                    "
-                                                                />
+                                                                 <input
+                                                                     matInput
+                                                                     type="text"
+                                                                     [formControl]="
+                                                                         formControls[
+                                                                             row.rowId +
+                                                                                 '_' +
+                                                                                 col.columnId
+                                                                         ]
+                                                                     "
+                                                                     (focus)="
+                                                                         onCellFocus(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                     (blur)="
+                                                                         onCellBlur(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                 />
                                                             </mat-form-field>
                                                         }
 
@@ -574,24 +610,30 @@
                                                                 subscriptSizing="dynamic"
                                                                 class="no-outline-form-field"
                                                             >
-                                                                <input
-                                                                    matInput
-                                                                    class="no-spinner"
-                                                                    type="number"
-                                                                    [formControl]="
-                                                                        formControls[
-                                                                            row.rowId +
-                                                                                '_' +
-                                                                                col.columnId
-                                                                        ]
-                                                                    "
-                                                                    (blur)="
-                                                                        onCellBlur(
-                                                                            row.rowId,
-                                                                            col.columnId
-                                                                        )
-                                                                    "
-                                                                />
+                                                                 <input
+                                                                     matInput
+                                                                     class="no-spinner"
+                                                                     type="number"
+                                                                     [formControl]="
+                                                                         formControls[
+                                                                             row.rowId +
+                                                                                 '_' +
+                                                                                 col.columnId
+                                                                         ]
+                                                                     "
+                                                                     (focus)="
+                                                                         onCellFocus(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                     (blur)="
+                                                                         onCellBlur(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                 />
                                                             </mat-form-field>
                                                         }
 
@@ -601,25 +643,31 @@
                                                                 subscriptSizing="dynamic"
                                                                 class="no-outline-form-field"
                                                             >
-                                                                <input
-                                                                    matInput
-                                                                    class="no-spinner"
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    [formControl]="
-                                                                        formControls[
-                                                                            row.rowId +
-                                                                                '_' +
-                                                                                col.columnId
-                                                                        ]
-                                                                    "
-                                                                    (blur)="
-                                                                        onCellBlur(
-                                                                            row.rowId,
-                                                                            col.columnId
-                                                                        )
-                                                                    "
-                                                                />
+                                                                 <input
+                                                                     matInput
+                                                                     class="no-spinner"
+                                                                     type="number"
+                                                                     step="0.01"
+                                                                     [formControl]="
+                                                                         formControls[
+                                                                             row.rowId +
+                                                                                 '_' +
+                                                                                 col.columnId
+                                                                         ]
+                                                                     "
+                                                                     (focus)="
+                                                                         onCellFocus(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                     (blur)="
+                                                                         onCellBlur(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                 />
                                                             </mat-form-field>
                                                         }
 
@@ -629,26 +677,32 @@
                                                                 subscriptSizing="dynamic"
                                                                 class="no-outline-form-field date-cell"
                                                             >
-                                                                <input
-                                                                    matInput
-                                                                    [matDatepicker]="
-                                                                        picker
-                                                                    "
-                                                                    class="date-cell"
-                                                                    [formControl]="
-                                                                        formControls[
-                                                                            row.rowId +
-                                                                                '_' +
-                                                                                col.columnId
-                                                                        ]
-                                                                    "
-                                                                    (dateChange)="
-                                                                        onCellBlur(
-                                                                            row.rowId,
-                                                                            col.columnId
-                                                                        )
-                                                                    "
-                                                                />
+                                                                 <input
+                                                                     matInput
+                                                                     [matDatepicker]="
+                                                                         picker
+                                                                     "
+                                                                     class="date-cell"
+                                                                     [formControl]="
+                                                                         formControls[
+                                                                             row.rowId +
+                                                                                 '_' +
+                                                                                 col.columnId
+                                                                         ]
+                                                                     "
+                                                                     (focus)="
+                                                                         onCellFocus(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                     (dateChange)="
+                                                                         onCellBlur(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                 />
                                                                 <mat-datepicker-toggle
                                                                     matIconSuffix
                                                                     [for]="
@@ -665,22 +719,28 @@
                                                             <div
                                                                 class="cell-content"
                                                             >
-                                                                <mat-checkbox
-                                                                    [formControl]="
-                                                                        formControls[
-                                                                            row.rowId +
-                                                                                '_' +
-                                                                                col.columnId
-                                                                        ]
-                                                                    "
-                                                                    (change)="
-                                                                        onCellBlur(
-                                                                            row.rowId,
-                                                                            col.columnId
-                                                                        )
-                                                                    "
-                                                                >
-                                                                </mat-checkbox>
+                                                                 <mat-checkbox
+                                                                     [formControl]="
+                                                                         formControls[
+                                                                             row.rowId +
+                                                                                 '_' +
+                                                                                 col.columnId
+                                                                         ]
+                                                                     "
+                                                                     (focus)="
+                                                                         onCellFocus(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                     (change)="
+                                                                         onCellBlur(
+                                                                             row.rowId,
+                                                                             col.columnId
+                                                                         )
+                                                                     "
+                                                                 >
+                                                                 </mat-checkbox>
                                                             </div>
                                                         }
 
