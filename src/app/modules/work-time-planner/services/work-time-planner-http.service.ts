@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -16,9 +16,10 @@ export class WorkTimePlannerHttpService {
     private readonly apiUrl = `${environment.MultitoolApi}/api/WorkTimePlanner`;
 
     getWorkDays(startDate: string, endDate: string): Observable<WorkDay[]> {
-        return this.http.get<WorkDay[]>(
-            `${this.apiUrl}/workdays?startDate=${startDate}&endDate=${endDate}`,
-        );
+        const params = new HttpParams()
+            .set('startDate', startDate)
+            .set('endDate', endDate);
+        return this.http.get<WorkDay[]>(`${this.apiUrl}/workdays`, { params });
     }
 
     createWorkDay(data: Partial<WorkDay>): Observable<WorkDay> {
@@ -37,15 +38,22 @@ export class WorkTimePlannerHttpService {
         year: number,
         weekNumber: number,
     ): Observable<WeekSummary | null> {
-        return this.http.get<WeekSummary | null>(
-            `${this.apiUrl}/weeksummary?year=${year}&weekNumber=${weekNumber}`,
-        );
+        const params = new HttpParams()
+            .set('year', year)
+            .set('weekNumber', weekNumber);
+        return this.http.get<WeekSummary | null>(`${this.apiUrl}/weeksummary`, {
+            params,
+        });
     }
 
     saveWeekSummary(year: number, weekNumber: number): Observable<WeekSummary> {
+        const params = new HttpParams()
+            .set('year', year)
+            .set('weekNumber', weekNumber);
         return this.http.post<WeekSummary>(
-            `${this.apiUrl}/weeksummary?year=${year}&weekNumber=${weekNumber}`,
+            `${this.apiUrl}/weeksummary`,
             null,
+            { params },
         );
     }
 
@@ -53,11 +61,12 @@ export class WorkTimePlannerHttpService {
         year: number,
         month: number,
     ): Observable<{ year: number; month: number; homeOfficeDays: number }> {
+        const params = new HttpParams().set('year', year).set('month', month);
         return this.http.get<{
             year: number;
             month: number;
             homeOfficeDays: number;
-        }>(`${this.apiUrl}/homeoffice?year=${year}&month=${month}`);
+        }>(`${this.apiUrl}/homeoffice`, { params });
     }
 
     getSettings(): Observable<WorkTimeSettings> {

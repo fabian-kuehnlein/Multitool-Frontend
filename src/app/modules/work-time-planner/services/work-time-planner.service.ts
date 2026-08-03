@@ -1,16 +1,25 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(isoWeek);
+dayjs.extend(isSameOrBefore);
+
 import {
     WorkDay,
-    WorkDayWarning,
     WorkTimeSettings,
     WeekSummary,
     DayStatus,
 } from '../models/work-time-planner.model';
 import { WorkTimePlannerHttpService } from './work-time-planner-http.service';
+import {
+    calculateWorkDay,
+    createDefaultWorkDay,
+    getWeekStart,
+    normalizeWorkDay,
+} from '../logic/work-time-calculation.logic';
+import { DEFAULT_WORK_TIME_SETTINGS } from '../utilities/work-time.config';
 
 export interface MonthHoCount {
     year: number;
@@ -27,13 +36,10 @@ export class WorkTimePlannerService {
 
     private readonly _workDays = signal<WorkDay[]>([]);
     private readonly _currentWeekStart = signal<string>(
-        this.getWeekStart(new Date()),
+        getWeekStart(new Date()),
     );
     private readonly _settings = signal<WorkTimeSettings>({
-        dailyTargetMinutes: 480,
-        breakRule6h: 30,
-        breakRule9h: 45,
-        homeOfficeLimit: 6,
+        ...DEFAULT_WORK_TIME_SETTINGS,
     });
     private readonly _previousWeekSummary = signal<WeekSummary | null>(null);
     private readonly _currentWeekSummary = signal<WeekSummary | null>(null);
@@ -53,7 +59,7 @@ export class WorkTimePlannerService {
             const date = start.add(i, 'day');
             const dateStr = date.format('YYYY-MM-DD');
             const existing = this._workDays().find((wd) => wd.date === dateStr);
-            return existing || this.createDefaultWorkDay(dateStr);
+            return existing || createDefaultWorkDay(dateStr);
         });
     });
 
@@ -81,55 +87,13 @@ export class WorkTimePlannerService {
         () => this.weekDays().filter((d) => d.isHomeOffice).length,
     );
 
-    getWeekStart(date: Date): string {
-        const d = dayjs(date);
-        const day = d.day();
-        const diff = day === 0 ? -6 : 1 - day;
-        return d.add(diff, 'day').format('YYYY-MM-DD');
-    }
-
-    private normalizeDate(date: string | Date): string {
-        return dayjs(date).format('YYYY-MM-DD');
-    }
-
-    private normalizeTime(time: string | null): string | null {
-        if (!time) return null;
-        const parts = time.split(':');
-        return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
-    }
-
-    private normalizeWorkDay(day: WorkDay): WorkDay {
-        return {
-            ...day,
-            date: this.normalizeDate(day.date),
-            startTime: this.normalizeTime(day.startTime),
-            endTime: this.normalizeTime(day.endTime),
-        };
-    }
-
-    private createDefaultWorkDay(date: string): WorkDay {
-        return {
-            id: 0,
-            date,
-            startTime: null,
-            endTime: null,
-            breakMinutes: 30,
-            workMinutes: 0,
-            overtimeMinutes: 0,
-            isHomeOffice: false,
-            status: DayStatus.Normal,
-            isLocked: false,
-            warnings: [],
-        };
-    }
-
     navigateWeek(direction: 'prev' | 'next' | 'current'): void {
         if (direction !== 'current') {
             this.saveCurrentWeekSummary();
         }
 
         if (direction === 'current') {
-            this._currentWeekStart.set(this.getWeekStart(new Date()));
+            this._currentWeekStart.set(getWeekStart(new Date()));
         } else {
             const offset = direction === 'next' ? 7 : -7;
             const newStart = dayjs(this._currentWeekStart())
@@ -142,7 +106,7 @@ export class WorkTimePlannerService {
     }
 
     isCurrentWeek(): boolean {
-        return this._currentWeekStart() === this.getWeekStart(new Date());
+        return this._currentWeekStart() === getWeekStart(new Date());
     }
 
     loadWorkDays(): void {
@@ -152,9 +116,9 @@ export class WorkTimePlannerService {
         this._loading.set(true);
         this.httpService.getWorkDays(start, end).subscribe({
             next: (days) => {
-                const normalized = days.map((d) => this.normalizeWorkDay(d));
+                const normalized = days.map((d) => normalizeWorkDay(d));
                 const calculated = normalized.map((d) =>
-                    this.calculateWorkDay(d),
+                    calculateWorkDay(d, this._settings()),
                 );
                 this._workDays.update((existing) => {
                     const nonWeek = existing.filter(
@@ -260,7 +224,7 @@ export class WorkTimePlannerService {
     updateSettings(settings: WorkTimeSettings): void {
         this._settings.set(settings);
         this._workDays.update((days) =>
-            days.map((d) => this.calculateWorkDay(d)),
+            days.map((d) => calculateWorkDay(d, settings)),
         );
         this.httpService
             .updateSettings(settings)
@@ -268,7 +232,7 @@ export class WorkTimePlannerService {
     }
 
     updateWorkDay(updated: WorkDay): void {
-        const calculated = this.calculateWorkDay(updated);
+        const calculated = calculateWorkDay(updated, this._settings());
         const existing = this._workDays().find(
             (d) => d.date === calculated.date,
         );
@@ -311,8 +275,11 @@ export class WorkTimePlannerService {
         this._pendingCreates.add(toSave.date);
         this.httpService.createWorkDay(toSave).subscribe({
             next: (saved) => {
-                const normalized = this.normalizeWorkDay(saved);
-                const calculated = this.calculateWorkDay(normalized);
+                const normalized = normalizeWorkDay(saved);
+                const calculated = calculateWorkDay(
+                    normalized,
+                    this._settings(),
+                );
                 this._pendingCreates.delete(calculated.date);
                 this._workDays.update((days) => {
                     const idx = days.findIndex(
@@ -340,7 +307,7 @@ export class WorkTimePlannerService {
     toggleHomeOffice(date: string): void {
         const day =
             this._workDays().find((d) => d.date === date) ||
-            this.createDefaultWorkDay(date);
+            createDefaultWorkDay(date);
         if (this.isHomeOfficeDisabled(day)) return;
 
         const willBeHomeOffice = !day.isHomeOffice;
@@ -352,7 +319,7 @@ export class WorkTimePlannerService {
     toggleDayStatus(date: string, status: DayStatus): void {
         const day =
             this._workDays().find((d) => d.date === date) ||
-            this.createDefaultWorkDay(date);
+            createDefaultWorkDay(date);
         const newStatus = day.status === status ? DayStatus.Normal : status;
         const updated = { ...day, status: newStatus };
         if (newStatus !== DayStatus.Normal) {
@@ -365,57 +332,6 @@ export class WorkTimePlannerService {
         const day = this._workDays().find((d) => d.date === date);
         if (!day) return;
         this.updateWorkDay({ ...day, isLocked: !day.isLocked });
-    }
-
-    private calculateWorkDay(day: WorkDay): WorkDay {
-        const warnings: WorkDayWarning[] = [];
-        let workMinutes = 0;
-        let overtimeMinutes = 0;
-        let breakMinutes = day.breakMinutes;
-
-        if (day.status !== DayStatus.Normal) {
-            workMinutes = this._settings().dailyTargetMinutes;
-            overtimeMinutes = 0;
-            breakMinutes = 0;
-        } else if (day.startTime && day.endTime) {
-            const start = dayjs(day.startTime, 'HH:mm');
-            const end = dayjs(day.endTime, 'HH:mm');
-            const totalMinutes = end.diff(start, 'minute');
-
-            const rawWorkMinutes = totalMinutes - breakMinutes;
-
-            if (breakMinutes === 0) {
-                if (rawWorkMinutes > 540)
-                    breakMinutes = this._settings().breakRule9h;
-                else if (rawWorkMinutes > 360)
-                    breakMinutes = this._settings().breakRule6h;
-            }
-
-            workMinutes = Math.max(0, totalMinutes - breakMinutes);
-            overtimeMinutes = workMinutes - this._settings().dailyTargetMinutes;
-
-            if (breakMinutes < this._settings().breakRule9h &&
-                workMinutes > 540) {
-                warnings.push({
-                    type: 'PauseTooShort',
-                    message: `Bei über 9h Arbeitszeit sind mindestens ${this._settings().breakRule9h} Minuten Pause vorgeschrieben`,
-                });
-            } else if (breakMinutes < this._settings().breakRule6h &&
-                    workMinutes > 360) {
-                warnings.push({
-                    type: 'PauseTooShort',
-                    message: `Bei über 6h Arbeitszeit sind mindestens ${this._settings().breakRule6h} Minuten Pause vorgeschrieben`,
-                });
-            }
-
-            if (workMinutes < 360) {
-                warnings.push({ type: 'Under6Hours', message: 'Weniger als 6 Stunden Arbeitszeit an einem Tag' });
-            } else if (workMinutes > 600) {
-                warnings.push({ type: 'Over10Hours', message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag' });
-            }
-        }
-
-        return { ...day, workMinutes, overtimeMinutes, breakMinutes, warnings };
     }
 
     private saveCurrentWeekSummary(): void {

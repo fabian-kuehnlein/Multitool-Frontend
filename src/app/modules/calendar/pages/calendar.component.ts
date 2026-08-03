@@ -42,7 +42,15 @@ import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
 import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
-import { CalendarMapper } from '../utilities/calendar-mapper';
+import {
+    fromFullCalendarEvent,
+    toCalendarEvent,
+    toEventInput,
+} from '../mappers/event.mapper';
+import {
+    eventFallsOnDate,
+    RecurrenceRuleInput,
+} from '../logic/rrule.logic';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
@@ -333,7 +341,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     }
 
     public updateEvent(arg: EventClickArg) {
-        const eventData = CalendarMapper.fromFullCalendarEvent(arg.event);
+        const eventData = fromFullCalendarEvent(arg.event);
 
         if (eventData.isTodo === true) return;
 
@@ -420,7 +428,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         if (event.extendedProps['isTodo'] === true) return;
 
         const isRecurring = !!event.extendedProps['recurrenceRule'];
-        const updatedEvent = CalendarMapper.toCalendarEvent(event);
+        const updatedEvent = toCalendarEvent(event);
 
         if (isRecurring) {
             this.dialog
@@ -439,7 +447,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                             });
                     } else if (choice === 'instance') {
                         const originalInstance =
-                            CalendarMapper.fromFullCalendarEvent(arg.oldEvent);
+                            fromFullCalendarEvent(arg.oldEvent);
                         this.splitEventFromSeries(
                             originalInstance,
                             updatedEvent,
@@ -500,7 +508,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                         .subscribe({
                             next: (events) => {
                                 const mappedEvents = events.map((e) =>
-                                    CalendarMapper.toEventInput(
+                                    toEventInput(
                                         e,
                                         this.categoryList(),
                                     ),
@@ -526,8 +534,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                         let current = dayjs(viewStart);
                                         while (current.isBefore(viewEnd)) {
                                             if (
-                                                CalendarMapper.eventFallsOnDate(
-                                                    event.rrule,
+                                                eventFallsOnDate(
+                                                    event.rrule as RecurrenceRuleInput,
                                                     current,
                                                     event.exdate,
                                                 )
@@ -581,7 +589,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 const hasEventToday = processedEvents.some(
                                     (e) => {
                                         if (e.rrule)
-                                            return CalendarMapper.eventFallsOnDate(
+                                            return eventFallsOnDate(
                                                 e.rrule,
                                                 today,
                                             );

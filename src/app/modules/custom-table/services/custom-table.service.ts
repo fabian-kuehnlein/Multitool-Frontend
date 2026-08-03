@@ -7,6 +7,7 @@ import {
     UpdateColumnDto,
     UpdateColumnOrderDto,
     UpdateRowOrderDto,
+    CellValue,
 } from '../models';
 import { CustomTableHttpService } from './custom-table-http.service';
 
@@ -87,7 +88,7 @@ export class CustomTableService {
         );
     }
 
-    deleteTable(tableId: number): Observable<any> {
+    deleteTable(tableId: number): Observable<void> {
         return this.httpService.deleteTable(tableId).pipe(
             tap(() => {
                 this.fetchTableList();
@@ -116,7 +117,7 @@ export class CustomTableService {
             .pipe(tap(() => this.loadTable(this.tableId())));
     }
 
-    deleteColumn(tableId: number, columnId: number): Observable<any> {
+    deleteColumn(tableId: number, columnId: number): Observable<void> {
         return this.httpService
             .deleteColumn(tableId, columnId)
             .pipe(tap(() => this.loadTable(tableId)));
@@ -128,7 +129,7 @@ export class CustomTableService {
             .pipe(tap(() => this.loadTable(tableId)));
     }
 
-    updateRowOrder(rows: UpdateRowOrderDto[]): Observable<any> {
+    updateRowOrder(rows: UpdateRowOrderDto[]): Observable<void> {
         const table = this._currentTable();
         if (table) {
             const orderMap = new Map(rows.map((r) => [r.rowId, r.rowOrder]));
@@ -143,13 +144,17 @@ export class CustomTableService {
         return this.httpService.updateRowOrder(rows);
     }
 
-    deleteRows(tableId: number, rows: number[]): Observable<any> {
+    deleteRows(tableId: number, rows: number[]): Observable<void> {
         return this.httpService
             .deleteRows(tableId, rows)
             .pipe(tap(() => this.loadTable(tableId)));
     }
 
-    upsertCell(rowId: number, columnId: number, value: any): Observable<void> {
+    upsertCell(
+        rowId: number,
+        columnId: number,
+        value: CellValue,
+    ): Observable<void> {
         return this.httpService.upsertCell(rowId, columnId, value);
     }
 }

@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
     providedIn: 'root',
@@ -21,7 +22,7 @@ export class SnackbarService {
         });
     }
 
-    openSnackbar(err: any) {
+    openSnackbar(err: HttpErrorResponse) {
         if (err.status >= 400 && err.status < 500) {
             this.snackbar400();
         } else if (err.status >= 500 && err.status < 600) {

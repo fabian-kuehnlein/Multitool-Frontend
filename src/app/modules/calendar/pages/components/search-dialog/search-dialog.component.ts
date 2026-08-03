@@ -24,7 +24,10 @@ import { ConfirmDialogComponent } from '../../../../../shared/components/confirm
 import dayjs, { Dayjs } from 'dayjs';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { FormControl } from '@angular/forms';
-import { CalendarMapper } from '../../../utilities/calendar-mapper';
+import {
+    eventFallsOnDate,
+    parseRRuleString,
+} from '../../../logic/rrule.logic';
 
 @Component({
     selector: 'app-search-dialog',
@@ -146,7 +149,7 @@ export class SearchDialogComponent implements OnDestroy {
             return startDate;
         }
 
-        const rule = CalendarMapper.parseRRuleString(ruleStr);
+        const rule = parseRRuleString(ruleStr);
         const rrule = {
             dtstart: start,
             until: end,
@@ -157,7 +160,7 @@ export class SearchDialogComponent implements OnDestroy {
         let current = dayjs(today);
 
         while (current.isBefore(maxSearchDate)) {
-            if (CalendarMapper.eventFallsOnDate(rrule, current)) {
+            if (eventFallsOnDate(rrule, current)) {
                 // Return current date but keep the original start time
                 return current
                     .hour(startDate.hour())
