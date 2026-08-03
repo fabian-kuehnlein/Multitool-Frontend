@@ -6,23 +6,27 @@ import {
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import dayjs from 'dayjs';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import {
     WorkDay,
     WorkTimeSettings,
     DayStatus,
 } from '../../../models/work-time-planner.model';
+import { isHomeOfficeDisabled } from '../../../logic/work-time-calculation.logic';
+import { formatMinutes } from '../../../utilities/work-time.util';
 
 @Component({
     selector: 'app-day-card',
     standalone: true,
     imports: [CommonModule, UI_MODULES],
     templateUrl: './day-card.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './day-card.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class DayCardComponent {
     readonly DayStatus = DayStatus;
+    readonly formatMinutes = formatMinutes;
 
     @Input({ required: true }) day!: WorkDay;
     @Input({ required: true }) dayName!: string;
@@ -37,15 +41,18 @@ export class DayCardComponent {
     }>();
     @Output() toggleLock = new EventEmitter<string>();
 
-    onStartTimeChange(value: string): void {
+    onStartTimeChange(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;
         this.update.emit({ ...this.day, startTime: value || null });
     }
 
-    onEndTimeChange(value: string): void {
+    onEndTimeChange(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;
         this.update.emit({ ...this.day, endTime: value || null });
     }
 
-    onBreakChange(value: number): void {
+    onBreakChange(event: Event): void {
+        const value = Number((event.target as HTMLInputElement).value);
         this.update.emit({ ...this.day, breakMinutes: value });
     }
 
@@ -61,23 +68,12 @@ export class DayCardComponent {
         this.toggleLock.emit(this.day.date);
     }
 
-    formatMinutes(minutes: number): string {
-        const h = Math.floor(Math.abs(minutes) / 60);
-        const m = Math.abs(minutes) % 60;
-        const sign = minutes < 0 ? '-' : '';
-        return `${sign}${h}h ${m.toString().padStart(2, '0')}min`;
-    }
-
     get formattedDate(): string {
-        const d = new Date(this.day.date);
-        return d.toLocaleDateString('de-DE', {
-            day: '2-digit',
-            month: '2-digit',
-        });
+        return dayjs(this.day.date).format('DD.MM');
     }
 
     get isToday(): boolean {
-        return this.day.date === new Date().toISOString().split('T')[0];
+        return this.day.date === dayjs().format('YYYY-MM-DD');
     }
 
     get hasData(): boolean {
@@ -85,6 +81,6 @@ export class DayCardComponent {
     }
 
     get isAbsent(): boolean {
-        return this.day.status !== DayStatus.Normal;
+        return isHomeOfficeDisabled(this.day);
     }
 }

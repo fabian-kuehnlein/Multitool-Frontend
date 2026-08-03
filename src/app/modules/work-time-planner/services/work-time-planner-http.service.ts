@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
+    CreateWorkDayDto,
+    UpdateWorkDayDto,
     WorkDay,
     WorkTimeSettings,
     WeekSummary,
@@ -22,16 +24,12 @@ export class WorkTimePlannerHttpService {
         return this.http.get<WorkDay[]>(`${this.apiUrl}/workdays`, { params });
     }
 
-    createWorkDay(data: Partial<WorkDay>): Observable<WorkDay> {
+    createWorkDay(data: CreateWorkDayDto): Observable<WorkDay> {
         return this.http.post<WorkDay>(`${this.apiUrl}/workdays`, data);
     }
 
-    updateWorkDay(id: number, data: Partial<WorkDay>): Observable<void> {
+    updateWorkDay(id: number, data: UpdateWorkDayDto): Observable<void> {
         return this.http.put<void>(`${this.apiUrl}/workdays/${id}`, data);
-    }
-
-    deleteWorkDay(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/workdays/${id}`);
     }
 
     getWeekSummary(

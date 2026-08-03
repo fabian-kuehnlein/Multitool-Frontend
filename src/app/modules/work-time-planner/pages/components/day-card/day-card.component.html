@@ -41,7 +41,7 @@
                         class="time-input"
                         [value]="day.startTime || ''"
                         [disabled]="day.isLocked"
-                        (change)="onStartTimeChange($any($event.target).value)"
+                        (change)="onStartTimeChange($event)"
                     />
                     <mat-icon
                         class="time-picker-icon"
@@ -60,7 +60,7 @@
                         class="time-input"
                         [value]="day.endTime || ''"
                         [disabled]="day.isLocked"
-                        (change)="onEndTimeChange($any($event.target).value)"
+                        (change)="onEndTimeChange($event)"
                     />
                     <mat-icon
                         class="time-picker-icon"
@@ -83,7 +83,7 @@
                     max="120"
                     step="5"
                     [disabled]="day.isLocked"
-                    (change)="onBreakChange(+$any($event.target).value)"
+                    (change)="onBreakChange($event)"
                 />
                 <span class="break-unit">min</span>
             </div>

@@ -6,12 +6,14 @@ import localeData from 'dayjs/plugin/localeData';
 import utc from 'dayjs/plugin/utc';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(localeData);
 dayjs.extend(utc);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isoWeek);
 
 export const DAYJS_DATE_FORMATS: MatDateFormats = {
     parse: {

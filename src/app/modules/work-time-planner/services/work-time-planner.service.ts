@@ -1,32 +1,28 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
-dayjs.extend(isoWeek);
-dayjs.extend(isSameOrBefore);
+import { EMPTY, Observable, map, tap } from 'rxjs';
 
 import {
     WorkDay,
     WorkTimeSettings,
     WeekSummary,
     DayStatus,
+    MonthHoCount,
 } from '../models/work-time-planner.model';
 import { WorkTimePlannerHttpService } from './work-time-planner-http.service';
+import { toCreateWorkDayDto } from '../mappers/work-day.mapper';
 import {
     calculateWorkDay,
+    collectMonthsToQuery,
     createDefaultWorkDay,
     getWeekStart,
+    hasMeaningfulData,
+    isHomeOfficeDisabled,
     normalizeWorkDay,
+    upsertWorkDay,
 } from '../logic/work-time-calculation.logic';
 import { DEFAULT_WORK_TIME_SETTINGS } from '../utilities/work-time.config';
-
-export interface MonthHoCount {
-    year: number;
-    month: number;
-    monthName: string;
-    count: number;
-}
+import { getWeekNumber, getWeekRange } from '../utilities/work-time.util';
 
 @Injectable({
     providedIn: 'root',
@@ -42,7 +38,6 @@ export class WorkTimePlannerService {
         ...DEFAULT_WORK_TIME_SETTINGS,
     });
     private readonly _previousWeekSummary = signal<WeekSummary | null>(null);
-    private readonly _currentWeekSummary = signal<WeekSummary | null>(null);
     private readonly _homeOfficeMonthCounts = signal<MonthHoCount[]>([]);
     private readonly _pendingCreates = new Set<string>();
     private readonly _loading = signal<boolean>(false);
@@ -131,16 +126,7 @@ export class WorkTimePlannerService {
             complete: () => this._loading.set(false),
         });
 
-        const currentMoment = dayjs(start);
-        const year = currentMoment.year();
-        const weekNumber = currentMoment.isoWeek();
-
-        this.httpService.getWeekSummary(year, weekNumber).subscribe({
-            next: (summary) => this._currentWeekSummary.set(summary),
-            error: () => this._currentWeekSummary.set(null),
-        });
-
-        const prevWeek = currentMoment.subtract(1, 'week');
+        const prevWeek = dayjs(start).subtract(1, 'week');
         this.httpService
             .getWeekSummary(prevWeek.year(), prevWeek.isoWeek())
             .subscribe({
@@ -152,30 +138,13 @@ export class WorkTimePlannerService {
     }
 
     loadHomeOfficeMonthCount(): void {
-        const start = dayjs(this._currentWeekStart());
-        const end = start.add(4, 'day');
-
-        const monthsToQuery = new Map<
-            string,
-            { year: number; month: number }
-        >();
-        let current = start;
-        while (current.isSameOrBefore(end, 'day')) {
-            const key = current.format('YYYY-MM');
-            if (!monthsToQuery.has(key)) {
-                monthsToQuery.set(key, {
-                    year: current.year(),
-                    month: current.month() + 1,
-                });
-            }
-            current = current.add(1, 'day');
-        }
+        const monthsToQuery = collectMonthsToQuery(this._currentWeekStart());
 
         const results: MonthHoCount[] = [];
         let completed = 0;
-        const total = monthsToQuery.size;
+        const total = monthsToQuery.length;
 
-        monthsToQuery.forEach(({ year, month }, key) => {
+        monthsToQuery.forEach(({ year, month }) => {
             this.httpService.getHomeOfficeMonthCount(year, month).subscribe({
                 next: (res) => {
                     const m = dayjs(
@@ -216,9 +185,21 @@ export class WorkTimePlannerService {
             });
         });
 
-        if (monthsToQuery.size === 0) {
+        if (monthsToQuery.length === 0) {
             this._homeOfficeMonthCounts.set([]);
         }
+    }
+
+    loadSettings(): void {
+        this.httpService.getSettings().subscribe({
+            next: (settings) => {
+                this._settings.set(settings);
+                this._workDays.update((days) =>
+                    days.map((d) => calculateWorkDay(d, settings)),
+                );
+            },
+            error: () => {},
+        });
     }
 
     updateSettings(settings: WorkTimeSettings): void {
@@ -232,88 +213,28 @@ export class WorkTimePlannerService {
     }
 
     updateWorkDay(updated: WorkDay): void {
-        const calculated = calculateWorkDay(updated, this._settings());
-        const existing = this._workDays().find(
-            (d) => d.date === calculated.date,
-        );
-        const toSave = existing?.id
-            ? { ...calculated, id: existing.id }
-            : calculated;
+        const toSave = this.prepareWorkDay(updated);
+        if (!toSave) return;
 
-        this._workDays.update((days) => {
-            const idx = days.findIndex((d) => d.date === toSave.date);
-            if (idx !== -1) {
-                const newDays = [...days];
-                newDays[idx] = toSave;
-                return newDays;
-            }
-            return [...days, toSave];
-        });
-
-        const hasMeaningfulData =
-            toSave.startTime ||
-            toSave.endTime ||
-            toSave.status !== DayStatus.Normal ||
-            toSave.isHomeOffice;
-
-        if (!hasMeaningfulData) {
-            return;
-        }
-
-        if (toSave.id) {
-            this.httpService.updateWorkDay(toSave.id, toSave).subscribe({
-                next: () => this.saveCurrentWeekSummary(),
-                error: () => {},
-            });
-            return;
-        }
-
-        if (this._pendingCreates.has(toSave.date)) {
-            return;
-        }
-
-        this._pendingCreates.add(toSave.date);
-        this.httpService.createWorkDay(toSave).subscribe({
-            next: (saved) => {
-                const normalized = normalizeWorkDay(saved);
-                const calculated = calculateWorkDay(
-                    normalized,
-                    this._settings(),
-                );
-                this._pendingCreates.delete(calculated.date);
-                this._workDays.update((days) => {
-                    const idx = days.findIndex(
-                        (d) => d.date === calculated.date,
-                    );
-                    if (idx !== -1) {
-                        const newDays = [...days];
-                        newDays[idx] = calculated;
-                        return newDays;
-                    }
-                    return [...days, calculated];
-                });
-                this.saveCurrentWeekSummary();
-            },
-            error: () => {
-                this._pendingCreates.delete(toSave.date);
-            },
-        });
-    }
-
-    isHomeOfficeDisabled(day: WorkDay): boolean {
-        return day.status !== DayStatus.Normal;
+        this.saveWorkDay(toSave).subscribe({ error: () => {} });
     }
 
     toggleHomeOffice(date: string): void {
         const day =
             this._workDays().find((d) => d.date === date) ||
             createDefaultWorkDay(date);
-        if (this.isHomeOfficeDisabled(day)) return;
+        if (isHomeOfficeDisabled(day)) return;
 
-        const willBeHomeOffice = !day.isHomeOffice;
-        this.updateWorkDay({ ...day, isHomeOffice: willBeHomeOffice });
+        const toSave = this.prepareWorkDay({
+            ...day,
+            isHomeOffice: !day.isHomeOffice,
+        });
+        if (!toSave) return;
 
-        setTimeout(() => this.loadHomeOfficeMonthCount(), 500);
+        this.saveWorkDay(toSave).subscribe({
+            next: () => this.loadHomeOfficeMonthCount(),
+            error: () => {},
+        });
     }
 
     toggleDayStatus(date: string, status: DayStatus): void {
@@ -334,25 +255,65 @@ export class WorkTimePlannerService {
         this.updateWorkDay({ ...day, isLocked: !day.isLocked });
     }
 
+    private prepareWorkDay(updated: WorkDay): WorkDay | null {
+        const calculated = calculateWorkDay(updated, this._settings());
+        const existing = this._workDays().find(
+            (d) => d.date === calculated.date,
+        );
+        const toSave = existing?.id
+            ? { ...calculated, id: existing.id }
+            : calculated;
+
+        this._workDays.update((days) => upsertWorkDay(days, toSave));
+
+        return hasMeaningfulData(toSave) ? toSave : null;
+    }
+
+    private saveWorkDay(toSave: WorkDay): Observable<void> {
+        const dto = toCreateWorkDayDto(toSave);
+
+        if (toSave.id) {
+            return this.httpService.updateWorkDay(toSave.id, dto).pipe(
+                tap(() => this.saveCurrentWeekSummary()),
+            );
+        }
+
+        if (this._pendingCreates.has(toSave.date)) {
+            return EMPTY;
+        }
+
+        this._pendingCreates.add(toSave.date);
+        return this.httpService.createWorkDay(dto).pipe(
+            map((saved) => {
+                const normalized = normalizeWorkDay(saved);
+                const calculated = calculateWorkDay(
+                    normalized,
+                    this._settings(),
+                );
+                this._pendingCreates.delete(calculated.date);
+                this._workDays.update((days) =>
+                    upsertWorkDay(days, calculated),
+                );
+                this.saveCurrentWeekSummary();
+            }),
+        );
+    }
+
     private saveCurrentWeekSummary(): void {
         const currentMoment = dayjs(this._currentWeekStart());
-        const summary: WeekSummary = {
-            year: currentMoment.year(),
-            weekNumber: currentMoment.isoWeek(),
-            totalOvertime: this.totalOvertime(),
-        };
         this.httpService
-            .saveWeekSummary(summary.year, summary.weekNumber)
+            .saveWeekSummary(
+                currentMoment.year(),
+                currentMoment.isoWeek(),
+            )
             .subscribe({ error: () => {} });
     }
 
     getWeekRange(): string {
-        const start = dayjs(this._currentWeekStart());
-        const end = start.add(4, 'day');
-        return `${start.format('DD.MM.')} – ${end.format('DD.MM.YYYY')}`;
+        return getWeekRange(this._currentWeekStart());
     }
 
     getWeekNumber(): number {
-        return dayjs(this._currentWeekStart()).isoWeek();
+        return getWeekNumber(this._currentWeekStart());
     }
 }

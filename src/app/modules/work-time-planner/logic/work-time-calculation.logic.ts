@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import {
     DayStatus,
@@ -7,8 +6,11 @@ import {
     WorkDayWarning,
     WorkTimeSettings,
 } from '../models/work-time-planner.model';
-
-dayjs.extend(customParseFormat);
+import {
+    NINE_HOURS_MINUTES,
+    SIX_HOURS_MINUTES,
+    TEN_HOURS_MINUTES,
+} from '../utilities/work-time.config';
 
 export function getWeekStart(date: Date): string {
     const d = dayjs(date);
@@ -73,31 +75,39 @@ export function calculateWorkDay(
         const rawWorkMinutes = totalMinutes - breakMinutes;
 
         if (breakMinutes === 0) {
-            if (rawWorkMinutes > 540) breakMinutes = settings.breakRule9h;
-            else if (rawWorkMinutes > 360) breakMinutes = settings.breakRule6h;
+            if (rawWorkMinutes > NINE_HOURS_MINUTES)
+                breakMinutes = settings.breakRule9h;
+            else if (rawWorkMinutes > SIX_HOURS_MINUTES)
+                breakMinutes = settings.breakRule6h;
         }
 
         workMinutes = Math.max(0, totalMinutes - breakMinutes);
         overtimeMinutes = workMinutes - settings.dailyTargetMinutes;
 
-        if (breakMinutes < settings.breakRule9h && workMinutes > 540) {
+        if (
+            breakMinutes < settings.breakRule9h &&
+            workMinutes > NINE_HOURS_MINUTES
+        ) {
             warnings.push({
                 type: 'PauseTooShort',
                 message: `Bei über 9h Arbeitszeit sind mindestens ${settings.breakRule9h} Minuten Pause vorgeschrieben`,
             });
-        } else if (breakMinutes < settings.breakRule6h && workMinutes > 360) {
+        } else if (
+            breakMinutes < settings.breakRule6h &&
+            workMinutes > SIX_HOURS_MINUTES
+        ) {
             warnings.push({
                 type: 'PauseTooShort',
                 message: `Bei über 6h Arbeitszeit sind mindestens ${settings.breakRule6h} Minuten Pause vorgeschrieben`,
             });
         }
 
-        if (workMinutes < 360) {
+        if (workMinutes < SIX_HOURS_MINUTES) {
             warnings.push({
                 type: 'Under6Hours',
                 message: 'Weniger als 6 Stunden Arbeitszeit an einem Tag',
             });
-        } else if (workMinutes > 600) {
+        } else if (workMinutes > TEN_HOURS_MINUTES) {
             warnings.push({
                 type: 'Over10Hours',
                 message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag',
@@ -106,4 +116,47 @@ export function calculateWorkDay(
     }
 
     return { ...day, workMinutes, overtimeMinutes, breakMinutes, warnings };
+}
+
+export function isHomeOfficeDisabled(day: WorkDay): boolean {
+    return day.status !== DayStatus.Normal;
+}
+
+export function hasMeaningfulData(day: WorkDay): boolean {
+    return (
+        !!day.startTime ||
+        !!day.endTime ||
+        day.status !== DayStatus.Normal ||
+        day.isHomeOffice
+    );
+}
+
+export function upsertWorkDay(days: WorkDay[], day: WorkDay): WorkDay[] {
+    const idx = days.findIndex((d) => d.date === day.date);
+    if (idx !== -1) {
+        const next = [...days];
+        next[idx] = day;
+        return next;
+    }
+    return [...days, day];
+}
+
+export function collectMonthsToQuery(
+    startDate: string,
+): { year: number; month: number }[] {
+    const start = dayjs(startDate);
+    const end = start.add(4, 'day');
+    const months = new Map<string, { year: number; month: number }>();
+    let current = start;
+    while (current.isSameOrBefore(end, 'day')) {
+        const key = current.format('YYYY-MM');
+        if (!months.has(key)) {
+            months.set(key, {
+                year: current.year(),
+                month: current.month() + 1,
+            });
+        }
+        current = current.add(1, 'day');
+    }
+    return [...months.values()];
 }

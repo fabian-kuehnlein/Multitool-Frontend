@@ -6,3 +6,15 @@ export const DEFAULT_WORK_TIME_SETTINGS: WorkTimeSettings = {
     breakRule9h: 45,
     homeOfficeLimit: 6,
 };
+
+export const WEEKDAY_NAMES = [
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+] as const;
+
+export const SIX_HOURS_MINUTES = 360;
+export const NINE_HOURS_MINUTES = 540;
+export const TEN_HOURS_MINUTES = 600;

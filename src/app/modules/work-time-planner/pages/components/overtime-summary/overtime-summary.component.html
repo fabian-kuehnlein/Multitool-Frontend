@@ -1,0 +1,43 @@
+<div class="mobile-overtime-summary">
+    <div class="mobile-stat-card">
+        <mat-icon
+            class="stat-icon"
+            [class.overtime-positive]="weeklyOvertimeMinutes >= 0"
+            [class.overtime-negative]="weeklyOvertimeMinutes < 0"
+        >
+            {{
+                weeklyOvertimeMinutes >= 0 ? "trending_up" : "trending_down"
+            }}
+        </mat-icon>
+        <div class="stat-info">
+            <span
+                class="stat-value"
+                [class.overtime-positive]="weeklyOvertimeMinutes >= 0"
+                [class.overtime-negative]="weeklyOvertimeMinutes < 0"
+            >
+                {{ formatMinutes(weeklyOvertimeMinutes) }}
+            </span>
+            <span class="stat-label">Überstunden (Woche)</span>
+        </div>
+    </div>
+
+    <div class="mobile-stat-card">
+        <mat-icon
+            class="stat-icon"
+            [class.overtime-positive]="totalOvertime >= 0"
+            [class.overtime-negative]="totalOvertime < 0"
+        >
+            {{ totalOvertime >= 0 ? "account_balance" : "warning" }}
+        </mat-icon>
+        <div class="stat-info">
+            <span
+                class="stat-value"
+                [class.overtime-positive]="totalOvertime >= 0"
+                [class.overtime-negative]="totalOvertime < 0"
+            >
+                {{ formatMinutes(totalOvertime) }}
+            </span>
+            <span class="stat-label">Gesamtkonto</span>
+        </div>
+    </div>
+</div>
