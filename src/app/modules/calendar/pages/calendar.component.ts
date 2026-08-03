@@ -3,7 +3,6 @@ import {
     Component,
     inject,
     signal,
-    HostListener,
     computed,
     effect,
     OnDestroy,
@@ -48,6 +47,7 @@ import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
 import { MediaService } from '../../../core/services/media.service';
+import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -88,7 +88,9 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private readonly dialog = inject(MatDialog);
     private readonly route = inject(ActivatedRoute);
     private readonly media = inject(MediaService);
+    private readonly hotkeyService = inject(HotkeyService);
     private readonly destroy$ = new Subject<void>();
+    private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
     // --- Signals & State ---
     public readonly title = signal<string>('');
@@ -127,6 +129,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.setupCategorySelectionListener();
         this.setupMobileViewListener();
         this.setupPastEventsToggle();
+        this.setupHotkeys();
     }
 
     ngAfterViewInit(): void {
@@ -152,6 +155,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+        this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
     // --- Initialization ---
@@ -205,20 +209,34 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    // --- Host Listeners ---
-    @HostListener('window:keydown', ['$event'])
-    handleKeyboardEvent(event: KeyboardEvent) {
-        if (event.altKey && event.key.toLowerCase() === 'n') {
-            event.preventDefault();
-            this.createEvent();
-        }
-        if (
-            (event.altKey && event.key.toLowerCase() === 'f') ||
-            (event.key === '/' && !(event.target instanceof HTMLInputElement))
-        ) {
-            event.preventDefault();
-            this.openSearchResult();
-        }
+    // --- Hotkeys ---
+    private setupHotkeys() {
+        this.hotkeyUnsubscribers.push(
+            this.hotkeyService.register({
+                id: 'calendar.create',
+                combo: Hotkeys.create,
+                description: 'Neuen Eintrag erstellen',
+                action: () => this.createEvent(),
+            }),
+            this.hotkeyService.register({
+                id: 'calendar.search',
+                combo: Hotkeys.search,
+                description: 'Einträge suchen',
+                action: () => this.openSearchResult(),
+            }),
+            this.hotkeyService.register({
+                id: 'calendar.previous',
+                combo: Hotkeys.prevPage,
+                description: 'Vorherige Ansicht',
+                action: () => this.calendarAction('prev'),
+            }),
+            this.hotkeyService.register({
+                id: 'calendar.next',
+                combo: Hotkeys.nextPage,
+                description: 'Nächste Ansicht',
+                action: () => this.calendarAction('next'),
+            }),
+        );
     }
 
     // --- UI Actions ---

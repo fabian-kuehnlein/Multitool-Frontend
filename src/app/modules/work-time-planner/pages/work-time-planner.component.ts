@@ -2,6 +2,7 @@ import {
     Component,
     inject,
     OnInit,
+    OnDestroy,
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -12,6 +13,7 @@ import { DayCardComponent } from './components/day-card/day-card.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { MediaService } from '../../../core/services/media.service';
+import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 
 @Component({
     selector: 'app-work-time-planner',
@@ -21,10 +23,12 @@ import { MediaService } from '../../../core/services/media.service';
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './work-time-planner.component.scss',
 })
-export class WorkTimePlannerComponent implements OnInit {
+export class WorkTimePlannerComponent implements OnInit, OnDestroy {
     protected readonly plannerService = inject(WorkTimePlannerService);
     private readonly dialog = inject(MatDialog);
     private readonly media = inject(MediaService);
+    private readonly hotkeyService = inject(HotkeyService);
+    private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
@@ -35,6 +39,24 @@ export class WorkTimePlannerComponent implements OnInit {
 
     ngOnInit(): void {
         this.plannerService.loadWorkDays();
+        this.hotkeyUnsubscribers.push(
+            this.hotkeyService.register({
+                id: 'work-time-planner.previous',
+                combo: Hotkeys.prevPage,
+                description: 'Vorherige Woche',
+                action: () => this.plannerService.navigateWeek('prev'),
+            }),
+            this.hotkeyService.register({
+                id: 'work-time-planner.next',
+                combo: Hotkeys.nextPage,
+                description: 'Nächste Woche',
+                action: () => this.plannerService.navigateWeek('next'),
+            }),
+        );
+    }
+
+    ngOnDestroy(): void {
+        this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
     openSideNav() {

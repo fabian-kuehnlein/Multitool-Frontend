@@ -202,7 +202,11 @@
                 </div>
 
                 <div class="mobile-actions">
-                    <button mat-flat-button (click)="onAddTodo()">
+                    <button
+                        mat-flat-button
+                        (click)="onAddTodo()"
+                        matTooltip="Neue Aufgabe (Alt + N)"
+                    >
                         <mat-icon>add</mat-icon>
                         <span>Neue Aufgabe</span>
                     </button>
@@ -250,6 +254,7 @@
                     mat-flat-button
                     (click)="onAddTodo()"
                     class="create-button"
+                    matTooltip="Neue Aufgabe (Alt + N)"
                 >
                     <mat-icon>add</mat-icon>
                     <span>Neue Aufgabe</span>

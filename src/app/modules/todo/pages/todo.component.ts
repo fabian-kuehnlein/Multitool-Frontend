@@ -2,6 +2,7 @@ import {
     Component,
     inject,
     OnInit,
+    OnDestroy,
     computed,
     signal,
     ChangeDetectionStrategy,
@@ -23,6 +24,7 @@ import { SnackbarService } from '../../../core/services/snackbar.service';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
 import { MediaService } from '../../../core/services/media.service';
+import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -33,13 +35,15 @@ import { Router } from '@angular/router';
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './todo.component.scss',
 })
-export class TodoComponent implements OnInit {
+export class TodoComponent implements OnInit, OnDestroy {
     protected readonly todoService = inject(TodoService);
     protected readonly categoryService = inject(CategoryService);
     private readonly dialog = inject(MatDialog);
     private readonly snackbar = inject(SnackbarService);
     private readonly media = inject(MediaService);
     private readonly router = inject(Router);
+    private readonly hotkeyService = inject(HotkeyService);
+    private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
     readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
     readonly sortDirection = signal<'asc' | 'desc'>('asc');
@@ -78,6 +82,18 @@ export class TodoComponent implements OnInit {
 
     ngOnInit(): void {
         this.todoService.loadTodos();
+        this.hotkeyUnsubscribers.push(
+            this.hotkeyService.register({
+                id: 'todo.create',
+                combo: Hotkeys.create,
+                description: 'Neue Aufgabe erstellen',
+                action: () => this.onAddTodo(),
+            }),
+        );
+    }
+
+    ngOnDestroy(): void {
+        this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
     openSideNav() {
