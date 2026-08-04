@@ -2,66 +2,12 @@
 
 // Mobile-only styles + responsive overrides
 
-// ── Toolbar / Layout state overrides (moved from custom-table.component.scss) ─
-.toolbar-container.mobile-toolbar {
-    height: 64px;
-    padding: 0 16px;
-}
-
+// ── Layout state overrides ───────────────────────────────────────────────────
 .main-layout.mobile-layout {
     flex-direction: column;
     overflow-y: auto;
     min-height: 0;
     background-color: var(--bg-secondary);
-}
-
-// ── Mobile Header ────────────────────────────────────────────────────────────
-.mobile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-
-    .table-selector-container {
-        display: flex;
-        align-items: center;
-    }
-
-    .table-select-button {
-        font-size: 1.1rem;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        max-width: 300px;
-        min-width: 0;
-        padding: 0 12px;
-
-        ::ng-deep .mdc-button__label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .current-table-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-            text-align: left;
-        }
-
-        mat-icon {
-            flex-shrink: 0;
-        }
-    }
-
-    .mobile-actions {
-        display: flex;
-        align-items: center;
-    }
 }
 
 // ── Mobile Wrapper & Cards ───────────────────────────────────────────────────

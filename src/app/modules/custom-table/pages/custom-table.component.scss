@@ -18,46 +18,6 @@
     flex-direction: column;
 }
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
-.toolbar-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-surface);
-    padding: 10px 25px;
-    height: 80px;
-    flex-shrink: 0;
-    border-bottom: 1px solid var(--border-default);
-    box-sizing: border-box;
-}
-
-// ── Toolbar Containers ───────────────────────────────────────────────────────
-.left-container,
-.right-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
-
-.right-container {
-    justify-content: flex-end;
-}
-
-.middle-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.table-title {
-    margin: 0 20px;
-    font-size: 1.6rem;
-    font-weight: 500;
-    text-align: center;
-    color: var(--text-primary);
-}
-
 // ── Layout ───────────────────────────────────────────────────────────────────
 .main-layout {
     flex: 1;
@@ -91,30 +51,6 @@
     flex: 1;
     overflow: auto;
     position: relative;
-}
-
-// ── Form Field Override ──────────────────────────────────────────────────────
-.no-outline-form-field {
-    width: 100%;
-
-    ::ng-deep {
-        .mat-mdc-form-field-flex {
-            background-color: transparent !important;
-            padding: 0 !important;
-            min-height: 40px;
-            align-items: center;
-        }
-
-        .mat-mdc-notched-outline {
-            display: none !important;
-        }
-
-        .mat-mdc-form-field-infix {
-            padding: 0 !important;
-            min-height: 0 !important;
-            border-top: none !important;
-        }
-    }
 }
 
 // ── Utilities ────────────────────────────────────────────────────────────────

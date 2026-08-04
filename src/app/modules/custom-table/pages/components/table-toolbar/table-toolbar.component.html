@@ -1,0 +1,155 @@
+<mat-toolbar
+    class="toolbar-container"
+    [class.mobile-toolbar]="isMobile()"
+>
+    @if (!isMobile() && !isTablet()) {
+        <!-- Desktop Toolbar -->
+        <div class="left-container">
+            <button
+                mat-icon-button
+                matTooltip="Tool wechseln"
+                (click)="openSideNav.emit()"
+                class="sidenav-toggle"
+            >
+                <mat-icon>home</mat-icon>
+            </button>
+
+            <button
+                mat-icon-button
+                (click)="toggleSidebar.emit()"
+                [matTooltip]="
+                    isSidebarVisible()
+                        ? 'Tabellenliste einklappen'
+                        : 'Tabellenliste ausklappen'
+                "
+            >
+                <mat-icon>{{
+                    isSidebarVisible() ? "menu_open" : "menu"
+                }}</mat-icon>
+            </button>
+        </div>
+
+        <div class="middle-container">
+            @if (tableId() !== 0) {
+                <h1 class="table-title">{{ tableName() }}</h1>
+            } @else {
+                <h1 class="table-title">Custom Tables</h1>
+            }
+        </div>
+
+        <div class="right-container">
+            <button
+                mat-flat-button
+                (click)="createTable.emit()"
+                class="create-button"
+                matTooltip="Tabelle erstellen (Alt + N)"
+            >
+                <mat-icon>add</mat-icon>
+                <span>Tabelle erstellen</span>
+            </button>
+        </div>
+    } @else {
+        <!-- Mobile/Tablet Toolbar (Hybrid) -->
+        <div class="mobile-header">
+            <div class="table-selector-container">
+                @if (isTablet()) {
+                    <button
+                        mat-icon-button
+                        matTooltip="Tool wechseln"
+                        (click)="openSideNav.emit()"
+                        style="margin-right: 16px"
+                    >
+                        <mat-icon>home</mat-icon>
+                    </button>
+                }
+                <button
+                    mat-button
+                    [matMenuTriggerFor]="tableMenu"
+                    class="table-select-button"
+                >
+                    <mat-icon>table_chart</mat-icon>
+                    <span class="current-table-name">
+                        {{ tableName() || "Tabellen" }}
+                    </span>
+                    <mat-icon>arrow_drop_down</mat-icon>
+                </button>
+                <mat-menu #tableMenu="matMenu" class="mobile-table-menu">
+                    @for (table of tables(); track table.tableId) {
+                        <button
+                            mat-menu-item
+                            (click)="loadTable.emit(table.tableId)"
+                        >
+                            <mat-icon
+                                [color]="
+                                    table.tableId === tableId()
+                                        ? 'primary'
+                                        : ''
+                                "
+                                >table_chart</mat-icon
+                            >
+                            <span>{{ table.name }}</span>
+                        </button>
+                    }
+                    @if (tables().length === 0) {
+                        <button mat-menu-item disabled>
+                            Keine Tabellen vorhanden
+                        </button>
+                    }
+                </mat-menu>
+            </div>
+
+            <div class="mobile-actions">
+                @if (isTablet()) {
+                    <button
+                        mat-flat-button
+                        (click)="createTable.emit()"
+                        class="create-button"
+                        style="margin-right: 12px"
+                    >
+                        <mat-icon>add</mat-icon>
+                        <span>Tabelle erstellen</span>
+                    </button>
+                } @else {
+                    <button
+                        mat-icon-button
+                        [matMenuTriggerFor]="settingsMenu"
+                    >
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #settingsMenu="matMenu">
+                        <button mat-menu-item (click)="createTable.emit()">
+                            <mat-icon>add</mat-icon>
+                            <span>Tabelle erstellen</span>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editTable.emit()"
+                            [disabled]="tableId() === 0"
+                        >
+                            <mat-icon>edit</mat-icon>
+                            <span>Tabelle umbenennen</span>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="reorderColumns.emit()"
+                            [disabled]="tableId() === 0"
+                        >
+                            <mat-icon>reorder</mat-icon>
+                            <span>Spalten sortieren</span>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="deleteTable.emit()"
+                            [disabled]="tableId() === 0"
+                        >
+                            <mat-icon class="delete-colors"
+                                >delete</mat-icon
+                            >
+                            <span class="delete-colors">Tabelle löschen</span>
+                        </button>
+                    </mat-menu>
+                }
+            </div>
+        </div>
+    }
+</mat-toolbar>

@@ -1,92 +1,121 @@
 <h1 mat-dialog-title>
-    {{ dialogMode === 'CreateTable' ? 'Neue Tabelle erstellen' : dialogMode ===
-    'EditTable' ? 'Tabelle bearbeiten' : 'Spalte bearbeiten' }}
+    @switch (dialogMode) {
+        @case (DialogMode.CreateTable) {
+            Neue Tabelle erstellen
+        }
+        @case (DialogMode.EditTable) {
+            Tabelle bearbeiten
+        }
+        @case (DialogMode.EditColumn) {
+            Spalte bearbeiten
+        }
+    }
 </h1>
 
 <mat-dialog-content class="dialog-content">
     <p class="description">
-        {{ dialogMode === 'CreateTable' ? 'Erstelle eine neue Tabelle und
-        definiere die erste Spalte.' : dialogMode === 'EditTable' ? 'Passe den
-        Namen deiner Tabelle an.' : 'Bearbeite den Namen und den Datentyp deiner
-        Spalte.' }}
+        @switch (dialogMode) {
+            @case (DialogMode.CreateTable) {
+                Erstelle eine neue Tabelle und definiere die erste Spalte.
+            }
+            @case (DialogMode.EditTable) {
+                Passe den Namen deiner Tabelle an.
+            }
+            @case (DialogMode.EditColumn) {
+                Bearbeite den Namen und den Datentyp deiner Spalte.
+            }
+        }
     </p>
 
     <form [formGroup]="form" class="creation-form">
-        @if (dialogMode === 'CreateTable' || dialogMode === 'EditTable') {
-        <div class="form-section">
-            <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Tabellenname</mat-label>
-                <input
-                    matInput
-                    maxlength="100"
-                    formControlName="tableName"
-                    (input)="onInput('tableName', $event)"
-                    placeholder="z.B. Aufgabenliste"
-                    required
-                />
-                <mat-hint align="end"
-                    >{{ values()['tableName']?.length ?? 0 }}/100</mat-hint
-                >
-                <mat-error>Tabellenname ist erforderlich!</mat-error>
-            </mat-form-field>
-        </div>
-        } @if (dialogMode === 'CreateTable' || dialogMode === 'EditColumn') {
-        <div class="form-section">
-            @if (dialogMode === 'CreateTable') {
-            <div class="section-title">Erste Spalte definieren</div>
-            }
-
-            <div class="column-grid">
-                <mat-form-field appearance="outline">
-                    <mat-label
-                        >{{dialogMode === 'CreateTable' ? 'Spaltenname' :
-                        'Spaltenname'}}</mat-label
-                    >
+        @if (
+            dialogMode === DialogMode.CreateTable ||
+            dialogMode === DialogMode.EditTable
+        ) {
+            <div class="form-section">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Tabellenname</mat-label>
                     <input
                         matInput
-                        maxlength="100"
-                        formControlName="columnName"
-                        (input)="onInput('columnName', $event)"
-                        placeholder="z.B. Titel"
+                        maxlength="120"
+                        formControlName="tableName"
+                        placeholder="z.B. Aufgabenliste"
                         required
                     />
                     <mat-hint align="end"
-                        >{{ values()['columnName']?.length ?? 0 }}/100</mat-hint
+                        >{{ tableNameCharCount() }}/120</mat-hint
                     >
-                    <mat-error>Spaltenname ist erforderlich!</mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Datentyp</mat-label>
-                    <mat-select formControlName="columnDataType">
-                        @for (type of dataTypes; track type.value) {
-                        <mat-option [value]="type.value">
-                            <div class="option-content">
-                                <span>{{ type.label }}</span>
-                            </div>
-                        </mat-option>
-                        }
-                    </mat-select>
+                    <mat-error>Tabellenname ist erforderlich!</mat-error>
                 </mat-form-field>
             </div>
-        </div>
+        }
+
+        @if (
+            dialogMode === DialogMode.CreateTable ||
+            dialogMode === DialogMode.EditColumn
+        ) {
+            <div class="form-section">
+                @if (dialogMode === DialogMode.CreateTable) {
+                    <div class="section-title">Erste Spalte definieren</div>
+                }
+
+                <div class="column-grid">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Spaltenname</mat-label>
+                        <input
+                            matInput
+                            maxlength="120"
+                            formControlName="columnName"
+                            placeholder="z.B. Titel"
+                            required
+                        />
+                        <mat-hint align="end"
+                            >{{ columnNameCharCount() }}/120</mat-hint
+                        >
+                        <mat-error>Spaltenname ist erforderlich!</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Datentyp</mat-label>
+                        <mat-select formControlName="columnDataType">
+                            @for (type of dataTypes; track type.value) {
+                                <mat-option [value]="type.value">
+                                    <div class="option-content">
+                                        <span>{{ type.label }}</span>
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
         }
     </form>
 </mat-dialog-content>
 
 <mat-dialog-actions class="actions">
-    @if (dialogMode === 'EditColumn') {
-    <button mat-button color="warn" (click)="delete()" class="delete-colors">
-        <mat-icon>delete</mat-icon>
-        Spalte löschen
-    </button>
+    @if (dialogMode === DialogMode.EditColumn) {
+        <button mat-button color="warn" (click)="delete()" class="delete-colors">
+            <mat-icon>delete</mat-icon>
+            Spalte löschen
+        </button>
     }
 
     <div class="spacer"></div>
 
     <button mat-button (click)="cancel()">Abbrechen</button>
-    <button mat-flat-button (click)="save()" [disabled]="this.form.invalid">
-        {{dialogMode === 'CreateTable' ? 'Tabelle erstellen' : 'Änderungen
-        speichern'}}
+    <button
+        mat-flat-button
+        (click)="save()"
+        [disabled]="form.invalid"
+    >
+        @switch (dialogMode) {
+            @case (DialogMode.CreateTable) {
+                Tabelle erstellen
+            }
+            @default {
+                Änderungen speichern
+            }
+        }
     </button>
 </mat-dialog-actions>
