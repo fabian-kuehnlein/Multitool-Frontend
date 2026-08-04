@@ -1,0 +1,171 @@
+@switch (col().dataType) {
+    @case (CustomDataType.String) {
+        <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="no-outline-form-field"
+        >
+            <input
+                matInput
+                type="text"
+                [formControl]="control"
+                (focus)="onCellFocus()"
+                (blur)="onCellBlur()"
+            />
+        </mat-form-field>
+    }
+
+    @case (CustomDataType.Int) {
+        @if (!isMobile()) {
+            <div class="stepper">
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="stepper-btn"
+                    aria-label="Wert verringern"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="decrement()"
+                >
+                    <mat-icon>remove</mat-icon>
+                </button>
+                <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="no-outline-form-field stepper-field"
+                >
+                    <input
+                        matInput
+                        class="no-spinner stepper-value"
+                        type="number"
+                        [formControl]="control"
+                        (focus)="onCellFocus()"
+                        (blur)="onCellBlur()"
+                    />
+                </mat-form-field>
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="stepper-btn"
+                    aria-label="Wert erhöhen"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="increment()"
+                >
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+        } @else {
+            <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="no-outline-form-field"
+            >
+                <input
+                    matInput
+                    class="no-spinner"
+                    type="number"
+                    [formControl]="control"
+                    (focus)="onCellFocus()"
+                    (blur)="onCellBlur()"
+                />
+            </mat-form-field>
+        }
+    }
+
+    @case (CustomDataType.Decimal) {
+        @if (!isMobile()) {
+            <div class="stepper">
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="stepper-btn"
+                    aria-label="Wert verringern"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="decrement()"
+                >
+                    <mat-icon>remove</mat-icon>
+                </button>
+                <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="no-outline-form-field stepper-field"
+                >
+                    <input
+                        matInput
+                        class="no-spinner stepper-value"
+                        type="number"
+                        step="0.01"
+                        [formControl]="control"
+                        (focus)="onCellFocus()"
+                        (blur)="onCellBlur()"
+                    />
+                </mat-form-field>
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="stepper-btn"
+                    aria-label="Wert erhöhen"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="increment()"
+                >
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+        } @else {
+            <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="no-outline-form-field"
+            >
+                <input
+                    matInput
+                    class="no-spinner"
+                    type="number"
+                    step="0.01"
+                    [formControl]="control"
+                    (focus)="onCellFocus()"
+                    (blur)="onCellBlur()"
+                />
+            </mat-form-field>
+        }
+    }
+
+    @case (CustomDataType.Date) {
+        <div class="date-cell">
+            <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="no-outline-form-field"
+            >
+                <input
+                    matInput
+                    [matDatepicker]="picker"
+                    [formControl]="control"
+                    (focus)="onCellFocus()"
+                    (dateChange)="onCellBlur()"
+                />
+                <mat-datepicker-toggle
+                    matIconSuffix
+                    [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+        </div>
+    }
+
+    @case (CustomDataType.Bool) {
+        <div class="cell-content">
+            <mat-checkbox
+                [formControl]="control"
+                (focus)="onCellFocus()"
+                (change)="onCellBlur()"
+            >
+            </mat-checkbox>
+        </div>
+    }
+
+    @default {
+        <div class="cell-content">
+            <p>Datentyp nicht erkannt!</p>
+        </div>
+    }
+}

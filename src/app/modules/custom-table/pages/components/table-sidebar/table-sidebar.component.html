@@ -1,0 +1,33 @@
+<div class="sidebar-content">
+    <div class="sidebar-header">
+        <span>Meine Tabellen</span>
+    </div>
+
+    <mat-nav-list class="sidebar-list" #sidebarList>
+        @for (table of paginatedTableList(); track table.tableId) {
+            <a
+                mat-list-item
+                (click)="loadTable.emit(table.tableId)"
+                [class.active-item]="table.tableId === currentTableId()"
+            >
+                <mat-icon matListItemIcon>table_chart</mat-icon>
+                <span matListItemTitle>{{ table.name }}</span>
+            </a>
+        }
+        @if (tables().length === 0) {
+            <div class="empty-list-message">Keine Tabellen</div>
+        }
+    </mat-nav-list>
+
+    @if (tables().length > pageSize()) {
+        <mat-paginator
+            [length]="tables().length"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [hidePageSize]="true"
+            (page)="onPageChange($event)"
+            class="sidebar-paginator"
+        >
+        </mat-paginator>
+    }
+</div>

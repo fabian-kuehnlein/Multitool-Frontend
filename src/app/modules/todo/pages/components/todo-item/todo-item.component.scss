@@ -1,0 +1,299 @@
+@use "../../../../../../_breakpoints" as bp;
+
+:host {
+    display: block;
+}
+
+// ── Todo Item Base ───────────────────────────────────────────────────────────
+.todo-item {
+    padding: 10px 16px 10px 20px;
+    border-left: 4px solid transparent;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: var(--bg-hover);
+    }
+
+    &.completed {
+        opacity: 0.7;
+        background-color: var(--bg-hover);
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+    }
+}
+
+.todo-title {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.done-text {
+    text-decoration: line-through;
+    color: var(--text-disabled);
+}
+
+.expand-btn {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    ::ng-deep .mat-mdc-button-touch-target {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    mat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+
+    &.expanded mat-icon {
+        transform: rotate(180deg);
+    }
+}
+
+// ── Category Badge ───────────────────────────────────────────────────────────
+.category-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    background-color: transparent;
+    border: 1px solid var(--text-primary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+
+    .color-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+}
+
+// ── Desktop Row ──────────────────────────────────────────────────────────────
+.todo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 32px;
+
+    mat-checkbox {
+        flex: 1;
+        min-width: 0;
+
+        ::ng-deep .mdc-form-field {
+            width: 100%;
+        }
+
+        ::ng-deep label {
+            overflow: hidden;
+            min-width: 0;
+        }
+    }
+}
+
+.todo-meta-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.todo-description-line {
+    margin-top: 8px;
+    padding-left: 36px;
+    color: var(--text-tertiary);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+
+    .description-text {
+        display: block;
+        max-width: 800px;
+        border-left: 2px solid var(--border-default);
+        padding-left: 12px;
+    }
+}
+
+::ng-deep .delete-menu-item {
+    color: var(--accent-danger) !important;
+
+    mat-icon,
+    .mat-icon {
+        color: var(--accent-danger) !important;
+    }
+}
+
+// ── Mobile Row ───────────────────────────────────────────────────────────────
+.mobile-todo-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 32px;
+
+    mat-checkbox {
+        flex: 1;
+        min-width: 0;
+
+        ::ng-deep .mdc-form-field {
+            width: 100%;
+        }
+
+        ::ng-deep label {
+            overflow: hidden;
+            min-width: 0;
+        }
+    }
+}
+
+.mobile-main-right {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-icon {
+        color: var(--text-primary);
+    }
+}
+
+.mobile-due-date {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+
+    mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+    }
+}
+
+.mobile-todo-expanded {
+    margin-top: 10px;
+    padding-left: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: default;
+}
+
+.mobile-expanded-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.mobile-expanded-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+
+    .category-badge {
+        display: flex;
+        align-items: center;
+        align-self: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        background-color: transparent;
+        border: 1px solid var(--text-primary);
+        padding: 4px 10px;
+        border-radius: 16px;
+        white-space: nowrap;
+
+        .color-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+    }
+
+    .todo-due-date-btn {
+        margin-left: auto;
+        width: 100%;
+    }
+}
+
+.mobile-description {
+    color: var(--text-tertiary);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    border-left: 2px solid var(--border-default);
+    padding-left: 12px;
+}
+
+.mobile-actions-row {
+    display: flex;
+    gap: 8px;
+
+    .mobile-action-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+}
+
+// ── Mobile Overrides ─────────────────────────────────────────────────────────
+@include bp.mobile {
+    .todo-item {
+        cursor: pointer;
+        padding: 10px 14px 10px 16px;
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+    }
+
+    .todo-title {
+        font-size: 0.95rem;
+    }
+
+    button[mat-icon-button] {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    mat-checkbox {
+        padding: 12px 12px 12px 8px;
+        margin: -12px -12px -12px -8px;
+    }
+}

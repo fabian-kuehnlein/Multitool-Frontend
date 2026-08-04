@@ -1,56 +1,44 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
-import { Todo, Priority } from '../../../models/todo.model';
+import { Todo } from '../../../models/todo.model';
 import { CategoryService } from '../../../../../shared/services/category.service';
+import { PRIORITY_OPTIONS } from '../../../utilities/todo.config';
+import { TodoDialogFormService } from './todo-dialog-form.service';
 
 @Component({
     selector: 'app-todo-dialog',
     standalone: true,
-    imports: [UI_MODULES],
+    imports: [CommonModule, UI_MODULES],
+    providers: [TodoDialogFormService],
     templateUrl: './todo-dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './todo-dialog.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class TodoDialogComponent {
-    private readonly fb = inject(FormBuilder);
     private readonly dialogRef = inject(MatDialogRef<TodoDialogComponent>);
     private readonly data = inject<{ todo?: Todo }>(MAT_DIALOG_DATA);
+    protected readonly formService = inject(TodoDialogFormService);
     protected readonly categoryService = inject(CategoryService);
 
-    todoForm: FormGroup;
-    isEditMode: boolean;
-
-    priorities = [
-        { value: Priority.Low, label: 'Niedrig', color: '#4caf50' },
-        { value: Priority.Medium, label: 'Mittel', color: '#ff9800' },
-        { value: Priority.High, label: 'Hoch', color: '#f44336' },
-    ];
+    readonly form = this.formService.form;
+    readonly isEditMode = signal(!!this.data?.todo);
+    protected readonly priorities = PRIORITY_OPTIONS;
 
     constructor() {
-        this.isEditMode = !!this.data?.todo;
-        this.todoForm = this.fb.group({
-            title: [this.data?.todo?.title || '', [Validators.required]],
-            description: [this.data?.todo?.description || ''],
-            priority: [
-                this.data?.todo?.priority || Priority.Medium,
-                [Validators.required],
-            ],
-            dueDate: [this.data?.todo?.dueDate || null],
-            categoryId: [
-                this.data?.todo?.categoryId || '',
-                [Validators.required],
-            ],
-        });
+        if (this.isEditMode() && this.data?.todo) {
+            this.formService.patchFrom(this.data.todo);
+        }
     }
 
     onSubmit(): void {
-        if (this.todoForm.valid) {
-            this.todoForm.value.isDone = this.data?.todo?.isDone || false;
-            this.dialogRef.close(this.todoForm.value);
-        }
+        if (this.form.invalid) return;
+        this.dialogRef.close(
+            this.isEditMode()
+                ? this.formService.getUpdateData(this.data?.todo?.isDone ?? false)
+                : this.formService.getCreateData(),
+        );
     }
 
     onCancel(): void {

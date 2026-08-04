@@ -1,5 +1,6 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { finalize } from 'rxjs';
+import { SnackbarService } from '../../../core/services/snackbar.service';
 import {
     UpsertTableDto,
     TableDetail,
@@ -16,120 +17,127 @@ import { CustomTableHttpService } from './custom-table-http.service';
 })
 export class CustomTableService {
     private readonly httpService = inject(CustomTableHttpService);
+    private readonly snackbarService = inject(SnackbarService);
 
-    // --- Signals for State Management ---
+    // Private State Signals
     private readonly _tableList = signal<TableOverview[]>([]);
     private readonly _currentTable = signal<TableDetail | null>(null);
     private readonly _loading = signal<boolean>(false);
 
     // Public Read-only Signals
-    public readonly tableList = this._tableList.asReadonly();
-    public readonly currentTable = this._currentTable.asReadonly();
-    public readonly loading = this._loading.asReadonly();
+    readonly tableList = this._tableList.asReadonly();
+    readonly currentTable = this._currentTable.asReadonly();
+    readonly loading = this._loading.asReadonly();
 
     // Derived Signals
-    public readonly tableId = computed(
-        () => this._currentTable()?.tableId ?? 0,
-    );
-    public readonly columns = computed(() => {
+    readonly tableId = computed(() => this._currentTable()?.tableId ?? 0);
+
+    readonly columns = computed(() => {
         const table = this._currentTable();
         return table
             ? [...table.columns].sort((a, b) => a.colOrder - b.colOrder)
             : [];
     });
-    public readonly rows = computed(() => {
+
+    readonly rows = computed(() => {
         const table = this._currentTable();
         return table
             ? [...table.rows].sort((a, b) => a.rowOrder - b.rowOrder)
             : [];
     });
 
-    // --- State Management Actions ---
-
     fetchTableList(): void {
         this._loading.set(true);
-        this.httpService.getListOfTables().subscribe({
-            next: (list) => {
-                this._tableList.set(list);
-                this._loading.set(false);
-            },
-            error: () => this._loading.set(false),
-        });
+        this.httpService
+            .getListOfTables()
+            .pipe(finalize(() => this._loading.set(false)))
+            .subscribe({
+                next: (list) => this._tableList.set(list),
+                error: (err) => this.snackbarService.openSnackbar(err),
+            });
     }
 
     loadTable(tableId: number, showLoading = true): void {
         if (showLoading) {
             this._loading.set(true);
         }
-        this.httpService.getTable(tableId).subscribe({
-            next: (table) => {
-                this._currentTable.set(table);
-                this._loading.set(false);
+        this.httpService
+            .getTable(tableId)
+            .pipe(finalize(() => this._loading.set(false)))
+            .subscribe({
+                next: (table) => this._currentTable.set(table),
+                error: (err) => this.snackbarService.openSnackbar(err),
+            });
+    }
+
+    createTable(dto: UpsertTableDto): void {
+        this.httpService.createTable(dto).subscribe({
+            next: (id) => {
+                this.fetchTableList();
+                this.loadTable(id);
             },
-            error: () => this._loading.set(false),
+            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
-    createTable(dto: UpsertTableDto): Observable<number> {
-        return this.httpService.createTable(dto).pipe(
-            tap((id) => {
-                this.fetchTableList();
-                this.loadTable(id);
-            }),
-        );
-    }
-
-    updateTable(tableId: number, newName: string): Observable<number> {
-        return this.httpService.updateTable(tableId, newName).pipe(
-            tap(() => {
+    updateTable(tableId: number, newName: string): void {
+        this.httpService.updateTable(tableId, newName).subscribe({
+            next: () => {
                 this.fetchTableList();
                 this.loadTable(tableId);
-            }),
-        );
+            },
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    deleteTable(tableId: number): Observable<void> {
-        return this.httpService.deleteTable(tableId).pipe(
-            tap(() => {
+    deleteTable(tableId: number): void {
+        this.httpService.deleteTable(tableId).subscribe({
+            next: () => {
                 this.fetchTableList();
                 if (this.tableId() === tableId) {
                     this._currentTable.set(null);
                 }
-            }),
-        );
+            },
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    createColumn(tableId: number): Observable<number> {
-        return this.httpService
-            .createColumn(tableId)
-            .pipe(tap(() => this.loadTable(tableId)));
+    createColumn(tableId: number): void {
+        this.httpService.createColumn(tableId).subscribe({
+            next: () => this.loadTable(tableId),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    updateColumn(columnId: number, dto: UpdateColumnDto): Observable<number> {
-        return this.httpService
-            .updateColumn(columnId, dto)
-            .pipe(tap(() => this.loadTable(this.tableId())));
+    updateColumn(columnId: number, dto: UpdateColumnDto): void {
+        this.httpService.updateColumn(columnId, dto).subscribe({
+            next: () => this.loadTable(this.tableId()),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    updateColumnOrder(dto: UpdateColumnOrderDto[]): Observable<number> {
-        return this.httpService
-            .updateColumnOrder(dto)
-            .pipe(tap(() => this.loadTable(this.tableId())));
+    updateColumnOrder(dto: UpdateColumnOrderDto[]): void {
+        this.httpService.updateColumnOrder(dto).subscribe({
+            next: () => this.loadTable(this.tableId()),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    deleteColumn(tableId: number, columnId: number): Observable<void> {
-        return this.httpService
-            .deleteColumn(tableId, columnId)
-            .pipe(tap(() => this.loadTable(tableId)));
+    deleteColumn(tableId: number, columnId: number): void {
+        this.httpService.deleteColumn(tableId, columnId).subscribe({
+            next: () => this.loadTable(tableId),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    createRow(tableId: number): Observable<number> {
-        return this.httpService
-            .createRow(tableId)
-            .pipe(tap(() => this.loadTable(tableId)));
+    createRow(tableId: number): void {
+        this.httpService.createRow(tableId).subscribe({
+            next: () => this.loadTable(tableId),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    updateRowOrder(rows: UpdateRowOrderDto[]): Observable<void> {
+    updateRowOrder(rows: UpdateRowOrderDto[]): void {
         const table = this._currentTable();
         if (table) {
             const orderMap = new Map(rows.map((r) => [r.rowId, r.rowOrder]));
@@ -141,20 +149,22 @@ export class CustomTableService {
                 })),
             });
         }
-        return this.httpService.updateRowOrder(rows);
+        this.httpService.updateRowOrder(rows).subscribe({
+            next: () => this.loadTable(this.tableId()),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    deleteRows(tableId: number, rows: number[]): Observable<void> {
-        return this.httpService
-            .deleteRows(tableId, rows)
-            .pipe(tap(() => this.loadTable(tableId)));
+    deleteRows(tableId: number, rows: number[]): void {
+        this.httpService.deleteRows(tableId, rows).subscribe({
+            next: () => this.loadTable(tableId),
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 
-    upsertCell(
-        rowId: number,
-        columnId: number,
-        value: CellValue,
-    ): Observable<void> {
-        return this.httpService.upsertCell(rowId, columnId, value);
+    upsertCell(rowId: number, columnId: number, value: CellValue): void {
+        this.httpService.upsertCell(rowId, columnId, value).subscribe({
+            error: (err) => this.snackbarService.openSnackbar(err),
+        });
     }
 }

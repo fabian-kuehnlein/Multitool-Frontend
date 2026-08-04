@@ -1,8 +1,8 @@
 @use "../../../../_breakpoints" as bp;
 
-// Desktop-only styles (sidebar, data table, footer actions)
+// Desktop-only styles (sidebar wrapper, data table, footer actions)
 
-// ── Sidebar ──────────────────────────────────────────────────────────────────
+// ── Sidebar Wrapper ──────────────────────────────────────────────────────────
 .table-sidebar {
     width: 280px;
     background: var(--bg-surface);
@@ -15,46 +15,6 @@
     &.collapsed {
         margin-left: -280px;
     }
-
-    .sidebar-header {
-        padding: 20px 25px;
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: var(--text-secondary);
-        border-bottom: 1px solid var(--border-light);
-    }
-
-    .sidebar-list {
-        overflow: hidden;
-        padding-top: 0;
-        margin: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        height: 100%;
-
-        .active-item {
-            background-color: var(--accent-primary-light);
-            border: 2px solid var(--accent-primary);
-            color: var(--accent-primary);
-
-            mat-icon {
-                color: var(--accent-primary);
-            }
-        }
-    }
-
-    .empty-list-message {
-        padding: 40px 25px;
-        text-align: center;
-        color: var(--text-disabled);
-        font-style: italic;
-    }
-
-    .sidebar-paginator {
-        background: transparent;
-        border-top: 1px solid var(--border-light);
-    }
 }
 
 // ── Data Table ───────────────────────────────────────────────────────────────
@@ -62,6 +22,26 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+
+    // ── Variable Column Widths ─────────────────────────────────────────────
+    // Narrow columns shrink to their content (header + cell). The width: 1px
+    // trick stops leftover space from being distributed to them; string
+    // columns receive an equal percentage via inline style
+    // (stringColumnWidth = 100 / stringColumnCount) so the remaining space
+    // is split evenly.
+    .col-drag,
+    .col-delete,
+    .col-bool,
+    .col-int,
+    .col-decimal,
+    .col-date {
+        width: 1px;
+        white-space: nowrap;
+    }
+
+    .col-string {
+        min-width: 200px;
+    }
 
     th {
         background-color: var(--bg-hover);

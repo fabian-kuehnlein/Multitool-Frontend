@@ -1,0 +1,172 @@
+<div
+    class="todo-item"
+    [class.completed]="todo.isDone"
+    [style.border-left-color]="getPriorityColor(todo.priority)"
+    (click)="onItemClick()"
+>
+    @if (mobile) {
+        <!-- Mobile-Zeile -->
+        <div class="mobile-todo-main">
+            <mat-checkbox
+                [checked]="todo.isDone"
+                (change)="onToggleDone()"
+                (click)="onCheckboxClick($event)"
+            >
+                @if (!expanded()) {
+                    <span class="todo-title" [class.done-text]="todo.isDone">{{
+                        todo.title
+                    }}</span>
+                }
+            </mat-checkbox>
+
+            <div class="mobile-main-right">
+                @if (todo.dueDate && !expanded()) {
+                    <mat-icon>date_range</mat-icon>
+                }
+                <button
+                    mat-icon-button
+                    class="expand-btn"
+                    [class.expanded]="expanded()"
+                    (click)="
+                        $event.stopPropagation(); toggleExpand()
+                    "
+                >
+                    <mat-icon>expand_more</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        @if (expanded()) {
+            <div class="mobile-todo-expanded" (click)="$event.stopPropagation()">
+                <span
+                    class="mobile-expanded-title"
+                    [class.done-text]="todo.isDone"
+                    >{{ todo.title }}</span
+                >
+
+                <div class="mobile-expanded-meta">
+                    @if (getCategory(todo.categoryId); as cat) {
+                        <span class="category-badge">
+                            <div
+                                class="color-dot"
+                                [style.background-color]="cat.color"
+                            ></div>
+                            {{ cat.name }}
+                        </span>
+                    }
+
+                    @if (todo.dueDate) {
+                        <button
+                            matButton
+                            class="todo-due-date-btn"
+                            (click)="onGoToDate()"
+                        >
+                            <mat-icon>event</mat-icon>
+                            <span>{{
+                                todo.dueDate | date: "dd.MM.yyyy"
+                            }}</span>
+                        </button>
+                    }
+                </div>
+
+                @if (todo.description) {
+                    <div class="mobile-description">
+                        {{ todo.description }}
+                    </div>
+                }
+
+                <div class="mobile-actions-row">
+                    <button
+                        matButton
+                        class="mobile-action-btn"
+                        (click)="onEdit(); $event.stopPropagation()"
+                    >
+                        <mat-icon>edit</mat-icon>
+                        <span>Bearbeiten</span>
+                    </button>
+                    <button
+                        matButton
+                        class="mobile-action-btn delete-colors"
+                        (click)="
+                            onDelete(); $event.stopPropagation()
+                        "
+                    >
+                        <mat-icon>delete</mat-icon>
+                        <span>Löschen</span>
+                    </button>
+                </div>
+            </div>
+        }
+    } @else {
+        <!-- Desktop-Zeile -->
+        <div class="todo-row">
+            <mat-checkbox
+                [checked]="todo.isDone"
+                (change)="onToggleDone()"
+            >
+                <span class="todo-title" [class.done-text]="todo.isDone">{{
+                    todo.title
+                }}</span>
+            </mat-checkbox>
+
+            <div class="todo-meta-container">
+                @if (todo.description) {
+                    <button
+                        mat-icon-button
+                        class="expand-btn"
+                        [class.expanded]="expanded()"
+                        (click)="toggleExpand()"
+                        matTooltip="Beschreibung anzeigen"
+                    >
+                        <mat-icon>expand_more</mat-icon>
+                    </button>
+                }
+
+                @if (getCategory(todo.categoryId); as cat) {
+                    <span class="category-badge">
+                        <div
+                            class="color-dot"
+                            [style.background-color]="cat.color"
+                        ></div>
+                        {{ cat.name }}
+                    </span>
+                }
+
+                @if (todo.dueDate) {
+                    <button matButton (click)="onGoToDate()">
+                        <mat-icon>event</mat-icon>
+                        <span>{{ todo.dueDate | date: "dd.MM.yyyy" }}</span>
+                    </button>
+                }
+
+                <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="todoMenu"
+                    matTooltip="Optionen"
+                >
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #todoMenu="matMenu">
+                    <button mat-menu-item (click)="onEdit()">
+                        <mat-icon>edit</mat-icon>
+                        <span>Bearbeiten</span>
+                    </button>
+                    <button
+                        mat-menu-item
+                        class="delete-menu-item"
+                        (click)="onDelete()"
+                    >
+                        <mat-icon>delete</mat-icon>
+                        <span>Löschen</span>
+                    </button>
+                </mat-menu>
+            </div>
+        </div>
+
+        @if (todo.description && expanded()) {
+            <div class="todo-description-line">
+                <span class="description-text">{{ todo.description }}</span>
+            </div>
+        }
+    }
+</div>

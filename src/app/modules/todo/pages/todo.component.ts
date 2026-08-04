@@ -7,9 +7,10 @@ import {
     signal,
     ChangeDetectionStrategy,
 } from '@angular/core';
-import dayjs from 'dayjs';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import dayjs from 'dayjs';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { TodoService } from '../services/todo.service';
 import {
@@ -18,26 +19,30 @@ import {
     UpdateTodoDto,
     Priority,
 } from '../models/todo.model';
+import {
+    getPriorityColor,
+    TodoFilterStatus,
+    TodoSortBy,
+    TodoSortDirection,
+} from '../utilities/todo.config';
 import { TodoDialogComponent } from './components/todo-dialog/todo-dialog.component';
+import { TodoItemComponent } from './components/todo-item/todo-item.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
-import { CategoryService } from '../../../shared/services/category.service';
 import { MediaService } from '../../../core/services/media.service';
 import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-todo',
     standalone: true,
-    imports: [CommonModule, UI_MODULES],
+    imports: [CommonModule, UI_MODULES, TodoItemComponent],
     templateUrl: './todo.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './todo.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class TodoComponent implements OnInit, OnDestroy {
     protected readonly todoService = inject(TodoService);
-    protected readonly categoryService = inject(CategoryService);
     private readonly dialog = inject(MatDialog);
     private readonly snackbar = inject(SnackbarService);
     private readonly media = inject(MediaService);
@@ -45,40 +50,42 @@ export class TodoComponent implements OnInit, OnDestroy {
     private readonly hotkeyService = inject(HotkeyService);
     private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
-    readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority');
-    readonly sortDirection = signal<'asc' | 'desc'>('asc');
-    readonly filterStatus = signal<'all' | 'active' | 'completed'>('all');
+    readonly Priority = Priority;
+    protected readonly getPriorityColor = getPriorityColor;
+
+    readonly sortBy = signal<TodoSortBy>('priority');
+    readonly sortDirection = signal<TodoSortDirection>('asc');
+    readonly filterStatus = signal<TodoFilterStatus>('all');
     readonly filterPriority = signal<Priority | null>(null);
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
 
-    readonly expandedTodoIds = signal<Set<string | number>>(new Set());
-    readonly isCompletedExpanded = signal<boolean>(false);
+    readonly isCompletedExpanded = signal(false);
 
     readonly filteredTodos = computed(() => {
         let list = this.todoService.todos();
 
         if (this.filterStatus() === 'active') {
-            list = list.filter((t) => !t.isDone);
+            list = list.filter((todo) => !todo.isDone);
         } else if (this.filterStatus() === 'completed') {
-            list = list.filter((t) => t.isDone);
+            list = list.filter((todo) => todo.isDone);
         }
 
         if (this.filterPriority() !== null) {
-            list = list.filter((t) => t.priority === this.filterPriority());
+            list = list.filter((todo) => todo.priority === this.filterPriority());
         }
 
         return this.sortTodos(list);
     });
 
-    readonly activeTodos = computed(() => {
-        return this.filteredTodos().filter((t) => !t.isDone);
-    });
+    readonly activeTodos = computed(() =>
+        this.filteredTodos().filter((todo) => !todo.isDone),
+    );
 
-    readonly completedTodos = computed(() => {
-        return this.filteredTodos().filter((t) => t.isDone);
-    });
+    readonly completedTodos = computed(() =>
+        this.filteredTodos().filter((todo) => todo.isDone),
+    );
 
     ngOnInit(): void {
         this.todoService.loadTodos();
@@ -96,7 +103,7 @@ export class TodoComponent implements OnInit, OnDestroy {
         this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
-    openSideNav() {
+    openSideNav(): void {
         this.dialog.open(SidenavComponent, {
             position: this.media.isMobile()
                 ? { bottom: '120px' }
@@ -121,8 +128,7 @@ export class TodoComponent implements OnInit, OnDestroy {
                 if (!a.dueDate) return 1;
                 if (!b.dueDate) return -1;
                 return (
-                    (new Date(a.dueDate).getTime() -
-                        new Date(b.dueDate).getTime()) *
+                    (dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf()) *
                     direction
                 );
             }
@@ -133,20 +139,6 @@ export class TodoComponent implements OnInit, OnDestroy {
     onToggleDone(todo: Todo): void {
         this.todoService.toggleDone(todo.id, !todo.isDone);
         this.snackbar.openSuccess('Status aktualisiert');
-    }
-
-    toggleExpand(todoId: string | number): void {
-        const current = new Set(this.expandedTodoIds());
-        if (current.has(todoId)) {
-            current.delete(todoId);
-        } else {
-            current.add(todoId);
-        }
-        this.expandedTodoIds.set(current);
-    }
-
-    isExpanded(todoId: string | number): boolean {
-        return this.expandedTodoIds().has(todoId);
     }
 
     onAddTodo(): void {
@@ -160,11 +152,6 @@ export class TodoComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe((result: CreateTodoDto) => {
             if (result) {
-                if (result.dueDate) {
-                    result.dueDate = dayjs(result.dueDate).format(
-                        'YYYY-MM-DDTHH:mm:ss',
-                    );
-                }
                 this.todoService.addTodo(result);
                 this.snackbar.openSuccess('Aufgabe hinzugefügt');
             }
@@ -187,11 +174,6 @@ export class TodoComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
             if (result) {
-                if (result.dueDate) {
-                    result.dueDate = dayjs(result.dueDate).format(
-                        'YYYY-MM-DDTHH:mm:ss',
-                    );
-                }
                 this.todoService.updateTodo(todo.id, result);
                 this.snackbar.openSuccess('Aufgabe aktualisiert');
             }
@@ -214,10 +196,10 @@ export class TodoComponent implements OnInit, OnDestroy {
         });
     }
 
-    changeSort(criterion: 'priority' | 'dueDate' | 'title'): void {
+    changeSort(criterion: TodoSortBy): void {
         if (this.sortBy() === criterion) {
-            this.sortDirection.set(
-                this.sortDirection() === 'asc' ? 'desc' : 'asc',
+            this.sortDirection.update((direction) =>
+                direction === 'asc' ? 'desc' : 'asc',
             );
         } else {
             this.sortBy.set(criterion);
@@ -225,51 +207,18 @@ export class TodoComponent implements OnInit, OnDestroy {
         }
     }
 
-    getPriorityColor(priority: Priority): string {
-        switch (priority) {
-            case Priority.High:
-                return '#f44336';
-            case Priority.Medium:
-                return '#ff9800';
-            case Priority.Low:
-                return '#4caf50';
-            default:
-                return '#9e9e9e';
-        }
-    }
-
-    getPriorityLabel(priority: Priority): string {
-        switch (priority) {
-            case Priority.High:
-                return 'Hoch';
-            case Priority.Medium:
-                return 'Mittel';
-            case Priority.Low:
-                return 'Niedrig';
-            default:
-                return 'Normal';
-        }
-    }
-
-    setFilterStatus(status: 'all' | 'active' | 'completed') {
+    setFilterStatus(status: TodoFilterStatus): void {
         this.filterStatus.set(status);
         if (status === 'completed') {
             this.isCompletedExpanded.set(true);
         }
     }
 
-    toggleCompletedCollapse() {
-        this.isCompletedExpanded.set(!this.isCompletedExpanded());
+    toggleCompletedCollapse(): void {
+        this.isCompletedExpanded.update((value) => !value);
     }
 
-    setFilterPriority(priority: Priority | null) {
+    setFilterPriority(priority: Priority | null): void {
         this.filterPriority.set(priority);
-    }
-
-    getCategory(categoryId: string | number) {
-        const id = categoryId.toString();
-        return this.categoryService
-            .categories()
-            .find((c) => c.id.toString() === id);
     }
 }

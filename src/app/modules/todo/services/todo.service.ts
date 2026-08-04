@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { finalize } from 'rxjs';
 import { Todo, CreateTodoDto, UpdateTodoDto } from '../models/todo.model';
 import { TodoHttpService } from './todo-http.service';
-import { finalize } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -18,12 +18,6 @@ export class TodoService {
     readonly loading = this._loading.asReadonly();
 
     // Derived Signals
-    readonly activeTodos = computed(() =>
-        this._todos().filter((t) => !t.isDone),
-    );
-    readonly completedTodos = computed(() =>
-        this._todos().filter((t) => t.isDone),
-    );
     readonly stats = computed(() => {
         const all = this._todos();
         return {

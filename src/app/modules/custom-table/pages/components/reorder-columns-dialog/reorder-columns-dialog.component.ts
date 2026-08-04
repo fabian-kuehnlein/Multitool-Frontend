@@ -3,36 +3,42 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UpdateColumnOrderDto } from '../../../models';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 
+export interface ReorderableColumn {
+    id: number;
+    name: string;
+    order: number;
+}
+
 @Component({
     selector: 'app-reorder-columns-dialog',
+    standalone: true,
     imports: [UI_MODULES, DragDropModule],
     templateUrl: './reorder-columns-dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './reorder-columns-dialog.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ReorderColumnsDialogComponent {
-    public columns: any[];
+    private readonly dialogRef = inject(
+        MatDialogRef<ReorderColumnsDialogComponent>,
+    );
+    private readonly data = inject<{ columns: ReorderableColumn[] }>(
+        MAT_DIALOG_DATA,
+    );
 
-    constructor(
-        private dialogRef: MatDialogRef<ReorderColumnsDialogComponent>,
-        @Inject(MAT_DIALOG_DATA)
-        public data: { columns: { id: number; name: string; order: number }[] },
-    ) {
-        this.columns = [...data.columns].sort((a, b) => a.order - b.order);
-    }
+    readonly columns = [...this.data.columns].sort((a, b) => a.order - b.order);
 
-    drop(event: CdkDragDrop<any[]>) {
+    drop(event: CdkDragDrop<ReorderableColumn[]>): void {
         if (event.previousIndex === event.currentIndex) return;
 
         moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
     }
 
-    save() {
+    save(): void {
         const dto: UpdateColumnOrderDto[] = this.columns.map((col, index) => ({
             columnId: col.id,
             colOrder: index,
@@ -41,7 +47,7 @@ export class ReorderColumnsDialogComponent {
         this.dialogRef.close(dto);
     }
 
-    cancel() {
+    cancel(): void {
         this.dialogRef.close(null);
     }
 }
