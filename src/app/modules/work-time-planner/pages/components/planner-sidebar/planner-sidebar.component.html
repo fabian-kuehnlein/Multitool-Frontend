@@ -1,0 +1,105 @@
+<div class="page-sidebar">
+    <div class="sidebar-header">
+        <span>KW {{ weekNumber }}</span>
+    </div>
+    <div class="sidebar-content">
+        <div class="stats-section">
+            <div class="stat-card">
+                <mat-icon class="stat-icon">schedule</mat-icon>
+                <div class="stat-info">
+                    <span class="stat-value">{{
+                        formatMinutes(weeklyWorkMinutes)
+                    }}</span>
+                    <span class="stat-label">Geleistet (Woche)</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <mat-icon
+                    class="stat-icon"
+                    [class.overtime-positive]="weeklyOvertimeMinutes >= 0"
+                    [class.overtime-negative]="weeklyOvertimeMinutes < 0"
+                >
+                    {{
+                        weeklyOvertimeMinutes >= 0
+                            ? "trending_up"
+                            : "trending_down"
+                    }}
+                </mat-icon>
+                <div class="stat-info">
+                    <span
+                        class="stat-value"
+                        [class.overtime-positive]="weeklyOvertimeMinutes >= 0"
+                        [class.overtime-negative]="weeklyOvertimeMinutes < 0"
+                    >
+                        {{ formatMinutes(weeklyOvertimeMinutes) }}
+                    </span>
+                    <span class="stat-label">Überstunden (Woche)</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <mat-icon class="stat-icon">history</mat-icon>
+                <div class="stat-info">
+                    <span class="stat-value">{{
+                        formatMinutes(baseOvertime)
+                    }}</span>
+                    <span class="stat-label">Basis (Vorwoche)</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <mat-icon
+                    class="stat-icon"
+                    [class.overtime-positive]="totalOvertime >= 0"
+                    [class.overtime-negative]="totalOvertime < 0"
+                >
+                    {{ totalOvertime >= 0 ? "account_balance" : "warning" }}
+                </mat-icon>
+                <div class="stat-info">
+                    <span
+                        class="stat-value"
+                        [class.overtime-positive]="totalOvertime >= 0"
+                        [class.overtime-negative]="totalOvertime < 0"
+                    >
+                        {{ formatMinutes(totalOvertime) }}
+                    </span>
+                    <span class="stat-label">Gesamtkonto</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <mat-icon class="stat-icon">home</mat-icon>
+                <div class="stat-info">
+                    <span class="stat-value">{{
+                        homeOfficeDaysThisWeek
+                    }}</span>
+                    <span class="stat-label">HO-Tage (Woche)</span>
+                </div>
+            </div>
+            @for (
+                month of homeOfficeMonthCounts;
+                track month.year + "-" + month.month
+            ) {
+                <div class="stat-card">
+                    <mat-icon class="stat-icon">home</mat-icon>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ month.count }}</span>
+                        <span class="stat-label"
+                            >HO-Tage ({{ month.monthName }})</span
+                        >
+                    </div>
+                </div>
+            }
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="sidebar-actions">
+            <button
+                mat-stroked-button
+                class="sidebar-action-btn"
+                (click)="openSettings.emit()"
+            >
+                <mat-icon>settings</mat-icon>
+                Einstellungen
+            </button>
+        </div>
+    </div>
+</div>

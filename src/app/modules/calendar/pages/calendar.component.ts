@@ -3,7 +3,6 @@ import {
     Component,
     inject,
     signal,
-    HostListener,
     computed,
     effect,
     OnDestroy,
@@ -43,11 +42,20 @@ import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
 import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
-import { CalendarMapper } from '../utilities/calendar-mapper';
+import {
+    fromFullCalendarEvent,
+    toCalendarEvent,
+    toEventInput,
+} from '../mappers/event.mapper';
+import {
+    eventFallsOnDate,
+    RecurrenceRuleInput,
+} from '../logic/rrule.logic';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
 import { MediaService } from '../../../core/services/media.service';
+import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -88,7 +96,9 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private readonly dialog = inject(MatDialog);
     private readonly route = inject(ActivatedRoute);
     private readonly media = inject(MediaService);
+    private readonly hotkeyService = inject(HotkeyService);
     private readonly destroy$ = new Subject<void>();
+    private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
     // --- Signals & State ---
     public readonly title = signal<string>('');
@@ -127,6 +137,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.setupCategorySelectionListener();
         this.setupMobileViewListener();
         this.setupPastEventsToggle();
+        this.setupHotkeys();
     }
 
     ngAfterViewInit(): void {
@@ -152,6 +163,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+        this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
     // --- Initialization ---
@@ -205,20 +217,34 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    // --- Host Listeners ---
-    @HostListener('window:keydown', ['$event'])
-    handleKeyboardEvent(event: KeyboardEvent) {
-        if (event.altKey && event.key.toLowerCase() === 'n') {
-            event.preventDefault();
-            this.createEvent();
-        }
-        if (
-            (event.altKey && event.key.toLowerCase() === 'f') ||
-            (event.key === '/' && !(event.target instanceof HTMLInputElement))
-        ) {
-            event.preventDefault();
-            this.openSearchResult();
-        }
+    // --- Hotkeys ---
+    private setupHotkeys() {
+        this.hotkeyUnsubscribers.push(
+            this.hotkeyService.register({
+                id: 'calendar.create',
+                combo: Hotkeys.create,
+                description: 'Neuen Eintrag erstellen',
+                action: () => this.createEvent(),
+            }),
+            this.hotkeyService.register({
+                id: 'calendar.search',
+                combo: Hotkeys.search,
+                description: 'Einträge suchen',
+                action: () => this.openSearchResult(),
+            }),
+            this.hotkeyService.register({
+                id: 'calendar.previous',
+                combo: Hotkeys.prevPage,
+                description: 'Vorherige Ansicht',
+                action: () => this.calendarAction('prev'),
+            }),
+            this.hotkeyService.register({
+                id: 'calendar.next',
+                combo: Hotkeys.nextPage,
+                description: 'Nächste Ansicht',
+                action: () => this.calendarAction('next'),
+            }),
+        );
     }
 
     // --- UI Actions ---
@@ -315,7 +341,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     }
 
     public updateEvent(arg: EventClickArg) {
-        const eventData = CalendarMapper.fromFullCalendarEvent(arg.event);
+        const eventData = fromFullCalendarEvent(arg.event);
 
         if (eventData.isTodo === true) return;
 
@@ -402,7 +428,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         if (event.extendedProps['isTodo'] === true) return;
 
         const isRecurring = !!event.extendedProps['recurrenceRule'];
-        const updatedEvent = CalendarMapper.toCalendarEvent(event);
+        const updatedEvent = toCalendarEvent(event);
 
         if (isRecurring) {
             this.dialog
@@ -421,7 +447,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                             });
                     } else if (choice === 'instance') {
                         const originalInstance =
-                            CalendarMapper.fromFullCalendarEvent(arg.oldEvent);
+                            fromFullCalendarEvent(arg.oldEvent);
                         this.splitEventFromSeries(
                             originalInstance,
                             updatedEvent,
@@ -482,7 +508,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                         .subscribe({
                             next: (events) => {
                                 const mappedEvents = events.map((e) =>
-                                    CalendarMapper.toEventInput(
+                                    toEventInput(
                                         e,
                                         this.categoryList(),
                                     ),
@@ -508,8 +534,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                         let current = dayjs(viewStart);
                                         while (current.isBefore(viewEnd)) {
                                             if (
-                                                CalendarMapper.eventFallsOnDate(
-                                                    event.rrule,
+                                                eventFallsOnDate(
+                                                    event.rrule as RecurrenceRuleInput,
                                                     current,
                                                     event.exdate,
                                                 )
@@ -563,7 +589,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 const hasEventToday = processedEvents.some(
                                     (e) => {
                                         if (e.rrule)
-                                            return CalendarMapper.eventFallsOnDate(
+                                            return eventFallsOnDate(
                                                 e.rrule,
                                                 today,
                                             );

@@ -9,6 +9,7 @@ import {
     UpdateColumnDto,
     UpdateColumnOrderDto,
     UpdateRowOrderDto,
+    CellValue,
 } from '../models';
 
 @Injectable({
@@ -36,8 +37,8 @@ export class CustomTableHttpService {
         });
     }
 
-    deleteTable(tableId: number): Observable<any> {
-        return this.http.delete(`${this.apiURL}/tables/${tableId}`);
+    deleteTable(tableId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiURL}/tables/${tableId}`);
     }
 
     createColumn(tableId: number): Observable<number> {
@@ -55,8 +56,8 @@ export class CustomTableHttpService {
         return this.http.put<number>(`${this.apiURL}/columns/order`, dto);
     }
 
-    deleteColumn(tableId: number, columnId: number): Observable<any> {
-        return this.http.delete(
+    deleteColumn(tableId: number, columnId: number): Observable<void> {
+        return this.http.delete<void>(
             `${this.apiURL}/tables/${tableId}/columns/${columnId}`,
         );
     }
@@ -68,17 +69,21 @@ export class CustomTableHttpService {
         );
     }
 
-    updateRowOrder(rows: UpdateRowOrderDto[]): Observable<any> {
-        return this.http.put(`${this.apiURL}/rows/order`, rows);
+    updateRowOrder(rows: UpdateRowOrderDto[]): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/rows/order`, rows);
     }
 
-    deleteRows(tableId: number, rows: number[]): Observable<any> {
-        return this.http.delete(`${this.apiURL}/tables/${tableId}/rows`, {
+    deleteRows(tableId: number, rows: number[]): Observable<void> {
+        return this.http.delete<void>(`${this.apiURL}/tables/${tableId}/rows`, {
             body: rows,
         });
     }
 
-    upsertCell(rowId: number, columnId: number, value: any): Observable<void> {
+    upsertCell(
+        rowId: number,
+        columnId: number,
+        value: CellValue,
+    ): Observable<void> {
         const headers = { 'Content-Type': 'application/json' };
         return this.http.put<void>(
             `${this.apiURL}/rows/${rowId}/cells/${columnId}`,

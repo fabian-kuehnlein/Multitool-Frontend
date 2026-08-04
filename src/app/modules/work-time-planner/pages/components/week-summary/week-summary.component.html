@@ -1,0 +1,53 @@
+<div class="week-summary" [class.compact-summary]="compact">
+    <div class="summary-row">
+        <span class="summary-label">Wochenziel:</span>
+        <span class="summary-value">{{
+            formatMinutes(weeklyTargetMinutes)
+        }}</span>
+    </div>
+    <div class="summary-row">
+        <span class="summary-label">Geleistet:</span>
+        <span
+            class="summary-value"
+            [class.overtime-positive]="
+                weeklyWorkMinutes >= weeklyTargetMinutes
+            "
+            [class.overtime-negative]="
+                weeklyWorkMinutes < weeklyTargetMinutes
+            "
+        >
+            {{ formatMinutes(weeklyWorkMinutes) }}
+        </span>
+    </div>
+    <div class="summary-row">
+        <span class="summary-label">Differenz:</span>
+        <span
+            class="summary-value"
+            [class.overtime-positive]="weeklyOvertimeMinutes >= 0"
+            [class.overtime-negative]="weeklyOvertimeMinutes < 0"
+        >
+            {{ formatMinutes(weeklyOvertimeMinutes) }}
+        </span>
+    </div>
+    <mat-divider class="summary-divider"></mat-divider>
+    <div class="summary-row">
+        <span class="summary-label">Basis (Vorwoche):</span>
+        <span
+            class="summary-value"
+            [class.overtime-positive]="baseOvertime >= 0"
+            [class.overtime-negative]="baseOvertime < 0"
+        >
+            {{ formatMinutes(baseOvertime) }}
+        </span>
+    </div>
+    <div class="summary-row">
+        <span class="summary-label">Gesamtkonto:</span>
+        <span
+            class="summary-value"
+            [class.overtime-positive]="totalOvertime >= 0"
+            [class.overtime-negative]="totalOvertime < 0"
+        >
+            {{ formatMinutes(totalOvertime) }}
+        </span>
+    </div>
+</div>

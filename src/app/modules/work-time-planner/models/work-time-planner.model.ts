@@ -36,3 +36,22 @@ export interface WorkTimeSettings {
     breakRule9h: number;
     homeOfficeLimit: number;
 }
+
+export interface CreateWorkDayDto {
+    date: string;
+    startTime: string | null;
+    endTime: string | null;
+    breakMinutes: number;
+    isHomeOffice: boolean;
+    status: DayStatus;
+    isLocked: boolean;
+}
+
+export interface UpdateWorkDayDto extends CreateWorkDayDto {}
+
+export interface MonthHoCount {
+    year: number;
+    month: number;
+    monthName: string;
+    count: number;
+}

@@ -44,6 +44,7 @@ import {
 import { ReorderColumnsDialogComponent } from './components/reorder-columns-dialog/reorder-columns-dialog.component';
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { MediaService } from '../../../core/services/media.service';
+import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 
 @Component({
     selector: 'app-custom-table',
@@ -71,6 +72,8 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     protected readonly tableService = inject(CustomTableService);
     private readonly snackbarService = inject(SnackbarService);
     private readonly media = inject(MediaService);
+    private readonly hotkeyService = inject(HotkeyService);
+    private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
     // UI State Signals
     protected readonly removeRowsColumn = signal<boolean>(false);
@@ -115,6 +118,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
     public formControls: { [key: string]: FormControl } = {};
     public removeControls: { [rowId: number]: FormControl } = {};
     public dataSource = new MatTableDataSource<RowInfo>();
+    private initialCellValues: { [key: string]: any } = {};
 
     constructor() {
         // Automatically sync dataSource and formControls when table data changes
@@ -145,6 +149,40 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit(): void {
         this.tableService.fetchTableList();
+        this.hotkeyUnsubscribers.push(
+            this.hotkeyService.register({
+                id: 'custom-table.create',
+                combo: Hotkeys.create,
+                description: 'Neue Tabelle erstellen',
+                action: () => this.createTable(),
+            }),
+            this.hotkeyService.register({
+                id: 'custom-table.previous',
+                combo: Hotkeys.prevPage,
+                description: 'Vorherige Seite',
+                action: () => this.changeSidebarPage(-1),
+            }),
+            this.hotkeyService.register({
+                id: 'custom-table.next',
+                combo: Hotkeys.nextPage,
+                description: 'Nächste Seite',
+                action: () => this.changeSidebarPage(1),
+            }),
+        );
+    }
+
+    private changeSidebarPage(direction: 1 | -1) {
+        if (this.tableService.tableList().length <= this.pageSize()) return;
+
+        const maxPage = Math.max(
+            0,
+            Math.ceil(this.tableService.tableList().length / this.pageSize()) -
+                1,
+        );
+        this.pageIndex.update((page) => {
+            const next = page + direction;
+            return Math.min(Math.max(next, 0), maxPage);
+        });
     }
 
     ngAfterViewInit(): void {
@@ -153,6 +191,7 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.resizeObserver?.disconnect();
+        this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
     private setupResizeObserver() {
@@ -410,7 +449,10 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.tableService.updateRowOrder(updateDtos).subscribe({
             next: () =>
-                this.tableService.loadTable(this.tableService.tableId()),
+                this.tableService.loadTable(
+                    this.tableService.tableId(),
+                    false,
+                ),
             error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
@@ -463,12 +505,33 @@ export class CustomTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isFabMenuOpen.update((v) => !v);
     }
 
+    onCellFocus(rowId: number, columnId: number) {
+        const key = `${rowId}_${columnId}`;
+        this.initialCellValues[key] = this.formControls[key]?.value;
+    }
+
     onCellBlur(rowId: number, columnId: number) {
         const key = `${rowId}_${columnId}`;
-        const value = this.formControls[key].value;
-        this.tableService.upsertCell(rowId, columnId, value).subscribe({
+        const control = this.formControls[key];
+        const initialValue = this.initialCellValues[key];
+
+        delete this.initialCellValues[key];
+
+        if (this.valuesAreEqual(initialValue, control.value)) {
+            return;
+        }
+
+        this.tableService.upsertCell(rowId, columnId, control.value).subscribe({
             error: (err) => this.snackbarService.openSnackbar(err),
         });
+    }
+
+    private valuesAreEqual(a: any, b: any): boolean {
+        if (a === b) return true;
+        if (a instanceof Date && b instanceof Date) {
+            return a.getTime() === b.getTime();
+        }
+        return false;
     }
 
     focusOwnCell(event: MouseEvent) {

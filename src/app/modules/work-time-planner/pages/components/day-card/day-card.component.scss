@@ -164,9 +164,13 @@
     }
 }
 
+.time-input-wrapper {
+    position: relative;
+}
+
 .time-input {
     width: 100%;
-    padding: 6px 8px;
+    padding: 6px 26px 6px 8px;
     border: 1px solid var(--border-default);
     border-radius: 6px;
     background: var(--bg-secondary);
@@ -179,7 +183,7 @@
 
     .desktop & {
         font-size: 1.05rem;
-        padding: 8px 10px;
+        padding: 8px 28px 8px 10px;
     }
 
     &:focus {
@@ -192,7 +196,26 @@
     }
 
     &::-webkit-calendar-picker-indicator {
-        filter: var(--text-muted);
+        display: none;
+    }
+}
+
+.time-picker-icon {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    pointer-events: none;
+
+    .desktop & {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        right: 7px;
     }
 }
 

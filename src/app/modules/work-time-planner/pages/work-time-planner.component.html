@@ -38,222 +38,34 @@
     }
 
     @if (isMobile()) {
-        <div class="mobile-overtime-summary">
-            <div class="mobile-stat-card">
-                <mat-icon
-                    class="stat-icon"
-                    [class.overtime-positive]="
-                        plannerService.weeklyOvertimeMinutes() >= 0
-                    "
-                    [class.overtime-negative]="
-                        plannerService.weeklyOvertimeMinutes() < 0
-                    "
-                >
-                    {{
-                        plannerService.weeklyOvertimeMinutes() >= 0
-                            ? "trending_up"
-                            : "trending_down"
-                    }}
-                </mat-icon>
-                <div class="stat-info">
-                    <span
-                        class="stat-value"
-                        [class.overtime-positive]="
-                            plannerService.weeklyOvertimeMinutes() >= 0
-                        "
-                        [class.overtime-negative]="
-                            plannerService.weeklyOvertimeMinutes() < 0
-                        "
-                    >
-                        {{
-                            formatMinutes(
-                                plannerService.weeklyOvertimeMinutes()
-                            )
-                        }}
-                    </span>
-                    <span class="stat-label">Überstunden (Woche)</span>
-                </div>
-            </div>
-
-            <div class="mobile-stat-card">
-                <mat-icon
-                    class="stat-icon"
-                    [class.overtime-positive]="
-                        plannerService.totalOvertime() >= 0
-                    "
-                    [class.overtime-negative]="
-                        plannerService.totalOvertime() < 0
-                    "
-                >
-                    {{
-                        plannerService.totalOvertime() >= 0
-                            ? "account_balance"
-                            : "warning"
-                    }}
-                </mat-icon>
-                <div class="stat-info">
-                    <span
-                        class="stat-value"
-                        [class.overtime-positive]="
-                            plannerService.totalOvertime() >= 0
-                        "
-                        [class.overtime-negative]="
-                            plannerService.totalOvertime() < 0
-                        "
-                    >
-                        {{ formatMinutes(plannerService.totalOvertime()) }}
-                    </span>
-                    <span class="stat-label">Gesamtkonto</span>
-                </div>
-            </div>
-        </div>
+        <app-overtime-summary
+            [weeklyOvertimeMinutes]="
+                plannerService.weeklyOvertimeMinutes()
+            "
+            [totalOvertime]="plannerService.totalOvertime()"
+        ></app-overtime-summary>
     }
 
     <div class="main-layout" [class.mobile-layout]="isMobile()">
         @if (!isMobile() && !isTablet()) {
-            <div class="page-sidebar">
-                <div class="sidebar-header">
-                    <span>KW {{ plannerService.getWeekNumber() }}</span>
-                </div>
-                <div class="sidebar-content">
-                    <div class="stats-section">
-                        <div class="stat-card">
-                            <mat-icon class="stat-icon">schedule</mat-icon>
-                            <div class="stat-info">
-                                <span class="stat-value">{{
-                                    formatMinutes(
-                                        plannerService.weeklyWorkMinutes()
-                                    )
-                                }}</span>
-                                <span class="stat-label"
-                                    >Geleistet (Woche)</span
-                                >
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <mat-icon
-                                class="stat-icon"
-                                [class.overtime-positive]="
-                                    plannerService.weeklyOvertimeMinutes() >= 0
-                                "
-                                [class.overtime-negative]="
-                                    plannerService.weeklyOvertimeMinutes() < 0
-                                "
-                            >
-                                {{
-                                    plannerService.weeklyOvertimeMinutes() >= 0
-                                        ? "trending_up"
-                                        : "trending_down"
-                                }}
-                            </mat-icon>
-                            <div class="stat-info">
-                                <span
-                                    class="stat-value"
-                                    [class.overtime-positive]="
-                                        plannerService.weeklyOvertimeMinutes() >=
-                                        0
-                                    "
-                                    [class.overtime-negative]="
-                                        plannerService.weeklyOvertimeMinutes() <
-                                        0
-                                    "
-                                >
-                                    {{
-                                        formatMinutes(
-                                            plannerService.weeklyOvertimeMinutes()
-                                        )
-                                    }}
-                                </span>
-                                <span class="stat-label"
-                                    >Überstunden (Woche)</span
-                                >
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <mat-icon class="stat-icon">history</mat-icon>
-                            <div class="stat-info">
-                                <span class="stat-value">{{
-                                    formatMinutes(plannerService.baseOvertime())
-                                }}</span>
-                                <span class="stat-label">Basis (Vorwoche)</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <mat-icon
-                                class="stat-icon"
-                                [class.overtime-positive]="
-                                    plannerService.totalOvertime() >= 0
-                                "
-                                [class.overtime-negative]="
-                                    plannerService.totalOvertime() < 0
-                                "
-                            >
-                                {{
-                                    plannerService.totalOvertime() >= 0
-                                        ? "account_balance"
-                                        : "warning"
-                                }}
-                            </mat-icon>
-                            <div class="stat-info">
-                                <span
-                                    class="stat-value"
-                                    [class.overtime-positive]="
-                                        plannerService.totalOvertime() >= 0
-                                    "
-                                    [class.overtime-negative]="
-                                        plannerService.totalOvertime() < 0
-                                    "
-                                >
-                                    {{
-                                        formatMinutes(
-                                            plannerService.totalOvertime()
-                                        )
-                                    }}
-                                </span>
-                                <span class="stat-label">Gesamtkonto</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <mat-icon class="stat-icon">home</mat-icon>
-                            <div class="stat-info">
-                                <span class="stat-value">{{
-                                    plannerService.homeOfficeDaysThisWeek()
-                                }}</span>
-                                <span class="stat-label">HO-Tage (Woche)</span>
-                            </div>
-                        </div>
-                        @for (
-                            month of plannerService.homeOfficeMonthCounts();
-                            track month.year + "-" + month.month
-                        ) {
-                            <div class="stat-card">
-                                <mat-icon class="stat-icon">home</mat-icon>
-                                <div class="stat-info">
-                                    <span class="stat-value">{{
-                                        month.count
-                                    }}</span>
-                                    <span class="stat-label"
-                                        >HO-Tage ({{ month.monthName }})</span
-                                    >
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <mat-divider></mat-divider>
-
-                    <div class="sidebar-actions">
-                        <button
-                            mat-stroked-button
-                            class="sidebar-action-btn"
-                            (click)="openSettings()"
-                        >
-                            <mat-icon>settings</mat-icon>
-                            Einstellungen
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <app-planner-sidebar
+                [weekNumber]="plannerService.getWeekNumber()"
+                [weeklyWorkMinutes]="
+                    plannerService.weeklyWorkMinutes()
+                "
+                [weeklyOvertimeMinutes]="
+                    plannerService.weeklyOvertimeMinutes()
+                "
+                [baseOvertime]="plannerService.baseOvertime()"
+                [totalOvertime]="plannerService.totalOvertime()"
+                [homeOfficeDaysThisWeek]="
+                    plannerService.homeOfficeDaysThisWeek()
+                "
+                [homeOfficeMonthCounts]="
+                    plannerService.homeOfficeMonthCounts()
+                "
+                (openSettings)="openSettings()"
+            ></app-planner-sidebar>
         }
 
         <div class="content-wrapper">
@@ -272,7 +84,7 @@
                         <button
                             mat-icon-button
                             (click)="plannerService.navigateWeek('prev')"
-                            matTooltip="Vorherige Woche"
+                            matTooltip="Vorherige Woche (Alt + ←)"
                         >
                             <mat-icon>chevron_left</mat-icon>
                         </button>
@@ -282,7 +94,7 @@
                         <button
                             mat-icon-button
                             (click)="plannerService.navigateWeek('next')"
-                            matTooltip="Nächste Woche"
+                            matTooltip="Nächste Woche (Alt + →)"
                         >
                             <mat-icon>chevron_right</mat-icon>
                         </button>
@@ -291,7 +103,11 @@
             }
 
             <div class="week-section">
-                <div class="week-grid" [class.mobile-grid]="isMobile()" [class.laptop-grid]="isTablet() || isLaptop()">
+                <div
+                    class="week-grid"
+                    [class.mobile-grid]="isMobile()"
+                    [class.laptop-grid]="isTablet() || isLaptop()"
+                >
                     @for (
                         day of plannerService.weekDays();
                         track day.date;
@@ -319,89 +135,20 @@
                 </div>
 
                 @if (!isMobile()) {
-                    <div class="week-summary" [class.compact-summary]="isTablet() || isLaptop()">
-                        <div class="summary-row">
-                            <span class="summary-label">Wochenziel:</span>
-                            <span class="summary-value">{{
-                                formatMinutes(
-                                    plannerService.weeklyTargetMinutes()
-                                )
-                            }}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Geleistet:</span>
-                            <span
-                                class="summary-value"
-                                [class.overtime-positive]="
-                                    plannerService.weeklyWorkMinutes() >=
-                                    plannerService.weeklyTargetMinutes()
-                                "
-                                [class.overtime-negative]="
-                                    plannerService.weeklyWorkMinutes() <
-                                    plannerService.weeklyTargetMinutes()
-                                "
-                            >
-                                {{
-                                    formatMinutes(
-                                        plannerService.weeklyWorkMinutes()
-                                    )
-                                }}
-                            </span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Differenz:</span>
-                            <span
-                                class="summary-value"
-                                [class.overtime-positive]="
-                                    plannerService.weeklyOvertimeMinutes() >= 0
-                                "
-                                [class.overtime-negative]="
-                                    plannerService.weeklyOvertimeMinutes() < 0
-                                "
-                            >
-                                {{
-                                    formatMinutes(
-                                        plannerService.weeklyOvertimeMinutes()
-                                    )
-                                }}
-                            </span>
-                        </div>
-                        <mat-divider class="summary-divider"></mat-divider>
-                        <div class="summary-row">
-                            <span class="summary-label">Basis (Vorwoche):</span>
-                            <span
-                                class="summary-value"
-                                [class.overtime-positive]="
-                                    plannerService.baseOvertime() >= 0
-                                "
-                                [class.overtime-negative]="
-                                    plannerService.baseOvertime() < 0
-                                "
-                            >
-                                {{
-                                    formatMinutes(plannerService.baseOvertime())
-                                }}
-                            </span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Gesamtkonto:</span>
-                            <span
-                                class="summary-value"
-                                [class.overtime-positive]="
-                                    plannerService.totalOvertime() >= 0
-                                "
-                                [class.overtime-negative]="
-                                    plannerService.totalOvertime() < 0
-                                "
-                            >
-                                {{
-                                    formatMinutes(
-                                        plannerService.totalOvertime()
-                                    )
-                                }}
-                            </span>
-                        </div>
-                    </div>
+                    <app-week-summary
+                        [weeklyTargetMinutes]="
+                            plannerService.weeklyTargetMinutes()
+                        "
+                        [weeklyWorkMinutes]="
+                            plannerService.weeklyWorkMinutes()
+                        "
+                        [weeklyOvertimeMinutes]="
+                            plannerService.weeklyOvertimeMinutes()
+                        "
+                        [baseOvertime]="plannerService.baseOvertime()"
+                        [totalOvertime]="plannerService.totalOvertime()"
+                        [compact]="isTablet() || isLaptop()"
+                    ></app-week-summary>
                 }
             </div>
         </div>

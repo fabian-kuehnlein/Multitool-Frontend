@@ -133,7 +133,7 @@
     }
 
     tr:hover {
-        background-color: var(--border-light) !important;
+        background-color: var(--bg-hover-strong) !important;
     }
 
     td {
@@ -157,7 +157,7 @@
 }
 
 .cell-hover:hover {
-    background-color: var(--bg-hover);
+    background-color: var(--bg-hover-strong);
 }
 
 .cell-content {
