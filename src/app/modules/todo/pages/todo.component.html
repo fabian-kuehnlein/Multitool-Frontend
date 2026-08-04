@@ -1,191 +1,4 @@
 <div class="todo-page-container">
-    <!-- Reusable Row-Templates -->
-
-    <!-- Desktop-Zeile -->
-    <ng-template #desktopRow let-todo>
-        <div
-            class="todo-item"
-            [class.completed]="todo.isDone"
-            [style.border-left-color]="getPriorityColor(todo.priority)"
-        >
-            <div class="todo-row">
-                <mat-checkbox
-                    [checked]="todo.isDone"
-                    (change)="onToggleDone(todo)"
-                >
-                    <span class="todo-title" [class.done-text]="todo.isDone">{{
-                        todo.title
-                    }}</span>
-                </mat-checkbox>
-
-                <div class="todo-meta-container">
-                    @if (todo.description) {
-                        <button
-                            mat-icon-button
-                            class="expand-btn"
-                            [class.expanded]="isExpanded(todo.id)"
-                            (click)="toggleExpand(todo.id)"
-                            matTooltip="Beschreibung anzeigen"
-                        >
-                            <mat-icon>expand_more</mat-icon>
-                        </button>
-                    }
-
-                    @if (getCategory(todo.categoryId); as cat) {
-                        <span class="category-badge">
-                            <div
-                                class="color-dot"
-                                [style.background-color]="cat.color"
-                            ></div>
-                            {{ cat.name }}
-                        </span>
-                    }
-
-                    @if (todo.dueDate) {
-                        <button
-                            matButton
-                            (click)="goToDateInCalendar(todo.dueDate)"
-                        >
-                            <mat-icon>event</mat-icon>
-                            <span>{{ todo.dueDate | date: "dd.MM.yyyy" }}</span>
-                        </button>
-                    }
-
-                    <button
-                        mat-icon-button
-                        [matMenuTriggerFor]="todoMenu"
-                        matTooltip="Optionen"
-                    >
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
-                    <mat-menu #todoMenu="matMenu">
-                        <button mat-menu-item (click)="onEditTodo(todo)">
-                            <mat-icon>edit</mat-icon>
-                            <span>Bearbeiten</span>
-                        </button>
-                        <button mat-menu-item (click)="onDeleteTodo(todo)">
-                            <mat-icon>delete</mat-icon>
-                            <span>Löschen</span>
-                        </button>
-                    </mat-menu>
-                </div>
-            </div>
-
-            @if (todo.description && isExpanded(todo.id)) {
-                <div class="todo-description-line">
-                    <span class="description-text">{{ todo.description }}</span>
-                </div>
-            }
-        </div>
-    </ng-template>
-
-    <!-- Mobile-Zeile -->
-    <ng-template #mobileRow let-todo>
-        <div
-            class="todo-item mobile-todo-item"
-            [class.completed]="todo.isDone"
-            [style.border-left-color]="getPriorityColor(todo.priority)"
-            (click)="toggleExpand(todo.id)"
-        >
-            <div class="mobile-todo-main">
-                <mat-checkbox
-                    [checked]="todo.isDone"
-                    (change)="onToggleDone(todo)"
-                    (click)="$event.stopPropagation()"
-                >
-                    @if (!isExpanded(todo.id)) {
-                        <span
-                            class="todo-title"
-                            [class.done-text]="todo.isDone"
-                            >{{ todo.title }}</span
-                        >
-                    }
-                </mat-checkbox>
-
-                <div class="mobile-main-right">
-                    @if (todo.dueDate && !isExpanded(todo.id)) {
-                        <mat-icon>date_range</mat-icon>
-                    }
-                    <button
-                        mat-icon-button
-                        class="expand-btn"
-                        [class.expanded]="isExpanded(todo.id)"
-                        (click)="
-                            $event.stopPropagation(); toggleExpand(todo.id)
-                        "
-                    >
-                        <mat-icon>expand_more</mat-icon>
-                    </button>
-                </div>
-            </div>
-
-            @if (isExpanded(todo.id)) {
-                <div
-                    class="mobile-todo-expanded"
-                    (click)="$event.stopPropagation()"
-                >
-                    <span
-                        class="mobile-expanded-title"
-                        [class.done-text]="todo.isDone"
-                        >{{ todo.title }}</span
-                    >
-
-                    <div class="mobile-expanded-meta">
-                        @if (getCategory(todo.categoryId); as cat) {
-                            <span class="category-badge">
-                                <div
-                                    class="color-dot"
-                                    [style.background-color]="cat.color"
-                                ></div>
-                                {{ cat.name }}
-                            </span>
-                        }
-
-                        @if (todo.dueDate) {
-                            <button
-                                matButton
-                                class="todo-due-date-btn"
-                                (click)="goToDateInCalendar(todo.dueDate)"
-                            >
-                                <mat-icon>event</mat-icon>
-                                <span>{{
-                                    todo.dueDate | date: "dd.MM.yyyy"
-                                }}</span>
-                            </button>
-                        }
-                    </div>
-
-                    @if (todo.description) {
-                        <div class="mobile-description">
-                            {{ todo.description }}
-                        </div>
-                    }
-
-                    <div class="mobile-actions-row">
-                        <button
-                            matButton
-                            class="mobile-action-btn"
-                            (click)="onEditTodo(todo); $event.stopPropagation()"
-                        >
-                            <mat-icon>edit</mat-icon>
-                            <span>Bearbeiten</span>
-                        </button>
-                        <button
-                            matButton
-                            class="mobile-action-btn delete-colors"
-                            (click)="
-                                onDeleteTodo(todo); $event.stopPropagation()
-                            "
-                        >
-                            <mat-icon>delete</mat-icon>
-                            <span>Löschen</span>
-                        </button>
-                    </div>
-                </div>
-            }
-        </div>
-    </ng-template>
-
     <!-- Toolbar -->
     <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
         @if (isMobile()) {
@@ -327,36 +140,38 @@
                         </a>
                         <a
                             mat-list-item
-                            (click)="setFilterPriority(3)"
-                            [class.active-item]="filterPriority() === 3"
+                            (click)="setFilterPriority(Priority.High)"
+                            [class.active-item]="filterPriority() === Priority.High"
                         >
                             <mat-icon
                                 matListItemIcon
-                                [style.color]="getPriorityColor(3)"
+                                [style.color]="getPriorityColor(Priority.High)"
                                 >flag</mat-icon
                             >
                             <span matListItemTitle>Hoch</span>
                         </a>
                         <a
                             mat-list-item
-                            (click)="setFilterPriority(2)"
-                            [class.active-item]="filterPriority() === 2"
+                            (click)="setFilterPriority(Priority.Medium)"
+                            [class.active-item]="
+                                filterPriority() === Priority.Medium
+                            "
                         >
                             <mat-icon
                                 matListItemIcon
-                                [style.color]="getPriorityColor(2)"
+                                [style.color]="getPriorityColor(Priority.Medium)"
                                 >flag</mat-icon
                             >
                             <span matListItemTitle>Mittel</span>
                         </a>
                         <a
                             mat-list-item
-                            (click)="setFilterPriority(1)"
-                            [class.active-item]="filterPriority() === 1"
+                            (click)="setFilterPriority(Priority.Low)"
+                            [class.active-item]="filterPriority() === Priority.Low"
                         >
                             <mat-icon
                                 matListItemIcon
-                                [style.color]="getPriorityColor(1)"
+                                [style.color]="getPriorityColor(Priority.Low)"
                                 >flag</mat-icon
                             >
                             <span matListItemTitle>Niedrig</span>
@@ -374,12 +189,14 @@
                         <mat-list class="todo-list">
                             @if (filterStatus() === "completed") {
                                 @for (todo of completedTodos(); track todo.id) {
-                                    <ng-container
-                                        *ngTemplateOutlet="
-                                            mobileRow;
-                                            context: { $implicit: todo }
-                                        "
-                                    ></ng-container>
+                                    <app-todo-item
+                                        [todo]="todo"
+                                        [mobile]="isMobile()"
+                                        (toggleDone)="onToggleDone($event)"
+                                        (edit)="onEditTodo($event)"
+                                        (delete)="onDeleteTodo($event)"
+                                        (goToDate)="goToDateInCalendar($event)"
+                                    ></app-todo-item>
                                     <mat-divider></mat-divider>
                                 }
                                 @if (
@@ -399,12 +216,14 @@
                                 }
                             } @else {
                                 @for (todo of activeTodos(); track todo.id) {
-                                    <ng-container
-                                        *ngTemplateOutlet="
-                                            mobileRow;
-                                            context: { $implicit: todo }
-                                        "
-                                    ></ng-container>
+                                    <app-todo-item
+                                        [todo]="todo"
+                                        [mobile]="isMobile()"
+                                        (toggleDone)="onToggleDone($event)"
+                                        (edit)="onEditTodo($event)"
+                                        (delete)="onDeleteTodo($event)"
+                                        (goToDate)="goToDateInCalendar($event)"
+                                    ></app-todo-item>
                                     <mat-divider></mat-divider>
                                 }
                                 @if (
@@ -497,12 +316,14 @@
                         <div class="scroll-wrapper">
                             <mat-list class="todo-list">
                                 @for (todo of activeTodos(); track todo.id) {
-                                    <ng-container
-                                        *ngTemplateOutlet="
-                                            desktopRow;
-                                            context: { $implicit: todo }
-                                        "
-                                    ></ng-container>
+                                    <app-todo-item
+                                        [todo]="todo"
+                                        [mobile]="isMobile()"
+                                        (toggleDone)="onToggleDone($event)"
+                                        (edit)="onEditTodo($event)"
+                                        (delete)="onDeleteTodo($event)"
+                                        (goToDate)="goToDateInCalendar($event)"
+                                    ></app-todo-item>
                                     <mat-divider></mat-divider>
                                 }
 
@@ -589,12 +410,14 @@
                                         todo of completedTodos();
                                         track todo.id
                                     ) {
-                                        <ng-container
-                                            *ngTemplateOutlet="
-                                                desktopRow;
-                                                context: { $implicit: todo }
-                                            "
-                                        ></ng-container>
+                                        <app-todo-item
+                                            [todo]="todo"
+                                            [mobile]="isMobile()"
+                                            (toggleDone)="onToggleDone($event)"
+                                            (edit)="onEditTodo($event)"
+                                            (delete)="onDeleteTodo($event)"
+                                            (goToDate)="goToDateInCalendar($event)"
+                                        ></app-todo-item>
                                         <mat-divider></mat-divider>
                                     }
                                 </mat-list>
@@ -676,30 +499,34 @@
                 </button>
                 <button
                     mat-menu-item
-                    (click)="setFilterPriority(3)"
-                    [class.active-menu-item]="filterPriority() === 3"
+                    (click)="setFilterPriority(Priority.High)"
+                    [class.active-menu-item]="
+                        filterPriority() === Priority.High
+                    "
                 >
-                    <mat-icon [style.color]="getPriorityColor(3)"
+                    <mat-icon [style.color]="getPriorityColor(Priority.High)"
                         >flag</mat-icon
                     >
                     <span>Hoch</span>
                 </button>
                 <button
                     mat-menu-item
-                    (click)="setFilterPriority(2)"
-                    [class.active-menu-item]="filterPriority() === 2"
+                    (click)="setFilterPriority(Priority.Medium)"
+                    [class.active-menu-item]="
+                        filterPriority() === Priority.Medium
+                    "
                 >
-                    <mat-icon [style.color]="getPriorityColor(2)"
+                    <mat-icon [style.color]="getPriorityColor(Priority.Medium)"
                         >flag</mat-icon
                     >
                     <span>Mittel</span>
                 </button>
                 <button
                     mat-menu-item
-                    (click)="setFilterPriority(1)"
-                    [class.active-menu-item]="filterPriority() === 1"
+                    (click)="setFilterPriority(Priority.Low)"
+                    [class.active-menu-item]="filterPriority() === Priority.Low"
                 >
-                    <mat-icon [style.color]="getPriorityColor(1)"
+                    <mat-icon [style.color]="getPriorityColor(Priority.Low)"
                         >flag</mat-icon
                     >
                     <span>Niedrig</span>

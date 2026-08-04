@@ -1,12 +1,12 @@
 <h1 mat-dialog-title class="dialog-title">
     <mat-icon color="primary">{{
-        isEditMode ? "edit" : "add_circle"
+        isEditMode() ? "edit" : "add_circle"
     }}</mat-icon>
-    <span>{{ isEditMode ? "Aufgabe bearbeiten" : "Neue Aufgabe" }}</span>
+    <span>{{ isEditMode() ? "Aufgabe bearbeiten" : "Neue Aufgabe" }}</span>
 </h1>
 
 <mat-dialog-content class="dialog-content">
-    <form [formGroup]="todoForm" class="todo-form">
+    <form [formGroup]="form" class="todo-form">
         <mat-form-field appearance="outline">
             <mat-label>Titel</mat-label>
             <input
@@ -14,7 +14,7 @@
                 formControlName="title"
                 placeholder="Was steht an?"
             />
-            @if (todoForm.get("title")?.hasError("required")) {
+            @if (form.get("title")?.hasError("required")) {
                 <mat-error>Ein Titel wird benötigt</mat-error>
             }
         </mat-form-field>
@@ -33,7 +33,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Kategorie</mat-label>
                 <mat-select formControlName="categoryId">
-                    @for (cat of categoryService.categories(); track cat) {
+                    @for (cat of categoryService.categories(); track cat.id) {
                         <mat-option [value]="cat.id">
                             <div class="category-option">
                                 <div
@@ -45,7 +45,7 @@
                         </mat-option>
                     }
                 </mat-select>
-                @if (todoForm.get("categoryId")?.hasError("required")) {
+                @if (form.get("categoryId")?.hasError("required")) {
                     <mat-error>Kategorie auswählen</mat-error>
                 }
             </mat-form-field>
@@ -53,7 +53,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Priorität</mat-label>
                 <mat-select formControlName="priority">
-                    @for (p of priorities; track p) {
+                    @for (p of priorities; track p.value) {
                         <mat-option [value]="p.value">
                             <mat-icon [style.color]="p.color">flag</mat-icon>
                             {{ p.label }}
@@ -81,8 +81,8 @@
 
 <mat-dialog-actions align="end" class="dialog-actions">
     <button mat-button (click)="onCancel()">Abbrechen</button>
-    <button mat-flat-button [disabled]="todoForm.invalid" (click)="onSubmit()">
-        <mat-icon>{{ isEditMode ? "save" : "add" }}</mat-icon>
-        {{ isEditMode ? "Speichern" : "Erstellen" }}
+    <button mat-flat-button [disabled]="form.invalid" (click)="onSubmit()">
+        <mat-icon>{{ isEditMode() ? "save" : "add" }}</mat-icon>
+        {{ isEditMode() ? "Speichern" : "Erstellen" }}
     </button>
 </mat-dialog-actions>
