@@ -73,8 +73,18 @@ private readonly data = inject<{ todo?: Todo }>(MAT_DIALOG_DATA);
 
 - On mobile, dialogs become full-screen: `width: '100vw'`, `height: '100vh'`, `minWidth/maxWidth: '100vw'`, `panelClass: 'full-screen-dialog'`. The `MediaService` drives this.
 - **Form-heavy dialogs get a `<name>-form.service.ts`** co-located next to them (pattern: `event-dialog/event-form.service.ts`). It owns `buildForm()` + validators, patch/init for edit mode, and form-value → DTO mapping. The dialog component keeps only open/save/close orchestration and template-bound `computed` signals. Provide the service in the component's `providers` array.
-- For destructive actions, open `ConfirmDialogComponent` from `shared/components/confirm-dialog` instead of rolling your own confirmation.
-- Read the result via `dialogRef.afterClosed().subscribe((result) => ...)` and only act when a value is returned.
+- Use the shared `ConfirmDialogComponent` (`shared/components/confirm-dialog`) to open a confirm dialog anywhere in the app — e.g. before destructive actions — instead of rolling your own. Pass the text via `data` (`title`, `message`, `confirmText`, `cancelText`, `isDestructive`):
+
+```ts
+const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    data: {
+        title: 'Löschen',
+        message: `Möchtest du "${todo.title}" wirklich löschen?`,
+    },
+});
+```
+
+- Read the result via `dialogRef.afterClosed().subscribe((result) => ...)` and only act when a value is returned — `result` is `true` when the user confirmed. Full example: `modules/todo/pages/todo.component.ts`.
 - The sidenav is opened as a dialog (`SidenavComponent`) with the active feature name passed as `data` (`'todo'`, `'calendar'`, ...).
 - If a dialog's template grows large, extract self-contained sections into child components (`pages/components/<name>/`). See [10-code-splitting.md](./10-code-splitting.md).
 
