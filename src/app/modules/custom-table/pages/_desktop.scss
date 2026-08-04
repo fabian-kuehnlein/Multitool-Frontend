@@ -23,6 +23,26 @@
     border-collapse: separate;
     border-spacing: 0;
 
+    // ── Variable Column Widths ─────────────────────────────────────────────
+    // Narrow columns shrink to their content (header + cell). The width: 1px
+    // trick stops leftover space from being distributed to them; string
+    // columns receive an equal percentage via inline style
+    // (stringColumnWidth = 100 / stringColumnCount) so the remaining space
+    // is split evenly.
+    .col-drag,
+    .col-delete,
+    .col-bool,
+    .col-int,
+    .col-decimal,
+    .col-date {
+        width: 1px;
+        white-space: nowrap;
+    }
+
+    .col-string {
+        min-width: 200px;
+    }
+
     th {
         background-color: var(--bg-hover);
         font-weight: 700;

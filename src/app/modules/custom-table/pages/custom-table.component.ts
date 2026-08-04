@@ -12,6 +12,7 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
@@ -46,6 +47,7 @@ import { TableCellEditorComponent } from './components/table-cell-editor/table-c
     selector: 'app-custom-table',
     standalone: true,
     imports: [
+        CommonModule,
         UI_MODULES,
         MatTableModule,
         DragDropModule,
@@ -75,6 +77,17 @@ export class CustomTableComponent implements OnInit, OnDestroy {
     protected readonly isFabMenuOpen = signal<boolean>(false);
 
     // Derived Signals
+    protected readonly stringColumnCount = computed(
+        () =>
+            this.tableService
+                .columns()
+                .filter((col) => col.dataType === CustomDataType.String).length,
+    );
+
+    protected readonly stringColumnWidth = computed(
+        () => 100 / Math.max(this.stringColumnCount(), 1) + '%',
+    );
+
     protected readonly displayedColumns = computed(() => {
         const baseColumns = this.tableService
             .columns()

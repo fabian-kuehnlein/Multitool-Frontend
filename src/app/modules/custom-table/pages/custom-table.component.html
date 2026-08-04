@@ -58,8 +58,13 @@
                                         <th
                                             mat-header-cell
                                             *matHeaderCellDef
+                                            class="col-drag"
                                         ></th>
-                                        <td mat-cell *matCellDef="let row">
+                                        <td
+                                            mat-cell
+                                            *matCellDef="let row"
+                                            class="col-drag"
+                                        >
                                             <div class="cell-content">
                                                 <mat-icon cdkDragHandle
                                                     >reorder</mat-icon
@@ -74,14 +79,22 @@
                                         [matColumnDef]="'delete'"
                                         sticky
                                     >
-                                        <th mat-header-cell *matHeaderCellDef>
+                                        <th
+                                            mat-header-cell
+                                            *matHeaderCellDef
+                                            class="col-delete"
+                                        >
                                             <div class="cell-content">
                                                 <mat-icon class="delete-colors"
                                                     >delete</mat-icon
                                                 >
                                             </div>
                                         </th>
-                                        <td mat-cell *matCellDef="let row">
+                                        <td
+                                            mat-cell
+                                            *matCellDef="let row"
+                                            class="col-delete"
+                                        >
                                             <div class="cell-content">
                                                 <mat-checkbox
                                                     [formControl]="
@@ -107,6 +120,13 @@
                                             mat-header-cell
                                             *matHeaderCellDef
                                             class="column-header-cell"
+                                            [ngClass]="'col-' + col.dataType"
+                                            [style.width]="
+                                                col.dataType ===
+                                                CustomDataType.String
+                                                    ? stringColumnWidth()
+                                                    : null
+                                            "
                                         >
                                             <div
                                                 class="header-container"
@@ -136,6 +156,13 @@
                                             mat-cell
                                             *matCellDef="let row"
                                             class="cell-hover"
+                                            [ngClass]="'col-' + col.dataType"
+                                            [style.width]="
+                                                col.dataType ===
+                                                CustomDataType.String
+                                                    ? stringColumnWidth()
+                                                    : null
+                                            "
                                             (click)="focusOwnCell($event)"
                                         >
                                             <app-table-cell-editor

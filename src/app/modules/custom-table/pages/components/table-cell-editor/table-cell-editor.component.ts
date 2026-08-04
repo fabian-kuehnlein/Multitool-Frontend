@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { FormControl, Validators, ValidatorFn } from '@angular/forms';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
+import { MediaService } from '../../../../../core/services/media.service';
 import { CustomTableService } from '../../../services/custom-table.service';
 import {
     CellValue,
@@ -30,6 +31,9 @@ export class TableCellEditorComponent {
     readonly col = input.required<ColumnInfo>();
 
     private readonly tableService = inject(CustomTableService);
+    private readonly media = inject(MediaService);
+
+    readonly isMobile = this.media.isMobile;
 
     protected readonly control = new FormControl<CellValue | Date>('');
     private initialValue: CellValue | Date = '';
@@ -60,6 +64,38 @@ export class TableCellEditorComponent {
             this.row().rowId,
             this.col().columnId,
             this.control.value as CellValue,
+        );
+    }
+
+    increment(): void {
+        this.adjustValue(this.isDecimal() ? 0.01 : 1);
+    }
+
+    decrement(): void {
+        this.adjustValue(this.isDecimal() ? -0.01 : -1);
+    }
+
+    private isDecimal(): boolean {
+        return this.col().dataType === CustomDataType.Decimal;
+    }
+
+    private adjustValue(step: number): void {
+        const current = this.control.value;
+        const base =
+            typeof current === 'number' && Number.isFinite(current)
+                ? current
+                : 0;
+
+        let next = base + step;
+        if (this.isDecimal()) {
+            next = Math.round(next * 100) / 100;
+        }
+
+        this.control.setValue(next);
+        this.tableService.upsertCell(
+            this.row().rowId,
+            this.col().columnId,
+            next,
         );
     }
 
