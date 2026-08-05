@@ -28,6 +28,7 @@ import {
 import { TodoDialogComponent } from './components/todo-dialog/todo-dialog.component';
 import { TodoItemComponent } from './components/todo-item/todo-item.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { CategoryService } from '../../../shared/services/category.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { MediaService } from '../../../core/services/media.service';
@@ -48,6 +49,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     private readonly media = inject(MediaService);
     private readonly router = inject(Router);
     private readonly hotkeyService = inject(HotkeyService);
+    private readonly categoryService = inject(CategoryService);
     private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
     readonly Priority = Priority;
@@ -57,11 +59,21 @@ export class TodoComponent implements OnInit, OnDestroy {
     readonly sortDirection = signal<TodoSortDirection>('asc');
     readonly filterStatus = signal<TodoFilterStatus>('all');
     readonly filterPriority = signal<Priority | null>(null);
+    readonly filterCategory = signal<string | null>(null);
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
 
     readonly isCompletedExpanded = signal(false);
+
+    readonly todoCategories = computed(() => {
+        const usedIds = new Set(
+            this.todoService.todos().map((todo) => todo.categoryId),
+        );
+        return this.categoryService
+            .categories()
+            .filter((category) => usedIds.has(category.id));
+    });
 
     readonly filteredTodos = computed(() => {
         let list = this.todoService.todos();
@@ -74,6 +86,10 @@ export class TodoComponent implements OnInit, OnDestroy {
 
         if (this.filterPriority() !== null) {
             list = list.filter((todo) => todo.priority === this.filterPriority());
+        }
+
+        if (this.filterCategory() !== null) {
+            list = list.filter((todo) => todo.categoryId === this.filterCategory());
         }
 
         return this.sortTodos(list);
@@ -220,5 +236,9 @@ export class TodoComponent implements OnInit, OnDestroy {
 
     setFilterPriority(priority: Priority | null): void {
         this.filterPriority.set(priority);
+    }
+
+    setFilterCategory(categoryId: string | null): void {
+        this.filterCategory.set(categoryId);
     }
 }
