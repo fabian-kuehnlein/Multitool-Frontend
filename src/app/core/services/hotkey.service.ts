@@ -3,10 +3,12 @@ import { isPlatformBrowser } from '@angular/common';
 
 /** Standardized hotkeys for all components. */
 export const Hotkeys = {
-    create: 'alt+n',
+    create: 'alt+e',
     search: 'ctrl+k',
     nextPage: 'alt+arrowright',
     prevPage: 'alt+arrowleft',
+    nextModule: 'ctrl+alt+arrowright',
+    prevModule: 'ctrl+alt+arrowleft',
 } as const;
 
 export type HotkeyCombo = string;

@@ -7,6 +7,7 @@ import {
 import { MatIconRegistry } from '@angular/material/icon';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './core/services/theme.service';
+import { NavigationService } from './core/services/navigation.service';
 
 @Component({
     selector: 'app-root',
@@ -19,6 +20,8 @@ export class AppComponent implements OnInit {
     private readonly matIconReg = inject(MatIconRegistry);
     // keep in AppComponent to ensure the ThemeService is instantiated at the root level
     private readonly themeService = inject(ThemeService);
+    // keep in AppComponent so the Alt+number module hotkeys are registered app-wide
+    private readonly navigationService = inject(NavigationService);
 
     ngOnInit(): void {
         this.matIconReg.setDefaultFontSetClass('material-symbols-outlined');
