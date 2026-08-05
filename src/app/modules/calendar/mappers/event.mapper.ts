@@ -15,6 +15,8 @@ export interface FullCalendarEventInput {
     recurrenceRule: string | null;
     recurrenceEnd: string | null;
     isTodo: boolean;
+    seriesStartDateTime?: Date | null;
+    seriesEndDateTime?: Date | null;
 }
 
 function parseAsLocal(dateStr: string | null | undefined): Date | undefined {
@@ -50,6 +52,8 @@ export function toEventInput(
             recurrenceRule: event.recurrenceRule,
             recurrenceEnd: parseAsLocal(event.recurrenceEnd),
             isTodo: event.isTodo || false,
+            seriesStartDateTime: parseAsLocal(event.startDateTime),
+            seriesEndDateTime: parseAsLocal(event.endDateTime),
         },
     };
 
@@ -79,23 +83,37 @@ export function toEventInput(
 export function fromFullCalendarEvent(
     event: EventApi,
 ): FullCalendarEventInput {
+    const endDateTime = event.end
+        ? event.allDay
+            ? dayjs(event.end).subtract(1, 'day').toDate()
+            : new Date(event.end)
+        : event.extendedProps['recurrenceRule']
+          ? event.start
+          : null;
+
+    const seriesEnd = event.extendedProps['seriesEndDateTime'] as
+        | Date
+        | null
+        | undefined;
+
     return {
         eventId: event.id,
         eventTitle: event.title,
         eventNote: event.extendedProps['eventNote'] || null,
         startDateTime: event.start,
-        endDateTime: event.end
-            ? event.allDay
-                ? dayjs(event.end).subtract(1, 'day').toDate()
-                : new Date(event.end)
-            : event.extendedProps['recurrenceRule']
-              ? event.start
-              : null,
+        endDateTime,
         isAllDay: event.allDay,
         categoryId: event.extendedProps['categoryId']?.toString() ?? null,
         recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
         recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null,
         isTodo: event.extendedProps['isTodo'] ?? false,
+        seriesStartDateTime:
+            event.extendedProps['seriesStartDateTime'] ?? null,
+        seriesEndDateTime: seriesEnd
+            ? event.allDay
+                ? dayjs(seriesEnd).subtract(1, 'day').toDate()
+                : new Date(seriesEnd)
+            : null,
     };
 }
 
