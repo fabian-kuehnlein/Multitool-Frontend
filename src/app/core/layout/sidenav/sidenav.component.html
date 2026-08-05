@@ -2,7 +2,7 @@
     <h2 class="launcher-title">Workspace Tools</h2>
 
     <div class="tool-grid">
-        @for (tool of tools; track tool.route) {
+        @for (tool of navigationService.modules; track tool.route) {
             <div
                 class="tool-item"
                 [class.active]="isCurrentRoute(tool.route)"

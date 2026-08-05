@@ -56,7 +56,8 @@
 - 4-space indentation, no tabs (`.editorconfig`).
 - Single quotes for strings; trailing commas in multiline lists; semicolons at end of statements.
 - One statement per line; keep lines reasonable.
-- Methods and components are grouped with `// --- Section ---` style comments for readability in larger files (see `calendar.component.ts`).
+- Methods and components can be grouped with plain section comments in larger files, e.g. `// Signals & state`.
+- Do **not** use decorative comment separators such as `// --- Section ---`, `// ------`, or full-width `// ====` / `// ****` lines. They are not human-reproducible — reproducing them exactly means counting characters. Keep comments simple: a short `// Section` label on its own line.
 
 ## Imports
 

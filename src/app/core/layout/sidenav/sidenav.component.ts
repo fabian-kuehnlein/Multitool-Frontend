@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../auth/services/auth.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { ThemeService } from '../../services/theme.service';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
     selector: 'app-sidenav',
@@ -22,33 +23,7 @@ export class SidenavComponent {
     private readonly dialogRef = inject(MatDialogRef<SidenavComponent>);
     public readonly dialogData = inject(MAT_DIALOG_DATA);
     readonly themeService = inject(ThemeService);
-
-    tools = [
-        {
-            name: 'Kalender',
-            description: 'Termine verwalten',
-            icon: 'calendar_today',
-            route: '/calendar',
-        },
-        {
-            name: 'Tabellen',
-            description: 'Eigene Listen führen',
-            icon: 'table_chart',
-            route: '/custom-table',
-        },
-        {
-            name: 'Todos',
-            description: 'Aufgaben organisieren',
-            icon: 'check_circle',
-            route: '/todo',
-        },
-        {
-            name: 'Arbeitszeitplaner',
-            description: 'Arbeitszeiten planen & Überstunden verwalten',
-            icon: 'schedule',
-            route: '/work-time-planner',
-        },
-    ];
+    readonly navigationService = inject(NavigationService);
 
     navigate(route: string) {
         this.router.navigate([route]);

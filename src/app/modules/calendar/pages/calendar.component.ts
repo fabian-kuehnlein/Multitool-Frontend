@@ -42,6 +42,7 @@ import { CalendarService } from '../services/calendar.service';
 import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
 import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
     fromFullCalendarEvent,
     toCalendarEvent,
@@ -359,22 +360,30 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     }
 
     private openEventDialog(eventData: any, isInstance: boolean = false) {
+        let dialogEvent = eventData;
+
+        if (isInstance) {
+            dialogEvent = {
+                ...eventData,
+                recurrenceRule: null,
+                recurrenceEnd: null,
+                eventId: null,
+            };
+        } else if (eventData.recurrenceRule) {
+            dialogEvent = {
+                ...eventData,
+                startDateTime: eventData.seriesStartDateTime,
+                endDateTime: eventData.seriesEndDateTime,
+            };
+        }
+
         const dialogConfig = {
             width: this.media.isMobile() ? '100vw' : 'auto',
             height: this.media.isMobile() ? '100vh' : 'auto',
             minWidth: this.media.isMobile() ? '100vw' : '600px',
             maxWidth: this.media.isMobile() ? '100vw' : '1500px',
             panelClass: this.media.isMobile() ? 'full-screen-dialog' : '',
-            data: {
-                event: isInstance
-                    ? {
-                          ...eventData,
-                          recurrenceRule: null,
-                          recurrenceEnd: null,
-                          eventId: null,
-                      }
-                    : eventData,
-            },
+            data: { event: dialogEvent },
         };
 
         this.dialog
@@ -432,29 +441,24 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
         if (isRecurring) {
             this.dialog
-                .open(RecurrenceChoiceDialogComponent)
+                .open(ConfirmDialogComponent, {
+                    data: {
+                        title: 'Termin aus Serie entfernen',
+                        message:
+                            'Dieser Termin wird aus der Serie entfernt und als einzelner Termin verschoben. Möchtest du fortfahren?',
+                        confirmText: 'Entfernen',
+                        isDestructive: true,
+                    },
+                })
                 .afterClosed()
-                .subscribe((choice) => {
-                    if (choice === 'series') {
-                        this.calendarService
-                            .updateEvent(updatedEvent)
-                            .subscribe({
-                                next: () => this.calendarApi?.refetchEvents(),
-                                error: (err) => {
-                                    console.error('Drop failed:', err);
-                                    arg.revert();
-                                },
-                            });
-                    } else if (choice === 'instance') {
-                        const originalInstance =
-                            fromFullCalendarEvent(arg.oldEvent);
-                        this.splitEventFromSeries(
-                            originalInstance,
-                            updatedEvent,
-                        );
-                    } else {
+                .subscribe((confirmed) => {
+                    if (!confirmed) {
                         arg.revert();
+                        return;
                     }
+                    const originalInstance =
+                        fromFullCalendarEvent(arg.oldEvent);
+                    this.splitEventFromSeries(originalInstance, updatedEvent);
                 });
         } else {
             this.calendarService.updateEvent(updatedEvent).subscribe({

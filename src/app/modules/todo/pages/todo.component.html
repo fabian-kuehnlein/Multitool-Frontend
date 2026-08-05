@@ -18,7 +18,7 @@
                     <button
                         mat-flat-button
                         (click)="onAddTodo()"
-                        matTooltip="Neue Aufgabe (Alt + N)"
+                        matTooltip="Neue Aufgabe (Alt + E)"
                     >
                         <mat-icon>add</mat-icon>
                         <span>Neue Aufgabe</span>
@@ -43,6 +43,32 @@
                         >
                             Erledigt
                         </button>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="menu-section-header">Kategorie</div>
+                        <button
+                            mat-menu-item
+                            (click)="setFilterCategory(null)"
+                            [class.active-menu-item]="filterCategory() === null"
+                        >
+                            <mat-icon>category</mat-icon>
+                            <span>Alle</span>
+                        </button>
+                        @for (category of todoCategories(); track category.id) {
+                            <button
+                                mat-menu-item
+                                (click)="setFilterCategory(category.id)"
+                                [class.active-menu-item]="
+                                    filterCategory() === category.id
+                                "
+                            >
+                                <mat-icon [style.color]="category.color"
+                                    >circle</mat-icon
+                                >
+                                <span>{{ category.name }}</span>
+                            </button>
+                        }
                     </mat-menu>
                 </div>
             </div>
@@ -67,7 +93,7 @@
                     mat-flat-button
                     (click)="onAddTodo()"
                     class="create-button"
-                    matTooltip="Neue Aufgabe (Alt + N)"
+                    matTooltip="Neue Aufgabe (Alt + E)"
                 >
                     <mat-icon>add</mat-icon>
                     <span>Neue Aufgabe</span>
@@ -176,6 +202,36 @@
                             >
                             <span matListItemTitle>Niedrig</span>
                         </a>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="list-section-header">Kategorie</div>
+                        <a
+                            mat-list-item
+                            (click)="setFilterCategory(null)"
+                            [class.active-item]="filterCategory() === null"
+                        >
+                            <mat-icon matListItemIcon>category</mat-icon>
+                            <span matListItemTitle>Alle Kategorien</span>
+                        </a>
+                        @for (category of todoCategories(); track category.id) {
+                            <a
+                                mat-list-item
+                                (click)="setFilterCategory(category.id)"
+                                [class.active-item]="
+                                    filterCategory() === category.id
+                                "
+                            >
+                                <mat-icon
+                                    matListItemIcon
+                                    [style.color]="category.color"
+                                    >circle</mat-icon
+                                >
+                                <span matListItemTitle>{{
+                                    category.name
+                                }}</span>
+                            </a>
+                        }
                     </mat-nav-list>
                 </div>
             </div>
@@ -465,7 +521,9 @@
                         class="mobile-filter-fab"
                         [matMenuTriggerFor]="mobileFilterMenu"
                         [color]="
-                            filterPriority() !== null || sortBy() !== 'priority'
+                            filterPriority() !== null ||
+                            filterCategory() !== null ||
+                            sortBy() !== 'priority'
                                 ? 'accent'
                                 : 'basic'
                         "
@@ -531,6 +589,33 @@
                     >
                     <span>Niedrig</span>
                 </button>
+
+                <mat-divider></mat-divider>
+
+                <!-- Category Header -->
+                <div class="menu-section-header">Kategorie</div>
+                <button
+                    mat-menu-item
+                    (click)="setFilterCategory(null)"
+                    [class.active-menu-item]="filterCategory() === null"
+                >
+                    <mat-icon>category</mat-icon>
+                    <span>Alle</span>
+                </button>
+                @for (category of todoCategories(); track category.id) {
+                    <button
+                        mat-menu-item
+                        (click)="setFilterCategory(category.id)"
+                        [class.active-menu-item]="
+                            filterCategory() === category.id
+                        "
+                    >
+                        <mat-icon [style.color]="category.color"
+                            >circle</mat-icon
+                        >
+                        <span>{{ category.name }}</span>
+                    </button>
+                }
 
                 <mat-divider></mat-divider>
 
