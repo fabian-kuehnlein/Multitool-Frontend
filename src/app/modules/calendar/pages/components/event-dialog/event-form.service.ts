@@ -7,9 +7,10 @@ import {
     ValidationErrors,
     ValidatorFn,
 } from '@angular/forms';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
 import { CalendarEvent } from '../../../models/calendar-event.model';
+import { combineDateAndTime } from '../../../utilities/date.util';
 
 @Injectable()
 export class EventFormService {
@@ -28,7 +29,7 @@ export class EventFormService {
                 eventNote: ['', [Validators.maxLength(200)]],
                 startDate: [null, [Validators.required]],
                 startTime: [null],
-                endDate: [null],
+                endDate: [null, [Validators.required]],
                 endTime: [null],
                 isAllDay: [false],
                 categoryId: [1, [Validators.required]],
@@ -59,24 +60,36 @@ export class EventFormService {
                   })
                 : null;
 
+        const startDateTime = this.formatDate(
+            formValue.startDate,
+            formValue.startTime,
+            { isAllDay: formValue.isAllDay },
+        );
+        let endDateTime = this.formatDate(
+            formValue.endDate ?? formValue.startDate,
+            formValue.endTime ?? formValue.startTime,
+            {
+                isAllDay: formValue.isAllDay,
+                addDay: true,
+                fallbackDate: formValue.startDate,
+            },
+        );
+
+        if (
+            startDateTime &&
+            endDateTime &&
+            !dayjs(endDateTime).isAfter(startDateTime) &&
+            this.isUnsetTime(formValue.endTime)
+        ) {
+            endDateTime = startDateTime;
+        }
+
         return {
             title: formValue.eventTitle,
             note:
                 formValue.eventNote?.trim() === '' ? null : formValue.eventNote,
-            startDateTime: this.formatDate(
-                formValue.startDate,
-                formValue.startTime,
-                { isAllDay: formValue.isAllDay },
-            )!,
-            endDateTime: this.formatDate(
-                formValue.endDate ?? formValue.startDate,
-                formValue.endTime ?? formValue.startTime,
-                {
-                    isAllDay: formValue.isAllDay,
-                    addDay: true,
-                    fallbackDate: formValue.startDate,
-                },
-            ),
+            startDateTime,
+            endDateTime,
             isAllDay: formValue.isAllDay,
             categoryId: formValue.categoryId,
             recurrenceRule: recurrenceRule,
@@ -118,26 +131,27 @@ export class EventFormService {
 
         if (!finalDate) return null;
 
-        const dateMoment = dayjs(finalDate);
-
-        let result = dateMoment;
+        let result: Dayjs;
 
         if (isAllDay || isRecurring) {
+            result = dayjs(finalDate);
             if (isAllDay && addDay) {
                 result = result.add(1, 'day');
             }
             result = result.startOf('day');
-        } else if (time) {
-            const timeMoment = dayjs(time);
-            result = result.hour(timeMoment.hour());
-            result = result.minute(timeMoment.minute());
-            result = result.second(0);
-            result = result.millisecond(0);
         } else {
-            result = result.startOf('day');
+            result = combineDateAndTime(finalDate, time) ?? dayjs(finalDate);
         }
 
         return result.format('YYYY-MM-DDTHH:mm:ss');
+    }
+
+    /**
+     * Treats a missing time or midnight (00:00) as an unset time.
+     */
+    private isUnsetTime(time: Date | null): boolean {
+        if (!time) return true;
+        return time.getHours() === 0 && time.getMinutes() === 0;
     }
 
     /**
@@ -209,12 +223,29 @@ export class EventFormService {
             const isAllDay = group.get('isAllDay')?.value;
             const startDate = group.get('startDate')?.value;
             const startTime = group.get('startTime')?.value;
+            const endDate = group.get('endDate')?.value;
+            const endTime = group.get('endTime')?.value;
             const isRecurring = group.get('isRecurring')?.value;
 
             const errors: ValidationErrors = {};
 
             if (!startDate) errors['startDateMissing'] = true;
             if (!isAllDay && !startTime) errors['startTimeMissing'] = true;
+            if (!isAllDay && !isRecurring && !endDate)
+                errors['endDateMissing'] = true;
+
+            if (!isAllDay && !isRecurring && startDate && endDate) {
+                const start = combineDateAndTime(startDate, startTime);
+                const end = combineDateAndTime(endDate, endTime);
+                if (
+                    start &&
+                    end &&
+                    end.isBefore(start) &&
+                    !this.isUnsetTime(endTime)
+                ) {
+                    errors['endBeforeStart'] = true;
+                }
+            }
 
             if (isRecurring) {
                 const interval = group.get('recurrenceInterval')?.value;

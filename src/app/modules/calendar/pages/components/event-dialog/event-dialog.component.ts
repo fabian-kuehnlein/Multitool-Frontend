@@ -30,9 +30,13 @@ import { CategoryService } from '../../../../../shared/services/category.service
 import { EventFormService } from './event-form.service';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { CalendarService } from '../../../services/calendar.service';
+import { MediaService } from '../../../../../core/services/media.service';
+import { SnackbarService } from '../../../../../core/services/snackbar.service';
 
 // Third-party
 import { Subject, takeUntil } from 'rxjs';
+import dayjs from 'dayjs';
 
 @Component({
     selector: 'app-event-dialog',
@@ -56,11 +60,16 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     private readonly dialog = inject(MatDialog);
     private readonly categoryService = inject(CategoryService);
     private readonly formService = inject(EventFormService);
+    private readonly calendarService = inject(CalendarService);
+    private readonly media = inject(MediaService);
+    private readonly snackbar = inject(SnackbarService);
     public readonly dialogData = inject(MAT_DIALOG_DATA);
     private readonly destroy$ = new Subject<void>();
 
     // --- Signals & State ---
     public readonly isEditMode = signal<boolean>(false);
+    public readonly isMobile = this.media.isMobile;
+    public readonly isGeneratingIcal = signal<boolean>(false);
     public readonly isLoadingCategories = computed(
         () => this.categoryService.categories().length === 0,
     );
@@ -272,6 +281,61 @@ export class EventDialogComponent implements OnInit, OnDestroy {
 
     public close() {
         this.dialogRef.close(null);
+    }
+
+    public generateIcalLink() {
+        if (this.isGeneratingIcal() || this.eventForm.invalid) return;
+
+        const event = this.formService.getCreateEventData(
+            this.eventForm.getRawValue(),
+        );
+        this.isGeneratingIcal.set(true);
+        this.calendarService.generateIcalLink(event).subscribe({
+            next: (link) => {
+                this.isGeneratingIcal.set(false);
+                if (this.isMobile()) {
+                    window.location.href = link;
+                } else {
+                    this.downloadIcalFile(link, event.startDateTime);
+                }
+            },
+            error: () => {
+                this.isGeneratingIcal.set(false);
+                this.showIcalError();
+            },
+        });
+    }
+
+    private downloadIcalFile(link: string, startDateTime: string | null) {
+        fetch(link)
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.blob();
+            })
+            .then((blob) => {
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = this.buildIcalFileName(startDateTime);
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                URL.revokeObjectURL(url);
+            })
+            .catch(() => this.showIcalError());
+    }
+
+    private buildIcalFileName(startDateTime: string | null): string {
+        const start = startDateTime ? dayjs(startDateTime) : null;
+        return start?.isValid()
+            ? `${start.format('YYYY-MM-DD-HH-mm')}.ics`
+            : 'event.ics';
+    }
+
+    private showIcalError() {
+        this.snackbar.openError(
+            'Der Kalender-Link konnte nicht erstellt werden.',
+        );
     }
 
     public changeInterval(delta: number) {

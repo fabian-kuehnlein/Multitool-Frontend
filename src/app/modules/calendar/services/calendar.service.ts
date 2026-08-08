@@ -39,6 +39,10 @@ export class CalendarService {
         return this.httpService.deleteEvent(eventId);
     }
 
+    generateIcalLink(event: CreateCalendarEvent): Observable<string> {
+        return this.httpService.generateIcalLink(event);
+    }
+
     /**
      * Excludes a specific date from a recurring event series.
      * @param seriesId The ID of the recurring event series.

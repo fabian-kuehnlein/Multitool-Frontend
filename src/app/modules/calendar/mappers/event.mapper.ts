@@ -83,18 +83,23 @@ export function toEventInput(
 export function fromFullCalendarEvent(
     event: EventApi,
 ): FullCalendarEventInput {
+    const seriesEnd = event.extendedProps['seriesEndDateTime'] as
+        | Date
+        | null
+        | undefined;
+    const seriesEndDateTime = seriesEnd
+        ? event.allDay
+            ? dayjs(seriesEnd).subtract(1, 'day').toDate()
+            : new Date(seriesEnd)
+        : null;
+
     const endDateTime = event.end
         ? event.allDay
             ? dayjs(event.end).subtract(1, 'day').toDate()
             : new Date(event.end)
         : event.extendedProps['recurrenceRule']
           ? event.start
-          : null;
-
-    const seriesEnd = event.extendedProps['seriesEndDateTime'] as
-        | Date
-        | null
-        | undefined;
+          : seriesEndDateTime;
 
     return {
         eventId: event.id,
@@ -109,23 +114,20 @@ export function fromFullCalendarEvent(
         isTodo: event.extendedProps['isTodo'] ?? false,
         seriesStartDateTime:
             event.extendedProps['seriesStartDateTime'] ?? null,
-        seriesEndDateTime: seriesEnd
-            ? event.allDay
-                ? dayjs(seriesEnd).subtract(1, 'day').toDate()
-                : new Date(seriesEnd)
-            : null,
+        seriesEndDateTime,
     };
 }
 
 export function toCalendarEvent(event: EventApi): CalendarEvent {
+    const start = dayjs(event.start);
+    const end = event.end ? dayjs(event.end) : start;
+
     return {
         id: event.id,
         title: event.title,
         note: event.extendedProps['eventNote']?.trim() || null,
-        startDateTime: dayjs(event.start).format('YYYY-MM-DDTHH:mm:ss'),
-        endDateTime: event.end
-            ? dayjs(event.end).format('YYYY-MM-DDTHH:mm:ss')
-            : dayjs(event.start).format('YYYY-MM-DDTHH:mm:ss'),
+        startDateTime: start.format('YYYY-MM-DDTHH:mm:ss'),
+        endDateTime: end.format('YYYY-MM-DDTHH:mm:ss'),
         isAllDay: event.allDay,
         categoryId: event.extendedProps['categoryId'] || '',
     };

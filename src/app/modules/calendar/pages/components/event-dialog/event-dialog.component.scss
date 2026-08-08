@@ -15,10 +15,8 @@
     margin-bottom: 0;
     margin-top: 16px;
 
-    mat-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
+    .ical-link-button {
+        margin-left: auto;
     }
 
     @include bp.mobile {

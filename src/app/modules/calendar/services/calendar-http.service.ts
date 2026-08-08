@@ -47,6 +47,10 @@ export class CalendarHttpService {
         return this.http.put<void>(`${this.apiURL}/events`, event);
     }
 
+    generateIcalLink(event: CreateCalendarEvent): Observable<string> {
+        return this.http.post<string>(`${this.apiURL}/events/ical-link`, event);
+    }
+
     deleteEvent(eventId: string): Observable<void> {
         return this.http.delete<void>(`${this.apiURL}/events/${eventId}`);
     }
