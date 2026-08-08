@@ -8,7 +8,7 @@
         } @else if (isTablet()) {
             <div class="mobile-header">
                 <div class="left-actions">
-                    <button mat-icon-button (click)="openSideNav()">
+                    <button matIconButton (click)="openSideNav()">
                         <mat-icon>home</mat-icon>
                     </button>
                     <span class="mobile-title">To-Dos</span>
@@ -16,14 +16,14 @@
 
                 <div class="mobile-actions">
                     <button
-                        mat-flat-button
+                        matButton="filled"
                         (click)="onAddTodo()"
                         matTooltip="Neue Aufgabe (Alt + E)"
                     >
                         <mat-icon>add</mat-icon>
                         <span>Neue Aufgabe</span>
                     </button>
-                    <button mat-flat-button [matMenuTriggerFor]="filterMenu">
+                    <button matButton="filled" [matMenuTriggerFor]="filterMenu">
                         <mat-icon>filter_list</mat-icon>
                         <span>Filter</span>
                     </button>
@@ -75,7 +75,7 @@
         } @else {
             <div class="left-container">
                 <button
-                    mat-icon-button
+                    matIconButton
                     matTooltip="Tool wechseln"
                     (click)="openSideNav()"
                     class="sidenav-toggle"
@@ -90,7 +90,7 @@
 
             <div class="right-container">
                 <button
-                    mat-flat-button
+                    matButton="filled"
                     (click)="onAddTodo()"
                     class="create-button"
                     matTooltip="Neue Aufgabe (Alt + E)"
@@ -296,7 +296,7 @@
                                             eine neue Aufgabe.
                                         </p>
                                         <button
-                                            mat-stroked-button
+                                            matButton="outlined"
                                             (click)="onAddTodo()"
                                         >
                                             <mat-icon>add</mat-icon>
@@ -319,7 +319,7 @@
                             <div class="sort-group">
                                 <span class="label">Sortieren nach:</span>
                                 <button
-                                    mat-button
+                                    matButton
                                     (click)="changeSort('priority')"
                                     [color]="
                                         sortBy() === 'priority' ? 'primary' : ''
@@ -335,7 +335,7 @@
                                     }
                                 </button>
                                 <button
-                                    mat-button
+                                    matButton
                                     (click)="changeSort('dueDate')"
                                     [color]="
                                         sortBy() === 'dueDate' ? 'primary' : ''
@@ -351,7 +351,7 @@
                                     }
                                 </button>
                                 <button
-                                    mat-button
+                                    matButton
                                     (click)="changeSort('title')"
                                     [color]="
                                         sortBy() === 'title' ? 'primary' : ''
@@ -408,7 +408,7 @@
                                             </p>
                                         }
                                         <button
-                                            mat-stroked-button
+                                            matButton="outlined"
                                             (click)="onAddTodo()"
                                         >
                                             <mat-icon>add</mat-icon>
@@ -445,7 +445,7 @@
                                 >
                             </div>
                             <button
-                                mat-icon-button
+                                matIconButton
                                 class="expand-btn"
                                 [class.expanded]="isCompletedExpanded()"
                                 (click)="
@@ -489,7 +489,7 @@
         <div class="mobile-bottom-bar">
             <div class="mobile-action-container">
                 <button
-                    mat-fab
+                    matFab
                     class="mobile-fab-left"
                     (click)="openSideNav()"
                     matTooltip="Tool wechseln"
@@ -498,7 +498,7 @@
                 </button>
 
                 <button
-                    mat-fab
+                    matFab
                     extended
                     (click)="
                         setFilterStatus(
@@ -517,7 +517,7 @@
                 <div class="mobile-actions-right">
                     <!-- Filter & Sort Menu Trigger -->
                     <button
-                        mat-fab
+                        matFab
                         class="mobile-filter-fab"
                         [matMenuTriggerFor]="mobileFilterMenu"
                         [color]="
@@ -534,7 +534,7 @@
 
                     <!-- Create Button -->
                     <button
-                        mat-fab
+                        matFab
                         class="mobile-fab-right"
                         (click)="onAddTodo()"
                         matTooltip="Aufgabe hinzufügen"

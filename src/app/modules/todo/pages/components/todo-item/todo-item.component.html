@@ -24,7 +24,7 @@
                     <mat-icon>date_range</mat-icon>
                 }
                 <button
-                    mat-icon-button
+                    matIconButton
                     class="expand-btn"
                     [class.expanded]="expanded()"
                     (click)="
@@ -112,7 +112,7 @@
             <div class="todo-meta-container">
                 @if (todo.description) {
                     <button
-                        mat-icon-button
+                        matIconButton
                         class="expand-btn"
                         [class.expanded]="expanded()"
                         (click)="toggleExpand()"
@@ -140,7 +140,7 @@
                 }
 
                 <button
-                    mat-icon-button
+                    matIconButton
                     [matMenuTriggerFor]="todoMenu"
                     matTooltip="Optionen"
                 >

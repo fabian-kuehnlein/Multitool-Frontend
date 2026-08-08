@@ -19,44 +19,48 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 
 // FullCalendar
-import {
-    FullCalendarComponent,
-    FullCalendarModule,
-} from '@fullcalendar/angular';
-import {
-    CalendarOptions,
-    EventClickArg,
-    EventDropArg,
-} from '@fullcalendar/core';
-import { defaultCalendarOptions } from '../utilities/calendar.config';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
+import type { CalendarOptions, EventClickArg, EventDropArg } from '@fullcalendar/core';
 
 // Third Party
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
-
-dayjs.extend(duration);
 
 // App Services, Components & Utilities
 import { CalendarService } from '../services/calendar.service';
-import { EventDialogComponent } from './components/event-dialog/event-dialog.component';
+import {
+    EventDialogComponent,
+    EventDialogResult,
+} from './components/event-dialog/event-dialog.component';
 import { SearchDialogComponent } from './components/search-dialog/search-dialog.component';
 import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
+    DialogEventInput,
     fromFullCalendarEvent,
+    FullCalendarEventInput,
     toCalendarEvent,
     toEventInput,
 } from '../mappers/event.mapper';
+import type { CalendarEvent } from '../models/calendar-event.model';
+import type { CreateCalendarEvent } from '../models/create-calendar-event.model';
 import {
-    eventFallsOnDate,
-    RecurrenceRuleInput,
-} from '../logic/rrule.logic';
+    createTodayPlaceholder,
+    expandEventInstances,
+    filterPastEvents,
+    hasEventToday,
+    toHolidayEventInput,
+} from '../logic/event-list.logic';
+import {
+    CalendarAction,
+    defaultCalendarOptions,
+} from '../utilities/calendar.config';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
 import { MediaService } from '../../../core/services/media.service';
 import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
+import { SnackbarService } from '../../../core/services/snackbar.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -98,6 +102,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private readonly route = inject(ActivatedRoute);
     private readonly media = inject(MediaService);
     private readonly hotkeyService = inject(HotkeyService);
+    private readonly snackbar = inject(SnackbarService);
     private readonly destroy$ = new Subject<void>();
     private readonly hotkeyUnsubscribers: Array<() => void> = [];
 
@@ -249,7 +254,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     }
 
     // --- UI Actions ---
-    public calendarAction(action: string) {
+    public calendarAction(action: CalendarAction) {
         const api = this.calendarApi;
         if (!api) return;
 
@@ -332,7 +337,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 data: { anchorDate, event: null },
             })
             .afterClosed()
-            .subscribe((result) => {
+            .subscribe((result: CreateCalendarEvent | null) => {
                 if (result) {
                     this.calendarService
                         .createEvent(result)
@@ -359,8 +364,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         }
     }
 
-    private openEventDialog(eventData: any, isInstance: boolean = false) {
-        let dialogEvent = eventData;
+    private openEventDialog(
+        eventData: FullCalendarEventInput,
+        isInstance: boolean = false,
+    ) {
+        let dialogEvent: DialogEventInput = eventData;
 
         if (isInstance) {
             dialogEvent = {
@@ -372,8 +380,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         } else if (eventData.recurrenceRule) {
             dialogEvent = {
                 ...eventData,
-                startDateTime: eventData.seriesStartDateTime,
-                endDateTime: eventData.seriesEndDateTime,
+                startDateTime: eventData.seriesStartDateTime ?? null,
+                endDateTime: eventData.seriesEndDateTime ?? null,
             };
         }
 
@@ -389,7 +397,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.dialog
             .open(EventDialogComponent, dialogConfig)
             .afterClosed()
-            .subscribe((result) => {
+            .subscribe((result: EventDialogResult | null) => {
                 if (!result) return;
 
                 if (result.action === 'update') {
@@ -412,14 +420,20 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    private splitEventFromSeries(originalInstance: any, updatedData: any) {
-        const newEvent = { ...updatedData, id: undefined };
-        this.calendarService.createEvent(newEvent).subscribe(() => {
-            this.excludeDateFromSeries(originalInstance);
-        });
+    private splitEventFromSeries(
+        originalInstance: FullCalendarEventInput,
+        updatedData: CalendarEvent,
+    ) {
+        const { id, ...newEvent } = updatedData;
+        this.calendarService
+            .createEvent({ ...newEvent, isAllDay: newEvent.isAllDay ?? false })
+            .subscribe(() => {
+                this.excludeDateFromSeries(originalInstance);
+            });
     }
 
-    private excludeDateFromSeries(instance: any) {
+    private excludeDateFromSeries(instance: FullCalendarEventInput) {
+        if (!instance.startDateTime) return;
         const dateToExclude = dayjs(instance.startDateTime).format(
             'YYYY-MM-DD',
         );
@@ -427,7 +441,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             .excludeDateFromSeries(instance.eventId, dateToExclude)
             .subscribe({
                 next: () => this.calendarApi?.refetchEvents(),
-                error: (err) => console.error('Failed to exclude date:', err),
+                error: () =>
+                    this.snackbar.openError(
+                        'Der Termin konnte nicht aus der Serie entfernt werden.',
+                    ),
             });
     }
 
@@ -462,8 +479,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 });
         } else {
             this.calendarService.updateEvent(updatedEvent).subscribe({
-                error: (err) => {
-                    console.error('Drop failed:', err);
+                error: () => {
+                    this.snackbar.openError(
+                        'Der Termin konnte nicht verschoben werden.',
+                    );
                     arg.revert();
                 },
             });
@@ -512,147 +531,34 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                         .subscribe({
                             next: (events) => {
                                 const mappedEvents = events.map((e) =>
-                                    toEventInput(
-                                        e,
-                                        this.categoryList(),
-                                    ),
+                                    toEventInput(e, this.categoryList()),
                                 );
 
                                 // Manual expansion for events with EXDATE
-                                // The FullCalendar RRule plugin is unreliable with EXDATE in the object format
-                                const processedEvents: any[] = [];
-                                const viewStart = dayjs(
-                                    fetchInfo.start,
-                                ).startOf('day');
-                                const viewEnd = dayjs(fetchInfo.end).startOf(
-                                    'day',
+                                // The FullCalendar RRule plugin is unreliable
+                                // with EXDATE in the object format
+                                let processedEvents = expandEventInstances(
+                                    mappedEvents,
+                                    dayjs(fetchInfo.start).startOf('day'),
+                                    dayjs(fetchInfo.end).startOf('day'),
                                 );
-
-                                for (const event of mappedEvents) {
-                                    if (
-                                        event.rrule &&
-                                        event.exdate &&
-                                        Array.isArray(event.exdate) &&
-                                        event.exdate.length > 0
-                                    ) {
-                                        let current = dayjs(viewStart);
-                                        while (current.isBefore(viewEnd)) {
-                                            if (
-                                                eventFallsOnDate(
-                                                    event.rrule as RecurrenceRuleInput,
-                                                    current,
-                                                    event.exdate,
-                                                )
-                                            ) {
-                                                const instance = { ...event };
-                                                delete instance.rrule;
-
-                                                if (event.allDay) {
-                                                    instance.start =
-                                                        current.format(
-                                                            'YYYY-MM-DD',
-                                                        );
-                                                    instance.end = current
-                                                        .add(1, 'day')
-                                                        .format('YYYY-MM-DD');
-                                                } else {
-                                                    const timePart = dayjs(
-                                                        event.start as string,
-                                                    ).format('HH:mm:ss');
-                                                    instance.start =
-                                                        current.format(
-                                                            'YYYY-MM-DD',
-                                                        ) +
-                                                        'T' +
-                                                        timePart;
-                                                    if (event.duration) {
-                                                        instance.end = dayjs(
-                                                            instance.start,
-                                                        )
-                                                            .add(
-                                                                dayjs.duration(
-                                                                    event.duration as string,
-                                                                ),
-                                                            )
-                                                            .format(
-                                                                'YYYY-MM-DDTHH:mm:ss',
-                                                            );
-                                                    }
-                                                }
-                                                processedEvents.push(instance);
-                                            }
-                                            current = current.add(1, 'day');
-                                        }
-                                    } else {
-                                        processedEvents.push(event);
-                                    }
-                                }
 
                                 const today = dayjs();
-                                const todayStr = today.format('YYYY-MM-DD');
-                                const hasEventToday = processedEvents.some(
-                                    (e) => {
-                                        if (e.rrule)
-                                            return eventFallsOnDate(
-                                                e.rrule,
-                                                today,
-                                            );
-                                        const start = dayjs(e.start).format(
-                                            'YYYY-MM-DD',
-                                        );
-                                        if (start === todayStr) return true;
-                                        if (e.end) {
-                                            const end = dayjs(
-                                                e.end,
-                                            ).format('YYYY-MM-DD');
-                                            return (
-                                                start < todayStr &&
-                                                end > todayStr
-                                            );
-                                        }
-                                        return false;
-                                    },
-                                );
-
                                 if (
-                                    !hasEventToday &&
+                                    !hasEventToday(processedEvents) &&
                                     this.currentView() === 'listMonth'
                                 ) {
-                                    processedEvents.push({
-                                        id: 'today-placeholder',
-                                        title: 'Keine Termine geplant',
-                                        start: today.format('YYYY-MM-DD'),
-                                        allDay: true,
-                                        display: 'list-item',
-                                        extendedProps: { isPlaceholder: true },
-                                    });
+                                    processedEvents.push(
+                                        createTodayPlaceholder(today),
+                                    );
                                 }
 
                                 let finalEvents = processedEvents;
                                 if (!this.showPastEvents()) {
-                                    const todayStart = dayjs().startOf('day');
-                                    finalEvents = [];
-                                    for (const event of processedEvents) {
-                                        const eventEnd = dayjs(
-                                            event.end || event.start,
-                                        );
-                                        const eventStart = dayjs(event.start);
-                                        if (eventEnd.isBefore(todayStart))
-                                            continue;
-                                        if (
-                                            event.allDay &&
-                                            eventStart.isBefore(todayStart)
-                                        ) {
-                                            finalEvents.push({
-                                                ...event,
-                                                start: todayStart.format(
-                                                    'YYYY-MM-DD',
-                                                ),
-                                            });
-                                        } else {
-                                            finalEvents.push(event);
-                                        }
-                                    }
+                                    finalEvents = filterPastEvents(
+                                        processedEvents,
+                                        today,
+                                    );
                                 }
 
                                 successCallback(finalEvents);
@@ -668,17 +574,9 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                         .subscribe({
                             next: (holidays) =>
                                 successCallback(
-                                    holidays.map((h, i) => ({
-                                        id: `holiday-${i}`,
-                                        start: dayjs(h.date).format(
-                                            'YYYY-MM-DD',
-                                        ),
-                                        end: dayjs(h.date)
-                                            .add(1, 'day')
-                                            .format('YYYY-MM-DD'),
-                                        display: 'background',
-                                        title: h.name,
-                                    })),
+                                    holidays.map((h, i) =>
+                                        toHolidayEventInput(h.name, h.date, i),
+                                    ),
                                 ),
                             error: (err) => failureCallback(err),
                         });

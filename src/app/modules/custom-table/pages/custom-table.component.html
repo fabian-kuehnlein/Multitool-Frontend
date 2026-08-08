@@ -138,7 +138,7 @@
                                                     col.name || 'Unbenannt'
                                                 }}</span>
                                                 <button
-                                                    mat-icon-button
+                                                    matIconButton
                                                     class="delete-col-btn"
                                                     (click)="
                                                         deleteColumn(
@@ -271,7 +271,7 @@
                                 <mat-icon class="empty-icon">post_add</mat-icon>
                                 <p>Diese Tabelle hat noch keine Einträge.</p>
                                 <button
-                                    mat-stroked-button
+                                    matButton="outlined"
                                     (click)="addRow()"
                                 >
                                     <mat-icon>add</mat-icon>
@@ -289,7 +289,7 @@
                         >
                             @if (!removeRowsColumn()) {
                                 <button
-                                    mat-stroked-button
+                                    matButton="outlined"
                                     (click)="addRow()"
                                 >
                                     <mat-icon>add</mat-icon>
@@ -297,7 +297,7 @@
                                 </button>
 
                                 <button
-                                    mat-stroked-button
+                                    matButton="outlined"
                                     (click)="addColumn()"
                                 >
                                     <mat-icon>view_column</mat-icon>
@@ -305,7 +305,7 @@
                                 </button>
 
                                 <button
-                                    mat-stroked-button
+                                    matButton="outlined"
                                     (click)="reorderColumns()"
                                 >
                                     <mat-icon>swap_horiz</mat-icon>
@@ -314,13 +314,13 @@
 
                                 <span class="spacer"></span>
 
-                                <button mat-button (click)="editTable()">
+                                <button matButton (click)="editTable()">
                                     <mat-icon>edit</mat-icon>
                                     Umbenennen
                                 </button>
 
                                 <button
-                                    mat-button
+                                    matButton
                                     class="delete-colors"
                                     (click)="toggleRemoveMode()"
                                 >
@@ -329,7 +329,7 @@
                                 </button>
 
                                 <button
-                                    mat-button
+                                    matButton
                                     class="delete-colors"
                                     (click)="deleteTable()"
                                 >
@@ -338,7 +338,7 @@
                                 </button>
                             } @else {
                                 <button
-                                    mat-flat-button
+                                    matButton="filled"
                                     class="delete-colors"
                                     (click)="deleteRows()"
                                     [disabled]="!hasCheckedRows()"
@@ -348,7 +348,7 @@
                                 </button>
 
                                 <button
-                                    mat-button
+                                    matButton
                                     (click)="toggleRemoveMode()"
                                 >
                                     Abbrechen
@@ -362,7 +362,7 @@
                     <mat-icon class="empty-table-icon">table_view</mat-icon>
                     <h2>Wähle eine Tabelle aus oder erstelle eine neue.</h2>
                     <button
-                        mat-flat-button
+                        matButton="filled"
                         (click)="createTable()"
                         style="margin-top: 20px"
                     >
@@ -378,7 +378,7 @@
         <!-- Mobile Navigation (Bottom Left) -->
         <div class="mobile-nav-container">
             <button
-                mat-fab
+                matFab
                 color="accent"
                 (click)="openSideNav()"
                 class="home-fab"
@@ -393,21 +393,21 @@
                 @if (!removeRowsColumn()) {
                     <div class="fab-menu" [class.active]="isFabMenuOpen()">
                         <button
-                            mat-mini-fab
+                            matMiniFab
                             matTooltip="Zeile hinzufügen"
                             (click)="addRow(); isFabMenuOpen.set(false)"
                         >
                             <mat-icon>splitscreen_add</mat-icon>
                         </button>
                         <button
-                            mat-mini-fab
+                            matMiniFab
                             matTooltip="Spalte hinzufügen"
                             (click)="addColumn(); isFabMenuOpen.set(false)"
                         >
                             <mat-icon>add_column_right</mat-icon>
                         </button>
                         <button
-                            mat-mini-fab
+                            matMiniFab
                             matTooltip="Zeilen löschen"
                             (click)="
                                 toggleRemoveMode(); isFabMenuOpen.set(false)
@@ -418,14 +418,14 @@
                             >
                         </button>
                     </div>
-                    <button mat-fab (click)="toggleFabMenu()">
+                    <button matFab (click)="toggleFabMenu()">
                         <mat-icon>{{
                             isFabMenuOpen() ? 'close' : 'add'
                         }}</mat-icon>
                     </button>
                 } @else {
                     <button
-                        mat-fab
+                        matFab
                         (click)="toggleRemoveMode()"
                         matTooltip="Löschvorgang abbrechen"
                     >
@@ -436,11 +436,11 @@
 
             @if (removeRowsColumn() && hasCheckedRows()) {
                 <div class="mobile-action-bar">
-                    <button mat-button (click)="toggleRemoveMode()">
+                    <button matButton (click)="toggleRemoveMode()">
                         Abbrechen
                     </button>
                     <button
-                        mat-flat-button
+                        matButton="filled"
                         (click)="deleteRows()"
                         class="delete-colors"
                     >

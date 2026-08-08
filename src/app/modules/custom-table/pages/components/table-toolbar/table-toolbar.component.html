@@ -6,7 +6,7 @@
         <!-- Desktop Toolbar -->
         <div class="left-container">
             <button
-                mat-icon-button
+                matIconButton
                 matTooltip="Tool wechseln"
                 (click)="openSideNav.emit()"
                 class="sidenav-toggle"
@@ -15,7 +15,7 @@
             </button>
 
             <button
-                mat-icon-button
+                matIconButton
                 (click)="toggleSidebar.emit()"
                 [matTooltip]="
                     isSidebarVisible()
@@ -39,7 +39,7 @@
 
         <div class="right-container">
             <button
-                mat-flat-button
+                matButton="filled"
                 (click)="createTable.emit()"
                 class="create-button"
                 matTooltip="Tabelle erstellen (Alt + E)"
@@ -54,7 +54,7 @@
             <div class="table-selector-container">
                 @if (isTablet()) {
                     <button
-                        mat-icon-button
+                        matIconButton
                         matTooltip="Tool wechseln"
                         (click)="openSideNav.emit()"
                         style="margin-right: 16px"
@@ -63,7 +63,7 @@
                     </button>
                 }
                 <button
-                    mat-button
+                    matButton
                     [matMenuTriggerFor]="tableMenu"
                     class="table-select-button"
                 >
@@ -101,7 +101,7 @@
             <div class="mobile-actions">
                 @if (isTablet()) {
                     <button
-                        mat-flat-button
+                        matButton="filled"
                         (click)="createTable.emit()"
                         class="create-button"
                         style="margin-right: 12px"
@@ -111,7 +111,7 @@
                     </button>
                 } @else {
                     <button
-                        mat-icon-button
+                        matIconButton
                         [matMenuTriggerFor]="settingsMenu"
                     >
                         <mat-icon>more_vert</mat-icon>

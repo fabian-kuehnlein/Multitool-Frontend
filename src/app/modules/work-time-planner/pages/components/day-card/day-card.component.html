@@ -160,7 +160,7 @@
     >
         @if (isDesktop) {
             <button
-                mat-stroked-button
+                matButton="outlined"
                 class="status-btn-desktop"
                 [class.active-holiday]="day.status === DayStatus.Holiday"
                 (click)="onDayStatusToggle(DayStatus.Holiday)"
@@ -169,7 +169,7 @@
                 Feiertag
             </button>
             <button
-                mat-stroked-button
+                matButton="outlined"
                 class="status-btn-desktop"
                 [class.active-vacation]="day.status === DayStatus.Vacation"
                 (click)="onDayStatusToggle(DayStatus.Vacation)"
@@ -178,7 +178,7 @@
                 Urlaub
             </button>
             <button
-                mat-stroked-button
+                matButton="outlined"
                 class="status-btn-desktop"
                 [class.active-sick]="day.status === DayStatus.Sick"
                 (click)="onDayStatusToggle(DayStatus.Sick)"
@@ -187,7 +187,7 @@
                 Krank
             </button>
             <button
-                mat-stroked-button
+                matButton="outlined"
                 class="status-btn-desktop"
                 [class.active-ho]="day.isHomeOffice"
                 (click)="onHomeOfficeToggle()"
@@ -196,7 +196,7 @@
                 HO
             </button>
             <button
-                mat-stroked-button
+                matButton="outlined"
                 class="status-btn-desktop"
                 [class.active-lock]="day.isLocked"
                 (click)="onLockToggle()"
@@ -206,7 +206,7 @@
             </button>
         } @else {
             <button
-                mat-icon-button
+                matIconButton
                 class="status-btn"
                 [class.active-holiday]="day.status === DayStatus.Holiday"
                 (click)="onDayStatusToggle(DayStatus.Holiday)"
@@ -215,7 +215,7 @@
                 <mat-icon>celebration</mat-icon>
             </button>
             <button
-                mat-icon-button
+                matIconButton
                 class="status-btn"
                 [class.active-vacation]="day.status === DayStatus.Vacation"
                 (click)="onDayStatusToggle(DayStatus.Vacation)"
@@ -224,7 +224,7 @@
                 <mat-icon>flight</mat-icon>
             </button>
             <button
-                mat-icon-button
+                matIconButton
                 class="status-btn"
                 [class.active-sick]="day.status === DayStatus.Sick"
                 (click)="onDayStatusToggle(DayStatus.Sick)"
@@ -236,7 +236,7 @@
             <div class="status-spacer"></div>
 
             <button
-                mat-icon-button
+                matIconButton
                 class="ho-toggle"
                 [class.active]="day.isHomeOffice"
                 (click)="onHomeOfficeToggle()"
@@ -245,7 +245,7 @@
                 <mat-icon>home</mat-icon>
             </button>
             <button
-                mat-icon-button
+                matIconButton
                 class="lock-toggle"
                 [class.active]="day.isLocked"
                 (click)="onLockToggle()"

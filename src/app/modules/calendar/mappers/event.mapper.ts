@@ -19,6 +19,14 @@ export interface FullCalendarEventInput {
     seriesEndDateTime?: Date | null;
 }
 
+/**
+ * FullCalendarEventInput variant whose id may be null — used when opening
+ * the dialog for a single instance of a recurring series.
+ */
+export type DialogEventInput = Omit<FullCalendarEventInput, 'eventId'> & {
+    eventId: string | null;
+};
+
 function parseAsLocal(dateStr: string | null | undefined): Date | undefined {
     if (!dateStr) return undefined;
     // Remove 'Z' if present to prevent UTC conversion by the browser
@@ -35,7 +43,7 @@ export function toEventInput(
     const category = categories.find(
         (c) => String(c.id) === String(event.categoryId),
     );
-    const color = category?.color || '#1976d2';
+    const color = category?.color || 'var(--accent-primary)';
 
     const input: EventInput = {
         id: event.id,

@@ -1,7 +1,6 @@
 import {
     Component,
     inject,
-    OnInit,
     OnDestroy,
     signal,
     effect,
@@ -12,7 +11,10 @@ import { DatePipe } from '@angular/common';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SearchResult } from '../../../models/search-result.model';
+import {
+    SearchResult,
+    SearchResultRow,
+} from '../../../models/search-result.model';
 import { CalendarService } from '../../../services/calendar.service';
 import {
     MAT_DIALOG_DATA,
@@ -20,17 +22,16 @@ import {
     MatDialog,
 } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { SnackbarService } from '../../../../../core/services/snackbar.service';
 // Third Party
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { FormControl } from '@angular/forms';
-import {
-    eventFallsOnDate,
-    parseRRuleString,
-} from '../../../logic/rrule.logic';
+import { getNextOccurrence } from '../../../logic/rrule.logic';
 
 @Component({
     selector: 'app-search-dialog',
+    standalone: true,
     imports: [UI_MODULES, MatTableModule, DatePipe, MatProgressSpinnerModule],
     templateUrl: './search-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -38,10 +39,11 @@ import {
 })
 export class SearchDialogComponent implements OnDestroy {
     private readonly calendarService = inject(CalendarService);
+    private readonly dialogRef = inject(MatDialogRef<SearchDialogComponent>);
+    private readonly dialog = inject(MatDialog);
+    private readonly snackbar = inject(SnackbarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as string;
-    private dialogRef = inject(MatDialogRef<SearchDialogComponent>);
-    public dialog = inject(MatDialog);
-    private destroy$ = new Subject<void>();
+    private readonly destroy$ = new Subject<void>();
 
     public readonly displayedColumns: string[] = [
         'eventTitle',
@@ -49,11 +51,12 @@ export class SearchDialogComponent implements OnDestroy {
         'startDateTime',
         'actions',
     ];
-    public dataSource: MatTableDataSource<SearchResult> =
-        new MatTableDataSource<SearchResult>([]);
+    public dataSource = new MatTableDataSource<SearchResultRow>([]);
     public readonly isLoading = signal<boolean>(false);
 
-    searchControl = new FormControl<string>(this.dialogData || '');
+    public readonly searchControl = new FormControl<string>(
+        this.dialogData || '',
+    );
 
     private readonly searchTerm = toSignal(
         this.searchControl.valueChanges.pipe(
@@ -84,96 +87,49 @@ export class SearchDialogComponent implements OnDestroy {
         this.isLoading.set(true);
         this.calendarService.searchEvents(searchTerm).subscribe({
             next: (events) => {
-                if (events) {
-                    const processed = events.map((event) => {
-                        // Strip 'Z' to treat as local time and avoid timezone shifts
-                        const cleanStart = event.startDateTime?.replace(
-                            'Z',
-                            '',
-                        );
-                        const cleanEnd = event.recurrenceEnd?.replace('Z', '');
-
-                        let displayDate = cleanStart;
-                        let isNextOccurrence = false;
-
-                        if (event.recurrenceRule && cleanStart) {
-                            const next = this.calculateNextOccurrence(
-                                cleanStart,
-                                event.recurrenceRule,
-                                cleanEnd || null,
-                            );
-                            if (next) {
-                                displayDate = next.format(
-                                    'YYYY-MM-DDTHH:mm:ss',
-                                );
-                                isNextOccurrence = true;
-                            }
-                        }
-
-                        return {
-                            ...event,
-                            displayDate,
-                            isNextOccurrence,
-                        };
-                    });
-
-                    const sortedEvents = processed.sort(
-                        (a, b) =>
-                            new Date(a.displayDate ?? '').getTime() -
-                            new Date(b.displayDate ?? '').getTime(),
-                    );
-                    this.dataSource.data = sortedEvents;
-                } else {
-                    this.dataSource.data = [];
-                }
+                const processed = (events ?? []).map((event) =>
+                    this.toSearchResultRow(event),
+                );
+                processed.sort(
+                    (a, b) =>
+                        dayjs(a.displayDate).valueOf() -
+                        dayjs(b.displayDate).valueOf(),
+                );
+                this.dataSource.data = processed;
                 this.isLoading.set(false);
             },
-            error: (error) => {
-                console.error('Search failed', error);
+            error: () => {
+                this.snackbar.openError('Die Suche ist fehlgeschlagen.');
                 this.dataSource.data = [];
                 this.isLoading.set(false);
             },
         });
     }
 
-    private calculateNextOccurrence(
-        start: string,
-        ruleStr: string,
-        end: string | null,
-    ): Dayjs | null {
-        const startDate = dayjs(start);
-        const today = dayjs().startOf('day');
+    private toSearchResultRow(event: SearchResult): SearchResultRow {
+        // Strip 'Z' to treat as local time and avoid timezone shifts
+        const cleanStart = event.startDateTime?.replace('Z', '');
+        const cleanEnd = event.recurrenceEnd?.replace('Z', '');
 
-        // If it's already in the future, return the start date
-        if (startDate.isSameOrAfter(today)) {
-            return startDate;
-        }
+        let displayDate = cleanStart ?? null;
+        let isNextOccurrence = false;
 
-        const rule = parseRRuleString(ruleStr);
-        const rrule = {
-            dtstart: start,
-            until: end,
-            ...rule,
-        };
-
-        const maxSearchDate = dayjs().add(2, 'year');
-        let current = dayjs(today);
-
-        while (current.isBefore(maxSearchDate)) {
-            if (eventFallsOnDate(rrule, current)) {
-                // Return current date but keep the original start time
-                return current
-                    .hour(startDate.hour())
-                    .minute(startDate.minute())
-                    .second(startDate.second());
+        if (event.recurrenceRule && cleanStart) {
+            const next = getNextOccurrence(
+                cleanStart,
+                event.recurrenceRule,
+                cleanEnd || null,
+            );
+            if (next) {
+                displayDate = next.format('YYYY-MM-DDTHH:mm:ss');
+                isNextOccurrence = true;
             }
-            current = current.add(1, 'day');
         }
 
-        return null;
+        return { ...event, displayDate, isNextOccurrence };
     }
 
-    goToDate(element: any) {
+    goToDate(element: SearchResultRow) {
         const dateToUse = element.displayDate || element.startDateTime;
         if (dateToUse) {
             this.dialogRef.close({
@@ -183,34 +139,34 @@ export class SearchDialogComponent implements OnDestroy {
     }
 
     delete(deleteId: string) {
-        if (deleteId) {
-            this.dialog
-                .open(ConfirmDialogComponent, {
-                    data: {
-                        title: 'Ereignis löschen',
-                        message:
-                            'Möchten Sie dieses Ereignis wirklich löschen?',
-                        confirmText: 'Löschen',
-                        isDestructive: true,
-                    },
-                })
-                .afterClosed()
-                .subscribe((result) => {
-                    if (result) {
-                        this.calendarService.deleteEvent(deleteId).subscribe({
-                            next: () => {
-                                this.dataSource.data =
-                                    this.dataSource.data.filter(
-                                        (event) => event.eventId !== deleteId,
-                                    );
-                            },
-                            error: (error: any) => {
-                                console.error('Error deleting event:', error);
-                            },
-                        });
-                    }
-                });
-        }
+        if (!deleteId) return;
+
+        this.dialog
+            .open(ConfirmDialogComponent, {
+                data: {
+                    title: 'Ereignis löschen',
+                    message: 'Möchtest du dieses Ereignis wirklich löschen?',
+                    confirmText: 'Löschen',
+                    isDestructive: true,
+                },
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (result) {
+                    this.calendarService.deleteEvent(deleteId).subscribe({
+                        next: () => {
+                            this.dataSource.data = this.dataSource.data.filter(
+                                (event) => event.eventId !== deleteId,
+                            );
+                            this.snackbar.openSuccess('Ereignis gelöscht.');
+                        },
+                        error: () =>
+                            this.snackbar.openError(
+                                'Das Ereignis konnte nicht gelöscht werden.',
+                            ),
+                    });
+                }
+            });
     }
 
     close() {

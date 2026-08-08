@@ -1,10 +1,10 @@
 export interface CreateCalendarEvent {
     title: string;
-    note: string;
+    note: string | null;
     startDateTime: string | null;
     endDateTime?: string | null;
     isAllDay: boolean;
-    categoryId?: string;
+    categoryId?: string | number | null;
     recurrenceRule?: string | null;
     recurrenceEnd?: string | null;
 }

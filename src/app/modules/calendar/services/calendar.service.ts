@@ -5,6 +5,7 @@ import { CalendarEvent } from '../models/calendar-event.model';
 import { CreateCalendarEvent } from '../models/create-calendar-event.model';
 import { Holiday } from '../models/holiday.model';
 import { SearchResult } from '../models/search-result.model';
+import { addExcludeDateToRule } from '../logic/rrule.logic';
 
 @Injectable({
     providedIn: 'root',
@@ -57,33 +58,12 @@ export class CalendarService {
         }
 
         const updatedSeries = { ...seriesEvent };
-        updatedSeries.recurrenceRule = this.addExcludeDateToRule(
+        updatedSeries.recurrenceRule = addExcludeDateToRule(
             updatedSeries.recurrenceRule,
             date,
         );
 
         return this.updateEvent(updatedSeries);
-    }
-
-    /**
-     * Helper to append a date to the EXDATE part of an RRule string.
-     */
-    private addExcludeDateToRule(
-        rule: string | null | undefined,
-        date: string,
-    ): string {
-        const rrule = rule || '';
-        if (rrule.includes('EXDATE=')) {
-            return rrule.replace(/EXDATE=([^;]*)/, (match, p1) => {
-                const existing = p1 ? p1.split(',') : [];
-                if (!existing.includes(date)) {
-                    existing.push(date);
-                }
-                return `EXDATE=${existing.join(',')}`;
-            });
-        } else {
-            return rrule + (rrule ? ';' : '') + `EXDATE=${date}`;
-        }
     }
 
     getHolidays(year: string): Observable<Holiday[]> {
