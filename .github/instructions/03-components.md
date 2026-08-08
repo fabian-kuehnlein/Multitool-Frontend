@@ -54,6 +54,25 @@ private readonly snackbar = inject(SnackbarService);
 - Call component methods in bindings where that keeps the template declarative (`getCategory(todo.categoryId)`), but prefer precomputed `computed()` signals for anything expensive or reused.
 - Use `async` pipe or `toSignal()` for observables; do not manually subscribe in templates.
 
+## Material attribute syntax
+
+- **Always use the current, officially recommended attribute/directive syntax for the installed Angular Material version (^22).** Before using a Material component, check the official docs at <https://material.angular.io/> (start at <https://material.angular.io/components>). This applies to *every* Material component, not just buttons.
+- Since Angular Material v19 each component exposes a single directive named after the component; the variant is set via the attribute value:
+  - Buttons: `matButton` (basic/text), `matButton="elevated"`, `matButton="outlined"`, `matButton="filled"`, `matButton="tonal"`.
+  - Icon buttons: `matIconButton` (legacy `mat-icon-button` is deprecated).
+  - FABs: `matFab`, `matMiniFab`, `matFab extended` (extended is a bare attribute).
+  - Icons inside a button get `matButtonIcon`:
+
+  ```html
+  <button matButton="filled">
+      <mat-icon matButtonIcon>save</mat-icon>
+      Speichern
+  </button>
+  ```
+
+- **Prefer the new syntax over the legacy attribute names** (`mat-button`, `mat-raised-button`, `mat-flat-button`, `mat-stroked-button`, `mat-icon-button`, `mat-fab`, `mat-mini-fab`, ...) — they are deprecated.
+- Add `aria-label` on icon-only buttons (and other icon-only elements) where the icon has no visible text.
+
 ## Lifecycle
 
 - Implement `OnInit` for kick-off work (e.g. `ngOnInit(): void { this.todoService.loadTodos(); }`).

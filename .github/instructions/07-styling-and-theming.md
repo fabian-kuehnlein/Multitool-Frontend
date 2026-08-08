@@ -6,6 +6,22 @@
 - Global/theme SCSS lives at `src/` root: `styles.scss`, `_theme.scss`, `_material-palettes.scss`, `_css-variables.scss`, `_breakpoints.scss`.
 - 4-space indentation, consistent with the rest of the codebase.
 
+## Class naming
+
+- **Style classes, not raw elements.** Never write bare element selectors like `button { ... }`, `div { ... }` or `mat-icon { ... }` — target a class instead. A one-off element always gets its own class.
+- **Raw element selectors are only OK for groups:** styling *all* elements of a kind at once (e.g. every button in the component should be red → `button { color: red; }`). As soon as individual elements need different styles, give them classes.
+- **Class names must be meaningful** and say what the element *does*, not what it is generic-ally: a button that deletes something is `delete-button`, not `button`.
+- **The element kind belongs in the name** so a single read makes clear which element is styled. Append the kind as suffix: `button` → `-button`, a wrapper/`div` → `-container` (or `-wrapper`), `input` → `-input`, `label`/`span` → `-label`, `img` → `-icon`, etc.
+- **Purpose first, kind second:** `delete-button`, `submit-button`, `toolbar-container`, `event-title`, `search-input`, `close-icon`.
+- **Keep names short when unambiguous:** one delete button in a component is simply `delete-button`.
+- **Add a feature/context prefix only when confusion is possible** (several similar elements or likely collisions): `calendar-event-delete-button`, `calendar-event-title`. Do not prefix every class with the feature name out of habit.
+
+## Icon buttons
+
+- **Buttons with an icon become a `MatIconButton`** (`<button matIconButton>`), so alignment, centering, sizing and touch targets come from Material instead of hand-rolled styles.
+- If the button is not a pure icon button but contains an icon (e.g. text + icon), **give the icon itself the `matButtonIcon` directive** (`<mat-icon matButtonIcon>`). Never drop a bare `<mat-icon>` into a button without it.
+- Use the current official syntax (`matIconButton`, `matButtonIcon`) — legacy names like `mat-icon-button` are deprecated. See [Material attribute syntax](./03-components.md#material-attribute-syntax).
+
 ## Page-level SCSS split
 
 Page components split their styles into partials imported from the component file:
