@@ -153,6 +153,10 @@
         button:not(.delete-button) {
             flex: 1;
         }
+
+        &.is-edit-mode .primary-action {
+            flex: 1 1 100%;
+        }
     }
 }
 

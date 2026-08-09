@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { NgClass } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 
 // Angular Material
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -71,6 +71,7 @@ export type EventDialogResult = EventDialogUpdateResult | EventDialogDeleteResul
         MatDividerModule,
         ReactiveFormsModule,
         NgClass,
+        NgTemplateOutlet
     ],
     providers: [EventFormService],
     templateUrl: './event-dialog.component.html',

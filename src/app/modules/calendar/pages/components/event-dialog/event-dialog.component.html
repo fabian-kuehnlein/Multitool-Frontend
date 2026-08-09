@@ -3,24 +3,28 @@
     <span>{{
         !isEditMode() ? "Neues Event erstellen" : "Event bearbeiten"
     }}</span>
-    @if (isEditMode()) {
-        <button
-            matButton
-            class="ical-link-button"
-            type="button"
-            matTooltip="In Kalender-App öffnen"
-            [disabled]="isGeneratingIcal() || eventForm.invalid"
-            (click)="generateIcalLink()"
-        >
-            @if (isGeneratingIcal()) {
-                <mat-spinner matButtonIcon diameter="20"></mat-spinner>
-            } @else {
-                <mat-icon matButtonIcon>calendar_month</mat-icon>
-            }
-            iCal
-        </button>
+    @if (isEditMode() && !isMobile()) {
+        <ng-container [ngTemplateOutlet]="icalButton"></ng-container>
     }
 </h1>
+
+<ng-template #icalButton>
+    <button
+        matButton
+        class="ical-link-button"
+        type="button"
+        matTooltip="In Kalender-App öffnen"
+        [disabled]="isGeneratingIcal() || eventForm.invalid"
+        (click)="generateIcalLink()"
+    >
+        @if (isGeneratingIcal()) {
+            <mat-spinner matButtonIcon diameter="20"></mat-spinner>
+        } @else {
+            <mat-icon matButtonIcon>calendar_month</mat-icon>
+        }
+        iCal
+    </button>
+</ng-template>
 
 @if (isLoadingCategories()) {
     <div mat-dialog-content class="loading-container">
@@ -275,7 +279,12 @@
         }
     </form>
 
-    <div mat-dialog-actions align="end" class="dialog-actions">
+    <div
+        mat-dialog-actions
+        align="end"
+        class="dialog-actions"
+        [ngClass]="{ 'is-edit-mode': isEditMode() }"
+    >
         @if (isEditMode()) {
             <button
                 matButton
@@ -287,8 +296,12 @@
             </button>
         }
         <button matButton (click)="close()">Abbrechen</button>
+        @if (isEditMode() && isMobile()) {
+            <ng-container [ngTemplateOutlet]="icalButton"></ng-container>
+        }
         <button
             matButton="filled"
+            class="primary-action"
             (click)="save()"
             [disabled]="eventForm.invalid || !isChanged()"
         >
