@@ -1,5 +1,13 @@
 @use "../../../../../../breakpoints" as bp;
 
+:host {
+    @include bp.mobile {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+}
+
 .search-title {
     display: flex;
     align-items: center;
@@ -158,6 +166,24 @@
 
         button {
             transform: scale(0.85);
+        }
+    }
+}
+
+.dialog-actions {
+    padding: 16px 24px;
+    gap: 8px;
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        padding: 16px;
+        margin-top: auto;
+        border-top: 1px solid var(--border-light);
+
+        button {
+            flex: 1;
+            min-width: 0;
         }
     }
 }

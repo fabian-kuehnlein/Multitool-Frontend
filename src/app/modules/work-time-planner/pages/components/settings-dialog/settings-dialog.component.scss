@@ -73,6 +73,11 @@
 
         button {
             flex: 1;
+            min-width: 0;
+        }
+
+        .primary-action {
+            flex: 1 1 100%;
         }
     }
 }

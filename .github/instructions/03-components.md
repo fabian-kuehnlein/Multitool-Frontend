@@ -90,7 +90,37 @@ private readonly dialogRef = inject(MatDialogRef<TodoDialogComponent>);
 private readonly data = inject<{ todo?: Todo }>(MAT_DIALOG_DATA);
 ```
 
-- On mobile, dialogs become full-screen: `width: '100vw'`, `height: '100vh'`, `minWidth/maxWidth: '100vw'`, `panelClass: 'full-screen-dialog'`. The `MediaService` drives this.
+- **Pick the mobile layout by content amount** — two dialog patterns exist, both driven by the `MediaService` breakpoints (`isMobile()` in TS, `bp.mobile` in SCSS):
+  - **Full-screen** — content-rich dialogs (forms, lists; e.g. `event-dialog`, `todo-dialog`, `search-dialog`). On mobile open with `width: '100vw'`, `height: '100vh'`, `minWidth/maxWidth: '100vw'` and `panelClass: 'full-screen-dialog'`.
+  - **Compact** — low-content dialogs (confirmations, short choices; e.g. `confirm-dialog`, `recurrence-choice-dialog`, `table-config-dialog`). Never full-screen: on mobile use `width: '90vw'` (no height, no `panelClass`) so the dialog auto-sizes and keeps Material's rounded corners; it renders as a centered card (title/message centered on mobile).
+- **Action button order** in full-screen dialogs follows the `event-dialog` pattern, top to bottom: destructive action (full width) → secondary actions ("Abbrechen", …) in one row → primary action (`matButton="filled"`, full width). Mark the buttons: destructive → `class="delete-button"` / `delete-colors`, primary → `class="primary-action"`.
+- **The full-screen actions area is uniform across dialogs** (mobile). The host needs `display: flex; flex-direction: column; height: 100%` on mobile and the content area `flex: 1; overflow-y: auto` so the actions bar stays pinned to the bottom:
+
+  ```scss
+  @include bp.mobile {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      padding: 16px;
+      margin-top: auto;
+      border-top: 1px solid var(--border-light);
+
+      button { flex: 1; min-width: 0; }
+      .delete-button, .delete-colors { flex: 1 1 100%; margin-bottom: 8px; }
+      .primary-action { flex: 1 1 100%; }
+  }
+  ```
+
+- **Compact dialog actions** (mobile) put the secondary action on its own full-width row on top and the main actions side by side below it, primary last:
+
+  ```scss
+  @include bp.mobile {
+      flex-wrap: wrap;
+
+      .cancel-button { width: 100%; }
+      button:not(.cancel-button) { flex: 1; min-width: 0; }
+  }
+  ```
+
 - **Form-heavy dialogs get a `<name>-form.service.ts`** co-located next to them (pattern: `event-dialog/event-form.service.ts`). It owns `buildForm()` + validators, patch/init for edit mode, and form-value → DTO mapping. The dialog component keeps only open/save/close orchestration and template-bound `computed` signals. Provide the service in the component's `providers` array.
 - Use the shared `ConfirmDialogComponent` (`shared/components/confirm-dialog`) to open a confirm dialog anywhere in the app — e.g. before destructive actions — instead of rolling your own. Pass the text via `data` (`title`, `message`, `confirmText`, `cancelText`, `isDestructive`):
 

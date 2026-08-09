@@ -279,12 +279,7 @@
         }
     </form>
 
-    <div
-        mat-dialog-actions
-        align="end"
-        class="dialog-actions"
-        [ngClass]="{ 'is-edit-mode': isEditMode() }"
-    >
+    <div mat-dialog-actions align="end" class="dialog-actions">
         @if (isEditMode()) {
             <button
                 matButton

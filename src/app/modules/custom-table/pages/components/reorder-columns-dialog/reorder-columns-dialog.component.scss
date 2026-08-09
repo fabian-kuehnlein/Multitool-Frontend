@@ -1,5 +1,13 @@
 @use "../../../../../../_breakpoints" as bp;
 
+:host {
+    @include bp.mobile {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+}
+
 h2 {
     margin-bottom: 0;
 }
@@ -74,15 +82,28 @@ h2 {
         margin-top: auto;
         border-top: 1px solid var(--border-light);
 
-        .delete-button {
-            width: 100%;
-            margin-bottom: 8px;
-            margin-right: 0;
+        button {
+            flex: 1;
+            min-width: 0;
         }
 
-        button:not(.delete-button) {
-            flex: 1;
+        .delete-button,
+        .delete-colors {
+            flex: 1 1 100%;
+            margin-bottom: 8px;
         }
+
+        .primary-action {
+            flex: 1 1 100%;
+        }
+    }
+}
+
+mat-dialog-content {
+    @include bp.mobile {
+        flex: 1;
+        overflow-y: auto;
+        max-height: unset;
     }
 }
 

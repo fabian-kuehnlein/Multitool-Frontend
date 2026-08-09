@@ -103,4 +103,6 @@ Common tokens:
 
 ## Dialog sizing
 
-- Dialogs are full-screen on mobile via the `MediaService` pattern; on desktop use explicit `width`/`minWidth`/`maxWidth`. Reuse `panelClass: 'full-screen-dialog'` (styling provided globally) rather than duplicating it per dialog.
+- Pick the dialog layout by content amount — the action-button rules for both patterns live in [03-components.md](./03-components.md#dialogs):
+  - **Full-screen** — content-rich dialogs (forms, lists): on mobile use `width`/`height`/`minWidth`/`maxWidth` of `'100vw'`/`'100vh'` plus `panelClass: 'full-screen-dialog'` (styling provided globally — reuse it rather than duplicating it per dialog). On desktop use explicit `width`/`minWidth`/`maxWidth`.
+  - **Compact** — low-content dialogs (confirmations, short choices like `confirm-dialog`, `recurrence-choice-dialog`, `table-config-dialog`): never full-screen. On mobile use `width: '90vw'`, `maxWidth: '90vw'`, no height and no `panelClass`, so the dialog auto-sizes and keeps its rounded corners.

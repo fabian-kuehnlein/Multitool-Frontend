@@ -142,19 +142,19 @@
         justify-content: flex-end;
         padding: 16px;
         margin-top: auto;
-        border-top: 1px solid #eee;
+        border-top: 1px solid var(--border-light);
+
+        button {
+            flex: 1;
+            min-width: 0;
+        }
 
         .delete-button {
-            width: 100%;
+            flex: 1 1 100%;
             margin-bottom: 8px;
-            margin-right: 0;
         }
 
-        button:not(.delete-button) {
-            flex: 1;
-        }
-
-        &.is-edit-mode .primary-action {
+        .primary-action {
             flex: 1 1 100%;
         }
     }

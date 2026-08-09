@@ -81,7 +81,12 @@
 
 <mat-dialog-actions align="end" class="dialog-actions">
     <button matButton (click)="onCancel()">Abbrechen</button>
-    <button matButton="filled" [disabled]="form.invalid" (click)="onSubmit()">
+    <button
+        matButton="filled"
+        class="primary-action"
+        [disabled]="form.invalid"
+        (click)="onSubmit()"
+    >
         <mat-icon>{{ isEditMode() ? "save" : "add" }}</mat-icon>
         {{ isEditMode() ? "Speichern" : "Erstellen" }}
     </button>
