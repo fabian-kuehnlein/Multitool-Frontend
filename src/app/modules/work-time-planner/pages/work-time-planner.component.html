@@ -7,7 +7,7 @@
         } @else if (isTablet()) {
             <div class="mobile-header">
                 <div class="left-actions">
-                    <button mat-icon-button (click)="openSideNav()">
+                    <button matIconButton (click)="openSideNav()">
                         <mat-icon>home</mat-icon>
                     </button>
                     <span class="mobile-title">Arbeitszeitplaner</span>
@@ -16,7 +16,7 @@
         } @else {
             <div class="left-container">
                 <button
-                    mat-icon-button
+                    matIconButton
                     matTooltip="Tool wechseln"
                     (click)="openSideNav()"
                     class="sidenav-toggle"
@@ -73,7 +73,7 @@
                 <div class="week-header">
                     @if (!plannerService.isCurrentWeek()) {
                         <button
-                            mat-button
+                            matButton
                             (click)="plannerService.navigateWeek('current')"
                             class="today-btn"
                         >
@@ -82,7 +82,7 @@
                     }
                     <div class="week-nav">
                         <button
-                            mat-icon-button
+                            matIconButton
                             (click)="plannerService.navigateWeek('prev')"
                             matTooltip="Vorherige Woche (Alt + ←)"
                         >
@@ -92,7 +92,7 @@
                             plannerService.getWeekRange()
                         }}</span>
                         <button
-                            mat-icon-button
+                            matIconButton
                             (click)="plannerService.navigateWeek('next')"
                             matTooltip="Nächste Woche (Alt + →)"
                         >
@@ -157,7 +157,7 @@
     @if (isMobile()) {
         <div class="mobile-action-container">
             <button
-                mat-fab
+                matFab
                 class="mobile-fab-left"
                 (click)="openSideNav()"
                 matTooltip="Tool wechseln"
@@ -167,14 +167,14 @@
 
             <div class="mobile-nav-center">
                 <button
-                    mat-mini-fab
+                    matMiniFab
                     (click)="plannerService.navigateWeek('prev')"
                     matTooltip="Vorherige Woche"
                 >
                     <mat-icon>chevron_left</mat-icon>
                 </button>
                 <button
-                    mat-mini-fab
+                    matMiniFab
                     (click)="plannerService.navigateWeek('current')"
                     [color]="plannerService.isCurrentWeek() ? 'basic' : 'primary'"
                     [disabled]="plannerService.isCurrentWeek()"
@@ -183,7 +183,7 @@
                     <mat-icon>today</mat-icon>
                 </button>
                 <button
-                    mat-mini-fab
+                    matMiniFab
                     (click)="plannerService.navigateWeek('next')"
                     matTooltip="Nächste Woche"
                 >
@@ -192,7 +192,7 @@
             </div>
 
             <button
-                mat-fab
+                matFab
                 class="mobile-fab-right"
                 (click)="openSettings()"
                 matTooltip="Einstellungen"

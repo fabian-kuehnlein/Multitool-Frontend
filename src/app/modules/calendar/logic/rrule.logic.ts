@@ -128,3 +128,109 @@ export function getDuration(
 
     return dayjs.duration(endMoment.diff(startMoment)).toISOString();
 }
+
+export interface RecurrenceRuleForm {
+    freq?: string | null;
+    interval?: number | null;
+    byDay?: string[];
+    exDates?: string[];
+}
+
+/**
+ * Parses an RRule string into a form-shaped structure with defaults.
+ */
+export function parseRecurrenceRuleString(
+    ruleString: string | null | undefined,
+): RecurrenceRuleForm | null {
+    if (!ruleString) return null;
+
+    const parsed = parseRRuleString(ruleString);
+
+    return {
+        freq: parsed.freq ? parsed.freq.toUpperCase() : 'WEEKLY',
+        interval: parsed.interval ?? 1,
+        byDay: (parsed.byweekday ?? []).map((day) => day.toUpperCase()),
+        exDates: parsed.exdate ?? [],
+    };
+}
+
+/**
+ * Builds an RRule string from recurrence form values.
+ */
+export function buildRecurrenceRuleString(
+    form: RecurrenceRuleForm,
+): string | null {
+    const { freq, interval, byDay, exDates } = form;
+
+    const validInterval = !!interval && interval > 0;
+    const validByDay = Array.isArray(byDay) && byDay.length > 0;
+
+    if (!freq || (!validInterval && !validByDay)) return null;
+
+    let rule = `FREQ=${freq}`;
+    if (validInterval) rule += `;INTERVAL=${interval}`;
+    if (validByDay) rule += `;BYDAY=${byDay.join(',')}`;
+    if (Array.isArray(exDates) && exDates.length > 0) {
+        rule += `;EXDATE=${exDates.join(',')}`;
+    }
+
+    return rule;
+}
+
+/**
+ * Appends a date to the EXDATE part of an RRule string.
+ */
+export function addExcludeDateToRule(
+    rule: string | null | undefined,
+    date: string,
+): string {
+    const rrule = rule || '';
+    if (rrule.includes('EXDATE=')) {
+        return rrule.replace(/EXDATE=([^;]*)/, (match, p1) => {
+            const existing = p1 ? p1.split(',') : [];
+            if (!existing.includes(date)) {
+                existing.push(date);
+            }
+            return `EXDATE=${existing.join(',')}`;
+        });
+    }
+    return rrule + (rrule ? ';' : '') + `EXDATE=${date}`;
+}
+
+/**
+ * Finds the next occurrence of a recurring event at or after today,
+ * preserving the original start time. Returns null when the series is
+ * exhausted or no occurrence is found within the next two years.
+ */
+export function getNextOccurrence(
+    start: string,
+    ruleStr: string,
+    end: string | null,
+): Dayjs | null {
+    const startDate = dayjs(start);
+    const today = dayjs().startOf('day');
+
+    if (startDate.isSameOrAfter(today)) return startDate;
+
+    const rule = parseRRuleString(ruleStr);
+    const rrule: RecurrenceRuleInput = {
+        dtstart: start,
+        until: end,
+        ...rule,
+    };
+
+    const maxSearchDate = dayjs().add(2, 'year');
+    let current = dayjs(today);
+
+    while (current.isBefore(maxSearchDate)) {
+        if (eventFallsOnDate(rrule, current)) {
+            return current
+                .hour(startDate.hour())
+                .minute(startDate.minute())
+                .second(startDate.second());
+        }
+        current = current.add(1, 'day');
+    }
+
+    return null;
+}

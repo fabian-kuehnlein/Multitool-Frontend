@@ -1,0 +1,29 @@
+<h2 mat-dialog-title class="dialog-title">
+    <mat-icon>event_repeat</mat-icon>
+    Wiederkehrendes Event
+</h2>
+<mat-dialog-content>
+    <p>Dies ist ein Teil einer Serie. Was möchtest du bearbeiten?</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="dialog-actions">
+    <button matButton type="button" class="cancel-button" (click)="onCancel()">
+        Abbrechen
+    </button>
+    <button
+        matButton="outlined"
+        type="button"
+        (click)="onChoice('instance')"
+        aria-label="Nur diesen Termin bearbeiten"
+    >
+        Nur diesen Termin
+    </button>
+    <button
+        matButton="filled"
+        class="primary-action"
+        type="button"
+        (click)="onChoice('series')"
+        aria-label="Die gesamte Serie bearbeiten"
+    >
+        Die gesamte Serie
+    </button>
+</mat-dialog-actions>

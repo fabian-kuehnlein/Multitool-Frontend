@@ -1,7 +1,6 @@
 // Angular
 import {
     Component,
-    Inject,
     inject,
     signal,
     computed,
@@ -12,14 +11,10 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { NgClass } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 
 // Angular Material
-import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -27,12 +22,43 @@ import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
 import { CategoryService } from '../../../../../shared/services/category.service';
-import { EventFormService } from './event-form.service';
+import { EventFormService, EventFormValue } from './event-form.service';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { CalendarService } from '../../../services/calendar.service';
+import { MediaService } from '../../../../../core/services/media.service';
+import { SnackbarService } from '../../../../../core/services/snackbar.service';
+import {
+    DialogEventInput,
+    FullCalendarEventInput,
+} from '../../../mappers/event.mapper';
+import {
+    frequencyLabels,
+    RecurrenceFrequency,
+    weekdayOptions,
+} from '../../../utilities/calendar.config';
+import type { CalendarEvent } from '../../../models/calendar-event.model';
 
 // Third-party
 import { Subject, takeUntil } from 'rxjs';
+import dayjs from 'dayjs';
+
+export interface EventDialogData {
+    event?: DialogEventInput | FullCalendarEventInput | null;
+    anchorDate?: Date;
+}
+
+export interface EventDialogUpdateResult {
+    data: CalendarEvent;
+    action: 'update';
+}
+
+export interface EventDialogDeleteResult {
+    data: string;
+    action: 'delete';
+}
+
+export type EventDialogResult = EventDialogUpdateResult | EventDialogDeleteResult;
 
 @Component({
     selector: 'app-event-dialog',
@@ -45,6 +71,7 @@ import { Subject, takeUntil } from 'rxjs';
         MatDividerModule,
         ReactiveFormsModule,
         NgClass,
+        NgTemplateOutlet
     ],
     providers: [EventFormService],
     templateUrl: './event-dialog.component.html',
@@ -56,33 +83,39 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     private readonly dialog = inject(MatDialog);
     private readonly categoryService = inject(CategoryService);
     private readonly formService = inject(EventFormService);
-    public readonly dialogData = inject(MAT_DIALOG_DATA);
+    private readonly calendarService = inject(CalendarService);
+    private readonly media = inject(MediaService);
+    private readonly snackbar = inject(SnackbarService);
+    public readonly dialogData = inject<EventDialogData>(MAT_DIALOG_DATA);
     private readonly destroy$ = new Subject<void>();
 
     // --- Signals & State ---
     public readonly isEditMode = signal<boolean>(false);
+    public readonly isMobile = this.media.isMobile;
+    public readonly isGeneratingIcal = signal<boolean>(false);
     public readonly isLoadingCategories = computed(
         () => this.categoryService.categories().length === 0,
     );
     public readonly categories = this.categoryService.categories;
 
     // UI Metadata
-    protected readonly weekdayOptions = [
-        { value: 'MO', label: 'Montag' },
-        { value: 'TU', label: 'Dienstag' },
-        { value: 'WE', label: 'Mittwoch' },
-        { value: 'TH', label: 'Donnerstag' },
-        { value: 'FR', label: 'Freitag' },
-        { value: 'SA', label: 'Samstag' },
-        { value: 'SU', label: 'Sonntag' },
-    ];
+    protected readonly weekdayOptions = weekdayOptions;
+
+    // Category ids arrive as numbers from the API despite the string type;
+    // normalize them to strings so they match the form's categoryId control.
+    public readonly categoryOptions = computed(() =>
+        this.categories().map((c) => ({ ...c, id: String(c.id) })),
+    );
 
     // Form setup
     public readonly eventForm: FormGroup = this.formService.buildForm();
-    private readonly formValue = toSignal(this.eventForm.valueChanges, {
-        initialValue: this.eventForm.getRawValue(),
-    });
-    private readonly originalEventValue = signal<any>(null);
+    private readonly formValue = toSignal<EventFormValue | null>(
+        this.eventForm.valueChanges,
+        { initialValue: this.eventForm.getRawValue() },
+    );
+    private readonly originalEventValue = signal<Record<string, unknown> | null>(
+        null,
+    );
 
     // Computed properties for UI
     public readonly isChanged = computed(() => {
@@ -103,23 +136,14 @@ export class EventDialogComponent implements OnInit, OnDestroy {
 
     public readonly selectedCategory = computed(() => {
         const categoryId = this.formValue()?.categoryId;
-        return this.categories().find((c) => c.id == categoryId);
+        return this.categoryOptions().find((c) => c.id === categoryId);
     });
 
     public readonly getFrequencyLabel = computed(() => {
         const freq = this.formValue()?.recurrenceFrequency;
-        switch (freq) {
-            case 'DAILY':
-                return 'Tage';
-            case 'WEEKLY':
-                return 'Wochen';
-            case 'MONTHLY':
-                return 'Monate';
-            case 'YEARLY':
-                return 'Jahre';
-            default:
-                return '';
-        }
+        return freq
+            ? (frequencyLabels[freq as RecurrenceFrequency] ?? '')
+            : '';
     });
 
     // handles char-count for inputs
@@ -131,35 +155,24 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     constructor() {
         this.isEditMode.set(!!this.dialogData?.event);
 
-        // Category Initialization logic
+        // Preselect category 1 (or the first category) for new events once
+        // categories have loaded. Editing uses the event's own category set in
+        // patchFormForEdit.
         effect(() => {
-            const categories = this.categories();
-            if (categories.length === 0) return;
+            const options = this.categoryOptions();
+            if (options.length === 0 || this.isEditMode()) return;
 
-            const categoryControl = this.eventForm.get('categoryId');
-
-            if (this.isEditMode()) {
-                const eventCategoryId = this.dialogData.event.categoryId;
-                if (eventCategoryId != null) {
-                    categoryControl?.setValue(Number(eventCategoryId), {
-                        emitEvent: false,
-                    });
-                    this.originalEventValue.set(this.eventForm.getRawValue());
-                }
-            } else {
-                const defaultCat =
-                    categories.find((c) => Number(c.id) === 1) || categories[0];
-                categoryControl?.setValue(Number(defaultCat.id), {
-                    emitEvent: false,
-                });
-            }
+            const defaultCat =
+                options.find((c) => c.id === '1') || options[0];
+            this.eventForm.get('categoryId')?.setValue(defaultCat.id);
         });
     }
 
     ngOnInit() {
         this.setupFormSubscriptions();
-        if (this.isEditMode()) {
-            this.patchFormForEdit();
+        if (this.isEditMode() && this.dialogData.event) {
+            this.formService.patchFormForEdit(this.eventForm, this.dialogData.event);
+            this.originalEventValue.set(this.eventForm.getRawValue());
         } else if (this.dialogData.anchorDate) {
             const setDate = new Date(this.dialogData.anchorDate);
             this.eventForm.patchValue({ startDate: setDate, endDate: setDate });
@@ -196,53 +209,15 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             });
     }
 
-    private patchFormForEdit() {
-        const event = this.dialogData.event;
-        const start = new Date(event.startDateTime);
-        const end = event.endDateTime ? new Date(event.endDateTime) : null;
-        const rrule = this.formService.parseRecurrenceString(
-            event.recurrenceRule,
-        );
-
-        this.eventForm.patchValue({
-            eventTitle: event.eventTitle,
-            eventNote: event.eventNote,
-            startDate: new Date(
-                start.getFullYear(),
-                start.getMonth(),
-                start.getDate(),
-            ),
-            startTime: new Date(0, 0, 0, start.getHours(), start.getMinutes()),
-            endDate: end
-                ? new Date(end.getFullYear(), end.getMonth(), end.getDate())
-                : null,
-            endTime: end
-                ? new Date(0, 0, 0, end.getHours(), end.getMinutes())
-                : null,
-            isAllDay: event.isAllDay,
-            isRecurring: !!rrule,
-            recurrenceFrequency: rrule?.freq || 'WEEKLY',
-            recurrenceInterval: rrule?.interval || 1,
-            recurrenceByDay: rrule?.byDay || [],
-            recurrenceEndDate: event.recurrenceEnd
-                ? new Date(event.recurrenceEnd)
-                : null,
-            exDates: rrule?.exDates || [],
-        });
-
-        this.originalEventValue.set(this.eventForm.getRawValue());
-    }
-
     // --- Actions ---
     public save() {
         if (this.eventForm.invalid) return;
 
-        const formValue = this.eventForm.getRawValue();
+        const formValue = this.eventForm.getRawValue() as EventFormValue;
         if (this.isEditMode()) {
-            const updated = this.formService.getUpdateEventData(
-                this.dialogData.event.eventId,
-                formValue,
-            );
+            const eventId = this.dialogData.event?.eventId;
+            if (!eventId) return;
+            const updated = this.formService.getUpdateEventData(eventId, formValue);
             this.dialogRef.close({ data: updated, action: 'update' });
         } else {
             const created = this.formService.getCreateEventData(formValue);
@@ -251,11 +226,14 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     }
 
     public delete() {
+        const eventId = this.dialogData.event?.eventId;
+        if (!eventId) return;
+
         this.dialog
             .open(ConfirmDialogComponent, {
                 data: {
                     title: 'Ereignis löschen',
-                    message: 'Möchten Sie dieses Ereignis wirklich löschen?',
+                    message: 'Möchtest du dieses Ereignis wirklich löschen?',
                     confirmText: 'Löschen',
                     isDestructive: true,
                 },
@@ -264,7 +242,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             .subscribe((confirm) => {
                 if (confirm)
                     this.dialogRef.close({
-                        data: this.dialogData.event.eventId,
+                        data: eventId,
                         action: 'delete',
                     });
             });
@@ -272,6 +250,61 @@ export class EventDialogComponent implements OnInit, OnDestroy {
 
     public close() {
         this.dialogRef.close(null);
+    }
+
+    public generateIcalLink() {
+        if (this.isGeneratingIcal() || this.eventForm.invalid) return;
+
+        const event = this.formService.getCreateEventData(
+            this.eventForm.getRawValue() as EventFormValue,
+        );
+        this.isGeneratingIcal.set(true);
+        this.calendarService.generateIcalLink(event).subscribe({
+            next: (link) => {
+                this.isGeneratingIcal.set(false);
+                if (this.isMobile()) {
+                    window.location.href = link;
+                } else {
+                    this.downloadIcalFile(link, event.startDateTime);
+                }
+            },
+            error: () => {
+                this.isGeneratingIcal.set(false);
+                this.showIcalError();
+            },
+        });
+    }
+
+    private downloadIcalFile(link: string, startDateTime: string | null) {
+        fetch(link)
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.blob();
+            })
+            .then((blob) => {
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = this.buildIcalFileName(startDateTime);
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                URL.revokeObjectURL(url);
+            })
+            .catch(() => this.showIcalError());
+    }
+
+    private buildIcalFileName(startDateTime: string | null): string {
+        const start = startDateTime ? dayjs(startDateTime) : null;
+        return start?.isValid()
+            ? `${start.format('YYYY-MM-DD-HH-mm')}.ics`
+            : 'event.ics';
+    }
+
+    private showIcalError() {
+        this.snackbar.openError(
+            'Der Kalender-Link konnte nicht erstellt werden.',
+        );
     }
 
     public changeInterval(delta: number) {

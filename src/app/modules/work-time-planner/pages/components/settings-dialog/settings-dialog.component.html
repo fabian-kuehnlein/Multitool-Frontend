@@ -66,8 +66,8 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog-actions">
-    <button mat-button (click)="close()">Abbrechen</button>
-    <button mat-flat-button (click)="save()" [disabled]="form.invalid">
+    <button matButton (click)="close()">Abbrechen</button>
+    <button matButton="filled" class="primary-action" (click)="save()" [disabled]="form.invalid">
         <mat-icon>save</mat-icon>
         Speichern
     </button>

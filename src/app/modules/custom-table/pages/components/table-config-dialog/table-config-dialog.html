@@ -95,7 +95,7 @@
 
 <mat-dialog-actions class="actions">
     @if (dialogMode === DialogMode.EditColumn) {
-        <button mat-button color="warn" (click)="delete()" class="delete-colors">
+        <button matButton color="warn" (click)="delete()" class="delete-colors">
             <mat-icon>delete</mat-icon>
             Spalte löschen
         </button>
@@ -103,9 +103,10 @@
 
     <div class="spacer"></div>
 
-    <button mat-button (click)="cancel()">Abbrechen</button>
+    <button matButton (click)="cancel()">Abbrechen</button>
     <button
-        mat-flat-button
+        matButton="filled"
+        class="primary-action"
         (click)="save()"
         [disabled]="form.invalid"
     >

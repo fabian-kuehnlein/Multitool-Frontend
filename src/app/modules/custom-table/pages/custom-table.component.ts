@@ -355,11 +355,9 @@ export class CustomTableComponent implements OnInit, OnDestroy {
         data: TableConfigDialogData,
     ): MatDialogRef<TableConfigDialog> {
         return this.dialog.open(TableConfigDialog, {
-            width: this.isMobile() ? '100vw' : 'auto',
-            height: this.isMobile() ? '100vh' : 'auto',
-            minWidth: this.isMobile() ? '100vw' : '600px',
-            maxWidth: this.isMobile() ? '100vw' : '1500px',
-            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+            width: this.isMobile() ? '90vw' : 'auto',
+            minWidth: this.isMobile() ? 'unset' : '600px',
+            maxWidth: this.isMobile() ? '90vw' : '1500px',
             data,
         });
     }

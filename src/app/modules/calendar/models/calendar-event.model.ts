@@ -1,12 +1,12 @@
 export interface CalendarEvent {
     id: string;
     title: string;
-    note: string;
+    note: string | null;
     startDateTime: string | null;
     endDateTime?: string | null;
     isAllDay?: boolean;
-    categoryId?: string;
+    categoryId?: string | number | null;
     recurrenceRule?: string | null;
     recurrenceEnd?: string | null;
-    isTodo?: boolean | false;
+    isTodo?: boolean;
 }

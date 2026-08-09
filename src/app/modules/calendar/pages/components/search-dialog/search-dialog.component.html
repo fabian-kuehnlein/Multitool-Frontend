@@ -20,7 +20,7 @@
             @if (searchControl.value) {
                 <button
                     matSuffix
-                    mat-icon-button
+                    matIconButton
                     aria-label="Clear"
                     (click)="searchControl.setValue('')"
                 >
@@ -87,7 +87,7 @@
                     <td mat-cell *matCellDef="let element">
                         <div class="action-buttons">
                             <button
-                                mat-icon-button
+                                matIconButton
                                 aria-label="Kalender anzeigen"
                                 matTooltip="Zu Event springen"
                                 (click)="goToDate(element)"
@@ -95,7 +95,7 @@
                                 <mat-icon>event</mat-icon>
                             </button>
                             <button
-                                mat-icon-button
+                                matIconButton
                                 aria-label="Löschen"
                                 matTooltip="Löschen"
                                 class="delete-colors"
@@ -127,6 +127,6 @@
     }
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-    <button mat-button (click)="close()">Schließen</button>
+<mat-dialog-actions align="end" class="dialog-actions">
+    <button matButton (click)="close()">Schließen</button>
 </mat-dialog-actions>

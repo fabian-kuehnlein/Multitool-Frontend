@@ -3,7 +3,28 @@
     <span>{{
         !isEditMode() ? "Neues Event erstellen" : "Event bearbeiten"
     }}</span>
+    @if (isEditMode() && !isMobile()) {
+        <ng-container [ngTemplateOutlet]="icalButton"></ng-container>
+    }
 </h1>
+
+<ng-template #icalButton>
+    <button
+        matButton
+        class="ical-link-button"
+        type="button"
+        matTooltip="In Kalender-App öffnen"
+        [disabled]="isGeneratingIcal() || eventForm.invalid"
+        (click)="generateIcalLink()"
+    >
+        @if (isGeneratingIcal()) {
+            <mat-spinner matButtonIcon diameter="20"></mat-spinner>
+        } @else {
+            <mat-icon matButtonIcon>calendar_month</mat-icon>
+        }
+        iCal
+    </button>
+</ng-template>
 
 @if (isLoadingCategories()) {
     <div mat-dialog-content class="loading-container">
@@ -41,7 +62,7 @@
                             <span>{{ selectedCategory()?.name }}</span>
                         </div>
                     </mat-select-trigger>
-                    @for (category of categories(); track category.id) {
+                    @for (category of categoryOptions(); track category.id) {
                         <mat-option [value]="category.id">
                             <div class="category-option">
                                 <span
@@ -105,6 +126,8 @@
                     <mat-error>Ungültiges Enddatum</mat-error>
                 } @else if (eventForm.hasError("startDateMissing")) {
                     <mat-error>Startdatum erforderlich</mat-error>
+                } @else if (eventForm.hasError("endDateMissing")) {
+                    <mat-error>Enddatum erforderlich</mat-error>
                 }
             </mat-form-field>
 
@@ -141,6 +164,11 @@
                 @if (eventForm.get("isAllDay")?.value) {
                     <mat-hint>Ganztägig</mat-hint>
                 }
+                @if (eventForm.hasError("endBeforeStart")) {
+                    <mat-error
+                        >Endzeit muss nach der Startzeit liegen</mat-error
+                    >
+                }
             </mat-form-field>
         </div>
 
@@ -175,7 +203,7 @@
                 <mat-form-field appearance="outline" class="interval-field">
                     <mat-label>Intervall</mat-label>
                     <button
-                        mat-icon-button
+                        matIconButton
                         matPrefix
                         (click)="changeInterval(-1)"
                         type="button"
@@ -190,7 +218,7 @@
                         class="centered-input"
                     />
                     <button
-                        mat-icon-button
+                        matIconButton
                         matSuffix
                         (click)="changeInterval(1)"
                         type="button"
@@ -254,7 +282,7 @@
     <div mat-dialog-actions align="end" class="dialog-actions">
         @if (isEditMode()) {
             <button
-                mat-button
+                matButton
                 class="delete-colors delete-button"
                 (click)="delete()"
             >
@@ -262,9 +290,13 @@
                 Löschen
             </button>
         }
-        <button mat-button (click)="close()">Abbrechen</button>
+        <button matButton (click)="close()">Abbrechen</button>
+        @if (isEditMode() && isMobile()) {
+            <ng-container [ngTemplateOutlet]="icalButton"></ng-container>
+        }
         <button
-            mat-flat-button
+            matButton="filled"
+            class="primary-action"
             (click)="save()"
             [disabled]="eventForm.invalid || !isChanged()"
         >

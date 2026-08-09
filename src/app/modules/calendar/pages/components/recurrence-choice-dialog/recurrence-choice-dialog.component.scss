@@ -1,0 +1,50 @@
+@use "../../../../../../_breakpoints" as bp;
+
+.dialog-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+
+    @include bp.mobile {
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+}
+
+mat-dialog-content {
+    padding-top: 10px;
+    color: var(--text-secondary);
+
+    p {
+        margin: 0;
+    }
+
+    @include bp.mobile {
+        text-align: center;
+    }
+}
+
+.dialog-actions {
+    padding: 16px 24px;
+    gap: 8px;
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+
+        .cancel-button {
+            width: 100%;
+        }
+
+        button:not(.cancel-button) {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+}

@@ -1,10 +1,51 @@
-import { CalendarOptions } from '@fullcalendar/core/index.js';
+import type { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import rrulePlugin from '@fullcalendar/rrule';
 import deLocale from '@fullcalendar/core/locales/de-at';
+import {
+    applyEventMount,
+    buildEventContent,
+    getDayCellClassNames,
+} from '../logic/event-content.logic';
+
+export type CalendarAction =
+    | 'today'
+    | 'prev'
+    | 'prevYear'
+    | 'next'
+    | 'nextYear'
+    | 'changeMonth'
+    | 'changeWeek'
+    | 'changeDay';
+
+export type RecurrenceFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+
+export type Weekday = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
+
+export interface WeekdayOption {
+    value: Weekday;
+    label: string;
+}
+
+export const weekdayOptions: WeekdayOption[] = [
+    { value: 'MO', label: 'Montag' },
+    { value: 'TU', label: 'Dienstag' },
+    { value: 'WE', label: 'Mittwoch' },
+    { value: 'TH', label: 'Donnerstag' },
+    { value: 'FR', label: 'Freitag' },
+    { value: 'SA', label: 'Samstag' },
+    { value: 'SU', label: 'Sonntag' },
+];
+
+export const frequencyLabels: Record<RecurrenceFrequency, string> = {
+    DAILY: 'Tage',
+    WEEKLY: 'Wochen',
+    MONTHLY: 'Monate',
+    YEARLY: 'Jahre',
+};
 
 export const defaultCalendarOptions: CalendarOptions = {
     plugins: [
@@ -17,70 +58,6 @@ export const defaultCalendarOptions: CalendarOptions = {
     locales: [deLocale],
     locale: 'de',
     timeZone: 'local',
-    eventContent: (arg) => {
-        const { event, view } = arg;
-        const isListView = view.type.includes('list');
-
-        if (event.display === 'background') {
-            return {
-                html: `<div class="fc-event-background" title="${event.title || ''}">${event.title || ''}</div>`,
-            };
-        }
-
-        const isAllDay = event.allDay;
-
-        const isTodo = event.extendedProps['isTodo'] || false;
-        const isRecurring = !!event.extendedProps['recurrenceRule'];
-
-        var icon = '';
-        if (isTodo)
-            icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">task_alt</span>`;
-        if (isRecurring)
-            icon += `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px;">sync</span>`;
-
-        const note = event.extendedProps['eventNote'] || '';
-
-        const start = event.start ? new Date(event.start) : null;
-        const end = event.end ? new Date(event.end) : null;
-
-        const startStr = start?.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-        const endStr = end?.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-
-        const timeDisplay = isAllDay
-            ? ''
-            : startStr
-              ? endStr
-                  ? `${startStr} – ${endStr}`
-                  : `${startStr}`
-              : '';
-
-        if (isListView) {
-            return {
-                html: `
-                    <div class="fc-list-event-custom">
-                        <div class="fc-event-title" style="color: var(--text-primary);">${icon} ${event.title || ''}</div>
-                        ${note ? `<div class="fc-event-note" style="font-size: 0.85rem; font-style: italic; color: #888; margin-top: 2px;">${note}</div>` : ''}
-                    </div>
-                `,
-            };
-        }
-
-        return {
-            html: `
-                <div class="fc-event-main-content">
-                    <div class="fc-event-title">${icon} ${event.title || ''}</div>
-                    ${timeDisplay ? `<div class="fc-event-time">${timeDisplay}</div>` : ''}
-                    ${note ? `<div class="fc-event-note">${note}</div>` : ''}
-                </div>
-            `,
-        };
-    },
     headerToolbar: false,
     initialView: 'dayGridMonth',
     firstDay: 1,
@@ -95,66 +72,7 @@ export const defaultCalendarOptions: CalendarOptions = {
         hour: '2-digit',
         minute: '2-digit',
     },
-    dayCellClassNames: (arg) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const cellDate = new Date(arg.date);
-        cellDate.setHours(0, 0, 0, 0);
-
-        if (cellDate.getTime() < today.getTime()) {
-            return ['past-date'];
-        }
-        return [];
-    },
-    eventDidMount: ({ event, el, view }) => {
-        const categoryColor = event.extendedProps['categoryColor'];
-        const isListView = view.type.includes('list');
-        const isPlaceholder = event.extendedProps['isPlaceholder'];
-
-        if (isPlaceholder) {
-            el.style.fontStyle = 'italic';
-            el.style.opacity = '0.7';
-            el.style.pointerEvents = 'none';
-            const dot = el.querySelector('.fc-list-event-dot') as HTMLElement;
-            if (dot) dot.style.display = 'none';
-            return;
-        }
-
-        if (categoryColor) {
-            if (isListView) {
-                // Apply color to the dot and a left border
-                const dot = el.querySelector(
-                    '.fc-list-event-dot',
-                ) as HTMLElement;
-                if (dot) {
-                    dot.style.borderColor = categoryColor;
-                    dot.style.backgroundColor = categoryColor;
-                }
-
-                // For our custom indicator
-                el.style.setProperty('--event-color', categoryColor);
-            } else {
-                // Standard grid styling
-                el.style.backgroundColor = categoryColor;
-                el.style.borderColor = categoryColor;
-                el.style.color = '#fff';
-            }
-        }
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const end = event.end
-            ? new Date(event.end)
-            : event.start
-              ? new Date(event.start)
-              : new Date();
-        end.setHours(0, 0, 0, 0);
-
-        if (end.getTime() < today.getTime()) {
-            el.classList.add('past-event');
-            el.style.opacity = '0.6';
-        }
-    },
+    eventContent: buildEventContent,
+    dayCellClassNames: getDayCellClassNames,
+    eventDidMount: applyEventMount,
 };

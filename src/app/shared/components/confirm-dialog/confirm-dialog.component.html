@@ -11,11 +11,11 @@
     </mat-dialog-content>
 
     <mat-dialog-actions class="dialog-actions">
-        <button mat-button (click)="dialogRef.close(false)" class="cancel-btn">
+        <button matButton (click)="dialogRef.close(false)" class="cancel-btn">
             {{ cancelText }}
         </button>
         <button
-            mat-flat-button
+            matButton="filled"
             (click)="dialogRef.close(true)"
             class="confirm-btn"
             [class.delete-colors]="isDestructive"
