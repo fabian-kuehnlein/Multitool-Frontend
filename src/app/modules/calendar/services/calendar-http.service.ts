@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { CreateCalendarEvent } from '../models/create-calendar-event.model';
+import { GetICalLinkEvent } from '../models/get-ical-link-event.model';
 import { Holiday } from '../models/holiday.model';
 import { SearchResult } from '../models/search-result.model';
 
@@ -17,7 +18,7 @@ export class CalendarHttpService {
     getEventsByRange(
         startDate: string,
         endDate: string,
-        categories: string[] | null,
+        categories: number[] | null,
     ): Observable<CalendarEvent[]> {
         let params = new HttpParams()
             .set('startDate', startDate)
@@ -44,14 +45,14 @@ export class CalendarHttpService {
     }
 
     updateEvent(event: CalendarEvent): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/events`, event);
+        return this.http.put<void>(`${this.apiURL}/events/${event.id}`, event);
     }
 
-    generateIcalLink(event: CreateCalendarEvent): Observable<string> {
+    generateIcalLink(event: GetICalLinkEvent): Observable<string> {
         return this.http.post<string>(`${this.apiURL}/events/ical-link`, event);
     }
 
-    deleteEvent(eventId: string): Observable<void> {
+    deleteEvent(eventId: string | number): Observable<void> {
         return this.http.delete<void>(`${this.apiURL}/events/${eventId}`);
     }
 

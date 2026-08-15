@@ -138,8 +138,8 @@ export class SearchDialogComponent implements OnDestroy {
         }
     }
 
-    delete(deleteId: string) {
-        if (!deleteId) return;
+    delete(deleteId: number) {
+        if (deleteId == null) return;
 
         this.dialog
             .open(ConfirmDialogComponent, {

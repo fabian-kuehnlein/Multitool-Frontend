@@ -5,24 +5,23 @@ export enum Priority {
 }
 
 export interface Todo {
-    id: string;
+    id: number;
     title: string;
     description?: string | null;
-    categoryId: string;
+    categoryId: number;
     isDone: boolean;
     priority: Priority;
     dueDate?: string | null;
     creationDateTime: string;
+    completedDateTime?: string | null;
 }
 
 export interface CreateTodoDto {
     title: string;
     description?: string | null;
-    categoryId: string;
+    categoryId: number;
     priority: Priority;
     dueDate?: string | null;
 }
 
-export interface UpdateTodoDto extends CreateTodoDto {
-    isDone: boolean;
-}
+export type UpdateTodoDto = CreateTodoDto;

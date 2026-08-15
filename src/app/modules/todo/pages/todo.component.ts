@@ -59,7 +59,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     readonly sortDirection = signal<TodoSortDirection>('asc');
     readonly filterStatus = signal<TodoFilterStatus>('all');
     readonly filterPriority = signal<Priority | null>(null);
-    readonly filterCategory = signal<string | null>(null);
+    readonly filterCategory = signal<number | null>(null);
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
@@ -238,7 +238,7 @@ export class TodoComponent implements OnInit, OnDestroy {
         this.filterPriority.set(priority);
     }
 
-    setFilterCategory(categoryId: string | null): void {
+    setFilterCategory(categoryId: number | null): void {
         this.filterCategory.set(categoryId);
     }
 }

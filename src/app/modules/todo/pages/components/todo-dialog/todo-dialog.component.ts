@@ -36,7 +36,7 @@ export class TodoDialogComponent {
         if (this.form.invalid) return;
         this.dialogRef.close(
             this.isEditMode()
-                ? this.formService.getUpdateData(this.data?.todo?.isDone ?? false)
+                ? this.formService.getUpdateData()
                 : this.formService.getCreateData(),
         );
     }

@@ -31,8 +31,8 @@ export class CustomTableHttpService {
         return this.http.post<number>(`${this.apiURL}/tables`, dto);
     }
 
-    updateTable(tableId: number, newName: string): Observable<number> {
-        return this.http.put<number>(`${this.apiURL}/tables/${tableId}`, {
+    updateTable(tableId: number, newName: string): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/tables/${tableId}`, {
             name: newName,
         });
     }
@@ -41,19 +41,19 @@ export class CustomTableHttpService {
         return this.http.delete<void>(`${this.apiURL}/tables/${tableId}`);
     }
 
-    createColumn(tableId: number): Observable<number> {
-        return this.http.post<number>(
+    createColumn(tableId: number): Observable<void> {
+        return this.http.post<void>(
             `${this.apiURL}/tables/${tableId}/columns`,
             null,
         );
     }
 
-    updateColumn(columnId: number, dto: UpdateColumnDto): Observable<number> {
-        return this.http.put<number>(`${this.apiURL}/columns/${columnId}`, dto);
+    updateColumn(columnId: number, dto: UpdateColumnDto): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/columns/${columnId}`, dto);
     }
 
-    updateColumnOrder(dto: UpdateColumnOrderDto[]): Observable<number> {
-        return this.http.put<number>(`${this.apiURL}/columns/order`, dto);
+    updateColumnOrder(dto: UpdateColumnOrderDto[]): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/columns/order`, dto);
     }
 
     deleteColumn(tableId: number, columnId: number): Observable<void> {
@@ -62,8 +62,8 @@ export class CustomTableHttpService {
         );
     }
 
-    createRow(tableId: number): Observable<number> {
-        return this.http.post<number>(
+    createRow(tableId: number): Observable<void> {
+        return this.http.post<void>(
             `${this.apiURL}/tables/${tableId}/rows`,
             null,
         );

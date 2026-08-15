@@ -4,7 +4,7 @@ export interface CreateCalendarEvent {
     startDateTime: string | null;
     endDateTime?: string | null;
     isAllDay: boolean;
-    categoryId?: string | number | null;
+    categoryId: number;
     recurrenceRule?: string | null;
     recurrenceEnd?: string | null;
 }

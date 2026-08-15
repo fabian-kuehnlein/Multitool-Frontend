@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import dayjs from 'dayjs';
 import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
+import { GetICalLinkEvent } from '../../../models/get-ical-link-event.model';
 import { CalendarEvent } from '../../../models/calendar-event.model';
 import {
     combineDateAndTime,
@@ -29,7 +30,7 @@ export interface EventFormValue {
     endDate: Date | null;
     endTime: Date | null;
     isAllDay: boolean;
-    categoryId: string;
+    categoryId: number | null;
     isRecurring: boolean;
     recurrenceFrequency: string;
     recurrenceInterval: number;
@@ -58,7 +59,7 @@ export class EventFormService {
                 endDate: [null, [Validators.required]],
                 endTime: [null],
                 isAllDay: [false],
-                categoryId: ['', [Validators.required]],
+                categoryId: [null as number | null, [Validators.required]],
                 isRecurring: [false],
                 recurrenceFrequency: ['WEEKLY'],
                 recurrenceInterval: [1],
@@ -117,7 +118,7 @@ export class EventFormService {
             startDateTime,
             endDateTime,
             isAllDay: formValue.isAllDay,
-            categoryId: formValue.categoryId,
+            categoryId: formValue.categoryId!,
             recurrenceRule: recurrenceRule,
             recurrenceEnd: recurrenceEnd,
         };
@@ -134,6 +135,19 @@ export class EventFormService {
         return {
             ...createData,
             id,
+        };
+    }
+
+    /**
+     * Maps form values back to the payload expected by the iCal link endpoint.
+     */
+    public getIcalLinkData(formValue: EventFormValue): GetICalLinkEvent {
+        const createData = this.getCreateEventData(formValue);
+        return {
+            title: createData.title,
+            note: createData.note,
+            startDateTime: createData.startDateTime,
+            endDateTime: createData.endDateTime,
         };
     }
 
@@ -169,7 +183,7 @@ export class EventFormService {
         form.patchValue({
             eventTitle: event.eventTitle,
             eventNote: event.eventNote,
-            categoryId: event.categoryId ?? '',
+            categoryId: event.categoryId ?? null,
             startDate: start?.isValid()
                 ? start.startOf('day').toDate()
                 : null,

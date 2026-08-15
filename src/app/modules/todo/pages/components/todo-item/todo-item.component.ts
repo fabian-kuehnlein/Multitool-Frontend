@@ -71,7 +71,7 @@ export class TodoItemComponent {
         }
     }
 
-    getCategory(categoryId: string): Category | undefined {
+    getCategory(categoryId: number): Category | undefined {
         return this.categoryService
             .categories()
             .find((category) => category.id === categoryId);

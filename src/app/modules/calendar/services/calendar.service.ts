@@ -3,6 +3,7 @@ import { Observable, of, tap, throwError } from 'rxjs';
 import { CalendarHttpService } from './calendar-http.service';
 import { CalendarEvent } from '../models/calendar-event.model';
 import { CreateCalendarEvent } from '../models/create-calendar-event.model';
+import { GetICalLinkEvent } from '../models/get-ical-link-event.model';
 import { Holiday } from '../models/holiday.model';
 import { SearchResult } from '../models/search-result.model';
 import { addExcludeDateToRule } from '../logic/rrule.logic';
@@ -21,7 +22,7 @@ export class CalendarService {
     getEvents(
         startDate: string,
         endDate: string,
-        categories: string[] | null,
+        categories: number[] | null,
     ): Observable<CalendarEvent[]> {
         return this.httpService
             .getEventsByRange(startDate, endDate, categories)
@@ -36,11 +37,11 @@ export class CalendarService {
         return this.httpService.updateEvent(event);
     }
 
-    deleteEvent(eventId: string): Observable<void> {
+    deleteEvent(eventId: string | number): Observable<void> {
         return this.httpService.deleteEvent(eventId);
     }
 
-    generateIcalLink(event: CreateCalendarEvent): Observable<string> {
+    generateIcalLink(event: GetICalLinkEvent): Observable<string> {
         return this.httpService.generateIcalLink(event);
     }
 

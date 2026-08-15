@@ -1,4 +1,8 @@
-import { CreateWorkDayDto, WorkDay } from '../models/work-time-planner.model';
+import {
+    CreateWorkDayDto,
+    UpdateWorkDayDto,
+    WorkDay,
+} from '../models/work-time-planner.model';
 
 export function toCreateWorkDayDto(day: WorkDay): CreateWorkDayDto {
     return {
@@ -8,6 +12,12 @@ export function toCreateWorkDayDto(day: WorkDay): CreateWorkDayDto {
         breakMinutes: day.breakMinutes,
         isHomeOffice: day.isHomeOffice,
         status: day.status,
+    };
+}
+
+export function toUpdateWorkDayDto(day: WorkDay): UpdateWorkDayDto {
+    return {
+        ...toCreateWorkDayDto(day),
         isLocked: day.isLocked,
     };
 }

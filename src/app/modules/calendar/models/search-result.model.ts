@@ -1,5 +1,5 @@
 export interface SearchResult {
-    eventId: string;
+    eventId: number;
     eventTitle: string;
     eventNote: string | null;
     startDateTime: string | null;

@@ -17,7 +17,10 @@ export class TodoDialogFormService {
         description: [''],
         priority: [Priority.Medium, [Validators.required]],
         dueDate: this.fb.control<string | null>(null),
-        categoryId: ['', [Validators.required]],
+        categoryId: this.fb.control<number | null>(
+            null,
+            [Validators.required],
+        ),
     });
 
     patchFrom(todo: Todo): void {
@@ -36,7 +39,7 @@ export class TodoDialogFormService {
             title: value.title,
             description:
                 value.description?.trim() === '' ? null : value.description,
-            categoryId: value.categoryId,
+            categoryId: value.categoryId!,
             priority: value.priority,
             dueDate: value.dueDate
                 ? dayjs(value.dueDate).format('YYYY-MM-DDTHH:mm:ss')
@@ -44,7 +47,7 @@ export class TodoDialogFormService {
         };
     }
 
-    getUpdateData(isDone: boolean): UpdateTodoDto {
-        return { ...this.getCreateData(), isDone };
+    getUpdateData(): UpdateTodoDto {
+        return this.getCreateData();
     }
 }
