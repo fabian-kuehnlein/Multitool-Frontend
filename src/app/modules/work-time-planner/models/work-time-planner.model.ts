@@ -44,10 +44,11 @@ export interface CreateWorkDayDto {
     breakMinutes: number;
     isHomeOffice: boolean;
     status: DayStatus;
-    isLocked: boolean;
 }
 
-export interface UpdateWorkDayDto extends CreateWorkDayDto {}
+export interface UpdateWorkDayDto extends CreateWorkDayDto {
+    isLocked: boolean;
+}
 
 export interface MonthHoCount {
     year: number;

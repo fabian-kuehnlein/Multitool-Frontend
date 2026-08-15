@@ -10,7 +10,7 @@ import {
     MonthHoCount,
 } from '../models/work-time-planner.model';
 import { WorkTimePlannerHttpService } from './work-time-planner-http.service';
-import { toCreateWorkDayDto } from '../mappers/work-day.mapper';
+import { toCreateWorkDayDto, toUpdateWorkDayDto } from '../mappers/work-day.mapper';
 import {
     calculateWorkDay,
     collectMonthsToQuery,
@@ -270,12 +270,10 @@ export class WorkTimePlannerService {
     }
 
     private saveWorkDay(toSave: WorkDay): Observable<void> {
-        const dto = toCreateWorkDayDto(toSave);
-
         if (toSave.id) {
-            return this.httpService.updateWorkDay(toSave.id, dto).pipe(
-                tap(() => this.saveCurrentWeekSummary()),
-            );
+            return this.httpService
+                .updateWorkDay(toSave.id, toUpdateWorkDayDto(toSave))
+                .pipe(tap(() => this.saveCurrentWeekSummary()));
         }
 
         if (this._pendingCreates.has(toSave.date)) {
@@ -283,7 +281,7 @@ export class WorkTimePlannerService {
         }
 
         this._pendingCreates.add(toSave.date);
-        return this.httpService.createWorkDay(dto).pipe(
+        return this.httpService.createWorkDay(toCreateWorkDayDto(toSave)).pipe(
             map((saved) => {
                 const normalized = normalizeWorkDay(saved);
                 const calculated = calculateWorkDay(

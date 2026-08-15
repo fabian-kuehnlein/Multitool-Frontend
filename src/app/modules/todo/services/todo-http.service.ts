@@ -19,15 +19,15 @@ export class TodoHttpService {
         return this.http.post<Todo>(this.apiUrl, todo);
     }
 
-    updateTodo(id: string, todo: UpdateTodoDto): Observable<Todo> {
+    updateTodo(id: number, todo: UpdateTodoDto): Observable<Todo> {
         return this.http.put<Todo>(`${this.apiUrl}/${id}`, todo);
     }
 
-    toggleDone(id: string): Observable<void> {
+    toggleDone(id: number): Observable<void> {
         return this.http.patch<void>(`${this.apiUrl}/${id}/toggle`, null);
     }
 
-    deleteTodo(id: string): Observable<void> {
+    deleteTodo(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 }

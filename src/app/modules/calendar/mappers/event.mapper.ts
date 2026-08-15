@@ -11,7 +11,7 @@ export interface FullCalendarEventInput {
     startDateTime: Date | null;
     endDateTime: Date | null;
     isAllDay: boolean;
-    categoryId: string | null;
+    categoryId: number | null;
     recurrenceRule: string | null;
     recurrenceEnd: string | null;
     isTodo: boolean;
@@ -41,7 +41,7 @@ export function toEventInput(
     categories: Category[],
 ): EventInput {
     const category = categories.find(
-        (c) => String(c.id) === String(event.categoryId),
+        (c) => c.id === event.categoryId,
     );
     const color = category?.color || 'var(--accent-primary)';
 
@@ -116,7 +116,7 @@ export function fromFullCalendarEvent(
         startDateTime: event.start,
         endDateTime,
         isAllDay: event.allDay,
-        categoryId: event.extendedProps['categoryId']?.toString() ?? null,
+        categoryId: event.extendedProps['categoryId'] ?? null,
         recurrenceRule: event.extendedProps['recurrenceRule'] ?? null,
         recurrenceEnd: event.extendedProps['recurrenceEnd'] ?? null,
         isTodo: event.extendedProps['isTodo'] ?? false,
@@ -137,6 +137,6 @@ export function toCalendarEvent(event: EventApi): CalendarEvent {
         startDateTime: start.format('YYYY-MM-DDTHH:mm:ss'),
         endDateTime: end.format('YYYY-MM-DDTHH:mm:ss'),
         isAllDay: event.allDay,
-        categoryId: event.extendedProps['categoryId'] || '',
+        categoryId: event.extendedProps['categoryId'] ?? null,
     };
 }

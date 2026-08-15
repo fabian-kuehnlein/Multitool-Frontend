@@ -50,7 +50,7 @@ export class TodoService {
             });
     }
 
-    updateTodo(id: string, todoDto: UpdateTodoDto): void {
+    updateTodo(id: number, todoDto: UpdateTodoDto): void {
         this._loading.set(true);
         this.httpService
             .updateTodo(id, todoDto)
@@ -73,7 +73,7 @@ export class TodoService {
             });
     }
 
-    toggleDone(id: string, isDone: boolean): void {
+    toggleDone(id: number, isDone: boolean): void {
         this.httpService.toggleDone(id).subscribe({
             next: () => {
                 this._todos.update((todos) => {
@@ -89,7 +89,7 @@ export class TodoService {
         });
     }
 
-    deleteTodo(id: string): void {
+    deleteTodo(id: number): void {
         this.httpService.deleteTodo(id).subscribe({
             next: () => {
                 this._todos.update((todos) => todos.filter((t) => t.id !== id));

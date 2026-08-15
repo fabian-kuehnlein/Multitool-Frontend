@@ -5,7 +5,7 @@ export interface CalendarEvent {
     startDateTime: string | null;
     endDateTime?: string | null;
     isAllDay?: boolean;
-    categoryId?: string | number | null;
+    categoryId?: number | null;
     recurrenceRule?: string | null;
     recurrenceEnd?: string | null;
     isTodo?: boolean;

@@ -101,12 +101,6 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     // UI Metadata
     protected readonly weekdayOptions = weekdayOptions;
 
-    // Category ids arrive as numbers from the API despite the string type;
-    // normalize them to strings so they match the form's categoryId control.
-    public readonly categoryOptions = computed(() =>
-        this.categories().map((c) => ({ ...c, id: String(c.id) })),
-    );
-
     // Form setup
     public readonly eventForm: FormGroup = this.formService.buildForm();
     private readonly formValue = toSignal<EventFormValue | null>(
@@ -136,7 +130,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
 
     public readonly selectedCategory = computed(() => {
         const categoryId = this.formValue()?.categoryId;
-        return this.categoryOptions().find((c) => c.id === categoryId);
+        return this.categories().find((c) => c.id === categoryId);
     });
 
     public readonly getFrequencyLabel = computed(() => {
@@ -159,11 +153,11 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         // categories have loaded. Editing uses the event's own category set in
         // patchFormForEdit.
         effect(() => {
-            const options = this.categoryOptions();
+            const options = this.categories();
             if (options.length === 0 || this.isEditMode()) return;
 
             const defaultCat =
-                options.find((c) => c.id === '1') || options[0];
+                options.find((c) => c.id === 1) || options[0];
             this.eventForm.get('categoryId')?.setValue(defaultCat.id);
         });
     }
@@ -255,7 +249,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     public generateIcalLink() {
         if (this.isGeneratingIcal() || this.eventForm.invalid) return;
 
-        const event = this.formService.getCreateEventData(
+        const event = this.formService.getIcalLinkData(
             this.eventForm.getRawValue() as EventFormValue,
         );
         this.isGeneratingIcal.set(true);

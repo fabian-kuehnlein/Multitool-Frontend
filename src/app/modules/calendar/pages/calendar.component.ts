@@ -120,11 +120,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     );
 
     public readonly categoryList = this.categoryService.categories;
-    public readonly categoryControl = new FormControl<string[]>([]);
+    public readonly categoryControl = new FormControl<number[]>([]);
 
     private readonly categoryControlValue = toSignal(
         this.categoryControl.valueChanges,
-        { initialValue: [] as string[] },
+        { initialValue: [] as number[] },
     );
 
     public readonly selectedCategoryIds = computed(() => {
@@ -426,7 +426,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     ) {
         const { id, ...newEvent } = updatedData;
         this.calendarService
-            .createEvent({ ...newEvent, isAllDay: newEvent.isAllDay ?? false })
+            .createEvent({
+                ...newEvent,
+                isAllDay: newEvent.isAllDay ?? false,
+                categoryId: newEvent.categoryId ?? 0,
+            })
             .subscribe(() => {
                 this.excludeDateFromSeries(originalInstance);
             });
