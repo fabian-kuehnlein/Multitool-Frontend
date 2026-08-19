@@ -146,9 +146,20 @@ export class EventFormService {
         return {
             title: createData.title,
             note: createData.note,
-            startDateTime: createData.startDateTime,
-            endDateTime: createData.endDateTime,
+            startDateTime: this.withLocalOffset(createData.startDateTime),
+            endDateTime: this.withLocalOffset(createData.endDateTime),
         };
+    }
+
+    /**
+     * Appends the local timezone offset to a floating datetime string so the
+     * backend can convert it to UTC for the iCal export. Without an offset the
+     * backend treats the value as UTC, which shifts the event by the local
+     * UTC offset (e.g. +2h in Germany).
+     */
+    private withLocalOffset(value: string | null | undefined): string | null {
+        if (!value) return null;
+        return dayjs(value).format('YYYY-MM-DDTHH:mm:ssZ');
     }
 
     /**
