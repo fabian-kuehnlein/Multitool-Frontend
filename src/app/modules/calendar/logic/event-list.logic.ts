@@ -109,6 +109,20 @@ export function filterPastEvents(
     const filtered: EventInput[] = [];
 
     for (const event of events) {
+        const rrule = event.rrule as RecurrenceRuleInput | undefined;
+
+        // Recurring events: Only drop the series when its recurrence has fully ended.
+        if (rrule) {
+            if (
+                rrule.until &&
+                dayjs(rrule.until).startOf('day').isBefore(todayStart)
+            ) {
+                continue;
+            }
+            filtered.push(event);
+            continue;
+        }
+
         const eventStart = dayjs(event.start as string);
         const eventEnd = dayjs((event.end || event.start) as string);
 
