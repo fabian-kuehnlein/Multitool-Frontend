@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 
 import {
     FormsModule,
@@ -35,7 +35,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginComponent {
     loginForm: FormGroup;
-    isLoading = false;
+    isLoading = signal(false);
 
     constructor(
         private fb: FormBuilder,
@@ -51,14 +51,14 @@ export class LoginComponent {
 
     onSubmit(): void {
         if (this.loginForm.valid) {
-            this.isLoading = true;
+            this.isLoading.set(true);
             const { username, password } = this.loginForm.value;
             this.authService.login(username, password).subscribe({
                 next: () => {
                     this.router.navigate(['/calendar']);
                 },
                 error: (err) => {
-                    this.isLoading = false;
+                    this.isLoading.set(false);
                     this.snackBar.open(
                         'Login fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.',
                         'Schließen',
