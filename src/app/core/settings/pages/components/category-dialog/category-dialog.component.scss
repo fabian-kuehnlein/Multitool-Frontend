@@ -1,0 +1,128 @@
+@use "../../../../../../_breakpoints" as bp;
+
+.category-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 8px;
+}
+
+.full-width-field {
+    width: 100%;
+}
+
+.color-picker-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .color-picker-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+}
+
+.color-presets-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.preset-color-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    padding: 0;
+
+    &:hover {
+        transform: scale(1.1);
+    }
+
+    &.active-color {
+        border-color: var(--text-primary);
+        box-shadow: var(--shadow-md);
+        transform: scale(1.15);
+    }
+
+    .check-icon {
+        color: #ffffff;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+}
+
+.custom-color-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+
+    .custom-color-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+}
+
+.custom-color-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .color-picker-input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 36px;
+        height: 36px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        border-radius: 50%;
+
+        &::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+            border: 1px solid var(--border-medium);
+            border-radius: 50%;
+        }
+
+        &::-moz-color-swatch {
+            border: 1px solid var(--border-medium);
+            border-radius: 50%;
+        }
+    }
+
+    .color-code-display {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+}
+
+.dialog-actions-container {
+    padding: 16px 24px;
+    gap: 12px;
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+
+        .cancel-button {
+            width: 100%;
+        }
+
+        .save-button {
+            width: 100%;
+        }
+    }
+}

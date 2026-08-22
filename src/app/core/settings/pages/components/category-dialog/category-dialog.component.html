@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>
+    {{ isEditMode ? 'Kategorie bearbeiten' : 'Neue Kategorie erstellen' }}
+</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="form" class="category-form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width-field">
+            <mat-label>Kategoriename</mat-label>
+            <input
+                matInput
+                formControlName="name"
+                placeholder="z.B. Arbeit, Privat, Projekt"
+                required
+            />
+            @if (form.controls.name.hasError('required')) {
+                <mat-error>Name ist erforderlich</mat-error>
+            }
+            @if (form.controls.name.hasError('maxlength')) {
+                <mat-error>Maximal 50 Zeichen erlaubt</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="color-picker-section">
+            <label class="color-picker-label">Farbe auswählen</label>
+
+            <div class="color-presets-row">
+                @for (preset of presetColors; track preset) {
+                    <button
+                        type="button"
+                        class="preset-color-button"
+                        [style.background-color]="preset"
+                        [class.active-color]="form.controls.color.value === preset"
+                        (click)="selectPresetColor(preset)"
+                        [attr.aria-label]="'Farbe ' + preset + ' auswählen'"
+                    >
+                        @if (form.controls.color.value === preset) {
+                            <mat-icon class="check-icon">check</mat-icon>
+                        }
+                    </button>
+                }
+            </div>
+
+            <div class="custom-color-row">
+                <span class="custom-color-label">Benutzerdefinierte Farbe:</span>
+                <div class="custom-color-input-wrapper">
+                    <input
+                        type="color"
+                        formControlName="color"
+                        class="color-picker-input"
+                    />
+                    <span class="color-code-display">{{ form.controls.color.value }}</span>
+                </div>
+            </div>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions-container">
+    <button matButton="outlined" type="button" class="cancel-button" (click)="onCancel()">
+        Abbrechen
+    </button>
+    <button matButton="filled" type="button" class="save-button" (click)="onSubmit()">
+        <mat-icon matButtonIcon>save</mat-icon>
+        {{ isEditMode ? 'Speichern' : 'Erstellen' }}
+    </button>
+</mat-dialog-actions>
