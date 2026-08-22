@@ -46,4 +46,12 @@ export const routes: Routes = [
                 (m) => m.WorkTimePlannerComponent,
             ),
     },
+    {
+        path: 'settings',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./core/settings/pages/settings.component').then(
+                (m) => m.SettingsComponent,
+            ),
+    },
 ];

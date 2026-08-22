@@ -1,0 +1,205 @@
+// Desktop & Tablet layout styles for Settings
+
+.left-container,
+.right-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.right-container {
+    justify-content: flex-end;
+}
+
+.middle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+// ── Setting Cards ─────────────────────────────────────────────────────────────
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.setting-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border-default);
+    border-radius: 12px;
+
+    .setting-card-body {
+        padding: 20px 24px;
+    }
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    .setting-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .setting-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background-color: var(--accent-primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        .setting-icon {
+            color: var(--accent-primary);
+        }
+    }
+
+    .setting-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .setting-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .setting-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    }
+}
+
+// ── Category Grid & Cards ────────────────────────────────────────────────────
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.category-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border-default);
+    border-radius: 10px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .category-card-content {
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .category-main-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        .category-color-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-surface);
+            box-shadow: 0 0 0 1px var(--border-medium);
+            flex-shrink: 0;
+        }
+
+        .category-details {
+            display: flex;
+            flex-direction: column;
+
+            .category-name {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            .category-color-code {
+                font-size: 0.75rem;
+                font-family: monospace;
+                color: var(--text-muted);
+            }
+        }
+    }
+
+    .category-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .delete-action-button {
+            color: var(--text-muted);
+
+            &:hover {
+                color: var(--accent-danger);
+                background-color: var(--accent-danger-light);
+            }
+        }
+    }
+}
+
+// ── Loading & Empty States ───────────────────────────────────────────────────
+.loading-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    gap: 16px;
+    color: var(--text-muted);
+}
+
+.empty-state-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    background-color: var(--bg-surface);
+    border: 1px dashed var(--border-medium);
+    border-radius: 12px;
+
+    .empty-state-icon {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+        color: var(--text-disabled);
+        margin-bottom: 12px;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin: 0 0 4px 0;
+    }
+
+    p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0 0 20px 0;
+    }
+}
