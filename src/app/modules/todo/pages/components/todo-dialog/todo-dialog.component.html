@@ -19,13 +19,16 @@
             }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="description-form-field">
             <mat-label>Beschreibung</mat-label>
             <textarea
+                class="description-text-area"
                 matInput
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="3"
+                cdkAutosizeMaxRows="8"
                 formControlName="description"
                 placeholder="Weitere Details hinzufügen..."
-                rows="3"
             ></textarea>
         </mat-form-field>
 

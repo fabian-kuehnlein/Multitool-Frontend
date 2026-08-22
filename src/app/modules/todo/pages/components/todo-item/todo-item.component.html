@@ -103,11 +103,12 @@
             <mat-checkbox
                 [checked]="todo.isDone"
                 (change)="onToggleDone()"
-            >
-                <span class="todo-title" [class.done-text]="todo.isDone">{{
-                    todo.title
-                }}</span>
-            </mat-checkbox>
+                class="todo-checkbox"
+            ></mat-checkbox>
+
+            <span class="todo-title" [class.done-text]="todo.isDone">
+                {{ todo.title }}
+            </span>
 
             <div class="todo-meta-container">
                 @if (todo.description) {

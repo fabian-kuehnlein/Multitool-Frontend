@@ -1,0 +1,56 @@
+@use "../../../../_breakpoints" as bp;
+
+// Mobile-only styles for Settings
+
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .left-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+}
+
+@include bp.mobile {
+    .tab-content-container {
+        padding: 0;
+        gap: 16px;
+    }
+
+    .section-header-wrapper {
+        &.section-header-actions {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+
+            .add-category-button {
+                width: 100%;
+            }
+        }
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+
+        .setting-action {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -26,20 +26,20 @@
 
     <div class="action-list">
         <div
-            class="tool-item theme-toggle-item"
-            (click)="themeService.toggle()"
+            class="tool-item"
+            [class.active]="isCurrentRoute('/settings')"
+            (click)="navigate('settings')"
         >
             <div class="tool-icon">
-                <mat-icon>{{
-                    themeService.isDark() ? "light_mode" : "dark_mode"
-                }}</mat-icon>
+                <mat-icon>settings</mat-icon>
             </div>
             <div class="tool-info">
-                <span class="tool-name">{{
-                    themeService.isDark() ? "Helles Theme" : "Dunkles Theme"
-                }}</span>
-                <span class="tool-desc">Erscheinungsbild wechseln</span>
+                <span class="tool-name">Einstellungen</span>
+                <span class="tool-desc">App konfigurieren</span>
             </div>
+            @if (isCurrentRoute('/settings')) {
+                <div class="active-indicator"></div>
+            }
         </div>
 
         <div class="tool-item logout-item" (click)="logout()">

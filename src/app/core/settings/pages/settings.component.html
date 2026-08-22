@@ -1,0 +1,198 @@
+<div class="settings-page-container">
+    <!-- Toolbar Header -->
+    <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
+        @if (isMobile()) {
+            <div class="mobile-header">
+                <div class="left-actions">
+                    <button
+                        matIconButton
+                        (click)="openSideNav()"
+                        aria-label="Hauptmenü öffnen"
+                    >
+                        <mat-icon>home</mat-icon>
+                    </button>
+                    <span class="mobile-title">Einstellungen</span>
+                </div>
+            </div>
+        } @else if (isTablet()) {
+            <div class="mobile-header">
+                <div class="left-actions">
+                    <button
+                        matIconButton
+                        (click)="openSideNav()"
+                        aria-label="Hauptmenü öffnen"
+                    >
+                        <mat-icon>home</mat-icon>
+                    </button>
+                    <span class="mobile-title">Einstellungen</span>
+                </div>
+            </div>
+        } @else {
+            <div class="left-container">
+                <button
+                    matIconButton
+                    matTooltip="Tool wechseln"
+                    (click)="openSideNav()"
+                    class="sidenav-toggle"
+                    aria-label="Hauptmenü öffnen"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
+            </div>
+            <div class="middle-container">
+                <h1 class="page-title">Einstellungen</h1>
+            </div>
+            <div class="right-container"></div>
+        }
+    </mat-toolbar>
+
+    <!-- Main Content Area -->
+    <main class="main-content-container">
+        <mat-tab-group
+            class="settings-tabs-group"
+            animationDuration="200ms"
+            [selectedIndex]="selectedTabIndex()"
+            (selectedIndexChange)="onTabChange($event)"
+        >
+            <!-- Tab 1: Allgemein -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="tab-label-icon">tune</mat-icon>
+                    <span>Allgemein</span>
+                </ng-template>
+
+                <div class="tab-content-container">
+                    <!-- Section: Erscheinungsbild -->
+                    <div class="settings-section">
+                        <div class="section-header-wrapper">
+                            <h2 class="section-title">Erscheinungsbild</h2>
+                            <p class="section-subtitle">
+                                Passe das visuelle Design und Theme der Anwendung an.
+                            </p>
+                        </div>
+
+                        <mat-card appearance="outlined" class="setting-card">
+                            <mat-card-content class="setting-card-body">
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <div class="setting-icon-wrapper">
+                                            <mat-icon class="setting-icon">
+                                                {{ themeService.isDark() ? 'dark_mode' : 'light_mode' }}
+                                            </mat-icon>
+                                        </div>
+                                        <div class="setting-text">
+                                            <span class="setting-title">Dunkler Modus (Dark Mode)</span>
+                                            <span class="setting-description">
+                                                Wechsle zwischen hellem und dunklem Erscheinungsbild der Anwendung.
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-action">
+                                        <mat-slide-toggle
+                                            [checked]="themeService.isDark()"
+                                            (change)="toggleTheme()"
+                                            aria-label="Dunklen Modus aktivieren"
+                                        >
+                                            {{ themeService.isDark() ? 'Aktiviert' : 'Deaktiviert' }}
+                                        </mat-slide-toggle>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <!-- Tab 2: Kategorien -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="tab-label-icon">category</mat-icon>
+                    <span>Kategorien</span>
+                </ng-template>
+
+                <div class="tab-content-container">
+                    <div class="section-header-wrapper section-header-actions">
+                        <div>
+                            <h2 class="section-title">Globale Kategorien</h2>
+                            <p class="section-subtitle">
+                                Verwalte Kategorien für Aufgaben, Kalendereinträge und Tabellen.
+                            </p>
+                        </div>
+                        <button
+                            matButton="filled"
+                            type="button"
+                            class="add-category-button"
+                            (click)="openAddCategoryDialog()"
+                        >
+                            <mat-icon matButtonIcon>add</mat-icon>
+                            <span>Kategorie hinzufügen</span>
+                        </button>
+                    </div>
+
+                    @if (categoryService.loading()) {
+                        <div class="loading-state-container">
+                            <mat-spinner diameter="40"></mat-spinner>
+                            <span>Kategorien werden geladen...</span>
+                        </div>
+                    } @else if (categoryService.categories().length === 0) {
+                        <div class="empty-state-card">
+                            <mat-icon class="empty-state-icon">category</mat-icon>
+                            <h3>Keine Kategorien vorhanden</h3>
+                            <p>Erstelle deine erste globale Kategorie, um Einträge besser zu organisieren.</p>
+                            <button
+                                matButton="filled"
+                                type="button"
+                                (click)="openAddCategoryDialog()"
+                            >
+                                <mat-icon matButtonIcon>add</mat-icon>
+                                <span>Kategorie anlegen</span>
+                            </button>
+                        </div>
+                    } @else {
+                        <div class="category-grid">
+                            @for (category of categoryService.categories(); track category.id) {
+                                <mat-card appearance="outlined" class="category-card">
+                                    <mat-card-content class="category-card-content">
+                                        <div class="category-main-info">
+                                            <div
+                                                class="category-color-badge"
+                                                [style.background-color]="category.color"
+                                            ></div>
+                                            <div class="category-details">
+                                                <span class="category-name">{{ category.name }}</span>
+                                                <span class="category-color-code">{{ category.color }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="category-item-actions">
+                                            <button
+                                                matIconButton
+                                                type="button"
+                                                (click)="openEditCategoryDialog(category)"
+                                                matTooltip="Kategorie bearbeiten"
+                                                aria-label="Kategorie bearbeiten"
+                                            >
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button
+                                                matIconButton
+                                                type="button"
+                                                class="delete-action-button"
+                                                (click)="openDeleteCategoryDialog(category)"
+                                                matTooltip="Kategorie löschen"
+                                                aria-label="Kategorie löschen"
+                                            >
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                            }
+                        </div>
+                    }
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </main>
+</div>

@@ -6,7 +6,6 @@ import { MatListModule } from '@angular/material/list';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../auth/services/auth.service';
 import { MatDividerModule } from '@angular/material/divider';
-import { ThemeService } from '../../services/theme.service';
 import { NavigationService } from '../../services/navigation.service';
 
 @Component({
@@ -22,7 +21,6 @@ export class SidenavComponent {
     private readonly authService = inject(AuthService);
     private readonly dialogRef = inject(MatDialogRef<SidenavComponent>);
     public readonly dialogData = inject(MAT_DIALOG_DATA);
-    readonly themeService = inject(ThemeService);
     readonly navigationService = inject(NavigationService);
 
     navigate(route: string) {

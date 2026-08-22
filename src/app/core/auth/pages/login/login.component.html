@@ -4,7 +4,7 @@
             <mat-card-title>Anmelden</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            @if (isLoading) {
+            @if (isLoading()) {
                 <div class="loading-overlay">
                     <mat-progress-spinner
                         mode="indeterminate"
@@ -16,7 +16,7 @@
             <form
                 [formGroup]="loginForm"
                 (ngSubmit)="onSubmit()"
-                [class.hidden]="isLoading"
+                [class.hidden]="isLoading()"
             >
                 <mat-form-field appearance="outline">
                     <mat-label>Benutzername</mat-label>
@@ -47,9 +47,9 @@
                     <button
                         matButton="elevated"
                         type="submit"
-                        [disabled]="loginForm.invalid || isLoading"
+                        [disabled]="loginForm.invalid || isLoading()"
                     >
-                        {{ isLoading ? "Anmeldung läuft..." : "Anmelden" }}
+                        {{ isLoading() ? "Anmeldung läuft..." : "Anmelden" }}
                     </button>
                 </div>
             </form>
