@@ -26,6 +26,16 @@
     color: var(--text-primary);
 }
 
+.current-datetime {
+    padding: 4px 12px;
+    border-radius: 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
 // ── Sidebar ──────────────────────────────────────────────────────────────────
 .page-sidebar {
     width: 280px;
