@@ -9,8 +9,6 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     SearchResult,
     SearchResultRow,
@@ -25,14 +23,14 @@ import { ConfirmDialogComponent } from '../../../../../shared/components/confirm
 import { SnackbarService } from '../../../../../core/services/snackbar.service';
 // Third Party
 import dayjs from 'dayjs';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { getNextOccurrence } from '../../../logic/rrule.logic';
 
 @Component({
     selector: 'app-search-dialog',
     standalone: true,
-    imports: [UI_MODULES, MatTableModule, DatePipe, MatProgressSpinnerModule],
+    imports: [UI_MODULES, DatePipe],
     templateUrl: './search-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './search-dialog.component.scss',
@@ -43,15 +41,8 @@ export class SearchDialogComponent implements OnDestroy {
     private readonly dialog = inject(MatDialog);
     private readonly snackbar = inject(SnackbarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as string;
-    private readonly destroy$ = new Subject<void>();
 
-    public readonly displayedColumns: string[] = [
-        'eventTitle',
-        'eventNote',
-        'startDateTime',
-        'actions',
-    ];
-    public dataSource = new MatTableDataSource<SearchResultRow>([]);
+    public readonly results = signal<SearchResultRow[]>([]);
     public readonly isLoading = signal<boolean>(false);
 
     public readonly searchControl = new FormControl<string>(
@@ -72,14 +63,11 @@ export class SearchDialogComponent implements OnDestroy {
         });
     }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+    ngOnDestroy() {}
 
     fetchEvents(searchTerm: string) {
         if (!searchTerm || searchTerm.trim().length === 0) {
-            this.dataSource.data = [];
+            this.results.set([]);
             this.isLoading.set(false);
             return;
         }
@@ -95,12 +83,12 @@ export class SearchDialogComponent implements OnDestroy {
                         dayjs(a.displayDate).valueOf() -
                         dayjs(b.displayDate).valueOf(),
                 );
-                this.dataSource.data = processed;
+                this.results.set(processed);
                 this.isLoading.set(false);
             },
             error: () => {
                 this.snackbar.openError('Die Suche ist fehlgeschlagen.');
-                this.dataSource.data = [];
+                this.results.set([]);
                 this.isLoading.set(false);
             },
         });
@@ -155,8 +143,8 @@ export class SearchDialogComponent implements OnDestroy {
                 if (result) {
                     this.calendarService.deleteEvent(deleteId).subscribe({
                         next: () => {
-                            this.dataSource.data = this.dataSource.data.filter(
-                                (event) => event.eventId !== deleteId,
+                            this.results.update((rows) =>
+                                rows.filter((row) => row.eventId !== deleteId),
                             );
                             this.snackbar.openSuccess('Ereignis gelöscht.');
                         },
