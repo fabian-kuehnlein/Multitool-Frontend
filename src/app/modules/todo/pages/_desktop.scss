@@ -26,6 +26,16 @@
     color: var(--text-primary);
 }
 
+.current-datetime {
+    padding: 4px 12px;
+    border-radius: 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
 // ── Sidebar ──────────────────────────────────────────────────────────────────
 .page-sidebar {
     width: 280px;
@@ -53,7 +63,7 @@
         padding: 12px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
 
         .list-section-header {
             padding: 16px 12px 8px;
@@ -66,7 +76,7 @@
 
         .active-item {
             background-color: var(--accent-primary-light);
-            border-left: 4px solid var(--accent-primary);
+            border: 2px solid var(--accent-primary);
             color: var(--accent-primary);
 
             mat-icon {

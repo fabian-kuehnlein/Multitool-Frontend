@@ -89,6 +89,14 @@
             </div>
 
             <div class="right-container">
+                @if (!isMobile() && !isTablet()) {
+                    <span
+                        class="current-datetime"
+                        matTooltip="Aktuelles Datum & Uhrzeit"
+                    >
+                        Datum: {{ currentDateTime() }}
+                    </span>
+                }
                 <button
                     matButton="filled"
                     (click)="onAddTodo()"

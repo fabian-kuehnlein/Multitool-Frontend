@@ -66,6 +66,12 @@ export class TodoComponent implements OnInit, OnDestroy {
 
     readonly isCompletedExpanded = signal(false);
 
+    readonly currentDateTime = signal(dayjs().format('DD.MM.YYYY'));
+    private readonly clockInterval: ReturnType<typeof setInterval> =
+        setInterval(() => {
+            this.currentDateTime.set(dayjs().format('DD.MM.YYYY'));
+        }, 10_000);
+
     readonly todoCategories = computed(() => {
         const usedIds = new Set(
             this.todoService.todos().map((todo) => todo.categoryId),
@@ -116,6 +122,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        clearInterval(this.clockInterval);
         this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
