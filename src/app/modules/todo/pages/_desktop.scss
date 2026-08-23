@@ -53,7 +53,7 @@
         padding: 12px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
 
         .list-section-header {
             padding: 16px 12px 8px;
@@ -66,7 +66,7 @@
 
         .active-item {
             background-color: var(--accent-primary-light);
-            border-left: 4px solid var(--accent-primary);
+            border: 2px solid var(--accent-primary);
             color: var(--accent-primary);
 
             mat-icon {
