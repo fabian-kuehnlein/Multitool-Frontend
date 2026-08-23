@@ -62,7 +62,7 @@
                             <span>{{ selectedCategory()?.name }}</span>
                         </div>
                     </mat-select-trigger>
-                    @for (category of categories(); track category.id) {
+                    @for (category of selectableCategories(); track category.id) {
                         <mat-option [value]="category.id">
                             <div class="category-option">
                                 <span

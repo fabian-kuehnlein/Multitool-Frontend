@@ -36,7 +36,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Kategorie</mat-label>
                 <mat-select formControlName="categoryId">
-                    @for (cat of categoryService.categories(); track cat.id) {
+                    @for (cat of selectableCategories(); track cat.id) {
                         <mat-option [value]="cat.id">
                             <div class="category-option">
                                 <div

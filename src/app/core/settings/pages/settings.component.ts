@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,8 +10,16 @@ import { MediaService } from '../../services/media.service';
 import { SnackbarService } from '../../services/snackbar.service';
 import { SidenavComponent } from '../../layout/sidenav/sidenav.component';
 import { Category } from '../../../shared/models/category.model';
+import { AppModule } from '../../../shared/models/app-module.enum';
+import { CATEGORY_CAPABLE_MODULES } from '../../../shared/utilities/category-modules';
 import { CategoryDialogComponent } from './components/category-dialog/category-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+
+interface AppModuleToggleOption {
+    value: AppModule;
+    label: string;
+    icon: string;
+}
 
 @Component({
     selector: 'app-settings',
@@ -33,6 +41,17 @@ export class SettingsComponent implements OnInit {
     protected readonly isMobile = this.media.isMobile;
     protected readonly isTablet = this.media.isTablet;
     protected readonly selectedTabIndex = signal<number>(0);
+
+    protected readonly moduleOptions: AppModuleToggleOption[] = [
+        { value: AppModule.Calendar, label: 'Kalender', icon: 'calendar_today' },
+        { value: AppModule.CustomTable, label: 'Tabellen', icon: 'table_chart' },
+        { value: AppModule.Todo, label: 'Todos', icon: 'check_circle' },
+        { value: AppModule.WorkTimePlanner, label: 'Arbeitszeitplaner', icon: 'schedule' },
+    ].filter((option) => CATEGORY_CAPABLE_MODULES.includes(option.value));
+
+    protected readonly visibleCategories = computed(() =>
+        this.categoryService.categories().filter((category) => !category.isDeleted),
+    );
 
     ngOnInit(): void {
         this.categoryService.loadCategories();
@@ -104,6 +123,18 @@ export class SettingsComponent implements OnInit {
                 this.snackbar.openSuccess('Kategorie erfolgreich aktualisiert');
             }
         });
+    }
+
+    isModuleActive(category: Category, module: AppModule): boolean {
+        return category.applicableModules?.includes(module) ?? false;
+    }
+
+    toggleModule(category: Category, module: AppModule): void {
+        const current = category.applicableModules ?? [];
+        const updated = current.includes(module)
+            ? current.filter((m) => m !== module)
+            : [...current, module];
+        this.categoryService.setApplicableModules(category.id, updated);
     }
 
     openDeleteCategoryDialog(category: Category): void {
