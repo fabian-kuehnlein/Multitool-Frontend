@@ -22,6 +22,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 // App Services & Models
 import { CategoryService } from '../../../../../shared/services/category.service';
+import { AppModule } from '../../../../../shared/models/app-module.enum';
 import { EventFormService, EventFormValue } from './event-form.service';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -103,6 +104,11 @@ export class EventDialogComponent implements OnInit, OnDestroy {
 
     // Form setup
     public readonly eventForm: FormGroup = this.formService.buildForm();
+
+    public readonly selectableCategories =
+        this.categoryService.selectableCategoriesForModule(AppModule.Calendar, () =>
+            this.eventForm.getRawValue().categoryId,
+        );
     private readonly formValue = toSignal<EventFormValue | null>(
         this.eventForm.valueChanges,
         { initialValue: this.eventForm.getRawValue() },
@@ -153,7 +159,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         // categories have loaded. Editing uses the event's own category set in
         // patchFormForEdit.
         effect(() => {
-            const options = this.categories();
+            const options = this.selectableCategories();
             if (options.length === 0 || this.isEditMode()) return;
 
             const defaultCat =

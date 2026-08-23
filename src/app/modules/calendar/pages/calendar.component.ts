@@ -58,6 +58,7 @@ import {
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
+import { AppModule } from '../../../shared/models/app-module.enum';
 import { MediaService } from '../../../core/services/media.service';
 import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
@@ -120,6 +121,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     );
 
     public readonly categoryList = this.categoryService.categories;
+    public readonly filterableCategories = this.categoryService.categoriesForModule(AppModule.Calendar);
     public readonly categoryControl = new FormControl<number[]>([]);
 
     private readonly categoryControlValue = toSignal(
@@ -129,7 +131,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     public readonly selectedCategoryIds = computed(() => {
         const ids = this.categoryControlValue() || [];
-        return ids.length === 0 || ids.length === this.categoryList().length
+        return ids.length === 0 || ids.length === this.filterableCategories().length
             ? []
             : ids;
     });
@@ -203,7 +205,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     private initCategoryControl() {
         effect(() => {
-            const categories = this.categoryList();
+            const categories = this.filterableCategories();
             if (
                 categories.length > 0 &&
                 (this.categoryControl.value?.length || 0) === 0

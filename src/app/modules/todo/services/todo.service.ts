@@ -44,7 +44,13 @@ export class TodoService {
             .createTodo(todoDto)
             .pipe(finalize(() => this._loading.set(false)))
             .subscribe({
-                next: (newTodo) => {
+                next: (id) => {
+                    const newTodo: Todo = {
+                        ...todoDto,
+                        id,
+                        isDone: false,
+                        creationDateTime: new Date().toISOString(),
+                    };
                     this._todos.update((todos) => [...todos, newTodo]);
                 },
             });

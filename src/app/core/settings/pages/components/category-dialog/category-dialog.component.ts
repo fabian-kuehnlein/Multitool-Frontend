@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Category, CreateCategoryDto } from '../../../../../shared/models/category.model';
+import { CATEGORY_CAPABLE_MODULES } from '../../../../../shared/utilities/category-modules';
 import { CategoryService } from '../../../../../shared/services/category.service';
 import { getDistinctPresetColors } from '../../../logic/color.logic';
 
@@ -41,7 +42,7 @@ export class CategoryDialogComponent {
         this.data?.category?.color,
     );
 
-    readonly form = this.fb.group({
+    readonly form = this.fb.nonNullable.group({
         name: [this.data?.category?.name ?? '', [Validators.required, Validators.maxLength(50)]],
         color: [this.data?.category?.color ?? '#3b82f6', [Validators.required]],
     });
@@ -62,8 +63,10 @@ export class CategoryDialogComponent {
 
         const value = this.form.getRawValue();
         const dto: CreateCategoryDto = {
-            name: value.name!.trim(),
-            color: value.color!,
+            name: value.name.trim(),
+            color: value.color,
+            applicableModules:
+                this.data?.category?.applicableModules ?? [...CATEGORY_CAPABLE_MODULES],
         };
 
         this.dialogRef.close(dto);

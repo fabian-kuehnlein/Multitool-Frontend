@@ -15,8 +15,8 @@ export class TodoHttpService {
         return this.http.get<Todo[]>(this.apiUrl);
     }
 
-    createTodo(todo: CreateTodoDto): Observable<Todo> {
-        return this.http.post<Todo>(this.apiUrl, todo);
+    createTodo(todo: CreateTodoDto): Observable<number> {
+        return this.http.post<number>(this.apiUrl, todo);
     }
 
     updateTodo(id: number, todo: UpdateTodoDto): Observable<Todo> {
