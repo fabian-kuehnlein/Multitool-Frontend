@@ -85,7 +85,7 @@
                                             class="col-delete"
                                         >
                                             <div class="cell-content">
-                                                <mat-icon class="delete-colors"
+                                                <mat-icon class="error-icon"
                                                     >delete</mat-icon
                                                 >
                                             </div>
@@ -321,7 +321,7 @@
 
                                 <button
                                     matButton
-                                    class="delete-colors"
+                                    class="error-button"
                                     (click)="toggleRemoveMode()"
                                 >
                                     <mat-icon>remove_circle_outline</mat-icon>
@@ -330,7 +330,7 @@
 
                                 <button
                                     matButton
-                                    class="delete-colors"
+                                    class="error-button"
                                     (click)="deleteTable()"
                                 >
                                     <mat-icon>delete_forever</mat-icon>
@@ -339,7 +339,7 @@
                             } @else {
                                 <button
                                     matButton="filled"
-                                    class="delete-colors"
+                                    class="error-button"
                                     (click)="deleteRows()"
                                     [disabled]="!hasCheckedRows()"
                                 >
@@ -413,7 +413,7 @@
                                 toggleRemoveMode(); isFabMenuOpen.set(false)
                             "
                         >
-                            <mat-icon class="delete-colors"
+                            <mat-icon class="error-icon"
                                 >playlist_remove</mat-icon
                             >
                         </button>
@@ -442,7 +442,7 @@
                     <button
                         matButton="filled"
                         (click)="deleteRows()"
-                        class="delete-colors"
+                        class="error-button"
                     >
                         Zeilen löschen
                     </button>

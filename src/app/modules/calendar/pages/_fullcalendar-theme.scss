@@ -168,11 +168,11 @@
 
             .fc-timegrid-now-indicator-line,
             .fc-timegrid-now-indicator-arrow {
-                border-color: var(--accent-danger) !important;
+                border-color: var(--mat-sys-error) !important;
             }
 
             .fc-timegrid-now-indicator-container {
-                color: var(--accent-danger);
+                color: var(--mat-sys-error);
             }
 
             // ── All-day Section ───────────────────────────────────────────

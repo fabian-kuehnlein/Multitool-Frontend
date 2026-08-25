@@ -35,9 +35,35 @@ body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+// ── Error Colors ─────────────────────────────────────────────────────────────
+// Unified mechanism for error/danger colors:
+//   Buttons:     <button matButton class="error-button">
+//                <button matIconButton class="error-icon-button">
+//   Icons/Text:  <mat-icon class="error-icon"> / <span class="error-text">
+//   Free CSS:    var(--mat-sys-error), var(--mat-sys-on-error),
+//                var(--mat-sys-error-container), var(--mat-sys-on-error-container)
+// The classes must sit directly on the element and are generated per theme.
+@mixin error-color-utilities($theme) {
+    .error-text,
+    .error-icon {
+        color: var(--mat-sys-error);
+    }
+
+    .error-button {
+        @include mat.button-color($theme, $color-variant: 'error');
+    }
+
+    .error-icon-button {
+        @include mat.icon-button-color($theme, $color-variant: 'error');
+    }
+}
+
 // ── Light Theme (Default) ───────────────────────────────────────────────────
 html {
     @include mat.all-component-themes($light-theme);
+
+    // Emits the global --mat-sys-* tokens (e.g. --mat-sys-error) for this theme.
+    @include mat.system-level-colors($light-theme);
 
     @include mat.toolbar-overrides(
         (
@@ -54,11 +80,15 @@ html {
             content-background-color: var(--bg-surface),
         )
     );
+
+    @include error-color-utilities($light-theme);
 }
 
 // ── Dark Theme ──────────────────────────────────────────────────────────────
 html[data-theme="dark"] {
     @include mat.all-component-themes($dark-theme);
+
+    @include mat.system-level-colors($dark-theme);
 
     @include mat.toolbar-overrides(
         (
@@ -70,26 +100,11 @@ html[data-theme="dark"] {
             content-background-color: var(--bg-surface),
         )
     );
+
+    @include error-color-utilities($dark-theme);
 }
 
 // ── Utility Classes ─────────────────────────────────────────────────────────
-.delete-colors {
-    color: var(--accent-danger);
-    @include mat.button-overrides(
-        (
-            filled-container-color: var(--accent-danger),
-            filled-label-text-color: white,
-            text-label-text-color: var(--accent-danger),
-            text-state-layer-color: var(--accent-danger),
-        )
-    );
-    @include mat.icon-button-overrides(
-        (
-            icon-color: var(--accent-danger),
-        )
-    );
-}
-
 .no-outline-form-field {
     @include mat.form-field-overrides(
         (
@@ -124,9 +139,9 @@ html[data-theme="dark"] {
 .error-snackbar {
     @include mat.snack-bar-overrides(
         (
-            container-color: var(--accent-danger-dark),
-            supporting-text-color: #ffffff,
-            button-color: #ffffff,
+            container-color: var(--mat-sys-error),
+            supporting-text-color: var(--mat-sys-on-error),
+            button-color: var(--mat-sys-on-error),
         )
     );
 }

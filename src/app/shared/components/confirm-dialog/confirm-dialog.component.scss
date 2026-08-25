@@ -22,8 +22,8 @@
         color: var(--accent-primary);
 
         &.destructive {
-            background-color: var(--accent-danger-light);
-            color: var(--accent-danger);
+            background-color: var(--mat-sys-error-container);
+            color: var(--mat-sys-on-error-container);
         }
 
         mat-icon {
