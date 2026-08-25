@@ -62,7 +62,7 @@ import { AppModule } from '../../../shared/models/app-module.enum';
 import { MediaService } from '../../../core/services/media.service';
 import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-calendar',
@@ -101,6 +101,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private readonly categoryService = inject(CategoryService);
     private readonly dialog = inject(MatDialog);
     private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
     private readonly media = inject(MediaService);
     private readonly hotkeyService = inject(HotkeyService);
     private readonly snackbar = inject(SnackbarService);
@@ -351,7 +352,14 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     public updateEvent(arg: EventClickArg) {
         const eventData = fromFullCalendarEvent(arg.event);
 
-        if (eventData.isTodo === true) return;
+        if (eventData.isTodo === true) {
+            const todoId = eventData.eventId.replace(/^todo-/, '');
+
+            this.router.navigate(['/todo'], {
+                queryParams: { todoId },
+            });
+            return;
+        }
 
         if (eventData.recurrenceRule) {
             this.dialog
