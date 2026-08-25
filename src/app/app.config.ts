@@ -18,6 +18,7 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 import dayjs from 'dayjs';
 import 'dayjs/locale/de';
 import { provideDayjsAdapter } from './core/date/dayjs-adapter';
@@ -51,7 +52,10 @@ export const appConfig: ApplicationConfig = {
         provideZonelessChangeDetection(),
         provideRouter(routes),
         provideAnimationsAsync(),
-        provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+        provideHttpClient(
+            withFetch(),
+            withInterceptors([authInterceptor, httpErrorInterceptor]),
+        ),
         provideDayjsAdapter(),
         { provide: LOCALE_ID, useValue: 'de' },
         { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { autoFocus: false } },
@@ -62,7 +66,6 @@ export const appConfig: ApplicationConfig = {
                 duration: 5000,
                 horizontalPosition: 'center',
                 verticalPosition: 'top',
-                panelClass: ['error-snackbar', 'multiline-snackbar'],
             },
         },
     ],

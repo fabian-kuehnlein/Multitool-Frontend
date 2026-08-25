@@ -1,5 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+    HttpContext,
+    HttpClient,
+    HttpParams,
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CalendarEvent } from '../models/calendar-event.model';
@@ -33,10 +37,14 @@ export class CalendarHttpService {
         });
     }
 
-    searchEvents(searchString: string): Observable<SearchResult[]> {
+    searchEvents(
+        searchString: string,
+        context?: HttpContext,
+    ): Observable<SearchResult[]> {
         const params = new HttpParams().set('searchString', searchString);
         return this.http.get<SearchResult[]>(`${this.apiURL}/events/search`, {
             params,
+            context,
         });
     }
 
@@ -44,16 +52,23 @@ export class CalendarHttpService {
         return this.http.post<number>(`${this.apiURL}/events`, event);
     }
 
-    updateEvent(event: CalendarEvent): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/events/${event.id}`, event);
+    updateEvent(event: CalendarEvent, context?: HttpContext): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/events/${event.id}`, event, {
+            context,
+        });
     }
 
     generateIcalLink(event: GetICalLinkEvent): Observable<string> {
         return this.http.post<string>(`${this.apiURL}/events/ical-link`, event);
     }
 
-    deleteEvent(eventId: string | number): Observable<void> {
-        return this.http.delete<void>(`${this.apiURL}/events/${eventId}`);
+    deleteEvent(
+        eventId: string | number,
+        context?: HttpContext,
+    ): Observable<void> {
+        return this.http.delete<void>(`${this.apiURL}/events/${eventId}`, {
+            context,
+        });
     }
 
     getHolidays(year: string): Observable<Holiday[]> {

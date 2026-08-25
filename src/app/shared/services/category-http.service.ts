@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpContext, HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Category, CreateCategoryDto, UpdateCategoryDto } from '../models/category.model';
@@ -19,8 +19,14 @@ export class CategoryHttpService {
         return this.http.post<number>(`${this.apiURL}/categories`, dto);
     }
 
-    updateCategory(id: number, dto: UpdateCategoryDto): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/categories/${id}`, dto);
+    updateCategory(
+        id: number,
+        dto: UpdateCategoryDto,
+        context?: HttpContext,
+    ): Observable<void> {
+        return this.http.put<void>(`${this.apiURL}/categories/${id}`, dto, {
+            context,
+        });
     }
 
     deleteCategory(id: number): Observable<void> {

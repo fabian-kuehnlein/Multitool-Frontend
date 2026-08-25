@@ -19,6 +19,7 @@ follow these rules (and, where cheap, old code should be migrated toward them).
 | [08-dates-and-localization.md](./08-dates-and-localization.md) | dayjs, German locale, date/time formats, UI language |
 | [09-git-and-workflow.md](./09-git-and-workflow.md) | Commands, verification, environment gotcha, commit message style |
 | [10-code-splitting.md](./10-code-splitting.md) | How to split oversized TS files: responsibility buckets, `mappers/`/`logic/`, form services, child components |
+| [11-snackbars-and-user-feedback.md](./11-snackbars-and-user-feedback.md) | SnackbarService API, global HTTP error interceptor, `SKIP_HTTP_ERROR_SNACKBAR`, when to show success feedback |
 
 ## Quick reference
 

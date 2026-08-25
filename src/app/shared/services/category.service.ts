@@ -1,9 +1,11 @@
 import { computed, inject, Injectable, signal, Signal } from '@angular/core';
+import { HttpContext } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { CategoryHttpService } from './category-http.service';
 import { Category, CreateCategoryDto, UpdateCategoryDto } from '../models/category.model';
 import { AppModule } from '../models/app-module.enum';
 import { SnackbarService } from '../../core/services/snackbar.service';
+import { SKIP_HTTP_ERROR_SNACKBAR } from '../../core/interceptors/http-error.interceptor';
 
 @Injectable({
     providedIn: 'root',
@@ -59,7 +61,6 @@ export class CategoryService {
             .pipe(finalize(() => this._loading.set(false)))
             .subscribe({
                 next: (categories) => this._categories.set(categories),
-                error: (err) => this.snackbar.openSnackbar(err),
             });
     }
 
@@ -75,7 +76,6 @@ export class CategoryService {
                         { ...dto, id, isDeleted: false },
                     ]);
                 },
-                error: (err) => this.snackbar.openSnackbar(err),
             });
     }
 
@@ -94,7 +94,6 @@ export class CategoryService {
                         ),
                     );
                 },
-                error: (err) => this.snackbar.openSnackbar(err),
             });
     }
 
@@ -114,7 +113,9 @@ export class CategoryService {
             applicableModules,
         };
 
-        this.httpService.updateCategory(id, dto).subscribe({
+        const context = new HttpContext().set(SKIP_HTTP_ERROR_SNACKBAR, true);
+
+        this.httpService.updateCategory(id, dto, context).subscribe({
             error: (err) => {
                 this._categories.update((categories) =>
                     categories.map((c) =>
@@ -135,7 +136,6 @@ export class CategoryService {
                     ),
                 );
             },
-            error: (err) => this.snackbar.openSnackbar(err),
         });
     }
 }

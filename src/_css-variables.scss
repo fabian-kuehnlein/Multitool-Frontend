@@ -61,6 +61,10 @@
     --overlay-backdrop: rgba(0, 0, 0, 0.25);
     --overlay-scrim: rgba(0, 0, 0, 0.5);
 
+    // Snackbar (neutral)
+    --snackbar-neutral-bg: #424242;
+    --snackbar-neutral-text: #ffffff;
+
     // Scrollbar
     --scrollbar-thumb: rgba(0, 0, 0, 0.18);
     --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
@@ -132,6 +136,10 @@
     // Overlays
     --overlay-backdrop: rgba(0, 0, 0, 0.6);
     --overlay-scrim: rgba(0, 0, 0, 0.8);
+
+    // Snackbar (neutral)
+    --snackbar-neutral-bg: #3c434d;
+    --snackbar-neutral-text: #ecedefe0;
 
     // Scrollbar
     --scrollbar-thumb: rgba(255, 255, 255, 0.12);
