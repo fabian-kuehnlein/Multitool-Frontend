@@ -1,6 +1,5 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { finalize } from 'rxjs';
-import { SnackbarService } from '../../../core/services/snackbar.service';
 import {
     UpsertTableDto,
     TableDetail,
@@ -17,7 +16,6 @@ import { CustomTableHttpService } from './custom-table-http.service';
 })
 export class CustomTableService {
     private readonly httpService = inject(CustomTableHttpService);
-    private readonly snackbarService = inject(SnackbarService);
 
     // Private State Signals
     private readonly _tableList = signal<TableOverview[]>([]);
@@ -53,7 +51,6 @@ export class CustomTableService {
             .pipe(finalize(() => this._loading.set(false)))
             .subscribe({
                 next: (list) => this._tableList.set(list),
-                error: (err) => this.snackbarService.openSnackbar(err),
             });
     }
 
@@ -66,7 +63,6 @@ export class CustomTableService {
             .pipe(finalize(() => this._loading.set(false)))
             .subscribe({
                 next: (table) => this._currentTable.set(table),
-                error: (err) => this.snackbarService.openSnackbar(err),
             });
     }
 
@@ -76,7 +72,6 @@ export class CustomTableService {
                 this.fetchTableList();
                 this.loadTable(id);
             },
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
@@ -86,7 +81,6 @@ export class CustomTableService {
                 this.fetchTableList();
                 this.loadTable(tableId);
             },
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
@@ -98,42 +92,36 @@ export class CustomTableService {
                     this._currentTable.set(null);
                 }
             },
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     createColumn(tableId: number): void {
         this.httpService.createColumn(tableId).subscribe({
             next: () => this.loadTable(tableId),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     updateColumn(columnId: number, dto: UpdateColumnDto): void {
         this.httpService.updateColumn(columnId, dto).subscribe({
             next: () => this.loadTable(this.tableId()),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     updateColumnOrder(dto: UpdateColumnOrderDto[]): void {
         this.httpService.updateColumnOrder(dto).subscribe({
             next: () => this.loadTable(this.tableId()),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     deleteColumn(tableId: number, columnId: number): void {
         this.httpService.deleteColumn(tableId, columnId).subscribe({
             next: () => this.loadTable(tableId),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     createRow(tableId: number): void {
         this.httpService.createRow(tableId).subscribe({
             next: () => this.loadTable(tableId),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
@@ -151,20 +139,16 @@ export class CustomTableService {
         }
         this.httpService.updateRowOrder(rows).subscribe({
             next: () => this.loadTable(this.tableId()),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     deleteRows(tableId: number, rows: number[]): void {
         this.httpService.deleteRows(tableId, rows).subscribe({
             next: () => this.loadTable(tableId),
-            error: (err) => this.snackbarService.openSnackbar(err),
         });
     }
 
     upsertCell(rowId: number, columnId: number, value: CellValue): void {
-        this.httpService.upsertCell(rowId, columnId, value).subscribe({
-            error: (err) => this.snackbarService.openSnackbar(err),
-        });
+        this.httpService.upsertCell(rowId, columnId, value).subscribe();
     }
 }

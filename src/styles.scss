@@ -125,6 +125,18 @@ html[data-theme="dark"] {
     @include mat.snack-bar-overrides(
         (
             container-color: var(--accent-danger-dark),
+            supporting-text-color: #ffffff,
+            button-color: #ffffff,
+        )
+    );
+}
+
+.success-snackbar {
+    @include mat.snack-bar-overrides(
+        (
+            container-color: var(--snackbar-neutral-bg),
+            supporting-text-color: var(--snackbar-neutral-text),
+            button-color: var(--snackbar-neutral-text),
         )
     );
 }

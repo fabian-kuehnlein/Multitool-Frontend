@@ -1,5 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+    HttpContext,
+    HttpClient,
+    HttpParams,
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -71,7 +75,12 @@ export class WorkTimePlannerHttpService {
         return this.http.get<WorkTimeSettings>(`${this.apiUrl}/settings`);
     }
 
-    updateSettings(settings: WorkTimeSettings): Observable<void> {
-        return this.http.put<void>(`${this.apiUrl}/settings`, settings);
+    updateSettings(
+        settings: WorkTimeSettings,
+        context?: HttpContext,
+    ): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/settings`, settings, {
+            context,
+        });
     }
 }

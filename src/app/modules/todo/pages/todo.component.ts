@@ -5,10 +5,11 @@ import {
     OnDestroy,
     computed,
     signal,
+    effect,
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import dayjs from 'dayjs';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
@@ -48,6 +49,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     private readonly snackbar = inject(SnackbarService);
     private readonly media = inject(MediaService);
     private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
     private readonly hotkeyService = inject(HotkeyService);
     private readonly categoryService = inject(CategoryService);
     private readonly hotkeyUnsubscribers: Array<() => void> = [];
@@ -65,6 +67,30 @@ export class TodoComponent implements OnInit, OnDestroy {
     readonly isTablet = this.media.isTablet;
 
     readonly isCompletedExpanded = signal(false);
+
+    private readonly todoIdToOpen = signal<number | null>(null);
+
+    constructor() {
+        effect(() => {
+            const todoId = this.todoIdToOpen();
+            if (todoId === null || this.todoService.loading()) return;
+
+            this.todoIdToOpen.set(null);
+            const todo = this.todoService.todos().find((t) => t.id === todoId);
+
+            if (todo) {
+                this.onEditTodo(todo);
+            } else {
+                this.snackbar.openError('Aufgabe nicht gefunden.');
+            }
+
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { todoId: null },
+                queryParamsHandling: 'merge',
+            });
+        });
+    }
 
     readonly currentDateTime = signal(dayjs().format('DD.MM.YYYY'));
     private readonly clockInterval: ReturnType<typeof setInterval> =
@@ -111,6 +137,13 @@ export class TodoComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.todoService.loadTodos();
+        const todoIdParam = this.route.snapshot.queryParamMap.get('todoId');
+        const todoId = Number(todoIdParam);
+
+        if (todoIdParam !== null && Number.isInteger(todoId) && todoId > 0) {
+            this.todoIdToOpen.set(todoId);
+        }
+
         this.hotkeyUnsubscribers.push(
             this.hotkeyService.register({
                 id: 'todo.create',

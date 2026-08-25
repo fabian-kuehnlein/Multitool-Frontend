@@ -62,7 +62,11 @@ import { AppModule } from '../../../shared/models/app-module.enum';
 import { MediaService } from '../../../core/services/media.service';
 import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
-import { ActivatedRoute } from '@angular/router';
+import {
+    SKIP_HTTP_ERROR_SNACKBAR,
+} from '../../../core/interceptors/http-error.interceptor';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpContext } from '@angular/common/http';
 
 @Component({
     selector: 'app-calendar',
@@ -101,11 +105,16 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private readonly categoryService = inject(CategoryService);
     private readonly dialog = inject(MatDialog);
     private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
     private readonly media = inject(MediaService);
     private readonly hotkeyService = inject(HotkeyService);
     private readonly snackbar = inject(SnackbarService);
     private readonly destroy$ = new Subject<void>();
     private readonly hotkeyUnsubscribers: Array<() => void> = [];
+    private readonly skipErrorSnackbarContext = new HttpContext().set(
+        SKIP_HTTP_ERROR_SNACKBAR,
+        true,
+    );
 
     // --- Signals & State ---
     public readonly title = signal<string>('');
@@ -343,7 +352,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 if (result) {
                     this.calendarService
                         .createEvent(result)
-                        .subscribe(() => api.refetchEvents());
+                        .subscribe(() => {
+                            this.snackbar.openSuccess('Termin erstellt');
+                            api.refetchEvents();
+                        });
                 }
             });
     }
@@ -351,7 +363,14 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     public updateEvent(arg: EventClickArg) {
         const eventData = fromFullCalendarEvent(arg.event);
 
-        if (eventData.isTodo === true) return;
+        if (eventData.isTodo === true) {
+            const todoId = eventData.eventId.replace(/^todo-/, '');
+
+            this.router.navigate(['/todo'], {
+                queryParams: { todoId },
+            });
+            return;
+        }
 
         if (eventData.recurrenceRule) {
             this.dialog
@@ -404,19 +423,29 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
                 if (result.action === 'update') {
                     if (isInstance) {
-                        this.splitEventFromSeries(eventData, result.data);
+                        this.splitEventFromSeries(
+                            eventData,
+                            result.data,
+                            'Termin aktualisiert',
+                        );
                     } else {
                         this.calendarService
                             .updateEvent(result.data)
-                            .subscribe(() => this.calendarApi?.refetchEvents());
+                            .subscribe(() => {
+                                this.snackbar.openSuccess('Termin aktualisiert');
+                                this.calendarApi?.refetchEvents();
+                            });
                     }
                 } else if (result.action === 'delete') {
                     if (isInstance) {
-                        this.excludeDateFromSeries(eventData);
+                        this.excludeDateFromSeries(eventData, 'Termin gelöscht');
                     } else {
                         this.calendarService
                             .deleteEvent(result.data)
-                            .subscribe(() => this.calendarApi?.refetchEvents());
+                            .subscribe(() => {
+                                this.snackbar.openSuccess('Termin gelöscht');
+                                this.calendarApi?.refetchEvents();
+                            });
                     }
                 }
             });
@@ -425,6 +454,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     private splitEventFromSeries(
         originalInstance: FullCalendarEventInput,
         updatedData: CalendarEvent,
+        successMessage?: string,
     ) {
         const { id, ...newEvent } = updatedData;
         this.calendarService
@@ -434,19 +464,34 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 categoryId: newEvent.categoryId ?? 0,
             })
             .subscribe(() => {
-                this.excludeDateFromSeries(originalInstance);
+                this.excludeDateFromSeries(
+                    originalInstance,
+                    successMessage,
+                );
             });
     }
 
-    private excludeDateFromSeries(instance: FullCalendarEventInput) {
+    private excludeDateFromSeries(
+        instance: FullCalendarEventInput,
+        successMessage?: string,
+    ) {
         if (!instance.startDateTime) return;
         const dateToExclude = dayjs(instance.startDateTime).format(
             'YYYY-MM-DD',
         );
         this.calendarService
-            .excludeDateFromSeries(instance.eventId, dateToExclude)
+            .excludeDateFromSeries(
+                instance.eventId,
+                dateToExclude,
+                this.skipErrorSnackbarContext,
+            )
             .subscribe({
-                next: () => this.calendarApi?.refetchEvents(),
+                next: () => {
+                    if (successMessage) {
+                        this.snackbar.openSuccess(successMessage);
+                    }
+                    this.calendarApi?.refetchEvents();
+                },
                 error: () =>
                     this.snackbar.openError(
                         'Der Termin konnte nicht aus der Serie entfernt werden.',
@@ -481,17 +526,24 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                     }
                     const originalInstance =
                         fromFullCalendarEvent(arg.oldEvent);
-                    this.splitEventFromSeries(originalInstance, updatedEvent);
+                    this.splitEventFromSeries(
+                        originalInstance,
+                        updatedEvent,
+                        'Termin verschoben',
+                    );
                 });
         } else {
-            this.calendarService.updateEvent(updatedEvent).subscribe({
-                error: () => {
-                    this.snackbar.openError(
-                        'Der Termin konnte nicht verschoben werden.',
-                    );
-                    arg.revert();
-                },
-            });
+            this.calendarService
+                .updateEvent(updatedEvent, this.skipErrorSnackbarContext)
+                .subscribe({
+                    next: () => this.snackbar.openSuccess('Termin verschoben'),
+                    error: () => {
+                        this.snackbar.openError(
+                            'Der Termin konnte nicht verschoben werden.',
+                        );
+                        arg.revert();
+                    },
+                });
         }
     }
 

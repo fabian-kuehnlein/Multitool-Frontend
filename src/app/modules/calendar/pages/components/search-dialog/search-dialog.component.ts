@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
+import { HttpContext } from '@angular/common/http';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import {
     SearchResult,
@@ -21,6 +22,9 @@ import {
 } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SnackbarService } from '../../../../../core/services/snackbar.service';
+import {
+    SKIP_HTTP_ERROR_SNACKBAR,
+} from '../../../../../core/interceptors/http-error.interceptor';
 // Third Party
 import dayjs from 'dayjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -41,6 +45,10 @@ export class SearchDialogComponent implements OnDestroy {
     private readonly dialog = inject(MatDialog);
     private readonly snackbar = inject(SnackbarService);
     private readonly dialogData = inject(MAT_DIALOG_DATA) as string;
+    private readonly skipErrorSnackbarContext = new HttpContext().set(
+        SKIP_HTTP_ERROR_SNACKBAR,
+        true,
+    );
 
     public readonly results = signal<SearchResultRow[]>([]);
     public readonly isLoading = signal<boolean>(false);
@@ -73,7 +81,9 @@ export class SearchDialogComponent implements OnDestroy {
         }
 
         this.isLoading.set(true);
-        this.calendarService.searchEvents(searchTerm).subscribe({
+        this.calendarService
+            .searchEvents(searchTerm, this.skipErrorSnackbarContext)
+            .subscribe({
             next: (events) => {
                 const processed = (events ?? []).map((event) =>
                     this.toSearchResultRow(event),
@@ -141,18 +151,22 @@ export class SearchDialogComponent implements OnDestroy {
             .afterClosed()
             .subscribe((result) => {
                 if (result) {
-                    this.calendarService.deleteEvent(deleteId).subscribe({
-                        next: () => {
-                            this.results.update((rows) =>
-                                rows.filter((row) => row.eventId !== deleteId),
-                            );
-                            this.snackbar.openSuccess('Ereignis gelöscht.');
-                        },
-                        error: () =>
-                            this.snackbar.openError(
-                                'Das Ereignis konnte nicht gelöscht werden.',
-                            ),
-                    });
+                    this.calendarService
+                        .deleteEvent(deleteId, this.skipErrorSnackbarContext)
+                        .subscribe({
+                            next: () => {
+                                this.results.update((rows) =>
+                                    rows.filter(
+                                        (row) => row.eventId !== deleteId,
+                                    ),
+                                );
+                                this.snackbar.openSuccess('Termin gelöscht');
+                            },
+                            error: () =>
+                                this.snackbar.openError(
+                                    'Der Termin konnte nicht gelöscht werden.',
+                                ),
+                        });
                 }
             });
     }
