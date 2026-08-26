@@ -36,6 +36,17 @@
             <mat-form-field appearance="outline">
                 <mat-label>Kategorie</mat-label>
                 <mat-select formControlName="categoryId">
+                    <mat-select-trigger>
+                        @if (selectedCategory(); as cat) {
+                            <div class="category-trigger">
+                                <span
+                                    class="color-dot"
+                                    [style.background-color]="cat.color"
+                                ></span>
+                                <span>{{ cat.name }}</span>
+                            </div>
+                        }
+                    </mat-select-trigger>
                     @for (cat of selectableCategories(); track cat.id) {
                         <mat-option [value]="cat.id">
                             <div class="category-option">
@@ -56,10 +67,22 @@
             <mat-form-field appearance="outline">
                 <mat-label>Priorität</mat-label>
                 <mat-select formControlName="priority">
+                    <mat-select-trigger>
+                        @if (selectedPriority(); as prio) {
+                            <div class="priority-trigger">
+                                <mat-icon [style.color]="prio.color"
+                                    >flag</mat-icon
+                                >
+                                <span>{{ prio.label }}</span>
+                            </div>
+                        }
+                    </mat-select-trigger>
                     @for (p of priorities; track p.value) {
                         <mat-option [value]="p.value">
-                            <mat-icon [style.color]="p.color">flag</mat-icon>
-                            {{ p.label }}
+                            <div class="priority-option">
+                                <mat-icon [style.color]="p.color">flag</mat-icon>
+                                {{ p.label }}
+                            </div>
                         </mat-option>
                     }
                 </mat-select>

@@ -109,6 +109,8 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         this.categoryService.selectableCategoriesForModule(AppModule.Calendar, () =>
             this.eventForm.getRawValue().categoryId,
         );
+    private readonly defaultCategory =
+        this.categoryService.defaultCategoryForModule(AppModule.Calendar);
     private readonly formValue = toSignal<EventFormValue | null>(
         this.eventForm.valueChanges,
         { initialValue: this.eventForm.getRawValue() },
@@ -155,16 +157,17 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     constructor() {
         this.isEditMode.set(!!this.dialogData?.event);
 
-        // Preselect category 1 (or the first category) for new events once
-        // categories have loaded. Editing uses the event's own category set in
-        // patchFormForEdit.
+        // Preselect default category for new events once categories have loaded.
+        // Uses centralized policy from CategoryService (prefers "Privat", falls back
+        // to first selectable in insertion order) – avoids hard-coded id=1 which
+        // breaks when "Privat" is deleted. Editing uses the event's own category.
         effect(() => {
-            const options = this.selectableCategories();
-            if (options.length === 0 || this.isEditMode()) return;
-
-            const defaultCat =
-                options.find((c) => c.id === 1) || options[0];
-            this.eventForm.get('categoryId')?.setValue(defaultCat.id);
+            if (this.isEditMode()) return;
+            if (this.eventForm.get('categoryId')?.value != null) return;
+            const defaultCat = this.defaultCategory();
+            if (defaultCat) {
+                this.eventForm.get('categoryId')?.setValue(defaultCat.id);
+            }
         });
     }
 

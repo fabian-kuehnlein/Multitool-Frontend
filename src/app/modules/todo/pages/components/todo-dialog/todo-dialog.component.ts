@@ -1,5 +1,13 @@
-import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+    Component,
+    inject,
+    computed,
+    signal,
+    effect,
+    ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { Todo } from '../../../models/todo.model';
@@ -26,16 +34,46 @@ export class TodoDialogComponent {
     readonly form = this.formService.form;
     readonly isEditMode = signal(!!this.data?.todo);
     protected readonly priorities = PRIORITY_OPTIONS;
+    protected readonly categories = this.categoryService.categories;
 
     protected readonly selectableCategories = this.categoryService.selectableCategoriesForModule(
         AppModule.Todo,
         () => this.form.controls.categoryId.value,
     );
+    private readonly defaultCategory = this.categoryService.defaultCategoryForModule(AppModule.Todo);
+
+    private readonly formValue = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
+    });
+
+    protected readonly selectedCategory = computed(() => {
+        const id = this.formValue()?.categoryId ?? this.form.controls.categoryId.value;
+        return (
+            this.selectableCategories().find((c) => c.id === id) ??
+            this.categories().find((c) => c.id === id) ??
+            null
+        );
+    });
+
+    protected readonly selectedPriority = computed(() => {
+        const p = this.formValue()?.priority ?? this.form.controls.priority.value;
+        return this.priorities.find((o) => o.value === p) ?? null;
+    });
 
     constructor() {
         if (this.isEditMode() && this.data?.todo) {
             this.formService.patchFrom(this.data.todo);
         }
+
+        // Preselect default category for new todos once categories have loaded.
+        effect(() => {
+            if (this.isEditMode()) return;
+            if (this.form.controls.categoryId.value != null) return;
+            const defaultCat = this.defaultCategory();
+            if (defaultCat) {
+                this.form.controls.categoryId.setValue(defaultCat.id);
+            }
+        });
     }
 
     onSubmit(): void {
