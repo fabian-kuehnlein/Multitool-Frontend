@@ -54,14 +54,14 @@
     margin-top: 4px;
 
     &:hover {
-        background-color: var(--accent-danger-light);
+        background-color: var(--mat-sys-error-container);
 
         .logout-icon {
-            color: var(--accent-danger);
+            color: var(--mat-sys-error);
         }
 
         .tool-name {
-            color: var(--accent-danger);
+            color: var(--mat-sys-error);
         }
     }
 }

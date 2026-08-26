@@ -54,6 +54,26 @@ export class CategoryService {
         return !category.isDeleted && (category.applicableModules ?? []).includes(module);
     }
 
+    /**
+     * Returns the default category for a module.
+     * Strategy: first selectable category in insertion order (backend returns
+     * categories sorted by creation). Prefers a category named "Privat" if present
+     * to keep the existing UX expectation, otherwise falls back to the first entry.
+     * This avoids hard-coded IDs (brittle if "Privat" (id=1) is deleted) and
+     * centralizes the policy for Calendar + Todo (and future modules).
+     * Long-term the backend could expose an explicit `isDefault` flag.
+     */
+    public defaultCategoryForModule(module: AppModule): Signal<Category | undefined> {
+        return computed(() => {
+            const selectable = this.categoriesForModule(module)();
+            if (selectable.length === 0) return undefined;
+            return (
+                selectable.find((c) => c.name.toLowerCase() === 'privat') ??
+                selectable[0]
+            );
+        });
+    }
+
     public loadCategories(): void {
         this._loading.set(true);
         this.httpService

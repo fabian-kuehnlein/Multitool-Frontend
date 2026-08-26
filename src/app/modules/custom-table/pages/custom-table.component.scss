@@ -58,10 +58,6 @@
     display: none !important;
 }
 
-.warn-text {
-    color: var(--accent-danger);
-}
-
 // ── Empty State (no table selected) ──────────────────────────────────────────
 .empty-state {
     height: 100%;
@@ -84,12 +80,5 @@
     h2 {
         font-weight: 400;
         margin: 0;
-    }
-}
-
-// ── Menu Delete Colors ───────────────────────────────────────────────────────
-button.mat-mdc-menu-item {
-    .mat-icon.delete-colors {
-        color: var(--accent-danger-dark) !important;
     }
 }

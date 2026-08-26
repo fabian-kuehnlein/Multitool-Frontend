@@ -67,20 +67,6 @@
     flex: 1;
     overflow-y: auto;
     padding: 0;
-
-    &::-webkit-scrollbar {
-        width: 6px;
-    }
-    &::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb);
-        border-radius: 4px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-        background: var(--scrollbar-thumb-hover);
-    }
 }
 
 // ── Todo List Base ───────────────────────────────────────────────────────────
@@ -110,18 +96,5 @@
 
     p {
         margin-bottom: 24px;
-    }
-}
-
-// ── Delete Button ────────────────────────────────────────────────────────────
-.delete-btn {
-    color: var(--text-muted);
-    transition:
-        color 0.2s,
-        background-color 0.2s;
-
-    &:hover {
-        color: var(--accent-danger) !important;
-        background-color: var(--accent-danger-light);
     }
 }

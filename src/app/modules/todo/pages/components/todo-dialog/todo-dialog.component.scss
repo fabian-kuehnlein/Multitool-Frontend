@@ -81,16 +81,32 @@
     }
 }
 
-.category-option {
+.category-trigger,
+.category-option,
+.priority-trigger,
+.priority-option {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+}
 
-    .color-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
+.category-option {
+    gap: 12px;
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.priority-trigger mat-icon,
+.priority-option mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
 }
 
 .dialog-actions {

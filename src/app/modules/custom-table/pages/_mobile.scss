@@ -27,8 +27,8 @@
         position: relative;
 
         &.marked-for-deletion {
-            border: 2px solid var(--accent-danger);
-            background-color: var(--accent-danger-light) !important;
+            border: 2px solid var(--mat-sys-error);
+            background-color: var(--mat-sys-error-container);
         }
     }
 
@@ -115,7 +115,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: var(--accent-danger-light);
+        background: var(--mat-sys-error-container);
         z-index: 10;
         display: flex;
         align-items: center;
@@ -124,7 +124,7 @@
         transition: background-color 0.2s;
 
         &:hover {
-            background: var(--accent-danger-light);
+            background: var(--mat-sys-error-container);
         }
 
         &::before {

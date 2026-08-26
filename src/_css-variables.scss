@@ -43,11 +43,9 @@
     --accent-primary-light: #d4e6f9;
     --accent-primary-hover: #0d47a1;
 
-    // Accents — Danger (Red)
-    --accent-danger: #d32f2f;
-    --accent-danger-dark: #b71c1c;
-    --accent-danger-light: #fde8e8;
-    --accent-danger-hover: #c62828;
+    // Accents — Danger
+    // Error colors come from the M3 theme: --mat-sys-error, --mat-sys-on-error,
+    // --mat-sys-error-container, --mat-sys-on-error-container (see styles.scss)
 
     // Accents — Success (Green)
     --accent-success: #2e7d32;
@@ -118,12 +116,6 @@
     --accent-primary: #4da6ff;
     --accent-primary-light: #0d3b66;
     --accent-primary-hover: #80c8ff;
-
-    // Accents — Danger (Red)
-    --accent-danger: #ff6b6b;
-    --accent-danger-dark: #ef5350;
-    --accent-danger-light: #3d1a1a;
-    --accent-danger-hover: #ff8a80;
 
     // Accents — Success (Green)
     --accent-success: #66bb6a;

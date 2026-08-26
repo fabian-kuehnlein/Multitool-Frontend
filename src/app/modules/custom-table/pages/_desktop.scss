@@ -150,10 +150,10 @@
 
 // ── Row Marked for Deletion ──────────────────────────────────────────────────
 .row-marked-for-deletion {
-    background-color: var(--accent-danger-light) !important;
+    background-color: var(--mat-sys-error-container);
 
     td {
-        border-bottom-color: var(--accent-danger) !important;
+        border-bottom-color: var(--mat-sys-error);
     }
 }
 

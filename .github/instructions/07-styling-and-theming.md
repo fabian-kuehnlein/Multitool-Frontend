@@ -74,10 +74,31 @@ Common tokens:
 | Backgrounds | `--bg-primary`, `--bg-secondary`, `--bg-surface`, `--bg-surface-alt`, `--bg-hover`, `--bg-active` |
 | Text | `--text-primary`, `--text-secondary`, `--text-tertiary`, `--text-muted`, `--text-disabled` |
 | Borders | `--border-default`, `--border-light`, `--border-medium`, `--border-strong` |
-| Accents | `--accent-primary`, `--accent-danger`, `--accent-success`, `--accent-warning` (+ `-light`, `-hover`, `-dark` variants) |
+| Accents | `--accent-primary`, `--accent-success`, `--accent-warning` (+ `-light`, `-hover` variants) |
 | Shadows | `--shadow-sm` … `--shadow-xl` |
 | Priority colors | `--priority-high`, `--priority-medium`, `--priority-low` |
 | Calendar | `--calendar-holiday-bg` |
+
+## Error colors
+
+Error/danger coloring has **one unified mechanism** (the old `.delete-colors`
+class and the `--accent-danger*` variables were removed; `color="warn"` does
+nothing under M3 themes and must not be used):
+
+- **Buttons:** `<button matButton class="error-button">` and
+  `<button matIconButton class="error-icon-button">`. The classes are generated
+  per theme in `styles.scss` via `mat.button-color($theme, $color-variant:
+  'error')` / `mat.icon-button-color(...)` and cover all button variants incl.
+  hover/state layers.
+- **Icons/text:** `<mat-icon class="error-icon">` and `<span class="error-text">`.
+- **Free styles in component SCSS:** use the Material system tokens directly —
+  `var(--mat-sys-error)`, `var(--mat-sys-on-error)`,
+  `var(--mat-sys-error-container)` (light error background),
+  `var(--mat-sys-on-error-container)` (text on that background). They are
+  emitted globally by the M3 themes and are automatically correct for light and
+  dark mode.
+- Utility classes must sit **directly on the Material element**, never on a
+  wrapper. Never hand-write hex values or `--accent-danger*` for errors.
 
 - Add new tokens to `_css-variables.scss` in both the light and dark block when a color is reused.
 - Theming of Material components happens via `_material-palettes.scss` + `_theme.scss`; dark mode is toggled by setting `data-theme="dark"` on `<html>` (`ThemeService`).

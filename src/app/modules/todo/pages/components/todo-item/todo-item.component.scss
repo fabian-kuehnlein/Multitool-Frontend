@@ -124,15 +124,6 @@
     }
 }
 
-::ng-deep .delete-menu-item {
-    color: var(--accent-danger) !important;
-
-    mat-icon,
-    .mat-icon {
-        color: var(--accent-danger) !important;
-    }
-}
-
 // ── Mobile Row ───────────────────────────────────────────────────────────────
 .mobile-todo-main {
     display: flex;
