@@ -48,8 +48,11 @@ export class CalendarService {
         return this.httpService.deleteEvent(eventId, context);
     }
 
-    generateIcalLink(event: GetICalLinkEvent): Observable<Blob> {
-        return this.httpService.generateIcalLink(event);
+    generateIcalLink(
+        event: GetICalLinkEvent,
+        context?: HttpContext,
+    ): Observable<Blob> {
+        return this.httpService.generateIcalLink(event, context);
     }
 
     /**

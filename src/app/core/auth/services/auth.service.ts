@@ -1,8 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpContext, HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
+import {
+    SKIP_HTTP_ERROR_SNACKBAR,
+} from '../../interceptors/http-error.interceptor';
 
 interface LoginResponse {
     token: string;
@@ -16,6 +19,10 @@ export class AuthService {
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
     private readonly apiURL = `${environment.MultitoolApi}/api/Auth`;
+    private readonly skipErrorSnackbarContext = new HttpContext().set(
+        SKIP_HTTP_ERROR_SNACKBAR,
+        true,
+    );
 
     public readonly isAuthenticated = signal<boolean>(
         this.checkTokenValidity(),
@@ -23,7 +30,11 @@ export class AuthService {
 
     login(username: string, password: string): Observable<LoginResponse> {
         return this.http
-            .post<LoginResponse>(`${this.apiURL}/login`, { username, password })
+            .post<LoginResponse>(
+                `${this.apiURL}/login`,
+                { username, password },
+                { context: this.skipErrorSnackbarContext },
+            )
             .pipe(
                 tap((response) => {
                     this.setToken(response.token);

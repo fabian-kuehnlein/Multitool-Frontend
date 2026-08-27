@@ -12,9 +12,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
+import { SnackbarService } from '../../../services/snackbar.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-login',
@@ -41,7 +43,7 @@ export class LoginComponent {
         private fb: FormBuilder,
         private authService: AuthService,
         private router: Router,
-        private snackBar: MatSnackBar,
+        private snackbar: SnackbarService,
     ) {
         this.loginForm = this.fb.group({
             username: ['', Validators.required],
@@ -57,15 +59,15 @@ export class LoginComponent {
                 next: () => {
                     this.router.navigate(['/calendar']);
                 },
-                error: (err) => {
+                error: (err: HttpErrorResponse) => {
                     this.isLoading.set(false);
-                    this.snackBar.open(
-                        'Login fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.',
-                        'Schließen',
-                        {
-                            duration: 3000,
-                        },
-                    );
+                    if (err.status === 401) {
+                        this.snackbar.openError(
+                            'Login fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.',
+                        );
+                    } else {
+                        this.snackbar.openHttpError(err);
+                    }
                     console.error('Login error:', err);
                 },
             });
