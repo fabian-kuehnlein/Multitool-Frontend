@@ -263,13 +263,9 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         );
         this.isGeneratingIcal.set(true);
         this.calendarService.generateIcalLink(event).subscribe({
-            next: (link) => {
+            next: (blob) => {
                 this.isGeneratingIcal.set(false);
-                if (this.isMobile()) {
-                    window.location.href = link;
-                } else {
-                    this.downloadIcalFile(link, event.startDateTime);
-                }
+                this.downloadIcalFile(blob, event.startDateTime);
             },
             error: () => {
                 this.isGeneratingIcal.set(false);
@@ -278,23 +274,15 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         });
     }
 
-    private downloadIcalFile(link: string, startDateTime: string | null) {
-        fetch(link)
-            .then((response) => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.blob();
-            })
-            .then((blob) => {
-                const url = URL.createObjectURL(blob);
-                const anchor = document.createElement('a');
-                anchor.href = url;
-                anchor.download = this.buildIcalFileName(startDateTime);
-                document.body.appendChild(anchor);
-                anchor.click();
-                document.body.removeChild(anchor);
-                URL.revokeObjectURL(url);
-            })
-            .catch(() => this.showIcalError());
+    private downloadIcalFile(blob: Blob, startDateTime: string | null) {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = this.buildIcalFileName(startDateTime);
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
     }
 
     private buildIcalFileName(startDateTime: string | null): string {

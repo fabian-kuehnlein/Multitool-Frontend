@@ -48,7 +48,7 @@ export class CalendarService {
         return this.httpService.deleteEvent(eventId, context);
     }
 
-    generateIcalLink(event: GetICalLinkEvent): Observable<string> {
+    generateIcalLink(event: GetICalLinkEvent): Observable<Blob> {
         return this.httpService.generateIcalLink(event);
     }
 
