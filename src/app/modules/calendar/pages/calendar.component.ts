@@ -574,6 +574,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             const api = this.calendarApi;
             if (api) {
                 this.title.set(api.view.title);
+                this.updateTodayStatus();
             }
         },
         loading: (isLoading) => this.loading.set(isLoading),

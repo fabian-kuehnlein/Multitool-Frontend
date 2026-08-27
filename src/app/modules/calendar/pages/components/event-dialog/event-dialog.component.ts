@@ -9,6 +9,7 @@ import {
     OnDestroy,
     ChangeDetectionStrategy,
 } from '@angular/core';
+import { HttpContext } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
@@ -29,6 +30,9 @@ import { ConfirmDialogComponent } from '../../../../../shared/components/confirm
 import { CalendarService } from '../../../services/calendar.service';
 import { MediaService } from '../../../../../core/services/media.service';
 import { SnackbarService } from '../../../../../core/services/snackbar.service';
+import {
+    SKIP_HTTP_ERROR_SNACKBAR,
+} from '../../../../../core/interceptors/http-error.interceptor';
 import {
     DialogEventInput,
     FullCalendarEventInput,
@@ -89,6 +93,10 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     private readonly snackbar = inject(SnackbarService);
     public readonly dialogData = inject<EventDialogData>(MAT_DIALOG_DATA);
     private readonly destroy$ = new Subject<void>();
+    private readonly skipErrorSnackbarContext = new HttpContext().set(
+        SKIP_HTTP_ERROR_SNACKBAR,
+        true,
+    );
 
     // --- Signals & State ---
     public readonly isEditMode = signal<boolean>(false);
@@ -262,14 +270,12 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             this.eventForm.getRawValue() as EventFormValue,
         );
         this.isGeneratingIcal.set(true);
-        this.calendarService.generateIcalLink(event).subscribe({
-            next: (link) => {
+        this.calendarService
+            .generateIcalLink(event, this.skipErrorSnackbarContext)
+            .subscribe({
+            next: (blob) => {
                 this.isGeneratingIcal.set(false);
-                if (this.isMobile()) {
-                    window.location.href = link;
-                } else {
-                    this.downloadIcalFile(link, event.startDateTime);
-                }
+                this.downloadIcalFile(blob, event.startDateTime);
             },
             error: () => {
                 this.isGeneratingIcal.set(false);
@@ -278,23 +284,15 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         });
     }
 
-    private downloadIcalFile(link: string, startDateTime: string | null) {
-        fetch(link)
-            .then((response) => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.blob();
-            })
-            .then((blob) => {
-                const url = URL.createObjectURL(blob);
-                const anchor = document.createElement('a');
-                anchor.href = url;
-                anchor.download = this.buildIcalFileName(startDateTime);
-                document.body.appendChild(anchor);
-                anchor.click();
-                document.body.removeChild(anchor);
-                URL.revokeObjectURL(url);
-            })
-            .catch(() => this.showIcalError());
+    private downloadIcalFile(blob: Blob, startDateTime: string | null) {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = this.buildIcalFileName(startDateTime);
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
     }
 
     private buildIcalFileName(startDateTime: string | null): string {

@@ -58,8 +58,14 @@ export class CalendarHttpService {
         });
     }
 
-    generateIcalLink(event: GetICalLinkEvent): Observable<string> {
-        return this.http.post<string>(`${this.apiURL}/events/ical-link`, event);
+    generateIcalLink(
+        event: GetICalLinkEvent,
+        context?: HttpContext,
+    ): Observable<Blob> {
+        return this.http.post(`${this.apiURL}/events/ical`, event, {
+            responseType: 'blob',
+            context,
+        });
     }
 
     deleteEvent(
