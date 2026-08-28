@@ -10,24 +10,24 @@
 
 - **Style classes, not raw elements.** Never write bare element selectors like `button { ... }`, `div { ... }` or `mat-icon { ... }` — target a class instead. A one-off element always gets its own class.
 - **Raw element selectors are only OK for groups:** styling *all* elements of a kind at once (e.g. every button in the component should be red → `button { color: red; }`). As soon as individual elements need different styles, give them classes.
-- **Class names must be meaningful** and say what the element *does*, not what it is generic-ally: a button that deletes something is `delete-button`, not `button`.
+- **Class names must be meaningful** and say what the element *does*, not what it is generically: a button that deletes something is `delete-button`, not `button`.
 - **The element kind belongs in the name** so a single read makes clear which element is styled. Append the kind as suffix: `button` → `-button`, a wrapper/`div` → `-container` (or `-wrapper`), `input` → `-input`, `label`/`span` → `-label`, `img` → `-icon`, etc.
-- **Purpose first, kind second:** `delete-button`, `submit-button`, `toolbar-container`, `event-title`, `search-input`, `close-icon`.
+- **Purpose first, kind second:** `delete-button`, `submit-button`, `toolbar-container`, `item-title`, `search-input`, `close-icon`.
 - **Keep names short when unambiguous:** one delete button in a component is simply `delete-button`.
-- **Add a feature/context prefix only when confusion is possible** (several similar elements or likely collisions): `calendar-event-delete-button`, `calendar-event-title`. Do not prefix every class with the feature name out of habit.
+- **Add a feature/context prefix only when confusion is possible** (several similar elements or likely collisions): `feature-item-delete-button`, `feature-item-title`. Do not prefix every class with the feature name out of habit.
 
 ## Icon buttons
 
 - **Buttons with an icon become a `MatIconButton`** (`<button matIconButton>`), so alignment, centering, sizing and touch targets come from Material instead of hand-rolled styles.
 - If the button is not a pure icon button but contains an icon (e.g. text + icon), **give the icon itself the `matButtonIcon` directive** (`<mat-icon matButtonIcon>`). Never drop a bare `<mat-icon>` into a button without it.
-- Use the current official syntax (`matIconButton`, `matButtonIcon`) — legacy names like `mat-icon-button` are deprecated. See [Material attribute syntax](./03-components.md#material-attribute-syntax).
+- Use the current official syntax (`matIconButton`, `matButtonIcon`) — legacy names like `mat-icon-button` are deprecated. See [Material attribute syntax](./04-components.md#material-attribute-syntax).
 
 ## Page-level SCSS split
 
 Page components split their styles into partials imported from the component file:
 
 ```scss
-// todo.component.scss
+// some-page.component.scss
 @use "desktop";
 @use "mobile";
 
@@ -42,7 +42,7 @@ Page components split their styles into partials imported from the component fil
 
 - `_desktop.scss` — styles for desktop/tablet layouts.
 - `_mobile.scss` — mobile overrides; wrap breakpoint-specific rules in `@include bp.mobile { ... }`.
-- Larger pages may add `_theme.scss` (dark-mode overrides), `_fullcalendar.scss`, etc. (see `calendar/pages/`).
+- Larger pages may add `_theme.scss` (dark-mode overrides), or feature-specific partials.
 - Import with `@use "desktop";` (no underscore/extension).
 
 ## Breakpoints
@@ -60,7 +60,7 @@ $breakpoint-laptop: 1640px;
 ```
 
 - Use the mixins (`@use "../../../../_breakpoints" as bp;` then `@include bp.mobile { ... }`).
-- Mirror the same ranges in TypeScript via `MediaService` (`core/services/media.service.ts`): `isMobile`, `isTablet`, `isLaptop`, `isDesktop` signals. Do not hard-code breakpoints elsewhere.
+- Mirror the same ranges in TypeScript via the media service (`isMobile`, `isTablet`, `isLaptop`, `isDesktop` signals). Do not hard-code breakpoints elsewhere.
 
 ## Theming via CSS variables
 
@@ -79,29 +79,17 @@ Common tokens:
 | Priority colors | `--priority-high`, `--priority-medium`, `--priority-low` |
 | Calendar | `--calendar-holiday-bg` |
 
+- Add new tokens to `_css-variables.scss` in both the light and dark block when a color is reused.
+- Theming of Material components happens via `_material-palettes.scss` + `_theme.scss`; dark mode is toggled by setting `data-theme="dark"` on `<html>` (via the theme service).
+
 ## Error colors
 
-Error/danger coloring has **one unified mechanism** (the old `.delete-colors`
-class and the `--accent-danger*` variables were removed; `color="warn"` does
-nothing under M3 themes and must not be used):
+Error/danger coloring has **one unified mechanism** (`color="warn"` does nothing under M3 themes and must not be used):
 
-- **Buttons:** `<button matButton class="error-button">` and
-  `<button matIconButton class="error-icon-button">`. The classes are generated
-  per theme in `styles.scss` via `mat.button-color($theme, $color-variant:
-  'error')` / `mat.icon-button-color(...)` and cover all button variants incl.
-  hover/state layers.
+- **Buttons:** `<button matButton class="error-button">` and `<button matIconButton class="error-icon-button">`. The classes are generated per theme in `styles.scss` and cover all button variants incl. hover/state layers.
 - **Icons/text:** `<mat-icon class="error-icon">` and `<span class="error-text">`.
-- **Free styles in component SCSS:** use the Material system tokens directly —
-  `var(--mat-sys-error)`, `var(--mat-sys-on-error)`,
-  `var(--mat-sys-error-container)` (light error background),
-  `var(--mat-sys-on-error-container)` (text on that background). They are
-  emitted globally by the M3 themes and are automatically correct for light and
-  dark mode.
-- Utility classes must sit **directly on the Material element**, never on a
-  wrapper. Never hand-write hex values or `--accent-danger*` for errors.
-
-- Add new tokens to `_css-variables.scss` in both the light and dark block when a color is reused.
-- Theming of Material components happens via `_material-palettes.scss` + `_theme.scss`; dark mode is toggled by setting `data-theme="dark"` on `<html>` (`ThemeService`).
+- **Free styles in component SCSS:** use the Material system tokens directly — `var(--mat-sys-error)`, `var(--mat-sys-on-error)`, `var(--mat-sys-error-container)` (light error background), `var(--mat-sys-on-error-container)` (text on that background). They are emitted globally by the M3 themes and are automatically correct for light and dark mode.
+- Utility classes must sit **directly on the Material element**, never on a wrapper. Never hand-write hex values or legacy danger variables for errors.
 
 ## Dark mode
 
@@ -119,11 +107,11 @@ nothing under M3 themes and must not be used):
 
 ## Material internals
 
-- Target Material internals with `::ng-deep` only where unavoidable (e.g. `.mat-mdc-*` touch targets, menu items). Scope it under your own class and never write global `::ng-deep` at file top-level.
-- Reuse the section-comment style (`// ── Section ──...`) to organize longer SCSS files.
+- Target Material internals with `::ng-deep` only where unavoidable (e.g. touch targets, menu items). Scope it under your own class and never write global `::ng-deep` at file top-level.
+- Use the same plain section-comment style as TypeScript (`// Section`) to organize longer SCSS files — avoid decorative separator lines.
 
 ## Dialog sizing
 
-- Pick the dialog layout by content amount — the action-button rules for both patterns live in [03-components.md](./03-components.md#dialogs):
+- Pick the dialog layout by content amount — the action-button rules for both patterns live in [04-components.md](./04-components.md#dialogs):
   - **Full-screen** — content-rich dialogs (forms, lists): on mobile use `width`/`height`/`minWidth`/`maxWidth` of `'100vw'`/`'100vh'` plus `panelClass: 'full-screen-dialog'` (styling provided globally — reuse it rather than duplicating it per dialog). On desktop use explicit `width`/`minWidth`/`maxWidth`.
-  - **Compact** — low-content dialogs (confirmations, short choices like `confirm-dialog`, `recurrence-choice-dialog`, `table-config-dialog`): never full-screen. On mobile use `width: '90vw'`, `maxWidth: '90vw'`, no height and no `panelClass`, so the dialog auto-sizes and keeps its rounded corners.
+  - **Compact** — low-content dialogs (confirmations, short choices): never full-screen. On mobile use `width: '90vw'`, `maxWidth: '90vw'`, no height and no `panelClass`, so the dialog auto-sizes and keeps its rounded corners.

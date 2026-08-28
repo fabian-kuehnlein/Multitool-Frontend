@@ -61,6 +61,8 @@ body {
 
 // ── Light Theme (Default) ───────────────────────────────────────────────────
 html {
+    background-color: var(--bg-primary);
+
     @include mat.all-component-themes($light-theme);
 
     // Emits the global --mat-sys-* tokens (e.g. --mat-sys-error) for this theme.
@@ -87,6 +89,8 @@ html {
 
 // ── Dark Theme ──────────────────────────────────────────────────────────────
 html[data-theme="dark"] {
+    background-color: var(--bg-primary);
+
     @include mat.all-component-themes($dark-theme);
 
     @include mat.system-level-colors($dark-theme);

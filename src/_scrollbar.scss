@@ -37,9 +37,3 @@
 *::-webkit-scrollbar-corner {
     background: transparent;
 }
-
-// Stable gutter — prevents layout shift when the scrollbar appears.
-// Only applied to html so inner containers don't reserve unnecessary space.
-html {
-    scrollbar-gutter: stable;
-}
