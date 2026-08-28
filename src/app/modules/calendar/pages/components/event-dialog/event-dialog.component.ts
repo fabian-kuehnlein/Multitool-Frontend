@@ -12,7 +12,7 @@ import {
 import { HttpContext } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 
 // Angular Material
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -27,6 +27,7 @@ import { AppModule } from '../../../../../shared/models/app-module.enum';
 import { EventFormService, EventFormValue } from './event-form.service';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { RecurrenceFormComponent } from '../../../../../shared/components/recurrence-form/recurrence-form.component';
 import { CalendarService } from '../../../services/calendar.service';
 import { MediaService } from '../../../../../core/services/media.service';
 import { SnackbarService } from '../../../../../core/services/snackbar.service';
@@ -37,11 +38,6 @@ import {
     DialogEventInput,
     FullCalendarEventInput,
 } from '../../../mappers/event.mapper';
-import {
-    frequencyLabels,
-    RecurrenceFrequency,
-    weekdayOptions,
-} from '../../../utilities/calendar.config';
 import type { CalendarEvent } from '../../../models/calendar-event.model';
 
 // Third-party
@@ -75,8 +71,8 @@ export type EventDialogResult = EventDialogUpdateResult | EventDialogDeleteResul
         MatSlideToggleModule,
         MatDividerModule,
         ReactiveFormsModule,
-        NgClass,
-        NgTemplateOutlet
+        NgTemplateOutlet,
+        RecurrenceFormComponent,
     ],
     providers: [EventFormService],
     templateUrl: './event-dialog.component.html',
@@ -107,9 +103,6 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     );
     public readonly categories = this.categoryService.categories;
 
-    // UI Metadata
-    protected readonly weekdayOptions = weekdayOptions;
-
     // Form setup
     public readonly eventForm: FormGroup = this.formService.buildForm();
 
@@ -136,24 +129,9 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         );
     });
 
-    public readonly firstSelectedWeekdayLabel = computed(() => {
-        const firstSelected = this.formValue()?.recurrenceByDay?.[0];
-        return (
-            this.weekdayOptions.find((d) => d.value === firstSelected)?.label ||
-            ''
-        );
-    });
-
     public readonly selectedCategory = computed(() => {
         const categoryId = this.formValue()?.categoryId;
         return this.categories().find((c) => c.id === categoryId);
-    });
-
-    public readonly getFrequencyLabel = computed(() => {
-        const freq = this.formValue()?.recurrenceFrequency;
-        return freq
-            ? (frequencyLabels[freq as RecurrenceFrequency] ?? '')
-            : '';
     });
 
     // handles char-count for inputs
@@ -306,12 +284,5 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         this.snackbar.openError(
             'Der Kalender-Link konnte nicht erstellt werden.',
         );
-    }
-
-    public changeInterval(delta: number) {
-        const control = this.eventForm.get('recurrenceInterval');
-        const currentValue = control?.value || 1;
-        const newValue = Math.max(1, currentValue + delta);
-        control?.setValue(newValue);
     }
 }

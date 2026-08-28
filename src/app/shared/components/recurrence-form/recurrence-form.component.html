@@ -1,0 +1,92 @@
+<div
+    class="recurring-container"
+    [formGroup]="parentForm()"
+    [ngClass]="{
+        'recurring-weekday':
+            parentForm().get('recurrenceFrequency')?.value == 'WEEKLY',
+    }"
+>
+    <mat-form-field appearance="outline">
+        <mat-label>Häufigkeit</mat-label>
+        <mat-select formControlName="recurrenceFrequency">
+            <mat-option value="DAILY">Täglich</mat-option>
+            <mat-option value="WEEKLY">Wöchentlich</mat-option>
+            <mat-option value="MONTHLY">Monatlich</mat-option>
+            <mat-option value="YEARLY">Jährlich</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="interval-field">
+        <mat-label>Intervall</mat-label>
+        <button
+            matIconButton
+            matPrefix
+            (click)="changeInterval(-1)"
+            type="button"
+        >
+            <mat-icon>remove</mat-icon>
+        </button>
+        <input
+            matInput
+            type="number"
+            formControlName="recurrenceInterval"
+            min="1"
+            class="centered-input"
+        />
+        <button
+            matIconButton
+            matSuffix
+            (click)="changeInterval(1)"
+            type="button"
+        >
+            <mat-icon>add</mat-icon>
+        </button>
+        <mat-hint>Alle X {{ getFrequencyLabel() }}</mat-hint>
+    </mat-form-field>
+
+    @if (parentForm().get("recurrenceFrequency")?.value === "WEEKLY") {
+        <mat-form-field appearance="outline">
+            <mat-label>Wochentag</mat-label>
+            <mat-select formControlName="recurrenceByDay" multiple>
+                <mat-select-trigger>
+                    {{ firstSelectedWeekdayLabel() }}
+                    @if (
+                        (parentForm().get("recurrenceByDay")?.value?.length ||
+                            0) > 1
+                    ) {
+                        <span class="weekday-hint">
+                            (+{{
+                                parentForm().get("recurrenceByDay")?.value
+                                    .length - 1
+                            }})
+                        </span>
+                    }
+                </mat-select-trigger>
+                @for (day of weekdayOptions; track day.value) {
+                    <mat-option [value]="day.value">{{
+                        day.label
+                    }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+        <mat-label>Ende</mat-label>
+        <input
+            matInput
+            [matDatepicker]="recurrenceEndPicker"
+            formControlName="recurrenceEndDate"
+        />
+        <mat-datepicker-toggle
+            matSuffix
+            [for]="recurrenceEndPicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #recurrenceEndPicker></mat-datepicker>
+        @if (
+            parentForm().get("recurrenceEndDate")?.hasError("matDatepickerParse")
+        ) {
+            <mat-error>Falsches Format</mat-error>
+        }
+    </mat-form-field>
+</div>

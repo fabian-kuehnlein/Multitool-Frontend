@@ -137,6 +137,27 @@ const dialogRef = this.dialog.open(ConfirmDialogComponent, {
 - The sidenav is opened as a dialog (`SidenavComponent`) with the active feature name passed as `data` (`'todo'`, `'calendar'`, ...).
 - If a dialog's template grows large, extract self-contained sections into child components (`pages/components/<name>/`). See [10-code-splitting.md](./10-code-splitting.md).
 
+## Reusable form components
+
+- When a group of form fields is needed in several places (e.g. recurring-frequency inputs for calendar events and recurring todos), extract it into a **shared** component under `shared/components/<name>/` and reuse it like a child component.
+- Such a component receives the parent `FormGroup` via a **signal input** and renders the fields with plain `formControlName`. The controls it binds must already exist in the parent form (the shared component does **not** build or add them).
+- Bind the Angular `formGroup` **directive** on the component's root wrapper element so nested `formControlName`s resolve. **Do not** name the signal input `formGroup` (it collides with the `FormGroupDirective` input) — use a distinct name like `parentForm`:
+
+  ```html
+  <app-recurrence-form [parentForm]="myForm" />
+  ```
+
+  ```html
+  <div [formGroup]="parentForm()" class="recurring-container">
+      <mat-form-field>
+          <mat-select formControlName="recurrenceFrequency">...</mat-select>
+      </mat-form-field>
+  </div>
+  ```
+
+- Any view logic that only this field group needs (`getFrequencyLabel`, `firstSelectedWeekdayLabel`, `changeInterval`, …) lives inside the shared component, not the parent.
+- Reference implementation: `shared/components/recurrence-form/` (config + weekdays in `shared/utilities/recurrence.config.ts`).
+
 ## User feedback
 
 - Use `SnackbarService` (`core/services/snackbar.service.ts`) for success/error toasts: `snackbar.openSuccess('...')`, `snackbar.openError('...')`. Messages are German.

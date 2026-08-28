@@ -1,0 +1,74 @@
+@use "../../../../_breakpoints" as bp;
+
+.recurring-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+
+    @include bp.mobile {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 12px;
+
+        & > *:last-child {
+            grid-column: span 2;
+        }
+    }
+}
+
+.recurring-weekday {
+    grid-template-columns: repeat(4, 1fr);
+
+    @include bp.mobile {
+        grid-template-columns: 1fr 1fr;
+
+        & > *:nth-child(n) {
+            grid-column: span 1;
+        }
+    }
+}
+
+.interval-field {
+    .centered-input {
+        text-align: center;
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+
+    button[mat-icon-button] {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    [matPrefix] {
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
+    [matSuffix] {
+        margin-right: 4px;
+        margin-left: 4px;
+    }
+}
+
+.weekday-hint {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-left: 4px;
+}
