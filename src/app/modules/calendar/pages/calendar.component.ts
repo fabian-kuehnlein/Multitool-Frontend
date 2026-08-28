@@ -125,9 +125,11 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     protected readonly isMobile = this.media.isMobile;
 
-    protected readonly showPastEvents = signal<boolean>(
+    protected readonly includePastEvents = signal<boolean>(
         this.media.isMobile() ? false : true,
     );
+
+    protected readonly canNavigateBack = signal<boolean>(true);
 
     public readonly categoryList = this.categoryService.categories;
     public readonly filterableCategories = this.categoryService.categoriesForModule(AppModule.Calendar);
@@ -204,12 +206,24 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     private setupPastEventsToggle() {
         effect(() => {
-            const show = this.showPastEvents();
+            const includePast = this.includePastEvents();
             const api = this.calendarApi;
-            if (api) {
-                api.refetchEvents();
+            if (!api) return;
+
+            if (!includePast && this.isInPastMonth()) {
+                api.today();
             }
+
+            this.updateTodayStatus();
+            api.refetchEvents();
         });
+    }
+
+    private isInPastMonth(): boolean {
+        const api = this.calendarApi;
+        if (!api) return false;
+
+        return dayjs(api.view.currentStart).isBefore(dayjs().startOf('month'));
     }
 
     private initCategoryControl() {
@@ -274,10 +288,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 api.today();
                 break;
             case 'prev':
-                api.prev();
+                if (this.canNavigateBack()) api.prev();
                 break;
             case 'prevYear':
-                api.prevYear();
+                if (this.canNavigateBack()) api.prevYear();
                 break;
             case 'next':
                 api.next();
@@ -317,6 +331,17 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         const today = dayjs().startOf('day');
 
         this.isToday.set(today.isSameOrAfter(start) && today.isBefore(end));
+
+        this.canNavigateBack.set(
+            this.includePastEvents() || this.isInFutureMonth(),
+        );
+    }
+
+    private isInFutureMonth(): boolean {
+        const api = this.calendarApi;
+        if (!api) return false;
+
+        return dayjs(api.view.currentStart).isAfter(dayjs().startOf('month'));
     }
 
     public openSideNav() {
@@ -613,7 +638,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 }
 
                                 let finalEvents = processedEvents;
-                                if (!this.showPastEvents()) {
+                                if (!this.includePastEvents()) {
                                     finalEvents = filterPastEvents(
                                         processedEvents,
                                         today,
