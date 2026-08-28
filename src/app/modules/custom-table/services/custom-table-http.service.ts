@@ -17,64 +17,64 @@ import {
 })
 export class CustomTableHttpService {
     private readonly http = inject(HttpClient);
-    private readonly apiURL = `${environment.MultitoolApi}/api/CustomTable`;
+    private readonly apiUrl = `${environment.MultitoolApi}/api/CustomTable`;
 
     getListOfTables(): Observable<TableOverview[]> {
-        return this.http.get<TableOverview[]>(`${this.apiURL}/tables`);
+        return this.http.get<TableOverview[]>(`${this.apiUrl}/tables`);
     }
 
     getTable(tableId: number): Observable<TableDetail> {
-        return this.http.get<TableDetail>(`${this.apiURL}/tables/${tableId}`);
+        return this.http.get<TableDetail>(`${this.apiUrl}/tables/${tableId}`);
     }
 
     createTable(dto: UpsertTableDto): Observable<number> {
-        return this.http.post<number>(`${this.apiURL}/tables`, dto);
+        return this.http.post<number>(`${this.apiUrl}/tables`, dto);
     }
 
     updateTable(tableId: number, newName: string): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/tables/${tableId}`, {
+        return this.http.put<void>(`${this.apiUrl}/tables/${tableId}`, {
             name: newName,
         });
     }
 
     deleteTable(tableId: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiURL}/tables/${tableId}`);
+        return this.http.delete<void>(`${this.apiUrl}/tables/${tableId}`);
     }
 
     createColumn(tableId: number): Observable<void> {
         return this.http.post<void>(
-            `${this.apiURL}/tables/${tableId}/columns`,
+            `${this.apiUrl}/tables/${tableId}/columns`,
             null,
         );
     }
 
     updateColumn(columnId: number, dto: UpdateColumnDto): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/columns/${columnId}`, dto);
+        return this.http.put<void>(`${this.apiUrl}/columns/${columnId}`, dto);
     }
 
     updateColumnOrder(dto: UpdateColumnOrderDto[]): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/columns/order`, dto);
+        return this.http.put<void>(`${this.apiUrl}/columns/order`, dto);
     }
 
     deleteColumn(tableId: number, columnId: number): Observable<void> {
         return this.http.delete<void>(
-            `${this.apiURL}/tables/${tableId}/columns/${columnId}`,
+            `${this.apiUrl}/tables/${tableId}/columns/${columnId}`,
         );
     }
 
     createRow(tableId: number): Observable<void> {
         return this.http.post<void>(
-            `${this.apiURL}/tables/${tableId}/rows`,
+            `${this.apiUrl}/tables/${tableId}/rows`,
             null,
         );
     }
 
     updateRowOrder(rows: UpdateRowOrderDto[]): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/rows/order`, rows);
+        return this.http.put<void>(`${this.apiUrl}/rows/order`, rows);
     }
 
     deleteRows(tableId: number, rows: number[]): Observable<void> {
-        return this.http.delete<void>(`${this.apiURL}/tables/${tableId}/rows`, {
+        return this.http.delete<void>(`${this.apiUrl}/tables/${tableId}/rows`, {
             body: rows,
         });
     }
@@ -86,7 +86,7 @@ export class CustomTableHttpService {
     ): Observable<void> {
         const headers = { 'Content-Type': 'application/json' };
         return this.http.put<void>(
-            `${this.apiURL}/rows/${rowId}/cells/${columnId}`,
+            `${this.apiUrl}/rows/${rowId}/cells/${columnId}`,
             JSON.stringify(value),
             { headers },
         );

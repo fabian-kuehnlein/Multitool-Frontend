@@ -11,13 +11,13 @@ export interface PriorityOption {
 }
 
 export const PRIORITY_OPTIONS: readonly PriorityOption[] = [
-    { value: Priority.Low, label: 'Niedrig', color: 'var(--priority-low)' },
+    { value: Priority.LOW, label: 'Niedrig', color: 'var(--priority-low)' },
     {
-        value: Priority.Medium,
+        value: Priority.MEDIUM,
         label: 'Mittel',
         color: 'var(--priority-medium)',
     },
-    { value: Priority.High, label: 'Hoch', color: 'var(--priority-high)' },
+    { value: Priority.HIGH, label: 'Hoch', color: 'var(--priority-high)' },
 ];
 
 export function getPriorityLabel(priority: Priority): string {

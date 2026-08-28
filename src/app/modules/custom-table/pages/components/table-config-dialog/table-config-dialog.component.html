@@ -1,12 +1,12 @@
 <h1 mat-dialog-title>
     @switch (dialogMode) {
-        @case (DialogMode.CreateTable) {
+        @case (DialogMode.CREATE_TABLE) {
             Neue Tabelle erstellen
         }
-        @case (DialogMode.EditTable) {
+        @case (DialogMode.EDIT_TABLE) {
             Tabelle bearbeiten
         }
-        @case (DialogMode.EditColumn) {
+        @case (DialogMode.EDIT_COLUMN) {
             Spalte bearbeiten
         }
     }
@@ -15,13 +15,13 @@
 <mat-dialog-content class="dialog-content">
     <p class="description">
         @switch (dialogMode) {
-            @case (DialogMode.CreateTable) {
+            @case (DialogMode.CREATE_TABLE) {
                 Erstelle eine neue Tabelle und definiere die erste Spalte.
             }
-            @case (DialogMode.EditTable) {
+            @case (DialogMode.EDIT_TABLE) {
                 Passe den Namen deiner Tabelle an.
             }
-            @case (DialogMode.EditColumn) {
+            @case (DialogMode.EDIT_COLUMN) {
                 Bearbeite den Namen und den Datentyp deiner Spalte.
             }
         }
@@ -29,8 +29,8 @@
 
     <form [formGroup]="form" class="creation-form">
         @if (
-            dialogMode === DialogMode.CreateTable ||
-            dialogMode === DialogMode.EditTable
+            dialogMode === DialogMode.CREATE_TABLE ||
+            dialogMode === DialogMode.EDIT_TABLE
         ) {
             <div class="form-section">
                 <mat-form-field appearance="outline" class="full-width">
@@ -51,11 +51,11 @@
         }
 
         @if (
-            dialogMode === DialogMode.CreateTable ||
-            dialogMode === DialogMode.EditColumn
+            dialogMode === DialogMode.CREATE_TABLE ||
+            dialogMode === DialogMode.EDIT_COLUMN
         ) {
             <div class="form-section">
-                @if (dialogMode === DialogMode.CreateTable) {
+                @if (dialogMode === DialogMode.CREATE_TABLE) {
                     <div class="section-title">Erste Spalte definieren</div>
                 }
 
@@ -94,7 +94,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions class="actions">
-    @if (dialogMode === DialogMode.EditColumn) {
+    @if (dialogMode === DialogMode.EDIT_COLUMN) {
         <button matButton (click)="delete()" class="error-button">
             <mat-icon>delete</mat-icon>
             Spalte löschen
@@ -111,7 +111,7 @@
         [disabled]="form.invalid"
     >
         @switch (dialogMode) {
-            @case (DialogMode.CreateTable) {
+            @case (DialogMode.CREATE_TABLE) {
                 Tabelle erstellen
             }
             @default {

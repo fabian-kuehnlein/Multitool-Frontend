@@ -38,7 +38,7 @@ import {
     DialogEventInput,
     FullCalendarEventInput,
 } from '../../../mappers/event.mapper';
-import type { CalendarEvent } from '../../../models/calendar-event.model';
+import type { CalendarEvent } from '../../../models';
 
 // Third-party
 import { Subject, takeUntil } from 'rxjs';
@@ -107,11 +107,11 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     public readonly eventForm: FormGroup = this.formService.buildForm();
 
     public readonly selectableCategories =
-        this.categoryService.selectableCategoriesForModule(AppModule.Calendar, () =>
+        this.categoryService.selectableCategoriesForModule(AppModule.CALENDAR, () =>
             this.eventForm.getRawValue().categoryId,
         );
     private readonly defaultCategory =
-        this.categoryService.defaultCategoryForModule(AppModule.Calendar);
+        this.categoryService.defaultCategoryForModule(AppModule.CALENDAR);
     private readonly formValue = toSignal<EventFormValue | null>(
         this.eventForm.valueChanges,
         { initialValue: this.eventForm.getRawValue() },

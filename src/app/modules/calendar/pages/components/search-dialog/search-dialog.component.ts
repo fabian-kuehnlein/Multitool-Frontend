@@ -13,7 +13,7 @@ import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import {
     SearchResult,
     SearchResultRow,
-} from '../../../models/search-result.model';
+} from '../../../models';
 import { CalendarService } from '../../../services/calendar.service';
 import {
     MAT_DIALOG_DATA,

@@ -9,14 +9,14 @@ import { Category, CreateCategoryDto, UpdateCategoryDto } from '../models/catego
 })
 export class CategoryHttpService {
     private readonly http = inject(HttpClient);
-    private readonly apiURL = `${environment.MultitoolApi}/api/Category`;
+    private readonly apiUrl = `${environment.MultitoolApi}/api/Category`;
 
     getCategories(): Observable<Category[]> {
-        return this.http.get<Category[]>(`${this.apiURL}/categories`);
+        return this.http.get<Category[]>(`${this.apiUrl}/categories`);
     }
 
     createCategory(dto: CreateCategoryDto): Observable<number> {
-        return this.http.post<number>(`${this.apiURL}/categories`, dto);
+        return this.http.post<number>(`${this.apiUrl}/categories`, dto);
     }
 
     updateCategory(
@@ -24,12 +24,12 @@ export class CategoryHttpService {
         dto: UpdateCategoryDto,
         context?: HttpContext,
     ): Observable<void> {
-        return this.http.put<void>(`${this.apiURL}/categories/${id}`, dto, {
+        return this.http.put<void>(`${this.apiUrl}/categories/${id}`, dto, {
             context,
         });
     }
 
     deleteCategory(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiURL}/categories/${id}`);
+        return this.http.delete<void>(`${this.apiUrl}/categories/${id}`);
     }
 }

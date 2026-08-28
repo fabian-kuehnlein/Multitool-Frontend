@@ -1,4 +1,4 @@
-import { CustomDataType } from '../enums/custom-data-type.model';
+import { CustomDataType } from '../enums/custom-data-type.enum';
 
 export interface UpdateColumnDto {
     name: string;

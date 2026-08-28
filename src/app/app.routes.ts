@@ -50,7 +50,7 @@ export const routes: Routes = [
         path: 'settings',
         canActivate: [authGuard],
         loadComponent: () =>
-            import('./core/settings/pages/settings.component').then(
+            import('./modules/settings/pages/settings.component').then(
                 (m) => m.SettingsComponent,
             ),
     },

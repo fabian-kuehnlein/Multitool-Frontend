@@ -1,5 +1,5 @@
 @switch (col().dataType) {
-    @case (CustomDataType.String) {
+    @case (CustomDataType.STRING) {
         <mat-form-field
             appearance="outline"
             subscriptSizing="dynamic"
@@ -15,7 +15,7 @@
         </mat-form-field>
     }
 
-    @case (CustomDataType.Int) {
+    @case (CustomDataType.INT) {
         @if (!isMobile()) {
             <div class="stepper">
                 <button
@@ -71,7 +71,7 @@
         }
     }
 
-    @case (CustomDataType.Decimal) {
+    @case (CustomDataType.DECIMAL) {
         @if (!isMobile()) {
             <div class="stepper">
                 <button
@@ -129,7 +129,7 @@
         }
     }
 
-    @case (CustomDataType.Date) {
+    @case (CustomDataType.DATE) {
         <div class="date-cell">
             <mat-form-field
                 appearance="outline"
@@ -152,7 +152,7 @@
         </div>
     }
 
-    @case (CustomDataType.Bool) {
+    @case (CustomDataType.BOOL) {
         <div class="cell-content">
             <mat-checkbox
                 [formControl]="control"

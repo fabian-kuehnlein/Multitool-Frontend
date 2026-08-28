@@ -4,10 +4,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
-import { ThemeService } from '../../services/theme.service';
-import { MediaService } from '../../services/media.service';
-import { SnackbarService } from '../../services/snackbar.service';
-import { SidenavComponent } from '../../layout/sidenav/sidenav.component';
+import { ThemeService } from '../../../core/services/theme.service';
+import { MediaService } from '../../../core/services/media.service';
+import { SnackbarService } from '../../../core/services/snackbar.service';
+import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 
 @Component({

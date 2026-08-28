@@ -12,8 +12,8 @@ import {
 } from '@angular/material/dialog';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ColumnInfo } from '../../../models';
-import { DATA_TYPE_OPTIONS, DialogMode } from '../../../utilities/custom-table.config';
+import { ColumnInfo, DialogMode } from '../../../models';
+import { DATA_TYPE_OPTIONS } from '../../../utilities/custom-table.config';
 import { TableConfigDialogFormService } from './table-config-dialog-form.service';
 
 export interface TableConfigDialogData {
@@ -28,14 +28,14 @@ export interface TableConfigDialogData {
     standalone: true,
     imports: [UI_MODULES],
     providers: [TableConfigDialogFormService],
-    templateUrl: './table-config-dialog.html',
-    styleUrl: './table-config-dialog.scss',
+    templateUrl: './table-config-dialog.component.html',
+    styleUrl: './table-config-dialog.component.scss',
     changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class TableConfigDialog {
+export class TableConfigDialogComponent {
     readonly DialogMode = DialogMode;
 
-    private readonly dialogRef = inject(MatDialogRef<TableConfigDialog>);
+    private readonly dialogRef = inject(MatDialogRef<TableConfigDialogComponent>);
     private readonly data = inject<TableConfigDialogData>(MAT_DIALOG_DATA);
     private readonly dialog = inject(MatDialog);
     protected readonly formService = inject(TableConfigDialogFormService);
@@ -56,10 +56,10 @@ export class TableConfigDialog {
     );
 
     constructor() {
-        if (this.data.dialogMode === DialogMode.EditTable && this.data.tableName) {
+        if (this.data.dialogMode === DialogMode.EDIT_TABLE && this.data.tableName) {
             this.formService.patchForTable(this.data.tableName);
         } else if (
-            this.data.dialogMode === DialogMode.EditColumn &&
+            this.data.dialogMode === DialogMode.EDIT_COLUMN &&
             this.data.col
         ) {
             this.formService.patchForColumn(this.data.col);
@@ -70,15 +70,15 @@ export class TableConfigDialog {
         if (this.form.invalid) return;
 
         switch (this.data.dialogMode) {
-            case DialogMode.CreateTable:
+            case DialogMode.CREATE_TABLE:
                 this.dialogRef.close(this.formService.getCreateTableData());
                 break;
 
-            case DialogMode.EditTable:
+            case DialogMode.EDIT_TABLE:
                 this.dialogRef.close(this.formService.getEditTableData());
                 break;
 
-            case DialogMode.EditColumn:
+            case DialogMode.EDIT_COLUMN:
                 const colOrder = this.data.col?.colOrder ?? 0;
                 if (
                     this.data.col &&

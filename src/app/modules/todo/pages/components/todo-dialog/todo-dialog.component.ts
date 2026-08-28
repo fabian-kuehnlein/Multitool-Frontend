@@ -37,10 +37,10 @@ export class TodoDialogComponent {
     protected readonly categories = this.categoryService.categories;
 
     protected readonly selectableCategories = this.categoryService.selectableCategoriesForModule(
-        AppModule.Todo,
+        AppModule.TODO,
         () => this.form.controls.categoryId.value,
     );
-    private readonly defaultCategory = this.categoryService.defaultCategoryForModule(AppModule.Todo);
+    private readonly defaultCategory = this.categoryService.defaultCategoryForModule(AppModule.TODO);
 
     private readonly formValue = toSignal(this.form.valueChanges, {
         initialValue: this.form.getRawValue(),

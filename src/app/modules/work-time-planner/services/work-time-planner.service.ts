@@ -39,7 +39,7 @@ export class WorkTimePlannerService {
 
     private readonly _workDays = signal<WorkDay[]>([]);
     private readonly _currentWeekStart = signal<string>(
-        getWeekStart(new Date()),
+        getWeekStart(),
     );
     private readonly _settings = signal<WorkTimeSettings>({
         ...DEFAULT_WORK_TIME_SETTINGS,
@@ -95,7 +95,7 @@ export class WorkTimePlannerService {
         }
 
         if (direction === 'current') {
-            this._currentWeekStart.set(getWeekStart(new Date()));
+            this._currentWeekStart.set(getWeekStart());
         } else {
             const offset = direction === 'next' ? 7 : -7;
             const newStart = dayjs(this._currentWeekStart())
@@ -108,7 +108,7 @@ export class WorkTimePlannerService {
     }
 
     isCurrentWeek(): boolean {
-        return this._currentWeekStart() === getWeekStart(new Date());
+        return this._currentWeekStart() === getWeekStart();
     }
 
     loadWorkDays(): void {
@@ -254,9 +254,9 @@ export class WorkTimePlannerService {
         const day =
             this._workDays().find((d) => d.date === date) ||
             createDefaultWorkDay(date);
-        const newStatus = day.status === status ? DayStatus.Normal : status;
+        const newStatus = day.status === status ? DayStatus.NORMAL : status;
         const updated = { ...day, status: newStatus };
-        if (newStatus !== DayStatus.Normal) {
+        if (newStatus !== DayStatus.NORMAL) {
             updated.isHomeOffice = false;
         }
         this.updateWorkDay(updated);

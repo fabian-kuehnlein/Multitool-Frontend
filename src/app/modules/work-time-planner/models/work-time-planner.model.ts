@@ -1,8 +1,8 @@
 export enum DayStatus {
-    Normal = 'normal',
-    Holiday = 'holiday',
-    Vacation = 'vacation',
-    Sick = 'sick',
+    NORMAL = 'normal',
+    HOLIDAY = 'holiday',
+    VACATION = 'vacation',
+    SICK = 'sick',
 }
 
 export interface WorkDay {

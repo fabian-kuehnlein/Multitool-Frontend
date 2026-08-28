@@ -174,38 +174,38 @@
                         </a>
                         <a
                             mat-list-item
-                            (click)="setFilterPriority(Priority.High)"
-                            [class.active-item]="filterPriority() === Priority.High"
+                            (click)="setFilterPriority(Priority.HIGH)"
+                            [class.active-item]="filterPriority() === Priority.HIGH"
                         >
                             <mat-icon
                                 matListItemIcon
-                                [style.color]="getPriorityColor(Priority.High)"
+                                [style.color]="getPriorityColor(Priority.HIGH)"
                                 >flag</mat-icon
                             >
                             <span matListItemTitle>Hoch</span>
                         </a>
                         <a
                             mat-list-item
-                            (click)="setFilterPriority(Priority.Medium)"
+                            (click)="setFilterPriority(Priority.MEDIUM)"
                             [class.active-item]="
-                                filterPriority() === Priority.Medium
+                                filterPriority() === Priority.MEDIUM
                             "
                         >
                             <mat-icon
                                 matListItemIcon
-                                [style.color]="getPriorityColor(Priority.Medium)"
+                                [style.color]="getPriorityColor(Priority.MEDIUM)"
                                 >flag</mat-icon
                             >
                             <span matListItemTitle>Mittel</span>
                         </a>
                         <a
                             mat-list-item
-                            (click)="setFilterPriority(Priority.Low)"
-                            [class.active-item]="filterPriority() === Priority.Low"
+                            (click)="setFilterPriority(Priority.LOW)"
+                            [class.active-item]="filterPriority() === Priority.LOW"
                         >
                             <mat-icon
                                 matListItemIcon
-                                [style.color]="getPriorityColor(Priority.Low)"
+                                [style.color]="getPriorityColor(Priority.LOW)"
                                 >flag</mat-icon
                             >
                             <span matListItemTitle>Niedrig</span>
@@ -565,34 +565,34 @@
                 </button>
                 <button
                     mat-menu-item
-                    (click)="setFilterPriority(Priority.High)"
+                    (click)="setFilterPriority(Priority.HIGH)"
                     [class.active-menu-item]="
-                        filterPriority() === Priority.High
+                        filterPriority() === Priority.HIGH
                     "
                 >
-                    <mat-icon [style.color]="getPriorityColor(Priority.High)"
+                    <mat-icon [style.color]="getPriorityColor(Priority.HIGH)"
                         >flag</mat-icon
                     >
                     <span>Hoch</span>
                 </button>
                 <button
                     mat-menu-item
-                    (click)="setFilterPriority(Priority.Medium)"
+                    (click)="setFilterPriority(Priority.MEDIUM)"
                     [class.active-menu-item]="
-                        filterPriority() === Priority.Medium
+                        filterPriority() === Priority.MEDIUM
                     "
                 >
-                    <mat-icon [style.color]="getPriorityColor(Priority.Medium)"
+                    <mat-icon [style.color]="getPriorityColor(Priority.MEDIUM)"
                         >flag</mat-icon
                     >
                     <span>Mittel</span>
                 </button>
                 <button
                     mat-menu-item
-                    (click)="setFilterPriority(Priority.Low)"
-                    [class.active-menu-item]="filterPriority() === Priority.Low"
+                    (click)="setFilterPriority(Priority.LOW)"
+                    [class.active-menu-item]="filterPriority() === Priority.LOW"
                 >
-                    <mat-icon [style.color]="getPriorityColor(Priority.Low)"
+                    <mat-icon [style.color]="getPriorityColor(Priority.LOW)"
                         >flag</mat-icon
                     >
                     <span>Niedrig</span>
