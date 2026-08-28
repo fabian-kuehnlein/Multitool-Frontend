@@ -3,7 +3,7 @@
 ## German UI
 
 - All UI text is **German** (labels, buttons, snackbars, dialog messages, empty states).
-- Use informal "du" forms for user-facing text (matches `todo.component.ts`/`calendar` style, e.g. "Möchtest du ... wirklich löschen?"). Avoid new "Sie" formulations.
+- Use the informal "du" form for user-facing text (e.g. "Möchtest du ... wirklich löschen?"). Avoid new "Sie" formulations.
 - Keep hardcoded strings in the template/component; there is no i18n extraction in this project.
 
 ## Locale setup
@@ -11,8 +11,8 @@
 - `de` is the active locale for the whole app:
   - `registerLocaleData(localeDe, 'de')` and `LOCALE_ID = 'de'` in `app.config.ts`.
   - `dayjs.locale('de')` at startup.
-  - Material DateAdapter is dayjs-based via `provideDayjsAdapter()` (`core/date/dayjs-adapter.ts`).
-  - German `MatPaginatorIntl` (`GermanPaginatorIntl`) provides "Elemente pro Seite:", "Nächste Seite", etc.
+  - The Material DateAdapter is dayjs-based (`provideDayjsAdapter()`, `core/date/dayjs-adapter.ts`).
+  - A German `MatPaginatorIntl` provides "Elemente pro Seite:", "Nächste Seite", etc.
 - Material components (datepicker, paginator) render German out of the box because of the above — do not hard-code English labels.
 
 ## Date/time formats
@@ -28,13 +28,13 @@
 Use dayjs for formatting:
 
 ```ts
-dayjs(result.dueDate).format('YYYY-MM-DDTHH:mm:ss');
+dayjs(inputDate).format('YYYY-MM-DDTHH:mm:ss');
 ```
 
 ## Rules
 
 - **Always use dayjs** for parsing, formatting, arithmetic and comparisons. Never use raw `Date` math or the `moment` library.
 - The only raw `Date` usage allowed is interop where a library (Angular Material datepicker, FullCalendar) requires it — convert immediately via dayjs.
-- When building API payloads, normalize dates to `YYYY-MM-DDTHH:mm:ss` before sending (see `todo.component.ts` `onAddTodo`).
-- For week calculations, use the `isoWeek` dayjs plugin (`work-time-planner.service.ts`); week starts on Monday (dayjs default with `de` locale / `isoWeek`).
-- The Angular `DatePipe` is fine for template display (`{{ todo.dueDate | date: "dd.MM.yyyy" }}`) — note the pipe uses lowercase `dd.MM.yyyy`.
+- When building API payloads, normalize dates to `YYYY-MM-DDTHH:mm:ss` before sending.
+- For week calculations, use the `isoWeek` dayjs plugin; week starts on Monday (dayjs default with `de` locale / `isoWeek`).
+- The Angular `DatePipe` is fine for template display (`{{ item.dueDate | date: "dd.MM.yyyy" }}`) — note the pipe uses lowercase `dd.MM.yyyy`.

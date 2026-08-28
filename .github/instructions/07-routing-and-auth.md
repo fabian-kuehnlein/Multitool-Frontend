@@ -19,11 +19,11 @@ export const routes: Routes = [
             ),
     },
     {
-        path: 'todo',
+        path: 'feature-example',
         canActivate: [authGuard],
         loadComponent: () =>
-            import('./modules/todo/pages/todo.component').then(
-                (m) => m.TodoComponent,
+            import('./modules/feature-example/pages/feature-example.component').then(
+                (m) => m.FeatureExampleComponent,
             ),
     },
 ];
@@ -31,7 +31,7 @@ export const routes: Routes = [
 
 Conventions:
 
-- Paths are **kebab-case** and match the feature folder (`work-time-planner`).
+- Paths are **kebab-case** and match the feature folder (`feature-example`).
 - Root path `''` redirects to `login`.
 - Every feature route has `canActivate: [authGuard]`; only the login page is public.
 - Use `loadComponent`, never eager component imports or `NgModules`.
@@ -68,5 +68,5 @@ export const authGuard: CanActivateFn = () => {
 
 ## Cross-feature navigation
 
-- Navigate between features with `Router.navigate` (e.g. todo → calendar with a `date` query param: `router.navigate(['/calendar'], { queryParams: { date: dueDate } })`).
-- The calendar reads that param from `ActivatedRoute.queryParams` and jumps to the date.
+- Navigate between features with `Router.navigate`, passing state via query params (e.g. to `['/other-feature']` with `queryParams: { date }`).
+- The target reads the param from `ActivatedRoute.queryParams` and reacts accordingly.

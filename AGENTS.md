@@ -27,12 +27,25 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 
 ## Conventions
 
-- **Single source of truth:** `.github/instructions/` (README.md is the index) — read the relevant file(s) before writing or changing code. The bullets below are only a quick reminder.
+- **Single source of truth:** `.github/instructions/` (README.md is the index). **Before writing or changing code, read the instruction file(s) that cover your task** (see the task → file map below) and follow them — they win over this summary. The bullets below are only a quick reminder.
+- **Keep the conventions current (mandatory):** when you make a **structural or architectural decision** (centralizing a cross-cutting concern such as snackbars/forms/components, introducing a new folder or pattern, changing how files/dialogs/services are structured), **update the documentation in the same commit** — the relevant file(s) in `.github/instructions/`, the index/README and this task→file map. If you built something future code should mirror, write it down here. Details: `.github/instructions/README.md` → *Keeping these conventions current*.
+- **Where to find what** (full index: `.github/instructions/README.md`):
+  - Naming (classes, services, files, variables, functions, enums, SCSS): `02-naming-conventions.md`
+  - Folder layout / adding a feature: `03-project-structure.md`
+  - Components, templates, dialogs: `04-components.md`
+  - State & services / signals: `05-state-and-services.md`
+  - HTTP, models, DTOs: `06-http-and-models.md`
+  - Routing, guards, auth: `07-routing-and-auth.md`
+  - Styling & theming: `08-styling-and-theming.md`
+  - Dates & German UI: `09-dates-and-localization.md`
+  - Git, commit messages, verification: `10-git-and-workflow.md`
+  - Splitting oversized files: `11-code-splitting.md`
+  - Snackbars & user feedback: `12-snackbars-and-user-feedback.md`
 - Keep the root `README.md` in sync: when a change affects what it documents (commands/scripts, build, dev server, deployment, project setup), update it in the same commit.
 - German UI: `de` locale, dayjs `DD.MM.YYYY` / `HH:mm` formats, German MatPaginator labels. Keep new UI text German.
 - Strict TS (`strict`, `noImplicitOverride`, `strictTemplates`, `isolatedModules`). 4-space indent, single quotes, 4-space indent per `.editorconfig`.
 - Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS.
-- Keep TypeScript files small and single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `10-code-splitting.md`).
+- Keep TypeScript files small and single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `11-code-splitting.md`).
 
 ## Deploy
 

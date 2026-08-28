@@ -25,28 +25,29 @@
 
 ## Commit messages
 
-Commits follow **Conventional Commits** with a scope. Recent history is the reference:
+Commits follow **Conventional Commits** with a scope:
 
 ```
 <type>(<scope>): <imperative summary, lowercase, no trailing period>
 ```
 
-Examples from this repo:
+`<type>`:
+`feat`, `fix`, `refactor`, `chore`, `docs`, `style`, `perf` — match the dominant intent of the change.
 
-```
-feat(work-time-planner): add work-time-planner tool
-fix(custom-table): prevent unnecessary upsert calls by checking for actual cell changes
-refactor(todo, work-time-planner): reorganize scss structure in styling pattern
-chore(angular): switch application to zoneless mode
-```
+`<scope>`:
+the feature or cross-cutting concern touched (e.g. the feature name, or `ui`, `theme`, `styles`, `responsive`, `core`, `angular`).
 
 Rules:
 
-- **Type**: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`, `perf`. Match the dominant intent of the change.
-- **Scope**: the feature or concern touched — `calendar`, `custom-table`, `todo`, `work-time-planner`, or cross-cutting ones like `ui`, `theme`, `styles`, `responsive`, `core`, `angular`.
 - Subject is imperative ("fix ...", "add ..."), all lowercase, no trailing period.
-- Multiple scopes are comma-separated (`refactor(todo, work-time-planner)`).
+- Multiple scopes are comma-separated (`refactor(feature-a, feature-b)`).
 - For merge commits keep the default `Merge pull request #N from ...` message.
+
+Example:
+
+```
+feat(feature-example): add new rule-based summary view
+```
 
 ## Verification before committing
 
