@@ -20,6 +20,12 @@
             </mat-checkbox>
 
             <div class="mobile-main-right">
+                @if (todo.isDone && todo.completedDateTime && !expanded()) {
+                    <span class="completed-date">
+                        <mat-icon>check_circle</mat-icon>
+                        {{ todo.completedDateTime | date: "dd.MM.yyyy" }}
+                    </span>
+                }
                 @if (todo.dueDate && !expanded()) {
                     <mat-icon>date_range</mat-icon>
                 }
@@ -111,6 +117,13 @@
             </span>
 
             <div class="todo-meta-container">
+                @if (todo.isDone && todo.completedDateTime) {
+                    <span class="completed-date">
+                        <mat-icon>check_circle</mat-icon>
+                        {{ todo.completedDateTime | date: "dd.MM.yyyy" }}
+                    </span>
+                }
+
                 @if (todo.description) {
                     <button
                         matIconButton

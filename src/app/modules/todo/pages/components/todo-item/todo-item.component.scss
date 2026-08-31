@@ -40,6 +40,25 @@
     color: var(--text-disabled);
 }
 
+.completed-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    border: 1px solid var(--text-primary);
+    padding: 2px 8px;
+    border-radius: 12px;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: var(--color-success, #4caf50);
+    }
+}
+
 .expand-btn {
     color: var(--text-muted);
     flex-shrink: 0;
