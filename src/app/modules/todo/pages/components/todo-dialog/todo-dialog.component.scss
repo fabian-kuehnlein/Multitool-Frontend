@@ -113,6 +113,16 @@
     padding: 16px 24px;
     gap: 8px;
 
+    .done-button {
+        margin-right: auto;
+        gap: 0;
+
+        .done-checkbox {
+            margin: -8px -4px;
+            pointer-events: none;
+        }
+    }
+
     button {
         display: flex;
         align-items: center;
@@ -125,6 +135,12 @@
         padding: 16px;
         margin-top: auto;
         border-top: 1px solid var(--border-light);
+
+        .done-button {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 8px;
+        }
 
         button {
             flex: 1;

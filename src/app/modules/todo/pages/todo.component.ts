@@ -228,12 +228,20 @@ export class TodoComponent implements OnInit, OnDestroy {
             data: { todo },
         });
 
-        dialogRef.afterClosed().subscribe((result: UpdateTodoDto) => {
-            if (result) {
-                this.todoService.updateTodo(todo.id, result);
+        dialogRef.afterClosed().subscribe(
+            (result: {
+                updateData: UpdateTodoDto;
+                isDone: boolean;
+                isDoneChanged: boolean;
+            } | null) => {
+                if (!result) return;
+                this.todoService.updateTodo(todo.id, result.updateData);
+                if (result.isDoneChanged) {
+                    this.todoService.toggleDone(todo.id, result.isDone);
+                }
                 this.snackbar.openSuccess('Aufgabe aktualisiert');
-            }
-        });
+            },
+        );
     }
 
     onDeleteTodo(todo: Todo): void {

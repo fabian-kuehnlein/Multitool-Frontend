@@ -33,6 +33,7 @@ export class TodoDialogComponent {
 
     readonly form = this.formService.form;
     readonly isEditMode = signal(!!this.data?.todo);
+    readonly isDone = signal(this.data?.todo?.isDone ?? false);
     protected readonly priorities = PRIORITY_OPTIONS;
     protected readonly categories = this.categoryService.categories;
 
@@ -78,11 +79,19 @@ export class TodoDialogComponent {
 
     onSubmit(): void {
         if (this.form.invalid) return;
-        this.dialogRef.close(
-            this.isEditMode()
-                ? this.formService.getUpdateData()
-                : this.formService.getCreateData(),
-        );
+
+        if (this.isEditMode()) {
+            const isDoneChanged =
+                this.data?.todo != null &&
+                this.isDone() !== this.data.todo.isDone;
+            this.dialogRef.close({
+                updateData: this.formService.getUpdateData(),
+                isDone: this.isDone(),
+                isDoneChanged,
+            });
+        } else {
+            this.dialogRef.close(this.formService.getCreateData());
+        }
     }
 
     onCancel(): void {
