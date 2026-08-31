@@ -14,13 +14,13 @@
             @if (day.isHomeOffice) {
                 <span class="badge badge-ho">HO</span>
             }
-            @if (day.status === DayStatus.Holiday) {
+            @if (day.status === DayStatus.HOLIDAY) {
                 <span class="badge badge-holiday">F</span>
             }
-            @if (day.status === DayStatus.Vacation) {
+            @if (day.status === DayStatus.VACATION) {
                 <span class="badge badge-vacation">U</span>
             }
-            @if (day.status === DayStatus.Sick) {
+            @if (day.status === DayStatus.SICK) {
                 <span class="badge badge-sick">K</span>
             }
             @if (day.isLocked) {
@@ -120,16 +120,16 @@
     } @else {
         <div class="absence-info">
             <mat-icon>{{
-                day.status === DayStatus.Holiday
+                day.status === DayStatus.HOLIDAY
                     ? "celebration"
-                    : day.status === DayStatus.Sick
+                    : day.status === DayStatus.SICK
                       ? "sick"
                       : "flight"
             }}</mat-icon>
             <span>{{
-                day.status === DayStatus.Holiday
+                day.status === DayStatus.HOLIDAY
                     ? "Feiertag"
-                    : day.status === DayStatus.Sick
+                    : day.status === DayStatus.SICK
                       ? "Krank"
                       : "Urlaub"
             }}</span>
@@ -162,8 +162,8 @@
             <button
                 matButton="outlined"
                 class="status-btn-desktop"
-                [class.active-holiday]="day.status === DayStatus.Holiday"
-                (click)="onDayStatusToggle(DayStatus.Holiday)"
+                [class.active-holiday]="day.status === DayStatus.HOLIDAY"
+                (click)="onDayStatusToggle(DayStatus.HOLIDAY)"
             >
                 <mat-icon>celebration</mat-icon>
                 Feiertag
@@ -171,8 +171,8 @@
             <button
                 matButton="outlined"
                 class="status-btn-desktop"
-                [class.active-vacation]="day.status === DayStatus.Vacation"
-                (click)="onDayStatusToggle(DayStatus.Vacation)"
+                [class.active-vacation]="day.status === DayStatus.VACATION"
+                (click)="onDayStatusToggle(DayStatus.VACATION)"
             >
                 <mat-icon>flight</mat-icon>
                 Urlaub
@@ -180,8 +180,8 @@
             <button
                 matButton="outlined"
                 class="status-btn-desktop"
-                [class.active-sick]="day.status === DayStatus.Sick"
-                (click)="onDayStatusToggle(DayStatus.Sick)"
+                [class.active-sick]="day.status === DayStatus.SICK"
+                (click)="onDayStatusToggle(DayStatus.SICK)"
             >
                 <mat-icon>sick</mat-icon>
                 Krank
@@ -208,8 +208,8 @@
             <button
                 matIconButton
                 class="status-btn"
-                [class.active-holiday]="day.status === DayStatus.Holiday"
-                (click)="onDayStatusToggle(DayStatus.Holiday)"
+                [class.active-holiday]="day.status === DayStatus.HOLIDAY"
+                (click)="onDayStatusToggle(DayStatus.HOLIDAY)"
                 matTooltip="Feiertag"
             >
                 <mat-icon>celebration</mat-icon>
@@ -217,8 +217,8 @@
             <button
                 matIconButton
                 class="status-btn"
-                [class.active-vacation]="day.status === DayStatus.Vacation"
-                (click)="onDayStatusToggle(DayStatus.Vacation)"
+                [class.active-vacation]="day.status === DayStatus.VACATION"
+                (click)="onDayStatusToggle(DayStatus.VACATION)"
                 matTooltip="Urlaub"
             >
                 <mat-icon>flight</mat-icon>
@@ -226,8 +226,8 @@
             <button
                 matIconButton
                 class="status-btn"
-                [class.active-sick]="day.status === DayStatus.Sick"
-                (click)="onDayStatusToggle(DayStatus.Sick)"
+                [class.active-sick]="day.status === DayStatus.SICK"
+                (click)="onDayStatusToggle(DayStatus.SICK)"
                 matTooltip="Krank"
             >
                 <mat-icon>sick</mat-icon>

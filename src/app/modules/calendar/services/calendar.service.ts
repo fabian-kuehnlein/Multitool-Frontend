@@ -2,11 +2,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
 import { Observable, of, tap, throwError } from 'rxjs';
 import { CalendarHttpService } from './calendar-http.service';
-import { CalendarEvent } from '../models/calendar-event.model';
-import { CreateCalendarEvent } from '../models/create-calendar-event.model';
-import { GetICalLinkEvent } from '../models/get-ical-link-event.model';
-import { Holiday } from '../models/holiday.model';
-import { SearchResult } from '../models/search-result.model';
+import {
+    CalendarEvent,
+    CreateCalendarEventDto,
+    GetICalLinkEventDto,
+    Holiday,
+    SearchResult,
+} from '../models';
 import { addExcludeDateToRule } from '../logic/rrule.logic';
 
 @Injectable({
@@ -30,7 +32,7 @@ export class CalendarService {
             .pipe(tap((events) => this._events.set(events)));
     }
 
-    createEvent(event: CreateCalendarEvent): Observable<number> {
+    createEvent(event: CreateCalendarEventDto): Observable<number> {
         return this.httpService.createEvent(event);
     }
 
@@ -49,7 +51,7 @@ export class CalendarService {
     }
 
     generateIcalLink(
-        event: GetICalLinkEvent,
+        event: GetICalLinkEventDto,
         context?: HttpContext,
     ): Observable<Blob> {
         return this.httpService.generateIcalLink(event, context);

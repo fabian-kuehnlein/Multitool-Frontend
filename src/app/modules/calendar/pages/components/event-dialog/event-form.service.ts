@@ -8,9 +8,11 @@ import {
     ValidatorFn,
 } from '@angular/forms';
 import dayjs from 'dayjs';
-import { CreateCalendarEvent } from '../../../models/create-calendar-event.model';
-import { GetICalLinkEvent } from '../../../models/get-ical-link-event.model';
-import { CalendarEvent } from '../../../models/calendar-event.model';
+import {
+    CalendarEvent,
+    CreateCalendarEventDto,
+    GetICalLinkEventDto,
+} from '../../../models';
 import {
     combineDateAndTime,
     formatDate,
@@ -72,9 +74,9 @@ export class EventFormService {
     }
 
     /**
-     * Maps form values back to a CreateCalendarEvent model.
+     * Maps form values back to a CreateCalendarEventDto payload.
      */
-    public getCreateEventData(formValue: EventFormValue): CreateCalendarEvent {
+    public getCreateEventData(formValue: EventFormValue): CreateCalendarEventDto {
         const recurrenceRule = formValue.isRecurring
             ? this.buildRecurrenceString(formValue)
             : null;
@@ -141,7 +143,7 @@ export class EventFormService {
     /**
      * Maps form values back to the payload expected by the iCal link endpoint.
      */
-    public getIcalLinkData(formValue: EventFormValue): GetICalLinkEvent {
+    public getIcalLinkData(formValue: EventFormValue): GetICalLinkEventDto {
         const createData = this.getCreateEventData(formValue);
         return {
             title: createData.title,

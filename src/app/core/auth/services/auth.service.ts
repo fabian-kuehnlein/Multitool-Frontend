@@ -18,7 +18,7 @@ export class AuthService {
     private readonly TOKEN_KEY = 'auth_token';
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
-    private readonly apiURL = `${environment.MultitoolApi}/api/Auth`;
+    private readonly apiUrl = `${environment.MultitoolApi}/api/Auth`;
     private readonly skipErrorSnackbarContext = new HttpContext().set(
         SKIP_HTTP_ERROR_SNACKBAR,
         true,
@@ -31,7 +31,7 @@ export class AuthService {
     login(username: string, password: string): Observable<LoginResponse> {
         return this.http
             .post<LoginResponse>(
-                `${this.apiURL}/login`,
+                `${this.apiUrl}/login`,
                 { username, password },
                 { context: this.skipErrorSnackbarContext },
             )

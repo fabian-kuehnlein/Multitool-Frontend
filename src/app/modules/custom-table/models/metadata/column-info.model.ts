@@ -1,4 +1,4 @@
-import { CustomDataType } from '../enums/custom-data-type.model';
+import { CustomDataType } from '../enums/custom-data-type.enum';
 
 // column metadata
 export interface ColumnInfo {

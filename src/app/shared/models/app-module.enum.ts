@@ -1,6 +1,6 @@
 export enum AppModule {
-    Calendar = 'calendar',
-    CustomTable = 'customTable',
-    Todo = 'todo',
-    WorkTimePlanner = 'workTimePlanner',
+    CALENDAR = 'calendar',
+    CUSTOM_TABLE = 'customTable',
+    TODO = 'todo',
+    WORK_TIME_PLANNER = 'workTimePlanner',
 }

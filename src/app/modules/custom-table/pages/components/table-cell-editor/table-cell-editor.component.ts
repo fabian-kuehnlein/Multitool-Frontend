@@ -76,7 +76,7 @@ export class TableCellEditorComponent {
     }
 
     private isDecimal(): boolean {
-        return this.col().dataType === CustomDataType.Decimal;
+        return this.col().dataType === CustomDataType.DECIMAL;
     }
 
     private adjustValue(step: number): void {
@@ -100,10 +100,10 @@ export class TableCellEditorComponent {
     }
 
     private buildValidators(col: ColumnInfo): ValidatorFn[] {
-        if (col.dataType === CustomDataType.Int) {
+        if (col.dataType === CustomDataType.INT) {
             return [Validators.pattern(/^\d+$/)];
         }
-        if (col.dataType === CustomDataType.Decimal) {
+        if (col.dataType === CustomDataType.DECIMAL) {
             return [Validators.pattern(/^\d+(\.\d{1,2})?$/)];
         }
         return [];

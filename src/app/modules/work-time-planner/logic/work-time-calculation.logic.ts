@@ -12,11 +12,8 @@ import {
     TEN_HOURS_MINUTES,
 } from '../utilities/work-time.config';
 
-export function getWeekStart(date: Date): string {
-    const d = dayjs(date);
-    const day = d.day();
-    const diff = day === 0 ? -6 : 1 - day;
-    return d.add(diff, 'day').format('YYYY-MM-DD');
+export function getWeekStart(date: dayjs.Dayjs = dayjs()): string {
+    return date.startOf('isoWeek').format('YYYY-MM-DD');
 }
 
 export function normalizeDate(date: string | Date): string {
@@ -48,7 +45,7 @@ export function createDefaultWorkDay(date: string): WorkDay {
         workMinutes: 0,
         overtimeMinutes: 0,
         isHomeOffice: false,
-        status: DayStatus.Normal,
+        status: DayStatus.NORMAL,
         isLocked: false,
         warnings: [],
     };
@@ -63,7 +60,7 @@ export function calculateWorkDay(
     let overtimeMinutes = 0;
     let breakMinutes = day.breakMinutes;
 
-    if (day.status !== DayStatus.Normal) {
+    if (day.status !== DayStatus.NORMAL) {
         workMinutes = settings.dailyTargetMinutes;
         overtimeMinutes = 0;
         breakMinutes = 0;
@@ -119,14 +116,14 @@ export function calculateWorkDay(
 }
 
 export function isHomeOfficeDisabled(day: WorkDay): boolean {
-    return day.status !== DayStatus.Normal;
+    return day.status !== DayStatus.NORMAL;
 }
 
 export function hasMeaningfulData(day: WorkDay): boolean {
     return (
         !!day.startTime ||
         !!day.endTime ||
-        day.status !== DayStatus.Normal ||
+        day.status !== DayStatus.NORMAL ||
         day.isHomeOffice
     );
 }

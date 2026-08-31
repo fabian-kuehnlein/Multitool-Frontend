@@ -15,7 +15,7 @@ export class TodoDialogFormService {
     readonly form = this.fb.nonNullable.group({
         title: ['', [Validators.required]],
         description: [''],
-        priority: [Priority.Medium, [Validators.required]],
+        priority: [Priority.MEDIUM, [Validators.required]],
         dueDate: this.fb.control<string | null>(null),
         categoryId: this.fb.control<number | null>(
             null,

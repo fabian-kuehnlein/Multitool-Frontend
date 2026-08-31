@@ -1,4 +1,4 @@
-export interface CreateCalendarEvent {
+export interface CreateCalendarEventDto {
     title: string;
     note: string | null;
     startDateTime: string | null;

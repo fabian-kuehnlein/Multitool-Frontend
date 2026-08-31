@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { CategoryService } from '../../../../../shared/services/category.service';
-import { MediaService } from '../../../../services/media.service';
-import { SnackbarService } from '../../../../services/snackbar.service';
+import { MediaService } from '../../../../../core/services/media.service';
+import { SnackbarService } from '../../../../../core/services/snackbar.service';
 import { Category } from '../../../../../shared/models/category.model';
 import { AppModule } from '../../../../../shared/models/app-module.enum';
-import { CATEGORY_CAPABLE_MODULES } from '../../../../../shared/utilities/category-modules';
+import { CATEGORY_CAPABLE_MODULES } from '../../../utilities/category-modules';
 import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -32,10 +32,10 @@ export class CategoriesComponent implements OnInit {
     private readonly dialog = inject(MatDialog);
 
     protected readonly moduleOptions: AppModuleToggleOption[] = [
-        { value: AppModule.Calendar, label: 'Kalender', icon: 'calendar_today' },
-        { value: AppModule.CustomTable, label: 'Tabellen', icon: 'table_chart' },
-        { value: AppModule.Todo, label: 'Todos', icon: 'check_circle' },
-        { value: AppModule.WorkTimePlanner, label: 'Arbeitszeitplaner', icon: 'schedule' },
+        { value: AppModule.CALENDAR, label: 'Kalender', icon: 'calendar_today' },
+        { value: AppModule.CUSTOM_TABLE, label: 'Tabellen', icon: 'table_chart' },
+        { value: AppModule.TODO, label: 'Todos', icon: 'check_circle' },
+        { value: AppModule.WORK_TIME_PLANNER, label: 'Arbeitszeitplaner', icon: 'schedule' },
     ].filter((option) => CATEGORY_CAPABLE_MODULES.includes(option.value));
 
     protected readonly visibleCategories = computed(() =>

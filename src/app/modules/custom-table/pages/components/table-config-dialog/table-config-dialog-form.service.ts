@@ -14,7 +14,7 @@ export class TableConfigDialogFormService {
     readonly form = this.fb.nonNullable.group({
         tableName: ['', [Validators.required, Validators.maxLength(120)]],
         columnName: ['', [Validators.required, Validators.maxLength(120)]],
-        columnDataType: [CustomDataType.String, [Validators.required]],
+        columnDataType: [CustomDataType.STRING, [Validators.required]],
     });
 
     patchForTable(tableName: string): void {

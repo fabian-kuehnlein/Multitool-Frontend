@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Category, CreateCategoryDto } from '../../../../../../shared/models/category.model';
-import { CATEGORY_CAPABLE_MODULES } from '../../../../../../shared/utilities/category-modules';
+import { CATEGORY_CAPABLE_MODULES } from '../../../../utilities/category-modules';
 import { CategoryService } from '../../../../../../shared/services/category.service';
 import { getDistinctPresetColors } from '../../../../logic/color.logic';
 

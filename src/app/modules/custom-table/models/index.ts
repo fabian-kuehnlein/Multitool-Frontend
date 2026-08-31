@@ -10,4 +10,5 @@ export * from './dtos/update-column-dto.model';
 export * from './dtos/update-column-order-dto.model';
 export * from './dtos/update-row-order-dto.model';
 
-export * from './enums/custom-data-type.model';
+export * from './enums/custom-data-type.enum';
+export * from './enums/dialog-mode.enum';

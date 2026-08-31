@@ -42,8 +42,8 @@ import {
     toCalendarEvent,
     toEventInput,
 } from '../mappers/event.mapper';
-import type { CalendarEvent } from '../models/calendar-event.model';
-import type { CreateCalendarEvent } from '../models/create-calendar-event.model';
+import type { CalendarEvent } from '../models';
+import type { CreateCalendarEventDto } from '../models';
 import {
     createTodayPlaceholder,
     expandEventInstances,
@@ -132,7 +132,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
     protected readonly canNavigateBack = signal<boolean>(true);
 
     public readonly categoryList = this.categoryService.categories;
-    public readonly filterableCategories = this.categoryService.categoriesForModule(AppModule.Calendar);
+    public readonly filterableCategories = this.categoryService.categoriesForModule(AppModule.CALENDAR);
     public readonly categoryControl = new FormControl<number[]>([]);
 
     private readonly categoryControlValue = toSignal(
@@ -373,7 +373,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                 data: { anchorDate, event: null },
             })
             .afterClosed()
-            .subscribe((result: CreateCalendarEvent | null) => {
+            .subscribe((result: CreateCalendarEventDto | null) => {
                 if (result) {
                     this.calendarService
                         .createEvent(result)

@@ -1,6 +1,6 @@
 import { EventApi, EventInput } from '@fullcalendar/core';
 import dayjs from 'dayjs';
-import { CalendarEvent } from '../models/calendar-event.model';
+import { CalendarEvent } from '../models';
 import { Category } from '../../../shared/models/category.model';
 import { getDuration, parseRRuleString } from '../logic/rrule.logic';
 

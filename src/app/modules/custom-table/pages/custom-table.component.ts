@@ -24,15 +24,15 @@ import { HotkeyService, Hotkeys } from '../../../core/services/hotkey.service';
 import { CustomTableService } from '../services/custom-table.service';
 import {
     CustomDataType,
+    DialogMode,
     RowInfo,
     UpdateColumnDto,
     UpdateColumnOrderDto,
     UpdateRowOrderDto,
     UpsertTableDto,
 } from '../models';
-import { DialogMode } from '../utilities/custom-table.config';
 import {
-    TableConfigDialog,
+    TableConfigDialogComponent,
     TableConfigDialogData,
 } from './components/table-config-dialog/table-config-dialog.component';
 import {
@@ -81,7 +81,7 @@ export class CustomTableComponent implements OnInit, OnDestroy {
         () =>
             this.tableService
                 .columns()
-                .filter((col) => col.dataType === CustomDataType.String).length,
+                .filter((col) => col.dataType === CustomDataType.STRING).length,
     );
 
     protected readonly stringColumnWidth = computed(
@@ -151,7 +151,7 @@ export class CustomTableComponent implements OnInit, OnDestroy {
     }
 
     createTable(): void {
-        this.openTableConfigDialog({ dialogMode: DialogMode.CreateTable })
+        this.openTableConfigDialog({ dialogMode: DialogMode.CREATE_TABLE })
             .afterClosed()
             .subscribe((data: UpsertTableDto | null) => {
                 if (data) {
@@ -166,7 +166,7 @@ export class CustomTableComponent implements OnInit, OnDestroy {
         if (tableId === 0 || !currentTable) return;
 
         this.openTableConfigDialog({
-            dialogMode: DialogMode.EditTable,
+            dialogMode: DialogMode.EDIT_TABLE,
             tableName: currentTable.name,
         })
             .afterClosed()
@@ -237,7 +237,7 @@ export class CustomTableComponent implements OnInit, OnDestroy {
         });
 
         this.openTableConfigDialog({
-            dialogMode: DialogMode.EditColumn,
+            dialogMode: DialogMode.EDIT_COLUMN,
             col,
             hasValues,
         })
@@ -353,8 +353,8 @@ export class CustomTableComponent implements OnInit, OnDestroy {
 
     private openTableConfigDialog(
         data: TableConfigDialogData,
-    ): MatDialogRef<TableConfigDialog> {
-        return this.dialog.open(TableConfigDialog, {
+    ): MatDialogRef<TableConfigDialogComponent> {
+        return this.dialog.open(TableConfigDialogComponent, {
             width: this.isMobile() ? '90vw' : 'auto',
             minWidth: this.isMobile() ? 'unset' : '600px',
             maxWidth: this.isMobile() ? '90vw' : '1500px',
