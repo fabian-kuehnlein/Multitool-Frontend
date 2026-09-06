@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import dayjs from 'dayjs';
-import { finalize } from 'rxjs';
+import { concatMap, finalize, of } from 'rxjs';
 import { Todo, CreateTodoDto, UpdateTodoDto } from '../models/todo.model';
 import { TodoHttpService } from './todo-http.service';
 
@@ -80,8 +80,45 @@ export class TodoService {
             });
     }
 
+    saveEdit(
+        id: number,
+        todoDto: UpdateTodoDto,
+        isDoneChange?: { value: boolean; changed: boolean },
+    ): void {
+        this._loading.set(true);
+        this.httpService
+            .updateTodo(id, todoDto)
+            .pipe(
+                concatMap(() =>
+                    isDoneChange?.changed
+                        ? this.httpService.setDone(id, isDoneChange.value)
+                        : of(undefined),
+                ),
+                finalize(() => this._loading.set(false)),
+            )
+            .subscribe({
+                next: () => {
+                    this._todos.update((todos) => {
+                        const index = todos.findIndex((t) => t.id === id);
+                        if (index !== -1) {
+                            const newTodos = [...todos];
+                            newTodos[index] = {
+                                ...newTodos[index],
+                                ...todoDto,
+                                ...(isDoneChange?.changed
+                                    ? { isDone: isDoneChange.value }
+                                    : {}),
+                            };
+                            return newTodos;
+                        }
+                        return todos;
+                    });
+                },
+            });
+    }
+
     toggleDone(id: number, isDone: boolean): void {
-        this.httpService.toggleDone(id).subscribe({
+        this.httpService.setDone(id, isDone).subscribe({
             next: () => {
                 this._todos.update((todos) => {
                     const index = todos.findIndex((t) => t.id === id);
