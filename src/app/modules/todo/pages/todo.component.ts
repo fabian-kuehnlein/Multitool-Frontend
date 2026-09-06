@@ -62,6 +62,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     readonly filterStatus = signal<TodoFilterStatus>('all');
     readonly filterPriority = signal<Priority | null>(null);
     readonly filterCategory = signal<number | null>(null);
+    readonly searchTerm = signal('');
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
@@ -122,6 +123,15 @@ export class TodoComponent implements OnInit, OnDestroy {
 
         if (this.filterCategory() !== null) {
             list = list.filter((todo) => todo.categoryId === this.filterCategory());
+        }
+
+        const term = this.searchTerm().trim().toLowerCase();
+        if (term) {
+            list = list.filter(
+                (todo) =>
+                    todo.title.toLowerCase().includes(term) ||
+                    (todo.description?.toLowerCase() ?? '').includes(term),
+            );
         }
 
         return this.sortTodos(list);
@@ -284,6 +294,10 @@ export class TodoComponent implements OnInit, OnDestroy {
 
     setFilterPriority(priority: Priority | null): void {
         this.filterPriority.set(priority);
+    }
+
+    clearSearch(): void {
+        this.searchTerm.set('');
     }
 
     setFilterCategory(categoryId: number | null): void {
