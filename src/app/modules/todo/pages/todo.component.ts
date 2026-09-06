@@ -245,10 +245,10 @@ export class TodoComponent implements OnInit, OnDestroy {
                 isDoneChanged: boolean;
             } | null) => {
                 if (!result) return;
-                this.todoService.updateTodo(todo.id, result.updateData);
-                if (result.isDoneChanged) {
-                    this.todoService.toggleDone(todo.id, result.isDone);
-                }
+                this.todoService.saveEdit(todo.id, result.updateData, {
+                    value: result.isDone,
+                    changed: result.isDoneChanged,
+                });
                 this.snackbar.openSuccess('Aufgabe aktualisiert');
             },
         );
