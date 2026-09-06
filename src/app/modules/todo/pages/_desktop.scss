@@ -177,6 +177,21 @@
         input.mat-mdc-input-element {
             font-size: 0.85rem;
         }
+
+        .clear-search-btn.mat-mdc-icon-button {
+            --mat-icon-button-state-layer-size: 26px;
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            margin-right: 5px;
+
+            mat-icon {
+                width: 18px;
+                height: 18px;
+                font-size: 18px;
+                line-height: 18px;
+            }
+        }
     }
 }
 
