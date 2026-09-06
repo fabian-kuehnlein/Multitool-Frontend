@@ -77,7 +77,12 @@
 
                 @if (todo.description) {
                     <div class="mobile-description">
-                        {{ todo.description }}
+                        <ng-container
+                            [ngTemplateOutlet]="descriptionContent"
+                            [ngTemplateOutletContext]="{
+                                description: todo.description
+                            }"
+                        ></ng-container>
                     </div>
                 }
 
@@ -175,8 +180,35 @@
 
         @if (todo.description && expanded()) {
             <div class="todo-description-line">
-                <span class="description-text">{{ todo.description }}</span>
+                <span class="description-text">
+                    <ng-container
+                        [ngTemplateOutlet]="descriptionContent"
+                        [ngTemplateOutletContext]="{ description: todo.description }"
+                    ></ng-container>
+                </span>
             </div>
         }
     }
+
+    <ng-template
+        #descriptionContent
+        let-description="description"
+    >
+        @for (
+            segment of descriptionSegments(description ?? '');
+            track $index
+        ) {
+            @if (segment.isLink) {
+                <a
+                    class="description-link"
+                    [href]="segment.text"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    (click)="$event.stopPropagation()"
+                >{{ segment.text }}</a>
+            } @else {
+                {{ segment.text }}
+            }
+        }
+    </ng-template>
 </div>

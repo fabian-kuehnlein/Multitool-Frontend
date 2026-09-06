@@ -25,6 +25,35 @@ import { getPriorityColor } from '../../../utilities/todo.config';
 export class TodoItemComponent {
     protected readonly getPriorityColor = getPriorityColor;
 
+    protected readonly descriptionSegments = (
+        description: string,
+    ): Array<{ text: string; isLink: boolean }> => {
+        const urlPattern = /https?:\/\/[^\s]+/g;
+        const segments: Array<{ text: string; isLink: boolean }> = [];
+        let lastIndex = 0;
+
+        for (const match of description.matchAll(urlPattern)) {
+            const index = match.index ?? 0;
+            if (index > lastIndex) {
+                segments.push({
+                    text: description.slice(lastIndex, index),
+                    isLink: false,
+                });
+            }
+            segments.push({ text: match[0], isLink: true });
+            lastIndex = index + match[0].length;
+        }
+
+        if (lastIndex < description.length) {
+            segments.push({
+                text: description.slice(lastIndex),
+                isLink: false,
+            });
+        }
+
+        return segments;
+    };
+
     @Input({ required: true }) todo!: Todo;
     @Input() mobile = false;
 
