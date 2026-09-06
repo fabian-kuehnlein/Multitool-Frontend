@@ -107,6 +107,17 @@
     }
 }
 
+.description-link {
+    color: var(--accent-primary);
+    text-decoration: underline;
+    cursor: pointer;
+    word-break: break-all;
+
+    &:hover {
+        color: var(--accent-primary-hover);
+    }
+}
+
 // ── Desktop Row ──────────────────────────────────────────────────────────────
 .todo-row {
     display: flex;

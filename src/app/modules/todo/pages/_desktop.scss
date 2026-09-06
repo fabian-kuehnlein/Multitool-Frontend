@@ -103,19 +103,29 @@
     flex-direction: column;
 }
 
-// ── Desktop Header Actions (Sort) ────────────────────────────────────────────
+// ── Desktop Header Actions (Search & Sort) ───────────────────────────────────
 .todo-header-actions {
     padding: 12px 24px;
     background-color: var(--bg-surface-alt);
     border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    .todo-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+        flex: 1;
+    }
 
     .section-title {
-        margin-right: 32px;
         font-size: 0.9rem;
         font-weight: 600;
         color: var(--text-secondary);
+        white-space: nowrap;
     }
 
     .sort-group {
@@ -140,6 +150,32 @@
                 height: 16px;
                 margin-left: 4px;
             }
+        }
+    }
+
+    .search-field {
+        width: 100%;
+        max-width: 240px;
+        flex-shrink: 0;
+        margin-left: auto;
+        --mat-form-field-container-height: 36px;
+        --mat-form-field-container-vertical-padding: 6px;
+        --mat-mdc-form-field-label-offset-x: -16px;
+
+        .mat-mdc-text-field-wrapper {
+            min-height: 36px;
+
+            &.mdc-text-field--outlined {
+                height: 36px;
+            }
+        }
+
+        .mat-mdc-form-field-infix {
+            min-height: 36px;
+        }
+
+        input.mat-mdc-input-element {
+            font-size: 0.85rem;
         }
     }
 }
