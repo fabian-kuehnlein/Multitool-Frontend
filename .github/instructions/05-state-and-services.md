@@ -65,6 +65,7 @@ Conventions:
 
 - Cheap caches are fine inside the state service (e.g. `lookupCache = new Map<string, ItemModel[]>()`).
 - Prefer signals as the single source of truth; a `Map` cache is acceptable for keyed GET results that are re-fetched rarely.
+- Server-computed aggregates (e.g. a running overtime total) can be cached in a signal for the lifetime of the view: fetch once, skip the request on repeat loads, and re-fetch (`force`) after any mutation that changes the underlying data.
 
 ## Cross-cutting shared state
 

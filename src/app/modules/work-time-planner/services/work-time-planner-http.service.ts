@@ -11,7 +11,7 @@ import {
     UpdateWorkDayDto,
     WorkDay,
     WorkTimeSettings,
-    WeekSummary,
+    OvertimeBalance,
 } from '../models/work-time-planner.model';
 
 @Injectable({
@@ -36,26 +36,9 @@ export class WorkTimePlannerHttpService {
         return this.http.put<void>(`${this.apiUrl}/workdays/${id}`, data);
     }
 
-    getWeekSummary(
-        year: number,
-        weekNumber: number,
-    ): Observable<WeekSummary | null> {
-        const params = new HttpParams()
-            .set('year', year)
-            .set('weekNumber', weekNumber);
-        return this.http.get<WeekSummary | null>(`${this.apiUrl}/weeksummary`, {
-            params,
-        });
-    }
-
-    saveWeekSummary(year: number, weekNumber: number): Observable<WeekSummary> {
-        const params = new HttpParams()
-            .set('year', year)
-            .set('weekNumber', weekNumber);
-        return this.http.post<WeekSummary>(
-            `${this.apiUrl}/weeksummary`,
-            null,
-            { params },
+    getOvertimeBalance(): Observable<OvertimeBalance> {
+        return this.http.get<OvertimeBalance>(
+            `${this.apiUrl}/overtime-balance`,
         );
     }
 
