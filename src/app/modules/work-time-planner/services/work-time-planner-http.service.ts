@@ -28,8 +28,8 @@ export class WorkTimePlannerHttpService {
         return this.http.get<WorkDay[]>(`${this.apiUrl}/workdays`, { params });
     }
 
-    createWorkDay(data: CreateWorkDayDto): Observable<WorkDay> {
-        return this.http.post<WorkDay>(`${this.apiUrl}/workdays`, data);
+    createWorkDay(data: CreateWorkDayDto): Observable<number> {
+        return this.http.post<number>(`${this.apiUrl}/workdays`, data);
     }
 
     updateWorkDay(id: number, data: UpdateWorkDayDto): Observable<void> {

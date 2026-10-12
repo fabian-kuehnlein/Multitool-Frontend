@@ -294,16 +294,16 @@ export class WorkTimePlannerService {
 
         this._pendingCreates.add(toSave.date);
         return this.httpService.createWorkDay(toCreateWorkDayDto(toSave)).pipe(
-            map((saved) => {
-                const normalized = normalizeWorkDay(saved);
-                const calculated = calculateWorkDay(
-                    normalized,
-                    this._settings(),
+            map((id) => {
+                const current = this._workDays().find(
+                    (d) => d.date === toSave.date,
                 );
-                this._pendingCreates.delete(calculated.date);
-                this._workDays.update((days) =>
-                    upsertWorkDay(days, calculated),
-                );
+                if (current && !current.id) {
+                    this._workDays.update((days) =>
+                        upsertWorkDay(days, { ...current, id }),
+                    );
+                }
+                this._pendingCreates.delete(toSave.date);
                 this.loadOvertimeBalance(true);
             }),
         );

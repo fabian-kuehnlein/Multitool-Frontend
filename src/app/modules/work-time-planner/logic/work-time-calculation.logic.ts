@@ -7,9 +7,9 @@ import {
     WorkTimeSettings,
 } from '../models/work-time-planner.model';
 import {
-    NINE_HOURS_MINUTES,
-    SIX_HOURS_MINUTES,
-    TEN_HOURS_MINUTES,
+    NINE_HOURS_BREAK_MINUTES,
+    SIX_HOURS_BREAK_MINUTES,
+    TEN_HOURS_BREAK_MINUTES,
 } from '../utilities/work-time.config';
 
 export function getWeekStart(date: dayjs.Dayjs = dayjs()): string {
@@ -72,9 +72,9 @@ export function calculateWorkDay(
         const rawWorkMinutes = totalMinutes - breakMinutes;
 
         if (breakMinutes === 0) {
-            if (rawWorkMinutes > NINE_HOURS_MINUTES)
+            if (rawWorkMinutes > NINE_HOURS_BREAK_MINUTES)
                 breakMinutes = settings.breakRule9h;
-            else if (rawWorkMinutes > SIX_HOURS_MINUTES)
+            else if (rawWorkMinutes > SIX_HOURS_BREAK_MINUTES)
                 breakMinutes = settings.breakRule6h;
         }
 
@@ -83,7 +83,7 @@ export function calculateWorkDay(
 
         if (
             breakMinutes < settings.breakRule9h &&
-            workMinutes > NINE_HOURS_MINUTES
+            workMinutes > NINE_HOURS_BREAK_MINUTES
         ) {
             warnings.push({
                 type: 'PauseTooShort',
@@ -91,7 +91,7 @@ export function calculateWorkDay(
             });
         } else if (
             breakMinutes < settings.breakRule6h &&
-            workMinutes > SIX_HOURS_MINUTES
+            workMinutes > SIX_HOURS_BREAK_MINUTES
         ) {
             warnings.push({
                 type: 'PauseTooShort',
@@ -99,12 +99,12 @@ export function calculateWorkDay(
             });
         }
 
-        if (workMinutes < SIX_HOURS_MINUTES) {
+        if (workMinutes < SIX_HOURS_BREAK_MINUTES) {
             warnings.push({
                 type: 'Under6Hours',
                 message: 'Weniger als 6 Stunden Arbeitszeit an einem Tag',
             });
-        } else if (workMinutes > TEN_HOURS_MINUTES) {
+        } else if (workMinutes > TEN_HOURS_BREAK_MINUTES) {
             warnings.push({
                 type: 'Over10Hours',
                 message: 'Mehr als 10 Stunden Arbeitszeit an einem Tag',
