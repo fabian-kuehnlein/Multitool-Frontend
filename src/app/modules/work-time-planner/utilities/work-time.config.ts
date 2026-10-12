@@ -15,6 +15,8 @@ export const WEEKDAY_NAMES = [
     'Freitag',
 ] as const;
 
-export const SIX_HOURS_MINUTES = 360;
-export const NINE_HOURS_MINUTES = 540;
-export const TEN_HOURS_MINUTES = 600;
+export const SIX_HOURS_BREAK_MINUTES = 360;
+export const NINE_HOURS_BREAK_MINUTES = 540;
+export const TEN_HOURS_BREAK_MINUTES = 600;
+
+export const DAY_INPUT_DEBOUNCE_MS = 500;

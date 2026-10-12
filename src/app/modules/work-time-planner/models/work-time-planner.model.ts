@@ -24,9 +24,7 @@ export interface WorkDayWarning {
     message: string;
 }
 
-export interface WeekSummary {
-    year: number;
-    weekNumber: number;
+export interface OvertimeBalance {
     totalOvertime: number;
 }
 

@@ -11,7 +11,6 @@ import {
 import {
     WorkDay,
     WorkTimeSettings,
-    WeekSummary,
     DayStatus,
     MonthHoCount,
 } from '../models/work-time-planner.model';
@@ -44,10 +43,11 @@ export class WorkTimePlannerService {
     private readonly _settings = signal<WorkTimeSettings>({
         ...DEFAULT_WORK_TIME_SETTINGS,
     });
-    private readonly _previousWeekSummary = signal<WeekSummary | null>(null);
+    private readonly _overtimeBalance = signal<number>(0);
     private readonly _homeOfficeMonthCounts = signal<MonthHoCount[]>([]);
     private readonly _pendingCreates = new Set<string>();
     private readonly _loading = signal<boolean>(false);
+    private _overtimeBalanceLoaded = false;
 
     readonly workDays = this._workDays.asReadonly();
     readonly currentWeekStart = this._currentWeekStart.asReadonly();
@@ -77,12 +77,10 @@ export class WorkTimePlannerService {
         () => this._settings().dailyTargetMinutes * 5,
     );
 
-    readonly baseOvertime = computed(
-        () => this._previousWeekSummary()?.totalOvertime ?? 0,
-    );
+    readonly totalOvertime = computed(() => this._overtimeBalance());
 
-    readonly totalOvertime = computed(
-        () => this.baseOvertime() + this.weeklyOvertimeMinutes(),
+    readonly baseOvertime = computed(
+        () => this.totalOvertime() - this.weeklyOvertimeMinutes(),
     );
 
     readonly homeOfficeDaysThisWeek = computed(
@@ -90,10 +88,6 @@ export class WorkTimePlannerService {
     );
 
     navigateWeek(direction: 'prev' | 'next' | 'current'): void {
-        if (direction !== 'current') {
-            this.saveCurrentWeekSummary();
-        }
-
         if (direction === 'current') {
             this._currentWeekStart.set(getWeekStart());
         } else {
@@ -133,15 +127,20 @@ export class WorkTimePlannerService {
             complete: () => this._loading.set(false),
         });
 
-        const prevWeek = dayjs(start).subtract(1, 'week');
-        this.httpService
-            .getWeekSummary(prevWeek.year(), prevWeek.isoWeek())
-            .subscribe({
-                next: (summary) => this._previousWeekSummary.set(summary),
-                error: () => this._previousWeekSummary.set(null),
-            });
-
+        this.loadOvertimeBalance();
         this.loadHomeOfficeMonthCount();
+    }
+
+    loadOvertimeBalance(force = false): void {
+        if (this._overtimeBalanceLoaded && !force) return;
+
+        this.httpService.getOvertimeBalance().subscribe({
+            next: (balance) => {
+                this._overtimeBalance.set(balance.totalOvertime);
+                this._overtimeBalanceLoaded = true;
+            },
+            error: () => {},
+        });
     }
 
     loadHomeOfficeMonthCount(): void {
@@ -286,7 +285,7 @@ export class WorkTimePlannerService {
         if (toSave.id) {
             return this.httpService
                 .updateWorkDay(toSave.id, toUpdateWorkDayDto(toSave))
-                .pipe(tap(() => this.saveCurrentWeekSummary()));
+                .pipe(tap(() => this.loadOvertimeBalance(true)));
         }
 
         if (this._pendingCreates.has(toSave.date)) {
@@ -295,29 +294,19 @@ export class WorkTimePlannerService {
 
         this._pendingCreates.add(toSave.date);
         return this.httpService.createWorkDay(toCreateWorkDayDto(toSave)).pipe(
-            map((saved) => {
-                const normalized = normalizeWorkDay(saved);
-                const calculated = calculateWorkDay(
-                    normalized,
-                    this._settings(),
+            map((id) => {
+                const current = this._workDays().find(
+                    (d) => d.date === toSave.date,
                 );
-                this._pendingCreates.delete(calculated.date);
-                this._workDays.update((days) =>
-                    upsertWorkDay(days, calculated),
-                );
-                this.saveCurrentWeekSummary();
+                if (current && !current.id) {
+                    this._workDays.update((days) =>
+                        upsertWorkDay(days, { ...current, id }),
+                    );
+                }
+                this._pendingCreates.delete(toSave.date);
+                this.loadOvertimeBalance(true);
             }),
         );
-    }
-
-    private saveCurrentWeekSummary(): void {
-        const currentMoment = dayjs(this._currentWeekStart());
-        this.httpService
-            .saveWeekSummary(
-                currentMoment.year(),
-                currentMoment.isoWeek(),
-            )
-            .subscribe({ error: () => {} });
     }
 
     getWeekRange(): string {

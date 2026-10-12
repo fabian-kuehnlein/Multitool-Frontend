@@ -4,9 +4,11 @@ import {
     Output,
     EventEmitter,
     ChangeDetectionStrategy,
+    OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import dayjs from 'dayjs';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import {
     WorkDay,
@@ -14,6 +16,7 @@ import {
     DayStatus,
 } from '../../../models/work-time-planner.model';
 import { isHomeOfficeDisabled } from '../../../logic/work-time-calculation.logic';
+import { DAY_INPUT_DEBOUNCE_MS } from '../../../utilities/work-time.config';
 import { formatMinutes } from '../../../utilities/work-time.util';
 
 @Component({
@@ -24,7 +27,7 @@ import { formatMinutes } from '../../../utilities/work-time.util';
     styleUrl: './day-card.component.scss',
     changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class DayCardComponent {
+export class DayCardComponent implements OnDestroy {
     readonly DayStatus = DayStatus;
     readonly formatMinutes = formatMinutes;
 
@@ -41,19 +44,50 @@ export class DayCardComponent {
     }>();
     @Output() toggleLock = new EventEmitter<string>();
 
-    onStartTimeChange(event: Event): void {
-        const value = (event.target as HTMLInputElement).value;
-        this.update.emit({ ...this.day, startTime: value || null });
+    private readonly startTimeChanges = new Subject<string | null>();
+    private readonly endTimeChanges = new Subject<string | null>();
+    private readonly breakChanges = new Subject<number>();
+    private readonly destroy$ = new Subject<void>();
+
+    constructor() {
+        this.startTimeChanges
+            .pipe(debounceTime(DAY_INPUT_DEBOUNCE_MS), takeUntil(this.destroy$))
+            .subscribe((startTime) =>
+                this.update.emit({ ...this.day, startTime }),
+            );
+        this.endTimeChanges
+            .pipe(debounceTime(DAY_INPUT_DEBOUNCE_MS), takeUntil(this.destroy$))
+            .subscribe((endTime) => this.update.emit({ ...this.day, endTime }));
+        this.breakChanges
+            .pipe(debounceTime(DAY_INPUT_DEBOUNCE_MS), takeUntil(this.destroy$))
+            .subscribe((breakMinutes) =>
+                this.update.emit({ ...this.day, breakMinutes }),
+            );
     }
 
-    onEndTimeChange(event: Event): void {
-        const value = (event.target as HTMLInputElement).value;
-        this.update.emit({ ...this.day, endTime: value || null });
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
-    onBreakChange(event: Event): void {
+    // Native `<input type="time">`/number controls fire `change` for every valid
+    // intermediate value while typing (e.g. 17:00, 17:03, 17:30). These three
+    // handlers only forward the raw value to their debounced Subject above, so a
+    // burst of keystrokes collapses into a single update/save instead of one
+    // request per keystroke.
+    onStartTimeInputChange(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;
+        this.startTimeChanges.next(value || null);
+    }
+
+    onEndTimeInputChange(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;
+        this.endTimeChanges.next(value || null);
+    }
+
+    onBreakInputChange(event: Event): void {
         const value = Number((event.target as HTMLInputElement).value);
-        this.update.emit({ ...this.day, breakMinutes: value });
+        this.breakChanges.next(value);
     }
 
     onHomeOfficeToggle(): void {

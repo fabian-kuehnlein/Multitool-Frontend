@@ -36,7 +36,7 @@ export class TodoItemComponent {
             const index = match.index ?? 0;
             if (index > lastIndex) {
                 segments.push({
-                    text: description.slice(lastIndex, index),
+                    text: description.slice(lastIndex, index).trim(),
                     isLink: false,
                 });
             }
@@ -46,7 +46,7 @@ export class TodoItemComponent {
 
         if (lastIndex < description.length) {
             segments.push({
-                text: description.slice(lastIndex),
+                text: description.slice(lastIndex).trim(),
                 isLink: false,
             });
         }

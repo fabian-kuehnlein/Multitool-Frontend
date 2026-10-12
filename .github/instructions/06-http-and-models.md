@@ -75,3 +75,4 @@ Small features may keep a single `item.model.ts` instead of a barrel.
 
 - Controllers are pluralized resources (`/api/ControllerName`); endpoints are appended with kebab-case segments (`/items/search`, `/items/${itemId}/details`).
 - If the backend route changes, update the HTTP service only — components stay untouched.
+- `POST` create endpoints return the new resource's **id** (`Observable<number>`), not the entity. Build the local model from the DTO plus the returned id (see `createTodo`/`createEvent`); never map the response as a full entity.
