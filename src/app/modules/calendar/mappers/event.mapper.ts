@@ -19,14 +19,6 @@ export interface FullCalendarEventInput {
     seriesEndDateTime?: Date | null;
 }
 
-/**
- * FullCalendarEventInput variant whose id may be null — used when opening
- * the dialog for a single instance of a recurring series.
- */
-export type DialogEventInput = Omit<FullCalendarEventInput, 'eventId'> & {
-    eventId: string | null;
-};
-
 function parseAsLocal(dateStr: string | null | undefined): Date | undefined {
     if (!dateStr) return undefined;
     // Remove 'Z' if present to prevent UTC conversion by the browser

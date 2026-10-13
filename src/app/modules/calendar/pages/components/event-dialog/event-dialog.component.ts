@@ -34,10 +34,7 @@ import { SnackbarService } from '../../../../../core/services/snackbar.service';
 import {
     SKIP_HTTP_ERROR_SNACKBAR,
 } from '../../../../../core/interceptors/http-error.interceptor';
-import {
-    DialogEventInput,
-    FullCalendarEventInput,
-} from '../../../mappers/event.mapper';
+import { FullCalendarEventInput } from '../../../mappers/event.mapper';
 import type { CalendarEvent } from '../../../models';
 
 // Third-party
@@ -45,7 +42,7 @@ import { Subject, takeUntil } from 'rxjs';
 import dayjs from 'dayjs';
 
 export interface EventDialogData {
-    event?: DialogEventInput | FullCalendarEventInput | null;
+    event?: FullCalendarEventInput | null;
     anchorDate?: Date;
 }
 
