@@ -36,7 +36,6 @@ import { SearchDialogComponent } from './components/search-dialog/search-dialog.
 import { RecurrenceChoiceDialogComponent } from './components/recurrence-choice-dialog/recurrence-choice-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
-    DialogEventInput,
     fromFullCalendarEvent,
     FullCalendarEventInput,
     toCalendarEvent,
@@ -414,14 +413,17 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         eventData: FullCalendarEventInput,
         isInstance: boolean = false,
     ) {
-        let dialogEvent: DialogEventInput = eventData;
+        let dialogEvent: FullCalendarEventInput = eventData;
 
         if (isInstance) {
+            // Editing a single occurrence: drop the recurrence so the dialog
+            // shows a plain (non-recurring) event. The series id is kept so the
+            // dialog can emit update/delete results; splitEventFromSeries strips
+            // it before creating the standalone event.
             dialogEvent = {
                 ...eventData,
                 recurrenceRule: null,
                 recurrenceEnd: null,
-                eventId: null,
             };
         } else if (eventData.recurrenceRule) {
             dialogEvent = {

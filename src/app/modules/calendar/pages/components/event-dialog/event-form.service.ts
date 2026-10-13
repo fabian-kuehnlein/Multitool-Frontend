@@ -22,7 +22,7 @@ import {
     buildRecurrenceRuleString,
     parseRecurrenceRuleString,
 } from '../../../logic/rrule.logic';
-import { DialogEventInput } from '../../../mappers/event.mapper';
+import { FullCalendarEventInput } from '../../../mappers/event.mapper';
 
 export interface EventFormValue {
     eventTitle: string;
@@ -188,7 +188,7 @@ export class EventFormService {
     /**
      * Fills the form with existing event data for editing.
      */
-    public patchFormForEdit(form: FormGroup, event: DialogEventInput): void {
+    public patchFormForEdit(form: FormGroup, event: FullCalendarEventInput): void {
         const start = event.startDateTime ? dayjs(event.startDateTime) : null;
         const end = event.endDateTime ? dayjs(event.endDateTime) : null;
         const rrule = parseRecurrenceRuleString(event.recurrenceRule);
