@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
 import dayjs from 'dayjs';
-import { EMPTY, Observable, map, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import {
@@ -15,7 +15,7 @@ import {
     MonthHoCount,
 } from '../models/work-time-planner.model';
 import { WorkTimePlannerHttpService } from './work-time-planner-http.service';
-import { toCreateWorkDayDto, toUpdateWorkDayDto } from '../mappers/work-day.mapper';
+import { toUpsertWorkDayDto } from '../mappers/work-day.mapper';
 import {
     calculateWorkDay,
     collectMonthsToQuery,
@@ -45,7 +45,6 @@ export class WorkTimePlannerService {
     });
     private readonly _overtimeBalance = signal<number>(0);
     private readonly _homeOfficeMonthCounts = signal<MonthHoCount[]>([]);
-    private readonly _pendingCreates = new Set<string>();
     private readonly _loading = signal<boolean>(false);
     private _overtimeBalanceLoaded = false;
 
@@ -263,8 +262,16 @@ export class WorkTimePlannerService {
 
     toggleLock(date: string): void {
         const day = this._workDays().find((d) => d.date === date);
-        if (!day) return;
-        this.updateWorkDay({ ...day, isLocked: !day.isLocked });
+        if (!day?.id) return;
+
+        const isLocked = !day.isLocked;
+        this._workDays.update((days) =>
+            days.map((d) => (d.date === date ? { ...d, isLocked } : d)),
+        );
+
+        this.httpService.setWorkDayLock(day.id, { isLocked }).subscribe({
+            error: () => {},
+        });
     }
 
     private prepareWorkDay(updated: WorkDay): WorkDay | null {
@@ -282,31 +289,9 @@ export class WorkTimePlannerService {
     }
 
     private saveWorkDay(toSave: WorkDay): Observable<void> {
-        if (toSave.id) {
-            return this.httpService
-                .updateWorkDay(toSave.id, toUpdateWorkDayDto(toSave))
-                .pipe(tap(() => this.loadOvertimeBalance(true)));
-        }
-
-        if (this._pendingCreates.has(toSave.date)) {
-            return EMPTY;
-        }
-
-        this._pendingCreates.add(toSave.date);
-        return this.httpService.createWorkDay(toCreateWorkDayDto(toSave)).pipe(
-            map((id) => {
-                const current = this._workDays().find(
-                    (d) => d.date === toSave.date,
-                );
-                if (current && !current.id) {
-                    this._workDays.update((days) =>
-                        upsertWorkDay(days, { ...current, id }),
-                    );
-                }
-                this._pendingCreates.delete(toSave.date);
-                this.loadOvertimeBalance(true);
-            }),
-        );
+        return this.httpService
+            .upsertWorkDay(toUpsertWorkDayDto(toSave))
+            .pipe(tap(() => this.loadOvertimeBalance(true)));
     }
 
     getWeekRange(): string {

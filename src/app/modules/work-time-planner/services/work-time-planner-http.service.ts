@@ -7,8 +7,8 @@ import {
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
-    CreateWorkDayDto,
-    UpdateWorkDayDto,
+    UpsertWorkDayDto,
+    LockWorkDayDto,
     WorkDay,
     WorkTimeSettings,
     OvertimeBalance,
@@ -28,12 +28,15 @@ export class WorkTimePlannerHttpService {
         return this.http.get<WorkDay[]>(`${this.apiUrl}/workdays`, { params });
     }
 
-    createWorkDay(data: CreateWorkDayDto): Observable<number> {
-        return this.http.post<number>(`${this.apiUrl}/workdays`, data);
+    upsertWorkDay(data: UpsertWorkDayDto): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/workdays`, data);
     }
 
-    updateWorkDay(id: number, data: UpdateWorkDayDto): Observable<void> {
-        return this.http.put<void>(`${this.apiUrl}/workdays/${id}`, data);
+    setWorkDayLock(id: number, data: LockWorkDayDto): Observable<void> {
+        return this.http.put<void>(
+            `${this.apiUrl}/workdays/${id}/lock`,
+            data,
+        );
     }
 
     getOvertimeBalance(): Observable<OvertimeBalance> {
