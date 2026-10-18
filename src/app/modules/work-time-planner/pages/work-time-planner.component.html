@@ -142,23 +142,6 @@
                         ></app-day-card>
                     }
                 </div>
-
-                @if (!isMobile()) {
-                    <app-week-summary
-                        [weeklyTargetMinutes]="
-                            plannerService.weeklyTargetMinutes()
-                        "
-                        [weeklyWorkMinutes]="
-                            plannerService.weeklyWorkMinutes()
-                        "
-                        [weeklyOvertimeMinutes]="
-                            plannerService.weeklyOvertimeMinutes()
-                        "
-                        [baseOvertime]="plannerService.baseOvertime()"
-                        [totalOvertime]="plannerService.totalOvertime()"
-                        [compact]="isTablet() || isLaptop()"
-                    ></app-week-summary>
-                }
             </div>
         </div>
     </div>

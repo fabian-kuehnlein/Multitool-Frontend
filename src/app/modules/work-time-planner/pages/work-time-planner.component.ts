@@ -12,7 +12,6 @@ import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { WorkTimePlannerService } from '../services/work-time-planner.service';
 import { DayCardComponent } from './components/day-card/day-card.component';
 import { OvertimeSummaryComponent } from './components/overtime-summary/overtime-summary.component';
-import { WeekSummaryComponent } from './components/week-summary/week-summary.component';
 import { PlannerSidebarComponent } from './components/planner-sidebar/planner-sidebar.component';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { MediaService } from '../../../core/services/media.service';
@@ -27,7 +26,6 @@ import { WEEKDAY_NAMES } from '../utilities/work-time.config';
         UI_MODULES,
         DayCardComponent,
         OvertimeSummaryComponent,
-        WeekSummaryComponent,
         PlannerSidebarComponent,
     ],
     templateUrl: './work-time-planner.component.html',
