@@ -1,0 +1,295 @@
+// Shared styles for all settings components
+@use "../../../../_breakpoints" as bp;
+
+:host {
+    // Height for all setting controls (toggles, inputs, steppers)
+    --settings-control-height: 40px;
+}
+
+// Container for a single settings card (mat-card)
+.setting-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border-default);
+    border-radius: 12px;
+
+    .setting-card-body {
+        padding: 20px 24px;
+    }
+}
+
+// Layout for a single setting row inside a card
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    // Left side: icon + title/description
+    .setting-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 240px;
+    }
+
+    // Icon wrapper with accent background color
+    .setting-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background-color: var(--accent-primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        .setting-icon {
+            color: var(--accent-primary);
+        }
+    }
+
+    // Title and description text block
+    .setting-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        // Primary title of the setting
+        .setting-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        // Secondary description text
+        .setting-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    }
+}
+
+// Container for control/action elements on the right side
+.setting-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+// Group of controls (toggle + inputs) with vertical alignment
+.setting-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+// Row containing mode toggle and input controls
+.controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+// Row containing one or more input controls
+.inputs-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+// Hint text below controls (e.g. "corresponds to...")
+.setting-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 1.3;
+    max-width: 320px;
+}
+
+// Compact unit input: numeric input + unit label (legacy/simple variant)
+.unit-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 4px 10px;
+    gap: 6px;
+    transition: border-color 0.2s;
+    height: var(--settings-control-height);
+
+    &:focus-within {
+        border-color: var(--accent-primary);
+    }
+}
+
+// Centered numeric input (used inside unit-input-wrapper)
+.number-input {
+    width: 44px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+}
+
+// Unit label for input fields (e.g. "Std.", "Min.", "Tage")
+.unit-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    user-select: none;
+}
+
+// Material toggle group for mode selection (e.g. daily/weekly, weekly/monthly)
+.mode-toggle-group {
+    height: var(--settings-control-height);
+    align-items: center;
+}
+
+// Number stepper with + and - buttons for adjusting numeric values
+.setting-stepper {
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    height: var(--settings-control-height);
+
+    &:focus-within {
+        border-color: var(--accent-primary);
+    }
+
+    // Decrement/increment button in stepper
+    .stepper-btn {
+        width: var(--settings-control-height);
+        height: var(--settings-control-height);
+        border: none;
+        background: transparent;
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.15s;
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+
+        &:active {
+            background-color: var(--bg-active);
+        }
+
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    // Centered numeric input inside stepper
+    .stepper-input {
+        width: 44px;
+        height: 100%;
+        border: none;
+        border-left: 1px solid var(--border-default);
+        border-right: 1px solid var(--border-default);
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 500;
+        text-align: center;
+        outline: none;
+        font-family: inherit;
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+
+    // Unit label on the right side of stepper
+    .stepper-unit {
+        padding: 0 10px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        user-select: none;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+}
+
+@include bp.mobile {
+    // Stack setting layout vertically on mobile
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    // Expand action area to full width
+    .setting-action {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    // Expand control group to full width and align left
+    .setting-control-group {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    // Stack controls vertically on mobile
+    .controls-row {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    // Make mode toggle group full width
+    .mode-toggle-group {
+        width: 100%;
+        display: flex;
+
+        mat-button-toggle {
+            flex: 1;
+        }
+    }
+
+    // Align inputs to start on mobile
+    .inputs-row {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    // Align hint text left and allow full width
+    .setting-hint {
+        text-align: left;
+        max-width: 100%;
+    }
+}

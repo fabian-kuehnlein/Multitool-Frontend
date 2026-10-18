@@ -25,16 +25,4 @@
         padding: 0;
         gap: 16px;
     }
-
-    .setting-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-
-        .setting-action {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-        }
-    }
 }

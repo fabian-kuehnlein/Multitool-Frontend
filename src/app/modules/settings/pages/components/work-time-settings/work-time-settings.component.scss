@@ -1,0 +1,58 @@
+@use "../../../styles/settings-common";
+@use "../../../../../../_breakpoints" as bp;
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.work-time-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+@include bp.mobile {
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .setting-action {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .setting-control-group {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .controls-row {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .mode-toggle-group {
+        width: 100%;
+        display: flex;
+
+        mat-button-toggle {
+            flex: 1;
+        }
+    }
+
+    .inputs-row {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .setting-hint {
+        text-align: left;
+        max-width: 100%;
+    }
+}

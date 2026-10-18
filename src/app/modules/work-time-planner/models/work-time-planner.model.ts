@@ -35,7 +35,7 @@ export interface WorkTimeSettings {
     homeOfficeLimit: number;
 }
 
-export interface CreateWorkDayDto {
+export interface UpsertWorkDayDto {
     date: string;
     startTime: string | null;
     endTime: string | null;
@@ -44,7 +44,7 @@ export interface CreateWorkDayDto {
     status: DayStatus;
 }
 
-export interface UpdateWorkDayDto extends CreateWorkDayDto {
+export interface LockWorkDayDto {
     isLocked: boolean;
 }
 

@@ -1,16 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import {
-    HttpContext,
-    HttpClient,
-    HttpParams,
-} from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
-    CreateWorkDayDto,
-    UpdateWorkDayDto,
+    UpsertWorkDayDto,
+    LockWorkDayDto,
     WorkDay,
-    WorkTimeSettings,
     OvertimeBalance,
 } from '../models/work-time-planner.model';
 
@@ -28,12 +23,15 @@ export class WorkTimePlannerHttpService {
         return this.http.get<WorkDay[]>(`${this.apiUrl}/workdays`, { params });
     }
 
-    createWorkDay(data: CreateWorkDayDto): Observable<number> {
-        return this.http.post<number>(`${this.apiUrl}/workdays`, data);
+    upsertWorkDay(data: UpsertWorkDayDto): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/workdays`, data);
     }
 
-    updateWorkDay(id: number, data: UpdateWorkDayDto): Observable<void> {
-        return this.http.put<void>(`${this.apiUrl}/workdays/${id}`, data);
+    setWorkDayLock(id: number, data: LockWorkDayDto): Observable<void> {
+        return this.http.put<void>(
+            `${this.apiUrl}/workdays/${id}/lock`,
+            data,
+        );
     }
 
     getOvertimeBalance(): Observable<OvertimeBalance> {
@@ -52,18 +50,5 @@ export class WorkTimePlannerHttpService {
             month: number;
             homeOfficeDays: number;
         }>(`${this.apiUrl}/homeoffice`, { params });
-    }
-
-    getSettings(): Observable<WorkTimeSettings> {
-        return this.http.get<WorkTimeSettings>(`${this.apiUrl}/settings`);
-    }
-
-    updateSettings(
-        settings: WorkTimeSettings,
-        context?: HttpContext,
-    ): Observable<void> {
-        return this.http.put<void>(`${this.apiUrl}/settings`, settings, {
-            context,
-        });
     }
 }

@@ -1,0 +1,192 @@
+<div class="work-time-settings-container">
+    <!-- Card 1: Target Working Hours -->
+    <mat-card appearance="outlined" class="setting-card">
+        <mat-card-content class="setting-card-body">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-icon-wrapper">
+                        <mat-icon class="setting-icon">schedule</mat-icon>
+                    </div>
+                    <div class="setting-text">
+                        <span class="setting-title">Sollarbeitszeit</span>
+                        <span class="setting-description">
+                            Reguläre Arbeitszeit pro Tag oder Woche festlegen.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="setting-action">
+                    <div class="setting-control-group">
+                        <div class="controls-row">
+                            <mat-button-toggle-group
+                                [value]="timeMode()"
+                                (change)="onTimeModeChange($event.value)"
+                                aria-label="Arbeitszeit-Modus"
+                                class="mode-toggle-group"
+                            >
+                                <mat-button-toggle value="daily"
+                                    >Täglich</mat-button-toggle
+                                >
+                                <mat-button-toggle value="weekly"
+                                    >Wöchentlich</mat-button-toggle
+                                >
+                            </mat-button-toggle-group>
+
+                            <div class="inputs-row">
+                                <div class="setting-stepper">
+                                    <button
+                                        type="button"
+                                        class="stepper-btn"
+                                        (click)="decrementHours()"
+                                        aria-label="Stunden verringern"
+                                    >
+                                        <mat-icon>remove</mat-icon>
+                                    </button>
+                                    <input
+                                        type="number"
+                                        class="stepper-input"
+                                        [value]="hoursValue()"
+                                        (input)="onHoursInput($event)"
+                                        min="0"
+                                        [max]="
+                                            timeMode() === 'weekly' ? 50 : 10
+                                        "
+                                        aria-label="Stunden"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="stepper-btn"
+                                        (click)="incrementHours()"
+                                        aria-label="Stunden erhöhen"
+                                    >
+                                        <mat-icon>add</mat-icon>
+                                    </button>
+                                    <span class="stepper-unit">Std.</span>
+                                </div>
+                                <div class="setting-stepper">
+                                    <button
+                                        type="button"
+                                        class="stepper-btn"
+                                        (click)="decrementMinutes()"
+                                        aria-label="Minuten verringern"
+                                    >
+                                        <mat-icon>remove</mat-icon>
+                                    </button>
+                                    <input
+                                        type="number"
+                                        class="stepper-input"
+                                        [value]="minutesValue()"
+                                        (input)="onMinutesInput($event)"
+                                        min="0"
+                                        max="59"
+                                        step="5"
+                                        aria-label="Minuten"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="stepper-btn"
+                                        (click)="incrementMinutes()"
+                                        aria-label="Minuten erhöhen"
+                                    >
+                                        <mat-icon>add</mat-icon>
+                                    </button>
+                                    <span class="stepper-unit">Min.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <span class="setting-hint">
+                            @if (timeMode() === "daily") {
+                                ~{{ weeklyHoursEquivalent() }} Std.
+                                {{ weeklyMinutesEquivalent() }} Min./Woche (5 Tage)
+                            } @else {
+                                ~{{ dailyHoursEquivalent() }} Std.
+                                {{ dailyMinutesEquivalent() }} Min./Tag (5 Tage)
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Card 2: Homeoffice Limit -->
+    <mat-card appearance="outlined" class="setting-card">
+        <mat-card-content class="setting-card-body">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-icon-wrapper">
+                        <mat-icon class="setting-icon">home</mat-icon>
+                    </div>
+                    <div class="setting-text">
+                        <span class="setting-title">Homeoffice-Limit</span>
+                        <span class="setting-description">
+                            Maximale Anzahl an Homeoffice-Tagen pro Woche oder Monat.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="setting-action">
+                    <div class="setting-control-group">
+                        <div class="controls-row">
+                            <mat-button-toggle-group
+                                [value]="hoMode()"
+                                (change)="onHoModeChange($event.value)"
+                                aria-label="Homeoffice-Limit-Modus"
+                                class="mode-toggle-group"
+                            >
+                                <mat-button-toggle value="weekly"
+                                    >Wöchentlich</mat-button-toggle
+                                >
+                                <mat-button-toggle value="monthly"
+                                    >Monatlich</mat-button-toggle
+                                >
+                            </mat-button-toggle-group>
+
+                            <div class="inputs-row">
+                                <div class="setting-stepper">
+                                    <button
+                                        type="button"
+                                        class="stepper-btn"
+                                        (click)="decrementHoDays()"
+                                        aria-label="Tage verringern"
+                                    >
+                                        <mat-icon>remove</mat-icon>
+                                    </button>
+                                    <input
+                                        type="number"
+                                        class="stepper-input"
+                                        [value]="hoDaysValue()"
+                                        (input)="onHoDaysInput($event)"
+                                        min="0"
+                                        [max]="hoMode() === 'weekly' ? 7 : 31"
+                                        aria-label="Tage"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="stepper-btn"
+                                        (click)="incrementHoDays()"
+                                        aria-label="Tage erhöhen"
+                                    >
+                                        <mat-icon>add</mat-icon>
+                                    </button>
+                                    <span class="stepper-unit">Tage</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <span class="setting-hint">
+                            @if (hoDaysValue() === 0) {
+                                0 = unbegrenzt
+                            } @else if (hoMode() === "weekly") {
+                                ~{{ hoDaysValue() * 4 }} Tage/Monat
+                            } @else {
+                                ~{{ hoWeeklyEquivalent() }} Tage/Woche
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>
