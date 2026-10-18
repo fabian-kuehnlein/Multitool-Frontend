@@ -1,8 +1,6 @@
 import {
     Component,
     Input,
-    Output,
-    EventEmitter,
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -26,7 +24,6 @@ export class PlannerSidebarComponent {
     @Input() totalOvertime = 0;
     @Input() homeOfficeDaysThisWeek = 0;
     @Input() homeOfficeMonthCounts: MonthHoCount[] = [];
-    @Output() openSettings = new EventEmitter<void>();
 
     readonly formatMinutes = formatMinutes;
 }

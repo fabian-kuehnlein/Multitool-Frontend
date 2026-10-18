@@ -63,7 +63,7 @@
 
                 <div class="tab-content-container">
                     <!-- Section: Appearance -->
-                    <div class="settings-section">
+                    <div id="section-appearance" class="settings-section">
                         <div class="section-header-wrapper">
                             <h2 class="section-title">Erscheinungsbild</h2>
                             <p class="section-subtitle">
@@ -100,6 +100,18 @@
                                 </div>
                             </mat-card-content>
                         </mat-card>
+                    </div>
+
+                    <!-- Section: Work Time Planner -->
+                    <div id="section-worktime" class="settings-section">
+                        <div class="section-header-wrapper">
+                            <h2 class="section-title">Arbeitszeitplaner</h2>
+                            <p class="section-subtitle">
+                                Verwalte die Arbeitszeiteinstellung deines Planers.
+                            </p>
+                        </div>
+
+                        <app-work-time-settings></app-work-time-settings>
                     </div>
                 </div>
             </mat-tab>

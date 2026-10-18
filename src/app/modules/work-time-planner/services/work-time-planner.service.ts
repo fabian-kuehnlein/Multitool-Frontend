@@ -1,13 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpContext } from '@angular/common/http';
 import dayjs from 'dayjs';
 import { Observable, tap } from 'rxjs';
 
-import { SnackbarService } from '../../../core/services/snackbar.service';
-import {
-    SKIP_HTTP_ERROR_SNACKBAR,
-} from '../../../core/interceptors/http-error.interceptor';
-
+import { SettingsService } from '../../settings/services/settings.service';
 import {
     WorkDay,
     WorkTimeSettings,
@@ -34,7 +29,7 @@ import { getWeekNumber, getWeekRange } from '../utilities/work-time.util';
 })
 export class WorkTimePlannerService {
     private readonly httpService = inject(WorkTimePlannerHttpService);
-    private readonly snackbar = inject(SnackbarService);
+    private readonly settingsService = inject(SettingsService);
 
     private readonly _workDays = signal<WorkDay[]>([]);
     private readonly _currentWeekStart = signal<string>(
@@ -196,30 +191,21 @@ export class WorkTimePlannerService {
     }
 
     loadSettings(): void {
-        this.httpService.getSettings().subscribe({
-            next: (settings) => {
-                this._settings.set(settings);
+        this.settingsService.loadSettings(true).subscribe({
+            next: (dto) => {
+                const wt = dto.worktime;
+                const newSettings: WorkTimeSettings = {
+                    dailyTargetMinutes: wt.dailyTargetMinutes,
+                    breakRule6h: 30,
+                    breakRule9h: 45,
+                    homeOfficeLimit: wt.homeOfficeLimitWeekly,
+                };
+                this._settings.set(newSettings);
                 this._workDays.update((days) =>
-                    days.map((d) => calculateWorkDay(d, settings)),
+                    days.map((d) => calculateWorkDay(d, newSettings)),
                 );
             },
             error: () => {},
-        });
-    }
-
-    updateSettings(settings: WorkTimeSettings): void {
-        this._settings.set(settings);
-        this._workDays.update((days) =>
-            days.map((d) => calculateWorkDay(d, settings)),
-        );
-        const context = new HttpContext().set(SKIP_HTTP_ERROR_SNACKBAR, true);
-
-        this.httpService.updateSettings(settings, context).subscribe({
-            next: () => this.snackbar.openSuccess('Einstellungen gespeichert'),
-            error: () =>
-                this.snackbar.openError(
-                    'Die Einstellungen konnten nicht gespeichert werden.',
-                ),
         });
     }
 

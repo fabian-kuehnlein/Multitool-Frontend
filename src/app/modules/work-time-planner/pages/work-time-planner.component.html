@@ -27,7 +27,17 @@
             <div class="middle-container">
                 <h1 class="page-title">Arbeitszeitplaner</h1>
             </div>
-            <div class="right-container"></div>
+            <div class="right-container">
+                <button
+                    matIconButton
+                    matTooltip="Einstellungen"
+                    (click)="navigateToSettings()"
+                    class="settings-btn"
+                    aria-label="Einstellungen öffnen"
+                >
+                    <mat-icon>settings</mat-icon>
+                </button>
+            </div>
         }
     </mat-toolbar>
 
@@ -64,7 +74,6 @@
                 [homeOfficeMonthCounts]="
                     plannerService.homeOfficeMonthCounts()
                 "
-                (openSettings)="openSettings()"
             ></app-planner-sidebar>
         }
 
@@ -194,8 +203,9 @@
             <button
                 matFab
                 class="mobile-fab-right"
-                (click)="openSettings()"
+                (click)="navigateToSettings()"
                 matTooltip="Einstellungen"
+                aria-label="Einstellungen öffnen"
             >
                 <mat-icon>settings</mat-icon>
             </button>

@@ -68,25 +68,6 @@
     color: var(--text-muted);
 }
 
-mat-divider {
-    margin-top: 1rem;
-}
-
-.sidebar-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-top: 16px;
-}
-
-.sidebar-action-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: flex-start;
-}
-
 .overtime-positive {
     color: var(--accent-success);
 }

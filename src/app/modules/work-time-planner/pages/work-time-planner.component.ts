@@ -6,11 +6,11 @@ import {
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
 import { WorkTimePlannerService } from '../services/work-time-planner.service';
 import { DayCardComponent } from './components/day-card/day-card.component';
-import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import { OvertimeSummaryComponent } from './components/overtime-summary/overtime-summary.component';
 import { WeekSummaryComponent } from './components/week-summary/week-summary.component';
 import { PlannerSidebarComponent } from './components/planner-sidebar/planner-sidebar.component';
@@ -37,6 +37,7 @@ import { WEEKDAY_NAMES } from '../utilities/work-time.config';
 export class WorkTimePlannerComponent implements OnInit, OnDestroy {
     protected readonly plannerService = inject(WorkTimePlannerService);
     private readonly dialog = inject(MatDialog);
+    private readonly router = inject(Router);
     private readonly media = inject(MediaService);
     private readonly hotkeyService = inject(HotkeyService);
     private readonly hotkeyUnsubscribers: Array<() => void> = [];
@@ -82,13 +83,9 @@ export class WorkTimePlannerComponent implements OnInit, OnDestroy {
         });
     }
 
-    openSettings(): void {
-        this.dialog.open(SettingsDialogComponent, {
-            width: this.isMobile() ? '100vw' : '480px',
-            height: this.isMobile() ? '100vh' : 'auto',
-            minWidth: this.isMobile() ? '100vw' : 'unset',
-            maxWidth: this.isMobile() ? '100vw' : '95vw',
-            panelClass: this.isMobile() ? 'full-screen-dialog' : '',
+    navigateToSettings(): void {
+        this.router.navigate(['/settings'], {
+            queryParams: { tab: 'allgemein', section: 'worktime' },
         });
     }
 
