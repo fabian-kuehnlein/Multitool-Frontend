@@ -4,12 +4,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
-import { ThemeService } from '../../../core/services/theme.service';
 import { MediaService } from '../../../core/services/media.service';
-import { SnackbarService } from '../../../core/services/snackbar.service';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { WorkTimeSettingsComponent } from './components/work-time-settings/work-time-settings.component';
+import { AppearanceSettingsComponent } from './components/appearance-settings/appearance-settings.component';
 import { SettingsService } from '../services/settings.service';
 
 @Component({
@@ -21,16 +20,15 @@ import { SettingsService } from '../services/settings.service';
         MatTabsModule,
         CategoriesComponent,
         WorkTimeSettingsComponent,
+        AppearanceSettingsComponent,
     ],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss',
     changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class SettingsComponent implements OnInit {
-    protected readonly themeService = inject(ThemeService);
     protected readonly media = inject(MediaService);
     protected readonly settingsService = inject(SettingsService);
-    private readonly snackbar = inject(SnackbarService);
     private readonly dialog = inject(MatDialog);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
@@ -92,11 +90,5 @@ export class SettingsComponent implements OnInit {
             backdropClass: 'transparent-backdrop',
             data: 'settings',
         });
-    }
-
-    toggleTheme(): void {
-        this.themeService.toggle();
-        const mode = this.themeService.isDark() ? 'Dark Mode' : 'Light Mode';
-        this.snackbar.openSuccess(`Erscheinungsbild auf ${mode} gewechselt`);
     }
 }

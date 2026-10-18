@@ -71,35 +71,7 @@
                             </p>
                         </div>
 
-                        <mat-card appearance="outlined" class="setting-card">
-                            <mat-card-content class="setting-card-body">
-                                <div class="setting-item">
-                                    <div class="setting-info">
-                                        <div class="setting-icon-wrapper">
-                                            <mat-icon class="setting-icon">
-                                                {{ themeService.isDark() ? 'dark_mode' : 'light_mode' }}
-                                            </mat-icon>
-                                        </div>
-                                        <div class="setting-text">
-                                            <span class="setting-title">Dunkler Modus (Dark Mode)</span>
-                                            <span class="setting-description">
-                                                Wechsle zwischen hellem und dunklem Erscheinungsbild der Anwendung.
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="setting-action">
-                                        <mat-slide-toggle
-                                            [checked]="themeService.isDark()"
-                                            (change)="toggleTheme()"
-                                            aria-label="Dunklen Modus aktivieren"
-                                        >
-                                            {{ themeService.isDark() ? 'Aktiviert' : 'Deaktiviert' }}
-                                        </mat-slide-toggle>
-                                    </div>
-                                </div>
-                            </mat-card-content>
-                        </mat-card>
+                        <app-appearance-settings></app-appearance-settings>
                     </div>
 
                     <!-- Section: Work Time Planner -->

@@ -1,0 +1,36 @@
+<mat-card appearance="outlined" class="setting-card">
+    <mat-card-content class="setting-card-body">
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-icon-wrapper">
+                    <mat-icon class="setting-icon">
+                        {{ themeService.isDark() ? 'dark_mode' : 'light_mode' }}
+                    </mat-icon>
+                </div>
+                <div class="setting-text">
+                    <span class="setting-title">Theme</span>
+                    <span class="setting-description">
+                        Wechsle zwischen hellem und dunklem Erscheinungsbild der
+                        Anwendung.
+                    </span>
+                </div>
+            </div>
+
+            <div class="setting-action">
+                <mat-button-toggle-group
+                    [value]="themeMode()"
+                    (change)="onModeChange($event.value)"
+                    aria-label="Theme auswählen"
+                    class="mode-toggle-group"
+                >
+                    <mat-button-toggle value="light"
+                        >Light Mode</mat-button-toggle
+                    >
+                    <mat-button-toggle value="dark"
+                        >Dark Mode</mat-button-toggle
+                    >
+                </mat-button-toggle-group>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
