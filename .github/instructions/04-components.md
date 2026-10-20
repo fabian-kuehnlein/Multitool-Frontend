@@ -40,6 +40,37 @@ private readonly snackbar = inject(SnackbarService);
 
 - Members read by the template are `protected` (or `public` when needed); everything else is `private`. Add `readonly` where possible.
 
+## Class layout
+
+Group Angular-specific properties together at the top of the class, **before any methods**, in this order:
+
+1. injected dependencies (`inject()`)
+2. inputs, models, outputs, queries
+3. state signals and `computed()` derivations
+4. then the methods (event handlers, lifecycle hooks)
+
+```ts
+export class ComponentToImplement implements OnInit {
+    private readonly serviceExample = inject(ServiceExample);
+    private readonly dialog = inject(MatDialog);
+
+    readonly item = input.required<ItemModel>();
+    readonly itemSaved = output<ItemModel>();
+
+    private readonly _items = signal<Item[]>([]);
+    readonly items = this._items.asReadonly();
+    protected readonly visibleItems = computed(() => this._items());
+
+    onSave(): void { /* ... */ }
+    ngOnInit(): void { /* ... */ }
+}
+```
+
+This keeps the class's template API and dependencies findable at a glance.
+
+- Mark properties **initialized by Angular** as `readonly` — signal `input()`, `model()`, `output()` and queries: `readonly item = input<Item>();`. The same applies to decorator-based `@Output`/query properties (`@ViewChildren(...) readonly ...?`); decorator-based `@Input`s are exempt.
+- Keep the component **focused on presentation**: injected deps, template-bound signals/computeds and handlers only. Business rules move to `logic/`, transformations to `mappers/`, constants to `utilities/`, HTTP/state to services. See [11-code-splitting.md](./11-code-splitting.md).
+
 ## Local state
 
 - Use signals for any component state that renders: `readonly sortBy = signal<'priority' | 'dueDate' | 'title'>('priority')`.
@@ -53,6 +84,18 @@ private readonly snackbar = inject(SnackbarService);
 - Keep one logical block per `@if`/`@for` with consistent indentation; format the template so its structure mirrors the class's responsibilities.
 - Call component methods in bindings where that keeps the template declarative, but prefer precomputed `computed()` signals for anything expensive or reused.
 - Use `async` pipe or `toSignal()` for observables; do not manually subscribe in templates.
+- **Keep template logic simple.** Straightforward expressions (property access, a ternary, `labels()[item.status]`) belong in the template — but as soon as logic grows (nested conditions, formatting chains, repeated derivations), move it into a `computed()` or a well-named method in the class.
+- **Prefer `[class]` and `[style]` bindings over `NgClass`/`NgStyle`** — the built-in syntax is closer to plain HTML and cheaper:
+
+  ```html
+  <div [class.error]="hasError" [class.dense]="density() === 'high'">
+  <div [style.color]="textColor">
+  <!-- object form when several bindings change together -->
+  <div [class]="{ error: hasError, dense: density() === 'high' }">
+  ```
+
+  Do not import `NgClass`/`NgStyle`. The few remaining `[ngClass]` usages (e.g. `custom-table`, `recurrence-form`) are legacy — replace them when you touch those templates.
+- **Name event handlers for what they do**, not for the triggering event: `(click)="saveItem()"`, not `(click)="handleClick()"` (full rule in [02-naming-conventions.md](./02-naming-conventions.md#functions--methods)).
 
 ## Material attribute syntax
 
@@ -74,6 +117,16 @@ private readonly snackbar = inject(SnackbarService);
 - Add `aria-label` on icon-only buttons (and other icon-only elements) where the icon has no visible text.
 
 ## Lifecycle
+
+- **Always declare hooks via their TypeScript interface** — `implements OnInit`, `implements OnDestroy`, … — so the method name and signature are checked. Never add `ngOnInit()` to a class without implementing `OnInit`.
+- **Keep hooks minimal.** A hook name says *when* it runs, not *what* it does — so call one or two well-named methods from it instead of unrolling logic inside:
+
+  ```ts
+  ngOnInit(): void {
+      this.serviceExample.loadItems();
+      this.startHotkeyRegistration();
+  }
+  ```
 
 - Implement `OnInit` for kick-off work (e.g. `ngOnInit(): void { this.serviceExample.loadItems(); }`).
 - Use `ngOnDestroy` to clean up subscriptions — either via `takeUntil(destroy$)` with a `Subject<void>` or by relying on signals/`toSignal`.

@@ -30,9 +30,9 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 - **Single source of truth:** `.github/instructions/` (README.md is the index). **Before writing or changing code, read the instruction file(s) that cover your task** (see the task → file map below) and follow them — they win over this summary. The bullets below are only a quick reminder.
 - **Keep the conventions current (mandatory):** when you make a **structural or architectural decision** (centralizing a cross-cutting concern such as snackbars/forms/components, introducing a new folder or pattern, changing how files/dialogs/services are structured), **update the documentation in the same commit** — the relevant file(s) in `.github/instructions/`, the index/README and this task→file map. If you built something future code should mirror, write it down here. Details: `.github/instructions/README.md` → *Keeping these conventions current*.
 - **Where to find what** (full index: `.github/instructions/README.md`):
-  - Naming (classes, services, files, variables, functions, enums, SCSS): `02-naming-conventions.md`
+  - Naming (classes, directives/pipes, services, files, variables, functions, enums, SCSS): `02-naming-conventions.md`
   - Folder layout / adding a feature: `03-project-structure.md`
-  - Components, templates, dialogs: `04-components.md`
+  - Components, class layout, templates, dialogs: `04-components.md`
   - State & services / signals: `05-state-and-services.md`
   - HTTP, models, DTOs: `06-http-and-models.md`
   - Routing, guards, auth: `07-routing-and-auth.md`

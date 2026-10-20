@@ -2,6 +2,8 @@
 
 This folder is the **contract** for how code is written in this Angular 22 frontend. Before writing or changing code, read the file(s) that apply to your task and follow them. The rules describe the *desired* state — if existing code deviates, new code should still follow these rules (and, where cheap, old code should be migrated toward them).
 
+These conventions build on the **official Angular style guide** (<https://angular.dev/style-guide>): anything the official guide covers that is not mentioned here should be followed as-is. Where the two disagree, **this folder wins** — repo consistency beats the generic recommendation. Within an existing file, never mix two styles for a cosmetic difference: prefer consistency with the surrounding code and migrate old code only when you are already touching it.
+
 ## Keeping these conventions current (must-do)
 
 These rules are **not static** — they evolve together with the codebase. Whenever you make a **structural or architectural decision**, the conventions MUST be updated in the same commit, so the documentation and the code never drift apart. This applies to any change that establishes a reusable pattern or a new rule, for example:
@@ -37,7 +39,7 @@ Decide what your change touches, then read the matching file(s):
 | File | Content |
 | --- | --- |
 | [01-angular-fundamentals.md](./01-angular-fundamentals.md) | Framework basics: Angular 22, standalone, zoneless, change detection, DI, imports, formatting, TypeScript rules |
-| [02-naming-conventions.md](./02-naming-conventions.md) | Detailed naming rules: components, services, variables, functions, files/folders, enums/interfaces/classes, SCSS classes |
+| [02-naming-conventions.md](./02-naming-conventions.md) | Detailed naming rules: components, directives/pipes, services, variables, functions, files/folders, enums/interfaces/classes, SCSS classes |
 | [03-project-structure.md](./03-project-structure.md) | Folder layout, where each kind of code lives, adding a new feature |
 | [04-components.md](./04-components.md) | Component conventions, templates, control flow, dialogs, reusable form components, Material usage |
 | [05-state-and-services.md](./05-state-and-services.md) | Signals, state management, state vs. HTTP service split |

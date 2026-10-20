@@ -53,6 +53,18 @@ src/
 - **SCSS partials** for a page (`_desktop.scss`, `_mobile.scss`, optional `_theme.scss`) are co-located next to the page component. See [08-styling-and-theming.md](./08-styling-and-theming.md).
 - Component files always travel together: `*.component.ts`, `*.component.html`, `*.component.scss`.
 - Files are named by type suffix; full naming rules live in [02-naming-conventions.md](./02-naming-conventions.md#files--folders).
+- **Feature first, never app-wide type folders.** Code is grouped by the
+  feature/theme it serves (`modules/<feature>/`, `core/`, `shared/`) — there are
+  no top-level folders like `src/app/components/` or `src/app/services/` that
+  collect code by kind across features. Within a feature (and within `core/` and
+  `shared/`), the responsibility buckets `models/`, `mappers/`, `logic/`,
+  `pages/`, `services/`, `utilities/` apply — this is a **deliberate deviation**
+  from the official Angular style guide's "avoid type-based directories" rule,
+  kept for consistency with the rest of this codebase (see
+  [11-code-splitting.md](./11-code-splitting.md)).
+- **Don't let a directory grow unbounded.** When a folder becomes hard to scan,
+  split it into sub-folders — e.g. child components under
+  `pages/components/<name>/`, models into `models/dtos/`, `models/enums/`, …
 
 ## When adding a new feature
 
