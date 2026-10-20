@@ -1,113 +1,122 @@
 <div
     class="todo-item"
+    [class.mobile-item]="mobile"
     [class.completed]="todo.isDone"
     [style.border-left-color]="getPriorityColor(todo.priority)"
     (click)="onItemClick()"
 >
     @if (mobile) {
         <!-- Mobile-Zeile -->
-        <div class="mobile-todo-main">
-            <mat-checkbox
-                [checked]="todo.isDone"
-                (change)="onToggleDone()"
-                (click)="onCheckboxClick($event)"
-            >
-                @if (!expanded()) {
-                    <span class="todo-title" [class.done-text]="todo.isDone">{{
-                        todo.title
-                    }}</span>
-                }
-            </mat-checkbox>
+        <div class="mobile-item-container">
+            <div class="mobile-item-header">
+                <div class="checkbox-wrapper" (click)="onCheckboxClick($event)">
+                    <mat-checkbox
+                        [checked]="todo.isDone"
+                        (change)="onToggleDone()"
+                        class="todo-checkbox"
+                        aria-label="Aufgabe als erledigt markieren"
+                    ></mat-checkbox>
+                </div>
 
-            <div class="mobile-main-right">
-                @if (todo.isDone && todo.completedDateTime && !expanded()) {
-                    <span class="completed-date">
-                        <mat-icon>check_circle</mat-icon>
-                        {{ todo.completedDateTime | date: "dd.MM.yyyy" }}
-                    </span>
-                }
-                @if (todo.dueDate && !expanded()) {
-                    <mat-icon>date_range</mat-icon>
-                }
+                <div class="mobile-item-body">
+                    <div class="mobile-title-row">
+                        <span class="todo-title" [class.done-text]="todo.isDone">
+                            {{ todo.title }}
+                        </span>
+                    </div>
+
+                    <div class="mobile-meta-tags">
+                        @if (getCategory(todo.categoryId); as cat) {
+                            <span class="category-badge">
+                                <span
+                                    class="color-dot"
+                                    [style.background-color]="cat.color"
+                                ></span>
+                                <span class="badge-text">{{ cat.name }}</span>
+                            </span>
+                        }
+
+                        @if (todo.dueDate) {
+                            <span
+                                class="due-date-badge"
+                                [class.overdue]="isOverdue()"
+                                [class.due-today]="isDueToday()"
+                            >
+                                <mat-icon>event</mat-icon>
+                                <span>{{ todo.dueDate | date: "dd.MM.yyyy" }}</span>
+                            </span>
+                        }
+
+                        @if (todo.isDone && todo.completedDateTime) {
+                            <span class="completed-badge">
+                                <mat-icon>check_circle</mat-icon>
+                                <span>{{ todo.completedDateTime | date: "dd.MM.yyyy" }}</span>
+                            </span>
+                        }
+
+                        @if (todo.description) {
+                            <span class="desc-indicator-badge" title="Beschreibung vorhanden">
+                                <mat-icon>notes</mat-icon>
+                            </span>
+                        }
+                    </div>
+                </div>
+
                 <button
                     matIconButton
                     class="expand-btn"
                     [class.expanded]="expanded()"
-                    (click)="
-                        $event.stopPropagation(); toggleExpand()
-                    "
+                    (click)="$event.stopPropagation(); toggleExpand()"
+                    aria-label="Details anzeigen"
                 >
                     <mat-icon>expand_more</mat-icon>
                 </button>
             </div>
-        </div>
 
-        @if (expanded()) {
-            <div class="mobile-todo-expanded" (click)="$event.stopPropagation()">
-                <span
-                    class="mobile-expanded-title"
-                    [class.done-text]="todo.isDone"
-                    >{{ todo.title }}</span
-                >
-
-                <div class="mobile-expanded-meta">
-                    @if (getCategory(todo.categoryId); as cat) {
-                        <span class="category-badge">
-                            <div
-                                class="color-dot"
-                                [style.background-color]="cat.color"
-                            ></div>
-                            {{ cat.name }}
-                        </span>
+            @if (expanded()) {
+                <div class="mobile-item-expanded" (click)="$event.stopPropagation()">
+                    @if (todo.description) {
+                        <div class="mobile-description">
+                            <ng-container
+                                [ngTemplateOutlet]="descriptionContent"
+                                [ngTemplateOutletContext]="{
+                                    description: todo.description
+                                }"
+                            ></ng-container>
+                        </div>
                     }
 
-                    @if (todo.dueDate) {
+                    <div class="mobile-actions-row">
+                        @if (todo.dueDate) {
+                            <button
+                                matButton="tonal"
+                                class="mobile-action-btn calendar-action-btn"
+                                (click)="onGoToDate(); $event.stopPropagation()"
+                            >
+                                <mat-icon matButtonIcon>calendar_month</mat-icon>
+                                <span>Kalender</span>
+                            </button>
+                        }
                         <button
-                            matButton
-                            class="todo-due-date-btn"
-                            (click)="onGoToDate()"
+                            matButton="tonal"
+                            class="mobile-action-btn edit-action-btn"
+                            (click)="onEdit(); $event.stopPropagation()"
                         >
-                            <mat-icon>event</mat-icon>
-                            <span>{{
-                                todo.dueDate | date: "dd.MM.yyyy"
-                            }}</span>
+                            <mat-icon matButtonIcon>edit</mat-icon>
+                            <span>Bearbeiten</span>
                         </button>
-                    }
-                </div>
-
-                @if (todo.description) {
-                    <div class="mobile-description">
-                        <ng-container
-                            [ngTemplateOutlet]="descriptionContent"
-                            [ngTemplateOutletContext]="{
-                                description: todo.description
-                            }"
-                        ></ng-container>
+                        <button
+                            matButton="tonal"
+                            class="mobile-action-btn error-button delete-action-btn"
+                            (click)="onDelete(); $event.stopPropagation()"
+                        >
+                            <mat-icon matButtonIcon class="error-icon">delete</mat-icon>
+                            <span class="error-text">Löschen</span>
+                        </button>
                     </div>
-                }
-
-                <div class="mobile-actions-row">
-                    <button
-                        matButton
-                        class="mobile-action-btn"
-                        (click)="onEdit(); $event.stopPropagation()"
-                    >
-                        <mat-icon>edit</mat-icon>
-                        <span>Bearbeiten</span>
-                    </button>
-                    <button
-                        matButton
-                        class="mobile-action-btn error-button"
-                        (click)="
-                            onDelete(); $event.stopPropagation()
-                        "
-                    >
-                        <mat-icon>delete</mat-icon>
-                        <span>Löschen</span>
-                    </button>
                 </div>
-            </div>
-        }
+            }
+        </div>
     } @else {
         <!-- Desktop-Zeile -->
         <div class="todo-row">

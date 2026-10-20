@@ -22,6 +22,7 @@ import {
 } from '../models/todo.model';
 import {
     getPriorityColor,
+    getPriorityLabel,
     TodoFilterStatus,
     TodoSortBy,
     TodoSortDirection,
@@ -56,18 +57,29 @@ export class TodoComponent implements OnInit, OnDestroy {
 
     readonly Priority = Priority;
     protected readonly getPriorityColor = getPriorityColor;
+    protected readonly getPriorityLabel = getPriorityLabel;
 
     readonly sortBy = signal<TodoSortBy>('priority');
-    readonly sortDirection = signal<TodoSortDirection>('asc');
+    readonly sortDirection = signal<TodoSortDirection>('desc');
     readonly filterStatus = signal<TodoFilterStatus>('all');
     readonly filterPriority = signal<Priority | null>(null);
     readonly filterCategory = signal<number | null>(null);
     readonly searchTerm = signal('');
+    readonly isMobileSearchOpen = signal(false);
 
     readonly isMobile = this.media.isMobile;
     readonly isTablet = this.media.isTablet;
 
     readonly isCompletedExpanded = signal(false);
+
+    readonly hasActiveFilters = computed(
+        () =>
+            this.filterPriority() !== null ||
+            this.filterCategory() !== null ||
+            this.sortBy() !== 'priority' ||
+            this.sortDirection() !== 'desc' ||
+            this.searchTerm().trim().length > 0,
+    );
 
     private readonly todoIdToOpen = signal<number | null>(null);
 
@@ -302,5 +314,39 @@ export class TodoComponent implements OnInit, OnDestroy {
 
     setFilterCategory(categoryId: number | null): void {
         this.filterCategory.set(categoryId);
+    }
+
+    toggleMobileSearch(): void {
+        this.isMobileSearchOpen.update((open) => !open);
+    }
+
+    getActiveCategory(categoryId: number) {
+        return this.categoryService
+            .categories()
+            .find((cat) => cat.id === categoryId);
+    }
+
+    resetAllFilters(): void {
+        this.filterPriority.set(null);
+        this.filterCategory.set(null);
+        this.searchTerm.set('');
+        this.sortBy.set('priority');
+        this.sortDirection.set('desc');
+    }
+
+    resetSort(): void {
+        this.sortBy.set('priority');
+        this.sortDirection.set('desc');
+    }
+
+    getSortLabel(): string {
+        const field =
+            this.sortBy() === 'priority'
+                ? 'Priorität'
+                : this.sortBy() === 'dueDate'
+                  ? 'Datum'
+                  : 'Titel';
+        const dir = this.sortDirection() === 'asc' ? '↑' : '↓';
+        return `${field} ${dir}`;
     }
 }

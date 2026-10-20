@@ -3,7 +3,22 @@
     <mat-toolbar class="toolbar-container" [class.mobile-toolbar]="isMobile()">
         @if (isMobile()) {
             <div class="mobile-header">
-                <span class="mobile-title">To-Do Liste</span>
+                <span class="mobile-title">To-Dos</span>
+
+                <div class="mobile-header-actions">
+                    <button
+                        matIconButton
+                        [matMenuTriggerFor]="mobileFilterMenu"
+                        [class.active-action]="hasActiveFilters()"
+                        class="filter-menu-toggle"
+                        aria-label="Filter und Sortierung"
+                    >
+                        <mat-icon>filter_list</mat-icon>
+                        @if (hasActiveFilters()) {
+                            <span class="filter-indicator-dot"></span>
+                        }
+                    </button>
+                </div>
             </div>
         } @else if (isTablet()) {
             <div class="mobile-header">
@@ -110,6 +125,116 @@
         }
     </mat-toolbar>
 
+    <!-- Mobile Subheader Controls -->
+    @if (isMobile()) {
+        <!-- Expandable Search Bar -->
+        @if (isMobileSearchOpen()) {
+            <div class="mobile-search-bar">
+                <mat-icon class="search-bar-icon">search</mat-icon>
+                <input
+                    type="text"
+                    class="mobile-search-input"
+                    placeholder="Aufgaben durchsuchen…"
+                    [value]="searchTerm()"
+                    (input)="searchTerm.set($any($event.target).value)"
+                    autofocus
+                />
+                @if (searchTerm()) {
+                    <button
+                        matIconButton
+                        class="search-clear-btn"
+                        (click)="clearSearch()"
+                        aria-label="Suche leeren"
+                    >
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+            </div>
+        }
+
+        <!-- Segmented Status Tabs -->
+        <div class="mobile-status-tabs">
+            <button
+                type="button"
+                class="status-tab-btn"
+                [class.active]="filterStatus() === 'all'"
+                (click)="setFilterStatus('all')"
+            >
+                <span>Alle</span>
+                <span class="tab-badge">{{ todoService.stats().total }}</span>
+            </button>
+            <button
+                type="button"
+                class="status-tab-btn"
+                [class.active]="filterStatus() === 'active'"
+                (click)="setFilterStatus('active')"
+            >
+                <span>Aktiv</span>
+                <span class="tab-badge">{{ todoService.stats().active }}</span>
+            </button>
+            <button
+                type="button"
+                class="status-tab-btn"
+                [class.active]="filterStatus() === 'completed'"
+                (click)="setFilterStatus('completed')"
+            >
+                <span>Erledigt</span>
+                <span class="tab-badge">{{ todoService.stats().completed }}</span>
+            </button>
+        </div>
+
+        <!-- Active Filter Indicators -->
+        @if (hasActiveFilters()) {
+            <div class="mobile-active-filters-bar">
+                @if (filterPriority() !== null) {
+                    <button
+                        type="button"
+                        class="active-filter-chip"
+                        (click)="setFilterPriority(null)"
+                    >
+                        <mat-icon [style.color]="getPriorityColor(filterPriority()!)">flag</mat-icon>
+                        <span>{{ getPriorityLabel(filterPriority()!) }}</span>
+                        <mat-icon class="chip-close-icon">close</mat-icon>
+                    </button>
+                }
+
+                @if (filterCategory() !== null) {
+                    @if (getActiveCategory(filterCategory()!); as cat) {
+                        <button
+                            type="button"
+                            class="active-filter-chip"
+                            (click)="setFilterCategory(null)"
+                        >
+                            <span class="category-chip-dot" [style.background-color]="cat.color"></span>
+                            <span>{{ cat.name }}</span>
+                            <mat-icon class="chip-close-icon">close</mat-icon>
+                        </button>
+                    }
+                }
+
+                @if (sortBy() !== 'priority' || sortDirection() !== 'desc') {
+                    <button
+                        type="button"
+                        class="active-filter-chip"
+                        (click)="resetSort()"
+                    >
+                        <mat-icon>sort</mat-icon>
+                        <span>{{ getSortLabel() }}</span>
+                        <mat-icon class="chip-close-icon">close</mat-icon>
+                    </button>
+                }
+
+                <button
+                    type="button"
+                    class="reset-filters-action"
+                    (click)="resetAllFilters()"
+                >
+                    Zurücksetzen
+                </button>
+            </div>
+        }
+    }
+
     @if (todoService.loading()) {
         <div class="page-loading-overlay" [class.mobile-loading]="isMobile()">
             <mat-spinner diameter="48"></mat-spinner>
@@ -117,7 +242,7 @@
     }
 
     <div class="main-layout" [class.mobile-layout]="isMobile()">
-        <!-- Sidebar -->
+        <!-- Desktop Sidebar -->
         @if (!isMobile() && !isTablet()) {
             <div class="page-sidebar">
                 <div class="sidebar-header">
@@ -248,75 +373,134 @@
         <!-- Main Content Area -->
         <div class="content-wrapper">
             @if (isMobile()) {
-                <div class="todo-content-card mobile-card">
-                    <div class="scroll-wrapper">
-                        <mat-list class="todo-list">
-                            @if (filterStatus() === "completed") {
+                <!-- Mobile Content -->
+                <div class="mobile-todo-container">
+                    @if (filterStatus() === "completed") {
+                        @if (completedTodos().length > 0) {
+                            <div class="mobile-todo-list">
                                 @for (todo of completedTodos(); track todo.id) {
                                     <app-todo-item
                                         [todo]="todo"
-                                        [mobile]="isMobile()"
+                                        [mobile]="true"
                                         (toggleDone)="onToggleDone($event)"
                                         (edit)="onEditTodo($event)"
                                         (delete)="onDeleteTodo($event)"
                                         (goToDate)="goToDateInCalendar($event)"
                                     ></app-todo-item>
-                                    <mat-divider></mat-divider>
                                 }
-                                @if (
-                                    completedTodos().length === 0 &&
-                                    !todoService.loading()
-                                ) {
-                                    <div class="empty-state">
-                                        <mat-icon class="empty-icon"
-                                            >check_circle_outline</mat-icon
-                                        >
-                                        <h2>Keine erledigten Aufgaben</h2>
-                                        <p>
-                                            Du hast noch keine Aufgaben
-                                            abgeschlossen.
-                                        </p>
-                                    </div>
-                                }
-                            } @else {
+                            </div>
+                        } @else if (!todoService.loading()) {
+                            <div class="empty-state">
+                                <mat-icon class="empty-icon">check_circle_outline</mat-icon>
+                                <h2>Keine erledigten Aufgaben</h2>
+                                <p>Du hast noch keine Aufgaben abgeschlossen.</p>
+                            </div>
+                        }
+                    } @else if (filterStatus() === "active") {
+                        @if (activeTodos().length > 0) {
+                            <div class="mobile-todo-list">
                                 @for (todo of activeTodos(); track todo.id) {
                                     <app-todo-item
                                         [todo]="todo"
-                                        [mobile]="isMobile()"
+                                        [mobile]="true"
                                         (toggleDone)="onToggleDone($event)"
                                         (edit)="onEditTodo($event)"
                                         (delete)="onDeleteTodo($event)"
                                         (goToDate)="goToDateInCalendar($event)"
                                     ></app-todo-item>
-                                    <mat-divider></mat-divider>
                                 }
-                                @if (
-                                    activeTodos().length === 0 &&
-                                    !todoService.loading()
-                                ) {
-                                    <div class="empty-state">
-                                        <mat-icon class="empty-icon"
-                                            >task_alt</mat-icon
-                                        >
-                                        <h2>Keine aktiven Aufgaben</h2>
-                                        <p>
-                                            Passe deine Filter an oder erstelle
-                                            eine neue Aufgabe.
-                                        </p>
-                                        <button
-                                            matButton="outlined"
-                                            (click)="onAddTodo()"
-                                        >
-                                            <mat-icon>add</mat-icon>
-                                            Aufgabe hinzufügen
-                                        </button>
+                            </div>
+                        } @else if (!todoService.loading()) {
+                            <div class="empty-state">
+                                <mat-icon class="empty-icon">task_alt</mat-icon>
+                                <h2>Keine aktiven Aufgaben</h2>
+                                <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
+                                <button
+                                    matButton="outlined"
+                                    (click)="onAddTodo()"
+                                >
+                                    <mat-icon matButtonIcon>add</mat-icon>
+                                    Aufgabe hinzufügen
+                                </button>
+                            </div>
+                        }
+                    } @else {
+                        <!-- Filter Status === 'all' -->
+                        @if (activeTodos().length > 0) {
+                            <div class="mobile-todo-list">
+                                @for (todo of activeTodos(); track todo.id) {
+                                    <app-todo-item
+                                        [todo]="todo"
+                                        [mobile]="true"
+                                        (toggleDone)="onToggleDone($event)"
+                                        (edit)="onEditTodo($event)"
+                                        (delete)="onDeleteTodo($event)"
+                                        (goToDate)="goToDateInCalendar($event)"
+                                    ></app-todo-item>
+                                }
+                            </div>
+                        }
+
+                        @if (completedTodos().length > 0) {
+                            <div class="mobile-completed-section">
+                                <div
+                                    class="mobile-completed-header"
+                                    (click)="toggleCompletedCollapse()"
+                                >
+                                    <div class="completed-header-left">
+                                        <mat-icon class="completed-icon">check_circle_outline</mat-icon>
+                                        <span>Erledigte Aufgaben ({{ completedTodos().length }})</span>
+                                    </div>
+                                    <mat-icon
+                                        class="completed-expand-icon"
+                                        [class.expanded]="isCompletedExpanded()"
+                                    >
+                                        expand_more
+                                    </mat-icon>
+                                </div>
+
+                                @if (isCompletedExpanded()) {
+                                    <div class="mobile-todo-list">
+                                        @for (todo of completedTodos(); track todo.id) {
+                                            <app-todo-item
+                                                [todo]="todo"
+                                                [mobile]="true"
+                                                (toggleDone)="onToggleDone($event)"
+                                                (edit)="onEditTodo($event)"
+                                                (delete)="onDeleteTodo($event)"
+                                                (goToDate)="goToDateInCalendar($event)"
+                                            ></app-todo-item>
+                                        }
                                     </div>
                                 }
-                            }
-                        </mat-list>
-                    </div>
+                            </div>
+                        }
+
+                        @if (
+                            activeTodos().length === 0 &&
+                            completedTodos().length === 0 &&
+                            !todoService.loading()
+                        ) {
+                            <div class="empty-state">
+                                <mat-icon class="empty-icon">task_alt</mat-icon>
+                                <h2>Keine Aufgaben gefunden</h2>
+                                <p>Passe deine Filter an oder erstelle eine neue Aufgabe.</p>
+                                <button
+                                    matButton="outlined"
+                                    (click)="onAddTodo()"
+                                >
+                                    <mat-icon matButtonIcon>add</mat-icon>
+                                    Aufgabe hinzufügen
+                                </button>
+                            </div>
+                        }
+                    }
+
+                    <!-- Scroll spacer ensuring lowest items can easily be scrolled above floating buttons -->
+                    <div class="mobile-scroll-spacer"></div>
                 </div>
             } @else {
+                <!-- Desktop Content -->
                 @if (
                     filterStatus() !== "completed" ||
                     completedTodos().length === 0
@@ -454,7 +638,7 @@
                                             matButton="outlined"
                                             (click)="onAddTodo()"
                                         >
-                                            <mat-icon>add</mat-icon>
+                                            <mat-icon matButtonIcon>add</mat-icon>
                                             Aufgabe hinzufügen
                                         </button>
                                     </div>
@@ -464,7 +648,7 @@
                     </div>
                 }
 
-                <!-- Erledigte Aufgaben in eigenem Panel darunter -->
+                <!-- Erledigte Aufgaben in eigenem Panel darunter (Desktop) -->
                 @if (completedTodos().length > 0) {
                     <div
                         class="todo-content-card completed-tasks-card"
@@ -528,194 +712,166 @@
         </div>
     </div>
 
+    <!-- Mobile Floating Actions: Home on bottom-left, Search + Add on bottom-right -->
     @if (isMobile()) {
-        <div class="mobile-bottom-bar">
-            <div class="mobile-action-container">
+        <div class="mobile-floating-actions">
+            <button
+                matFab
+                class="mobile-fab-left"
+                (click)="openSideNav()"
+                matTooltip="Tool wechseln"
+                aria-label="Navigation öffnen"
+            >
+                <mat-icon>home</mat-icon>
+            </button>
+
+            <div class="mobile-actions-right">
                 <button
                     matFab
-                    class="mobile-fab-left"
-                    (click)="openSideNav()"
-                    matTooltip="Tool wechseln"
+                    class="mobile-fab-search"
+                    [class.active-search]="isMobileSearchOpen() || searchTerm()"
+                    (click)="toggleMobileSearch()"
+                    matTooltip="Suche"
+                    aria-label="Suche umschalten"
                 >
-                    <mat-icon>home</mat-icon>
+                    <mat-icon>search</mat-icon>
                 </button>
 
                 <button
                     matFab
-                    extended
-                    (click)="
-                        setFilterStatus(
-                            filterStatus() === 'completed'
-                                ? 'active'
-                                : 'completed'
-                        )
-                    "
+                    class="mobile-fab-add"
+                    (click)="onAddTodo()"
+                    matTooltip="Aufgabe hinzufügen"
+                    aria-label="Neue Aufgabe hinzufügen"
                 >
-                    <mat-icon>compare_arrows</mat-icon>
-                    {{
-                        filterStatus() === "completed" ? "Aktive" : "Erledigte"
-                    }}
+                    <mat-icon>add</mat-icon>
                 </button>
-
-                <div class="mobile-actions-right">
-                    <!-- Filter & Sort Menu Trigger -->
-                    <button
-                        matFab
-                        class="mobile-filter-fab"
-                        [matMenuTriggerFor]="mobileFilterMenu"
-                        [color]="
-                            filterPriority() !== null ||
-                            filterCategory() !== null ||
-                            sortBy() !== 'priority'
-                                ? 'accent'
-                                : 'basic'
-                        "
-                        matTooltip="Filter & Sortieren"
-                    >
-                        <mat-icon>filter_list</mat-icon>
-                    </button>
-
-                    <!-- Create Button -->
-                    <button
-                        matFab
-                        class="mobile-fab-right"
-                        (click)="onAddTodo()"
-                        matTooltip="Aufgabe hinzufügen"
-                    >
-                        <mat-icon>add</mat-icon>
-                    </button>
-                </div>
             </div>
-
-            <mat-menu #mobileFilterMenu="matMenu" class="mobile-todo-menu">
-                <!-- Priority Header -->
-                <div class="menu-section-header">Priorität</div>
-                <button
-                    mat-menu-item
-                    (click)="setFilterPriority(null)"
-                    [class.active-menu-item]="filterPriority() === null"
-                >
-                    <mat-icon>filter_none</mat-icon>
-                    <span>Alle</span>
-                </button>
-                <button
-                    mat-menu-item
-                    (click)="setFilterPriority(Priority.HIGH)"
-                    [class.active-menu-item]="
-                        filterPriority() === Priority.HIGH
-                    "
-                >
-                    <mat-icon [style.color]="getPriorityColor(Priority.HIGH)"
-                        >flag</mat-icon
-                    >
-                    <span>Hoch</span>
-                </button>
-                <button
-                    mat-menu-item
-                    (click)="setFilterPriority(Priority.MEDIUM)"
-                    [class.active-menu-item]="
-                        filterPriority() === Priority.MEDIUM
-                    "
-                >
-                    <mat-icon [style.color]="getPriorityColor(Priority.MEDIUM)"
-                        >flag</mat-icon
-                    >
-                    <span>Mittel</span>
-                </button>
-                <button
-                    mat-menu-item
-                    (click)="setFilterPriority(Priority.LOW)"
-                    [class.active-menu-item]="filterPriority() === Priority.LOW"
-                >
-                    <mat-icon [style.color]="getPriorityColor(Priority.LOW)"
-                        >flag</mat-icon
-                    >
-                    <span>Niedrig</span>
-                </button>
-
-                <mat-divider></mat-divider>
-
-                <!-- Category Header -->
-                <div class="menu-section-header">Kategorie</div>
-                <button
-                    mat-menu-item
-                    (click)="setFilterCategory(null)"
-                    [class.active-menu-item]="filterCategory() === null"
-                >
-                    <mat-icon>category</mat-icon>
-                    <span>Alle</span>
-                </button>
-                @for (category of todoCategories(); track category.id) {
-                    <button
-                        mat-menu-item
-                        (click)="setFilterCategory(category.id)"
-                        [class.active-menu-item]="
-                            filterCategory() === category.id
-                        "
-                    >
-                        <mat-icon [style.color]="category.color"
-                            >circle</mat-icon
-                        >
-                        <span>{{ category.name }}</span>
-                    </button>
-                }
-
-                <mat-divider></mat-divider>
-
-                <!-- Sorting Header -->
-                <div class="menu-section-header">Sortieren nach</div>
-                <button
-                    mat-menu-item
-                    (click)="changeSort('priority')"
-                    [class.active-menu-item]="sortBy() === 'priority'"
-                >
-                    <mat-icon>star</mat-icon>
-                    <span
-                        >Priorität
-                        {{
-                            sortBy() === "priority"
-                                ? sortDirection() === "asc"
-                                    ? "↑"
-                                    : "↓"
-                                : ""
-                        }}</span
-                    >
-                </button>
-                <button
-                    mat-menu-item
-                    (click)="changeSort('dueDate')"
-                    [class.active-menu-item]="sortBy() === 'dueDate'"
-                >
-                    <mat-icon>event</mat-icon>
-                    <span
-                        >Datum
-                        {{
-                            sortBy() === "dueDate"
-                                ? sortDirection() === "asc"
-                                    ? "↑"
-                                    : "↓"
-                                : ""
-                        }}</span
-                    >
-                </button>
-                <button
-                    mat-menu-item
-                    (click)="changeSort('title')"
-                    [class.active-menu-item]="sortBy() === 'title'"
-                >
-                    <mat-icon>sort_by_alpha</mat-icon>
-                    <span
-                        >Titel
-                        {{
-                            sortBy() === "title"
-                                ? sortDirection() === "asc"
-                                    ? "↑"
-                                    : "↓"
-                                : ""
-                        }}</span
-                    >
-                </button>
-            </mat-menu>
         </div>
     }
+
+    <!-- Mobile Filter & Sort Menu (Outside @if for template ref availability) -->
+    <mat-menu #mobileFilterMenu="matMenu" class="mobile-todo-menu">
+        <!-- Priorität Header -->
+        <div class="menu-section-header">Priorität</div>
+        <button
+            mat-menu-item
+            (click)="setFilterPriority(null)"
+            [class.active-menu-item]="filterPriority() === null"
+        >
+            <mat-icon>filter_none</mat-icon>
+            <span>Alle</span>
+        </button>
+        <button
+            mat-menu-item
+            (click)="setFilterPriority(Priority.HIGH)"
+            [class.active-menu-item]="filterPriority() === Priority.HIGH"
+        >
+            <mat-icon [style.color]="getPriorityColor(Priority.HIGH)">flag</mat-icon>
+            <span>Hoch</span>
+        </button>
+        <button
+            mat-menu-item
+            (click)="setFilterPriority(Priority.MEDIUM)"
+            [class.active-menu-item]="filterPriority() === Priority.MEDIUM"
+        >
+            <mat-icon [style.color]="getPriorityColor(Priority.MEDIUM)">flag</mat-icon>
+            <span>Mittel</span>
+        </button>
+        <button
+            mat-menu-item
+            (click)="setFilterPriority(Priority.LOW)"
+            [class.active-menu-item]="filterPriority() === Priority.LOW"
+        >
+            <mat-icon [style.color]="getPriorityColor(Priority.LOW)">flag</mat-icon>
+            <span>Niedrig</span>
+        </button>
+
+        <mat-divider></mat-divider>
+
+        <!-- Kategorie Header -->
+        <div class="menu-section-header">Kategorie</div>
+        <button
+            mat-menu-item
+            (click)="setFilterCategory(null)"
+            [class.active-menu-item]="filterCategory() === null"
+        >
+            <mat-icon>category</mat-icon>
+            <span>Alle</span>
+        </button>
+        @for (category of todoCategories(); track category.id) {
+            <button
+                mat-menu-item
+                (click)="setFilterCategory(category.id)"
+                [class.active-menu-item]="filterCategory() === category.id"
+            >
+                <mat-icon [style.color]="category.color">circle</mat-icon>
+                <span>{{ category.name }}</span>
+            </button>
+        }
+
+        <mat-divider></mat-divider>
+
+        <!-- Sortieren nach Header -->
+        <div class="menu-section-header">Sortieren nach</div>
+        <button
+            mat-menu-item
+            (click)="changeSort('priority')"
+            [class.active-menu-item]="sortBy() === 'priority'"
+        >
+            <mat-icon>star</mat-icon>
+            <span>
+                Priorität
+                {{
+                    sortBy() === "priority"
+                        ? sortDirection() === "asc"
+                            ? "↑"
+                            : "↓"
+                        : ""
+                }}
+            </span>
+        </button>
+        <button
+            mat-menu-item
+            (click)="changeSort('dueDate')"
+            [class.active-menu-item]="sortBy() === 'dueDate'"
+        >
+            <mat-icon>event</mat-icon>
+            <span>
+                Datum
+                {{
+                    sortBy() === "dueDate"
+                        ? sortDirection() === "asc"
+                            ? "↑"
+                            : "↓"
+                        : ""
+                }}
+            </span>
+        </button>
+        <button
+            mat-menu-item
+            (click)="changeSort('title')"
+            [class.active-menu-item]="sortBy() === 'title'"
+        >
+            <mat-icon>sort_by_alpha</mat-icon>
+            <span>
+                Titel
+                {{
+                    sortBy() === "title"
+                        ? sortDirection() === "asc"
+                            ? "↑"
+                            : "↓"
+                        : ""
+                }}
+            </span>
+        </button>
+
+        @if (hasActiveFilters()) {
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="resetAllFilters()">
+                <mat-icon class="error-icon">restart_alt</mat-icon>
+                <span class="error-text">Filter zurücksetzen</span>
+            </button>
+        }
+    </mat-menu>
 </div>

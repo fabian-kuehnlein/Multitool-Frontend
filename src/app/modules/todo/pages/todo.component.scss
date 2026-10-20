@@ -30,11 +30,6 @@
     flex-shrink: 0;
     border-bottom: 1px solid var(--border-default);
     box-sizing: border-box;
-
-    &.mobile-toolbar {
-        height: 64px;
-        padding: 0 16px;
-    }
 }
 
 // ── Layout ───────────────────────────────────────────────────────────────────
@@ -55,7 +50,7 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 24px;
+    padding: 12px;
     box-sizing: border-box;
     overflow-y: auto;
     background-color: var(--bg-secondary);
