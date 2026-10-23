@@ -91,7 +91,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         true,
     );
 
-    // --- Signals & State ---
+// -- Signals & State
     protected readonly isEditMode = signal<boolean>(false);
     protected readonly isMobile = this.media.isMobile;
     protected readonly isGeneratingIcal = signal<boolean>(false);
@@ -195,7 +195,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             });
     }
 
-    // --- Actions ---
+// -- Actions
     protected save() {
         if (this.eventForm.invalid) return;
 

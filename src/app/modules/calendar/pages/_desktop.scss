@@ -1,17 +1,17 @@
 // Desktop base layout styles
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
+// -- Toolbar
 .toolbar-container {
     height: 80px;
     padding: 10px 25px;
 }
 
-// ── Loader ───────────────────────────────────────────────────────────────────
+// -- Loader
 .calendar-loader {
     top: 80px;
 }
 
-// ── Toolbar Containers ───────────────────────────────────────────────────────
+// -- Toolbar Containers
 .left-container,
 .right-container {
     display: flex;
@@ -59,7 +59,7 @@
     align-items: center;
 }
 
-// ── Date Title ───────────────────────────────────────────────────────────────
+// -- Date Title
 .date-title {
     margin: 0 20px;
     font-size: 1.6rem;
@@ -67,7 +67,7 @@
     text-align: center;
 }
 
-// ── Filter Bar ───────────────────────────────────────────────────────────────
+// -- Filter Bar
 .filter-bar {
     display: flex;
     justify-content: space-between;
@@ -108,7 +108,7 @@
     }
 }
 
-// ── Calendar Wrapper ─────────────────────────────────────────────────────────
+// -- Calendar Wrapper
 .calendar-wrapper {
     flex: 1;
     min-height: 0;

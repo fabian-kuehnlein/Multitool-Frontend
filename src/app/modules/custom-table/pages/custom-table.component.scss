@@ -1,7 +1,7 @@
 @use "desktop";
 @use "mobile";
 
-// ── Host ─────────────────────────────────────────────────────────────────────
+// -- Host
 :host {
     display: block;
     height: 100vh;
@@ -18,7 +18,7 @@
     flex-direction: column;
 }
 
-// ── Layout ───────────────────────────────────────────────────────────────────
+// -- Layout
 .main-layout {
     flex: 1;
     display: flex;
@@ -53,12 +53,12 @@
     position: relative;
 }
 
-// ── Utilities ────────────────────────────────────────────────────────────────
+// -- Utilities
 .hidden {
     display: none !important;
 }
 
-// ── Empty State (no table selected) ──────────────────────────────────────────
+// -- Empty State (no table selected)
 .empty-state {
     height: 100%;
     display: flex;

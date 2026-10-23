@@ -7,7 +7,7 @@
 @use "css-variables" as *;
 @use "scrollbar" as *;
 
-// ── Material Symbols ─────────────────────────────────────────────────────────
+// -- Material Symbols
 .material-symbols-outlined {
     font-family: "Material Symbols Outlined Variable";
     font-variation-settings:
@@ -48,7 +48,7 @@ body {
     touch-action: manipulation;
 }
 
-// ── Error Colors ─────────────────────────────────────────────────────────────
+// -- Error Colors
 // Unified mechanism for error/danger colors:
 //   Buttons:     <button matButton class="error-button">
 //                <button matIconButton class="error-icon-button">
@@ -71,7 +71,7 @@ body {
     }
 }
 
-// ── Light Theme (Default) ───────────────────────────────────────────────────
+// -- Light Theme (Default)
 html {
     background-color: var(--bg-canvas);
 
@@ -99,7 +99,7 @@ html {
     @include error-color-utilities($light-theme);
 }
 
-// ── Dark Theme ──────────────────────────────────────────────────────────────
+// -- Dark Theme
 html[data-theme="dark"] {
     background-color: var(--bg-canvas);
 
@@ -121,7 +121,7 @@ html[data-theme="dark"] {
     @include error-color-utilities($dark-theme);
 }
 
-// ── Utility Classes ─────────────────────────────────────────────────────────
+// -- Utility Classes
 .no-outline-form-field {
     @include mat.form-field-overrides(
         (
@@ -175,7 +175,7 @@ html[data-theme="dark"] {
     height: 100vh !important;
 }
 
-// ── Page Loading Overlay ─────────────────────────────────────────────────────
+// -- Page Loading Overlay
 .page-loading-overlay {
     position: absolute;
     top: 80px;

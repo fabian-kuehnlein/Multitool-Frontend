@@ -1,6 +1,5 @@
-// ═══════════════════════════════════════════════════════════════════════════════
+//
 // App Color Tokens — derived from the Angular Material M3 theme
-// ═══════════════════════════════════════════════════════════════════════════════
 //
 // The Material theme (_material-palettes.scss + _theme.scss, emitted in
 // styles.scss) owns the base palette and exposes it as --mat-sys-* tokens.
@@ -19,7 +18,7 @@
 // Never hard-code hex/rgb values in component styles.
 
 :root {
-    // ── Surfaces ─────────────────────────────────────────────────────────────
+// -- Surfaces
     // Page/app background (html, page hosts, large content areas).
     --bg-canvas: var(--mat-sys-surface);
     // Raised containers: cards, toolbars, sidenavs, popovers, dialogs.
@@ -39,7 +38,7 @@
     // Selected/active background (e.g. active stepper button).
     --bg-selected: var(--mat-sys-primary-container);
 
-    // ── Text ─────────────────────────────────────────────────────────────────
+// -- Text
     // Default body/heading text.
     --text-primary: var(--mat-sys-on-surface);
     // Labels, subheadings, secondary information.
@@ -51,7 +50,7 @@
     // Disabled text/icons.
     --text-disabled: color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent);
 
-    // ── Borders ──────────────────────────────────────────────────────────────
+// -- Borders
     // Very low contrast: internal dividers/section separators.
     --border-subtle: color-mix(in srgb, var(--mat-sys-outline-variant) 60%, transparent);
     // Standard card/input borders (M3 outline-variant).
@@ -59,20 +58,20 @@
     // Emphasized borders: table headers, drop zones, active outlines.
     --border-strong: var(--mat-sys-outline);
 
-    // ── Shadows ──────────────────────────────────────────────────────────────
+// -- Shadows
     --shadow-sm: color-mix(in srgb, var(--mat-sys-shadow) 8%, transparent);
     --shadow-md: color-mix(in srgb, var(--mat-sys-shadow) 14%, transparent);
     --shadow-lg: color-mix(in srgb, var(--mat-sys-shadow) 20%, transparent);
     --shadow-xl: color-mix(in srgb, var(--mat-sys-shadow) 26%, transparent);
 
-    // ── Overlays ─────────────────────────────────────────────────────────────
+// -- Overlays
     --overlay-backdrop: color-mix(in srgb, var(--mat-sys-scrim) 32%, transparent);
 
-    // ── Scrollbar ────────────────────────────────────────────────────────────
+// -- Scrollbar
     --scrollbar-thumb: color-mix(in srgb, var(--mat-sys-on-surface) 18%, transparent);
     --scrollbar-thumb-hover: color-mix(in srgb, var(--mat-sys-on-surface) 30%, transparent);
 
-    // ── Accents not defined by Material ──────────────────────────────────────
+// -- Accents not defined by Material
     // Primary accents: use --mat-sys-primary / --mat-sys-primary-container.
     // Hover shade for filled primary elements.
     --color-primary-hover: color-mix(in srgb, var(--mat-sys-primary) 85%, var(--mat-sys-on-primary));
@@ -101,7 +100,7 @@
     --priority-low: #2e8b57;
 }
 
-// ── Dark Theme — only tokens with literal colors need an override ────────────
+// -- Dark Theme — only tokens with literal colors need an override
 // All --mat-sys-* aliases above switch automatically via the Material theme.
 [data-theme="dark"] {
     // Success (green)

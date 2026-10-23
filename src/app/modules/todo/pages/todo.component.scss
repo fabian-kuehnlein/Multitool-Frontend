@@ -1,7 +1,7 @@
 @use "desktop";
 @use "mobile";
 
-// ── Host ─────────────────────────────────────────────────────────────────────
+// -- Host
 :host {
     display: block;
     height: 100vh;
@@ -19,7 +19,7 @@
     position: relative;
 }
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
+// -- Toolbar
 .toolbar-container {
     display: flex;
     justify-content: space-between;
@@ -32,7 +32,7 @@
     box-sizing: border-box;
 }
 
-// ── Layout ───────────────────────────────────────────────────────────────────
+// -- Layout
 .main-layout {
     flex: 1;
     display: flex;
@@ -57,19 +57,19 @@
     gap: 20px;
 }
 
-// ── Scroll Wrapper ───────────────────────────────────────────────────────────
+// -- Scroll Wrapper
 .scroll-wrapper {
     flex: 1;
     overflow-y: auto;
     padding: 0;
 }
 
-// ── Todo List Base ───────────────────────────────────────────────────────────
+// -- Todo List Base
 .todo-list {
     padding: 0;
 }
 
-// ── Empty State ──────────────────────────────────────────────────────────────
+// -- Empty State
 .empty-state {
     padding: 80px 24px;
     text-align: center;

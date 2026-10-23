@@ -1,6 +1,6 @@
 // Desktop-only styles (toolbar layout, sidebar, todo rows, sort header, completed panel)
 
-// ── Toolbar Desktop Layout ───────────────────────────────────────────────────
+// -- Toolbar Desktop Layout
 .left-container,
 .right-container {
     display: flex;
@@ -36,7 +36,7 @@
     white-space: nowrap;
 }
 
-// ── Sidebar ──────────────────────────────────────────────────────────────────
+// -- Sidebar
 .page-sidebar {
     width: 280px;
     background: var(--bg-surface);
@@ -95,7 +95,7 @@
     }
 }
 
-// ── Desktop Content Card ─────────────────────────────────────────────────────
+// Desktop Content Card
 .todo-content-card {
     flex: 1;
     min-height: 350px;
@@ -103,7 +103,7 @@
     flex-direction: column;
 }
 
-// ── Desktop Header Actions (Search & Sort) ───────────────────────────────────
+// -- Desktop Header Actions (Search & Sort)
 .todo-header-actions {
     padding: 12px 24px;
     background-color: var(--bg-surface-raised);
@@ -195,11 +195,11 @@
     }
 }
 
-// ── Desktop Todo Row ─────────────────────────────────────────────────────────
+// -- Desktop Todo Row
 // Row styles (todo-row, meta container, description, delete menu item) live in
 // `pages/components/todo-item/todo-item.component.scss`.
 
-// ── Completed Tasks Panel ────────────────────────────────────────────────────
+// -- Completed Tasks Panel
 .completed-tasks-card {
     flex: none;
     min-height: auto;

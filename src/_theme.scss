@@ -1,7 +1,7 @@
 @use "@angular/material" as mat;
 @use "material-palettes" as palettes;
 
-// ── Light Theme ──────────────────────────────────────────────────────────────
+// Light Theme
 $light-theme: mat.define-theme(
     (
         color: (
@@ -12,7 +12,7 @@ $light-theme: mat.define-theme(
     )
 );
 
-// ── Dark Theme ───────────────────────────────────────────────────────────────
+// Dark Theme
 $dark-theme: mat.define-theme(
     (
         color: (

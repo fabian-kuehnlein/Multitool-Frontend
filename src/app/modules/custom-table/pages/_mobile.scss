@@ -2,7 +2,7 @@
 
 // Mobile-only styles + responsive overrides
 
-// ── Layout state overrides ───────────────────────────────────────────────────
+// -- Layout state overrides
 .main-layout.mobile-layout {
     flex-direction: column;
     overflow-y: auto;
@@ -10,7 +10,7 @@
     background-color: var(--bg-canvas);
 }
 
-// ── Mobile Wrapper & Cards ───────────────────────────────────────────────────
+// -- Mobile Wrapper & Cards
 .mobile-wrapper {
     display: flex;
     flex-direction: column;
@@ -144,7 +144,7 @@
     }
 }
 
-// ── Mobile Empty State ───────────────────────────────────────────────────────
+// -- Mobile Empty State
 .empty-state-mobile {
     display: flex;
     flex-direction: column;
@@ -176,7 +176,7 @@
     }
 }
 
-// ── Mobile Navigation ────────────────────────────────────────────────────────
+// -- Mobile Navigation
 .mobile-nav-container {
     position: fixed;
     bottom: 24px;
@@ -189,7 +189,7 @@
     }
 }
 
-// ── Mobile FAB Container ─────────────────────────────────────────────────────
+// -- Mobile FAB Container
 .mobile-fab-container {
     position: fixed;
     bottom: 24px;
@@ -218,7 +218,7 @@
     }
 }
 
-// ── Mobile Action Bar ────────────────────────────────────────────────────────
+// -- Mobile Action Bar
 .mobile-action-bar {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -232,7 +232,7 @@
     z-index: 1001;
 }
 
-// ── Responsive Overrides ─────────────────────────────────────────────────────
+// -- Responsive Overrides
 @include bp.mobile {
     .content-wrapper {
         padding: 0;

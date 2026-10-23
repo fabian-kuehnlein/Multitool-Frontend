@@ -1,7 +1,7 @@
 @use "desktop";
 @use "mobile";
 
-// ── Host ─────────────────────────────────────────────────────────────────────
+// -- Host
 :host {
     display: block;
     height: 100vh;
@@ -20,7 +20,7 @@
     background-color: var(--bg-canvas);
 }
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
+// -- Toolbar
 .toolbar-container {
     display: flex;
     justify-content: space-between;
@@ -38,7 +38,7 @@
     }
 }
 
-// ── Main Content ─────────────────────────────────────────────────────────────
+// -- Main Content
 .main-content-container {
     flex: 1;
     min-height: 0;

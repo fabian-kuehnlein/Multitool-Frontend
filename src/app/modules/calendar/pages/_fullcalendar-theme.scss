@@ -7,7 +7,7 @@
             background-color: var(--calendar-holiday-bg) !important;
         }
 
-        // ── CSS Variables for FullCalendar ────────────────────────────
+// -- CSS Variables for FullCalendar
         .fc {
             --fc-bg-event-opacity: 0.6;
             --fc-border-color: var(--border-default);
@@ -24,7 +24,7 @@
             color: var(--text-primary);
         }
 
-        // ── Scrollgrid ────────────────────────────────────────────────
+// -- Scrollgrid
         .fc-scrollgrid {
             border-color: var(--border-default) !important;
             background-color: var(--bg-canvas) !important;
@@ -40,7 +40,7 @@
             background-color: var(--bg-canvas) !important;
         }
 
-        // ── Column Headers ────────────────────────────────────────────
+// -- Column Headers
         .fc-col-header-cell {
             background-color: var(--bg-surface-raised) !important;
             color: var(--text-secondary) !important;
@@ -52,7 +52,7 @@
             color: var(--text-secondary) !important;
         }
 
-        // ── Day Grid ──────────────────────────────────────────────────
+// -- Day Grid
         .fc-daygrid-day {
             background-color: var(--bg-canvas) !important;
         }
@@ -124,14 +124,13 @@
             background-color: var(--mat-sys-primary-container) !important;
         }
 
-        // ── BG Events ─────────────────────────────────────────────────
-
+// -- BG Events
         .fc-non-business {
             background: var(--bg-muted) !important;
             opacity: 0.3 !important;
         }
 
-        // ── Time Grid ─────────────────────────────────────────────────
+// -- Time Grid
         .fc-timegrid {
             background-color: var(--bg-canvas) !important;
         }
@@ -177,7 +176,7 @@
             color: var(--mat-sys-error);
         }
 
-        // ── All-day Section ───────────────────────────────────────────
+// -- All-day Section
         .fc-timegrid-all-day {
             background-color: var(--bg-canvas) !important;
         }
@@ -191,7 +190,7 @@
             background-color: var(--bg-surface-raised) !important;
         }
 
-        // ── List View ─────────────────────────────────────────────────
+// -- List View
         .fc-list {
             background-color: var(--bg-canvas) !important;
         }
@@ -254,7 +253,7 @@
             color: var(--text-subtle) !important;
         }
 
-        // ── Multi-Month ───────────────────────────────────────────────
+// -- Multi-Month
         .fc-multi-month-day-frame {
             background-color: var(--bg-canvas) !important;
         }
@@ -268,7 +267,7 @@
             background-color: var(--bg-canvas) !important;
         }
 
-        // ── Events ────────────────────────────────────────────────────
+// -- Events
         .fc-daygrid-event,
         .fc-timegrid-event {
             box-shadow: 0 1px 3px var(--shadow-md) !important;
@@ -278,7 +277,7 @@
             opacity: 0.5;
         }
 
-        // ── Theme-standard Borders ────────────────────────────────────
+// -- Theme-standard Borders
         .fc-theme-standard td,
         .fc-theme-standard th,
         .fc-theme-standard tr,
@@ -288,7 +287,7 @@
             border-color: var(--border-default) !important;
         }
 
-        // ── Popovers ──────────────────────────────────────────────────
+// -- Popovers
         .fc-popover {
             background-color: var(--bg-surface) !important;
             border-color: var(--border-default) !important;
@@ -306,7 +305,7 @@
             color: var(--text-primary) !important;
         }
 
-        // ── Toolbar ───────────────────────────────────────────────────
+// -- Toolbar
         .fc-toolbar {
             background-color: transparent !important;
         }
@@ -315,7 +314,7 @@
             color: var(--text-primary) !important;
         }
 
-        // ── Buttons ───────────────────────────────────────────────────
+// -- Buttons
         .fc-button {
             background-color: var(--bg-surface-raised) !important;
             border-color: var(--border-default) !important;
@@ -344,7 +343,7 @@
             border-color: var(--color-primary-hover) !important;
         }
 
-        // ── Outside Days ──────────────────────────────────────────────
+// -- Outside Days
         .fc-day-other .fc-daygrid-day-number {
             color: var(--text-secondary) !important;
         }

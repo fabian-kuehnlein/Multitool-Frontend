@@ -115,7 +115,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         true,
     );
 
-    // --- Signals & State ---
+// -- Signals & State
     protected readonly title = signal<string>('');
     protected readonly isToday = signal<boolean>(true);
     protected readonly currentView = signal<string>('dayGridMonth');
@@ -184,7 +184,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
-    // --- Initialization ---
+// -- Initialization
     private setupMobileViewListener() {
         effect(() => {
             const api = this.calendarApi;
@@ -247,7 +247,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    // --- Hotkeys ---
+// -- Hotkeys
     private setupHotkeys() {
         this.hotkeyUnsubscribers.push(
             this.hotkeyService.register({
@@ -277,7 +277,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         );
     }
 
-    // --- UI Actions ---
+// -- UI Actions
     protected calendarAction(action: CalendarAction) {
         const api = this.calendarApi;
         if (!api) return;
@@ -356,7 +356,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         });
     }
 
-    // --- Event Operations ---
+// -- Event Operations
     protected createEvent() {
         const api = this.calendarApi;
         if (!api) return;
@@ -594,7 +594,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    // --- Calendar Configuration ---
+// -- Calendar Configuration
     protected readonly calendarOptions: CalendarOptions = {
         ...defaultCalendarOptions,
         datesSet: () => {

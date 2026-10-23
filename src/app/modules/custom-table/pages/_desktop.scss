@@ -2,7 +2,7 @@
 
 // Desktop-only styles (sidebar wrapper, data table, footer actions)
 
-// ── Sidebar Wrapper ──────────────────────────────────────────────────────────
+// -- Sidebar Wrapper
 .table-sidebar {
     width: 280px;
     background: var(--bg-surface);
@@ -17,13 +17,13 @@
     }
 }
 
-// ── Data Table ───────────────────────────────────────────────────────────────
+// -- Data Table
 .table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
 
-    // ── Variable Column Widths ─────────────────────────────────────────────
+// -- Variable Column Widths
     // Narrow columns shrink to their content (header + cell). The width: 1px
     // trick stops leftover space from being distributed to them; string
     // columns receive an equal percentage via inline style
@@ -148,7 +148,7 @@
     padding: 0 12px;
 }
 
-// ── Row Marked for Deletion ──────────────────────────────────────────────────
+// -- Row Marked for Deletion
 .row-marked-for-deletion {
     background-color: var(--mat-sys-error-container);
 
@@ -157,7 +157,7 @@
     }
 }
 
-// ── Footer Actions ───────────────────────────────────────────────────────────
+// -- Footer Actions
 .table-footer-actions {
     display: flex;
     align-items: center;

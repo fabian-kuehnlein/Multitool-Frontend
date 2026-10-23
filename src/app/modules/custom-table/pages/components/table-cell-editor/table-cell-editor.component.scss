@@ -5,7 +5,7 @@
     width: 100%;
 }
 
-// ── Cell Content ─────────────────────────────────────────────────────────────
+// -- Cell Content
 .cell-content {
     display: flex;
     align-items: center;
@@ -18,12 +18,12 @@
     }
 }
 
-// ── Text Field Width (fills the flexible column) ────────────────────────────
+// -- Text Field Width (fills the flexible column)
 .no-outline-form-field {
     width: 100%;
 }
 
-// ── Number Stepper (non-mobile) ─────────────────────────────────────────────
+// -- Number Stepper (non-mobile)
 .stepper {
     display: flex;
     align-items: center;
@@ -80,7 +80,7 @@
     }
 }
 
-// ── Date Cell (compact, grouped and centered in the column) ─────────────────
+// -- Date Cell (compact, grouped and centered in the column)
 .date-cell {
     display: flex;
     align-items: center;
@@ -113,7 +113,7 @@
     }
 }
 
-// ── Hide Native Number Spinners ──────────────────────────────────────────────
+// -- Hide Native Number Spinners
 .no-spinner {
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {

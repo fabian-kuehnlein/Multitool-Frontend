@@ -8,7 +8,7 @@
     box-sizing: border-box;
 }
 
-// ── Todo Item Base (Desktop default) ─────────────────────────────────────────
+// -- Todo Item Base (Desktop default)
 .todo-item {
     padding: 10px 16px 10px 20px;
     border-left: 4px solid transparent;
@@ -93,7 +93,7 @@
     }
 }
 
-// ── Category Badge (Desktop) ─────────────────────────────────────────────────
+// -- Category Badge (Desktop)
 .category-badge {
     display: flex;
     align-items: center;
@@ -125,7 +125,7 @@
     }
 }
 
-// ── Desktop Row ──────────────────────────────────────────────────────────────
+// -- Desktop Row
 .todo-row {
     display: flex;
     align-items: center;
@@ -161,7 +161,7 @@
     }
 }
 
-// ── Mobile Card Design ───────────────────────────────────────────────────────
+// -- Mobile Card Design
 .todo-item.mobile-item {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-subtle);
