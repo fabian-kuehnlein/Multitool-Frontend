@@ -62,6 +62,12 @@ $breakpoint-laptop: 1640px;
 - Use the mixins (`@use "../../../../_breakpoints" as bp;` then `@include bp.mobile { ... }`).
 - Mirror the same ranges in TypeScript via the media service (`isMobile`, `isTablet`, `isLaptop`, `isDesktop` signals). Do not hard-code breakpoints elsewhere.
 
+## Mobile zoom
+
+- Zooming is disabled globally: `src/index.html` sets `maximum-scale=1, user-scalable=no` on the viewport, and `src/styles.scss` sets `touch-action: manipulation` on `html`/`body`.
+- `touch-action: manipulation` is the part that actually stops the accidental **double-tap zoom** on iOS Safari (which ignores `user-scalable=no`); do not remove it and do not add it per component — it is a global decision.
+- Pinch zoom on iOS Safari cannot be fully suppressed by these two rules and is intentionally left alone (accessibility). Do not add JS gesture blockers for it.
+
 ## Theming via CSS variables
 
 - Colors, borders, shadows and accents come from `src/_css-variables.scss` as CSS custom properties, defined under `:root` (light) and `[data-theme="dark"]` (dark).

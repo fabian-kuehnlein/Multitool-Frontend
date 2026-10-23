@@ -32,12 +32,20 @@ body {
     height: 100%;
 }
 html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// Touch behaviour
+// Suppresses accidental double-tap zoom (e.g. two quick taps on a button)
+// while keeping panning and pinch zoom available.
+html,
+body {
+    touch-action: manipulation;
 }
 
 // ── Error Colors ─────────────────────────────────────────────────────────────
