@@ -28,11 +28,12 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 ## Conventions
 
 - **Single source of truth:** `.github/instructions/` (README.md is the index). **Before writing or changing code, read the instruction file(s) that cover your task** (see the task → file map below) and follow them — they win over this summary. The bullets below are only a quick reminder.
+- **Comment style:** Prefer simple `//` comments for intent. Do **not** use decorative separators/banners or padding with `-`, `=`, `_`, `*`, or Unicode box-drawing chars (`─`, `═`, etc.). For small subsections use `// -- Section Name` (max two leading dashes, no trailing dashes/padding). For major sections that truly need stronger separation use `// --` on its own line above and below the name (rare; not default). Keep comments readable and easy to type manually.
 - **Keep the conventions current (mandatory):** when you make a **structural or architectural decision** (centralizing a cross-cutting concern such as snackbars/forms/components, introducing a new folder or pattern, changing how files/dialogs/services are structured), **update the documentation in the same commit** — the relevant file(s) in `.github/instructions/`, the index/README and this task→file map. If you built something future code should mirror, write it down here. Details: `.github/instructions/README.md` → *Keeping these conventions current*.
 - **Where to find what** (full index: `.github/instructions/README.md`):
-  - Naming (classes, services, files, variables, functions, enums, SCSS): `02-naming-conventions.md`
+  - Naming (classes, directives/pipes, services, files, variables, functions, enums, SCSS): `02-naming-conventions.md`
   - Folder layout / adding a feature: `03-project-structure.md`
-  - Components, templates, dialogs: `04-components.md`
+  - Components, class layout, templates, dialogs: `04-components.md`
   - State & services / signals: `05-state-and-services.md`
   - HTTP, models, DTOs: `06-http-and-models.md`
   - Routing, guards, auth: `07-routing-and-auth.md`
@@ -44,7 +45,7 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 - Keep the root `README.md` in sync: when a change affects what it documents (commands/scripts, build, dev server, deployment, project setup), update it in the same commit.
 - German UI: `de` locale, dayjs `DD.MM.YYYY` / `HH:mm` formats, German MatPaginator labels. Keep new UI text German.
 - Strict TS (`strict`, `noImplicitOverride`, `strictTemplates`, `isolatedModules`). 4-space indent, single quotes, 4-space indent per `.editorconfig`.
-- Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS.
+- Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS. Material's `--mat-sys-*` tokens are the base; `_css-variables.scss` only derives app-specific aliases (surfaces/text/borders) from them, so components switch light/dark automatically.
 - Keep TypeScript files small and single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `11-code-splitting.md`).
 
 ## Deploy

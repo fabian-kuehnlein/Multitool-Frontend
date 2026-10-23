@@ -50,10 +50,10 @@ export class SearchDialogComponent implements OnDestroy {
         true,
     );
 
-    public readonly results = signal<SearchResultRow[]>([]);
-    public readonly isLoading = signal<boolean>(false);
+    protected readonly results = signal<SearchResultRow[]>([]);
+    protected readonly isLoading = signal<boolean>(false);
 
-    public readonly searchControl = new FormControl<string>(
+    protected readonly searchControl = new FormControl<string>(
         this.dialogData || '',
     );
 

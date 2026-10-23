@@ -4,7 +4,7 @@
     display: block;
 }
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
+// -- Toolbar
 .toolbar-container {
     display: flex;
     justify-content: space-between;
@@ -22,7 +22,7 @@
     }
 }
 
-// ── Toolbar Containers ───────────────────────────────────────────────────────
+// -- Toolbar Containers
 .left-container,
 .right-container {
     display: flex;
@@ -49,7 +49,7 @@
     color: var(--text-primary);
 }
 
-// ── Mobile Header ────────────────────────────────────────────────────────────
+// -- Mobile Header
 .mobile-header {
     display: flex;
     justify-content: space-between;

@@ -1,10 +1,9 @@
 <div
     class="recurring-container"
     [formGroup]="parentForm()"
-    [ngClass]="{
-        'recurring-weekday':
-            parentForm().get('recurrenceFrequency')?.value == 'WEEKLY',
-    }"
+    [class.recurring-weekday]="
+        parentForm().get('recurrenceFrequency')?.value === 'WEEKLY'
+    "
 >
     <mat-form-field appearance="outline">
         <mat-label>Häufigkeit</mat-label>

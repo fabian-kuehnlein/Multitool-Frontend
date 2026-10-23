@@ -120,7 +120,7 @@
                                             mat-header-cell
                                             *matHeaderCellDef
                                             class="column-header-cell"
-                                            [ngClass]="'col-' + col.dataType"
+                                            [class]="'col-' + col.dataType"
                                             [style.width]="
                                                 col.dataType ===
                                                 CustomDataType.STRING
@@ -156,7 +156,7 @@
                                             mat-cell
                                             *matCellDef="let row"
                                             class="cell-hover"
-                                            [ngClass]="'col-' + col.dataType"
+                                            [class]="'col-' + col.dataType"
                                             [style.width]="
                                                 col.dataType ===
                                                 CustomDataType.STRING

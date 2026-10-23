@@ -8,11 +8,15 @@ import {
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import dayjs from 'dayjs';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { Todo } from '../../../models/todo.model';
 import { Category } from '../../../../../shared/models/category.model';
 import { CategoryService } from '../../../../../shared/services/category.service';
-import { getPriorityColor } from '../../../utilities/todo.config';
+import {
+    getPriorityColor,
+    getPriorityLabel,
+} from '../../../utilities/todo.config';
 
 @Component({
     selector: 'app-todo-item',
@@ -24,6 +28,7 @@ import { getPriorityColor } from '../../../utilities/todo.config';
 })
 export class TodoItemComponent {
     protected readonly getPriorityColor = getPriorityColor;
+    protected readonly getPriorityLabel = getPriorityLabel;
 
     protected readonly descriptionSegments = (
         description: string,
@@ -57,28 +62,32 @@ export class TodoItemComponent {
     @Input({ required: true }) todo!: Todo;
     @Input() mobile = false;
 
-    @Output() toggleDone = new EventEmitter<Todo>();
-    @Output() edit = new EventEmitter<Todo>();
-    @Output() delete = new EventEmitter<Todo>();
-    @Output() goToDate = new EventEmitter<string>();
+    @Output() readonly toggleDone = new EventEmitter<Todo>();
+    @Output() readonly edit = new EventEmitter<Todo>();
+    @Output() readonly delete = new EventEmitter<Todo>();
+    @Output() readonly goToDate = new EventEmitter<string>();
 
     protected readonly expanded = signal(false);
 
     private readonly categoryService = inject(CategoryService);
 
+    isOverdue(): boolean {
+        if (!this.todo.dueDate || this.todo.isDone) return false;
+        return dayjs(this.todo.dueDate).isBefore(dayjs(), 'day');
+    }
+
+    isDueToday(): boolean {
+        if (!this.todo.dueDate || this.todo.isDone) return false;
+        return dayjs(this.todo.dueDate).isSame(dayjs(), 'day');
+    }
+
     toggleExpand(): void {
         this.expanded.update((value) => !value);
     }
 
-    onItemClick(): void {
+    onToggleExpand(): void {
         if (this.mobile) {
             this.toggleExpand();
-        }
-    }
-
-    onCheckboxClick(event: Event): void {
-        if (this.mobile) {
-            event.stopPropagation();
         }
     }
 

@@ -30,6 +30,6 @@ export function getPriorityLabel(priority: Priority): string {
 export function getPriorityColor(priority: Priority): string {
     return (
         PRIORITY_OPTIONS.find((option) => option.value === priority)?.color ??
-        'var(--text-muted)'
+        'var(--text-subtle)'
     );
 }

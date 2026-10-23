@@ -17,7 +17,7 @@
         font-weight: 600;
         font-size: 1.1rem;
         color: var(--text-secondary);
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-subtle);
     }
 
     .sidebar-content {
@@ -38,16 +38,16 @@
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
-    background: var(--bg-secondary);
+    background: var(--bg-surface-raised);
     border-radius: 10px;
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-subtle);
 }
 
 .stat-icon {
     font-size: 24px;
     width: 24px;
     height: 24px;
-    color: var(--accent-primary);
+    color: var(--mat-sys-primary);
     flex-shrink: 0;
 }
 
@@ -65,11 +65,11 @@
 
 .stat-label {
     font-size: 0.78rem;
-    color: var(--text-muted);
+    color: var(--text-subtle);
 }
 
 .overtime-positive {
-    color: var(--accent-success);
+    color: var(--color-success);
 }
 
 .overtime-negative {

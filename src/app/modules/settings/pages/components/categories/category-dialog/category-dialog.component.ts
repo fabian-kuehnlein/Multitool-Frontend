@@ -35,7 +35,7 @@ export class CategoryDialogComponent {
     private readonly fb = inject(FormBuilder);
     private readonly dialogRef = inject(MatDialogRef<CategoryDialogComponent>);
     private readonly categoryService = inject(CategoryService);
-    public readonly data = inject<CategoryDialogData>(MAT_DIALOG_DATA);
+    private readonly data = inject<CategoryDialogData>(MAT_DIALOG_DATA);
 
     readonly presetColors: string[] = getDistinctPresetColors(
         this.categoryService.categories().map((category) => category.color),

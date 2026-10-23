@@ -1,5 +1,4 @@
 import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
-import { NgClass } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { UI_MODULES } from '../../utilities/material-ui';
 import {
@@ -11,7 +10,7 @@ import {
 @Component({
     selector: 'app-recurrence-form',
     standalone: true,
-    imports: [UI_MODULES, NgClass],
+    imports: [UI_MODULES],
     templateUrl: './recurrence-form.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './recurrence-form.component.scss',

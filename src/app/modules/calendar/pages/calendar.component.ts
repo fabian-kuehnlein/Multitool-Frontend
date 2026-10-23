@@ -98,7 +98,7 @@ import { HttpContext } from '@angular/common/http';
     ],
 })
 export class CalendarComponent implements OnDestroy, AfterViewInit {
-    public readonly calendar = viewChild<FullCalendarComponent>('calendarRef');
+    private readonly calendar = viewChild<FullCalendarComponent>('calendarRef');
 
     private readonly calendarService = inject(CalendarService);
     private readonly categoryService = inject(CategoryService);
@@ -115,12 +115,12 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         true,
     );
 
-    // --- Signals & State ---
-    public readonly title = signal<string>('');
-    public readonly isToday = signal<boolean>(true);
-    public readonly currentView = signal<string>('dayGridMonth');
-    public readonly showFilters = signal<boolean>(false);
-    public readonly loading = signal<boolean>(false);
+// -- Signals & State
+    protected readonly title = signal<string>('');
+    protected readonly isToday = signal<boolean>(true);
+    protected readonly currentView = signal<string>('dayGridMonth');
+    protected readonly showFilters = signal<boolean>(false);
+    protected readonly loading = signal<boolean>(false);
 
     protected readonly isMobile = this.media.isMobile;
 
@@ -130,16 +130,16 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
     protected readonly canNavigateBack = signal<boolean>(true);
 
-    public readonly categoryList = this.categoryService.categories;
-    public readonly filterableCategories = this.categoryService.categoriesForModule(AppModule.CALENDAR);
-    public readonly categoryControl = new FormControl<number[]>([]);
+    private readonly categoryList = this.categoryService.categories;
+    protected readonly filterableCategories = this.categoryService.categoriesForModule(AppModule.CALENDAR);
+    protected readonly categoryControl = new FormControl<number[]>([]);
 
     private readonly categoryControlValue = toSignal(
         this.categoryControl.valueChanges,
         { initialValue: [] as number[] },
     );
 
-    public readonly selectedCategoryIds = computed(() => {
+    private readonly selectedCategoryIds = computed(() => {
         const ids = this.categoryControlValue() || [];
         return ids.length === 0 || ids.length === this.filterableCategories().length
             ? []
@@ -184,7 +184,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         this.hotkeyUnsubscribers.forEach((unsubscribe) => unsubscribe());
     }
 
-    // --- Initialization ---
+// -- Initialization
     private setupMobileViewListener() {
         effect(() => {
             const api = this.calendarApi;
@@ -247,7 +247,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    // --- Hotkeys ---
+// -- Hotkeys
     private setupHotkeys() {
         this.hotkeyUnsubscribers.push(
             this.hotkeyService.register({
@@ -277,8 +277,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         );
     }
 
-    // --- UI Actions ---
-    public calendarAction(action: CalendarAction) {
+// -- UI Actions
+    protected calendarAction(action: CalendarAction) {
         const api = this.calendarApi;
         if (!api) return;
 
@@ -343,7 +343,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         return dayjs(api.view.currentStart).isAfter(dayjs().startOf('month'));
     }
 
-    public openSideNav() {
+    protected openSideNav() {
         this.dialog.open(SidenavComponent, {
             position: this.media.isMobile()
                 ? { bottom: '120px' }
@@ -356,8 +356,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         });
     }
 
-    // --- Event Operations ---
-    public createEvent() {
+// -- Event Operations
+    protected createEvent() {
         const api = this.calendarApi;
         if (!api) return;
 
@@ -384,7 +384,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    public updateEvent(arg: EventClickArg) {
+    private updateEvent(arg: EventClickArg) {
         const eventData = fromFullCalendarEvent(arg.event);
 
         if (eventData.isTodo === true) {
@@ -526,7 +526,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    public handleEventDrop(arg: EventDropArg) {
+    private onEventDrop(arg: EventDropArg) {
         const event = arg.event;
 
         if (event.extendedProps['isTodo'] === true) return;
@@ -574,7 +574,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         }
     }
 
-    public openSearchResult() {
+    protected openSearchResult() {
         this.dialog
             .open(SearchDialogComponent, {
                 width: this.media.isMobile() ? '100vw' : 'auto',
@@ -594,8 +594,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             });
     }
 
-    // --- Calendar Configuration ---
-    public readonly calendarOptions: CalendarOptions = {
+// -- Calendar Configuration
+    protected readonly calendarOptions: CalendarOptions = {
         ...defaultCalendarOptions,
         datesSet: () => {
             const api = this.calendarApi;
@@ -670,6 +670,6 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
             },
         ],
         eventClick: this.updateEvent.bind(this),
-        eventDrop: this.handleEventDrop.bind(this),
+        eventDrop: this.onEventDrop.bind(this),
     };
 }

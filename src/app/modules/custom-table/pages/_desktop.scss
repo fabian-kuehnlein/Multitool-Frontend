@@ -2,7 +2,7 @@
 
 // Desktop-only styles (sidebar wrapper, data table, footer actions)
 
-// ── Sidebar Wrapper ──────────────────────────────────────────────────────────
+// -- Sidebar Wrapper
 .table-sidebar {
     width: 280px;
     background: var(--bg-surface);
@@ -17,13 +17,13 @@
     }
 }
 
-// ── Data Table ───────────────────────────────────────────────────────────────
+// -- Data Table
 .table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
 
-    // ── Variable Column Widths ─────────────────────────────────────────────
+// -- Variable Column Widths
     // Narrow columns shrink to their content (header + cell). The width: 1px
     // trick stops leftover space from being distributed to them; string
     // columns receive an equal percentage via inline style
@@ -44,12 +44,12 @@
     }
 
     th {
-        background-color: var(--bg-hover);
+        background-color: var(--bg-muted);
         font-weight: 700;
         color: var(--text-primary);
         padding: 0;
         border-bottom: 3px solid var(--border-strong);
-        border-right: 1px solid var(--border-medium);
+        border-right: 1px solid var(--border-strong);
         white-space: nowrap;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -61,7 +61,7 @@
         }
 
         &:hover {
-            background-color: var(--border-default);
+            background-color: var(--bg-hover-strong);
 
             .delete-col-btn {
                 opacity: 1;
@@ -109,7 +109,7 @@
     }
 
     tr:nth-child(even) {
-        background-color: var(--bg-hover);
+        background-color: var(--bg-muted);
     }
 
     tr:hover {
@@ -128,10 +128,10 @@
         }
 
         &:focus-within {
-            outline: 2px solid var(--accent-primary);
+            outline: 2px solid var(--mat-sys-primary);
             outline-offset: -2px;
             z-index: 10;
-            background-color: var(--accent-primary-light) !important;
+            background-color: var(--mat-sys-primary-container) !important;
         }
     }
 }
@@ -148,7 +148,7 @@
     padding: 0 12px;
 }
 
-// ── Row Marked for Deletion ──────────────────────────────────────────────────
+// -- Row Marked for Deletion
 .row-marked-for-deletion {
     background-color: var(--mat-sys-error-container);
 
@@ -157,14 +157,14 @@
     }
 }
 
-// ── Footer Actions ───────────────────────────────────────────────────────────
+// -- Footer Actions
 .table-footer-actions {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 15px 25px;
-    background: var(--bg-surface-alt);
-    border-top: 1px solid var(--border-light);
+    background: var(--bg-surface-raised);
+    border-top: 1px solid var(--border-subtle);
     flex-shrink: 0;
     overflow-x: auto;
 

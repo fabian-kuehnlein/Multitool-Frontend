@@ -7,7 +7,7 @@
 @use "css-variables" as *;
 @use "scrollbar" as *;
 
-// ── Material Symbols ─────────────────────────────────────────────────────────
+// -- Material Symbols
 .material-symbols-outlined {
     font-family: "Material Symbols Outlined Variable";
     font-variation-settings:
@@ -32,15 +32,23 @@ body {
     height: 100%;
 }
 html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-// ── Error Colors ─────────────────────────────────────────────────────────────
+// Touch behaviour
+// Suppresses accidental double-tap zoom (e.g. two quick taps on a button)
+// while keeping panning and pinch zoom available.
+html,
+body {
+    touch-action: manipulation;
+}
+
+// -- Error Colors
 // Unified mechanism for error/danger colors:
 //   Buttons:     <button matButton class="error-button">
 //                <button matIconButton class="error-icon-button">
@@ -63,9 +71,9 @@ body {
     }
 }
 
-// ── Light Theme (Default) ───────────────────────────────────────────────────
+// -- Light Theme (Default)
 html {
-    background-color: var(--bg-primary);
+    background-color: var(--bg-canvas);
 
     @include mat.all-component-themes($light-theme);
 
@@ -91,9 +99,9 @@ html {
     @include error-color-utilities($light-theme);
 }
 
-// ── Dark Theme ──────────────────────────────────────────────────────────────
+// -- Dark Theme
 html[data-theme="dark"] {
-    background-color: var(--bg-primary);
+    background-color: var(--bg-canvas);
 
     @include mat.all-component-themes($dark-theme);
 
@@ -113,7 +121,7 @@ html[data-theme="dark"] {
     @include error-color-utilities($dark-theme);
 }
 
-// ── Utility Classes ─────────────────────────────────────────────────────────
+// -- Utility Classes
 .no-outline-form-field {
     @include mat.form-field-overrides(
         (
@@ -125,16 +133,8 @@ html[data-theme="dark"] {
     );
 }
 
-.white-card {
-    @include mat.card-overrides(
-        (
-            elevated-container-color: var(--bg-surface),
-        )
-    );
-}
-
 .past-date {
-    background-color: var(--bg-hover) !important;
+    background-color: var(--calendar-past-day-bg) !important;
 }
 
 .past-event {
@@ -158,9 +158,9 @@ html[data-theme="dark"] {
 .success-snackbar {
     @include mat.snack-bar-overrides(
         (
-            container-color: var(--snackbar-neutral-bg),
-            supporting-text-color: var(--snackbar-neutral-text),
-            button-color: var(--snackbar-neutral-text),
+            container-color: var(--mat-sys-inverse-surface),
+            supporting-text-color: var(--mat-sys-inverse-on-surface),
+            button-color: var(--mat-sys-inverse-on-surface),
         )
     );
 }
@@ -175,7 +175,7 @@ html[data-theme="dark"] {
     height: 100vh !important;
 }
 
-// ── Page Loading Overlay ─────────────────────────────────────────────────────
+// -- Page Loading Overlay
 .page-loading-overlay {
     position: absolute;
     top: 80px;
@@ -185,7 +185,7 @@ html[data-theme="dark"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--overlay-backdrop);
     z-index: 10;
     pointer-events: auto;
 

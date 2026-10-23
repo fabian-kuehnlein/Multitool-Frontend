@@ -18,8 +18,8 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 16px;
-        background-color: var(--accent-primary-light);
-        color: var(--accent-primary);
+        background-color: var(--mat-sys-primary-container);
+        color: var(--mat-sys-primary);
 
         &.destructive {
             background-color: var(--mat-sys-error-container);
@@ -44,7 +44,7 @@
 
 .dialog-content {
     text-align: center;
-    color: var(--text-tertiary);
+    color: var(--text-caption);
     font-size: 1rem;
     line-height: 1.5;
     padding: 0 0 24px 0 !important;
@@ -64,7 +64,7 @@
     }
 
     .cancel-btn {
-        color: var(--text-tertiary);
+        color: var(--text-caption);
         &:hover {
             background-color: var(--bg-hover);
         }

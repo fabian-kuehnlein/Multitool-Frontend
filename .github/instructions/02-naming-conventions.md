@@ -37,6 +37,17 @@ The sections below detail each category.
 - Cross-cutting shared services keep their `Service` suffix too
   (`SharedFeatureService`).
 
+## Directives & pipes
+
+No custom directives or pipes exist yet — when one is added:
+
+- Class names are PascalCase with a `Directive`/`Pipe` suffix
+  (`HighlightDirective`, `WeekendLabelPipe`); files use
+  `<name>.directive.ts` / `<name>.pipe.ts`.
+- Selectors use the same `app-` prefix as components. An **attribute directive**
+  uses a camelCase attribute name: `[appHighlight]` (never
+  `[app-highlight]`); a pipe selector is camelCase too (`appWeekendLabel`).
+
 ## Variables & signals
 
 - Local variables, parameters, and fields are **camelCase**.
@@ -60,7 +71,14 @@ The sections below detail each category.
 
 - Names start **either with a verb** (`loadItems()`, `saveChanges()`,
   `formatsValue()`) **or** describe a value directly (`itemLabel()`, `total()`).
-  Event handlers start with the trigger (`onSubmit()`, `onSelectChange()`).
+- **Event handlers are named for the action they perform**, not for the
+  triggering event: `onSave()`, `onSelectionChange()`, `onSubmit()` — never a
+  generic `handleClick()`, `handleChange()`. The only accepted `handle*`
+  fallback is a keyboard dispatcher (`handleKeydown(event)`) that routes many
+  keys to specific, well-named actions.
+- **Pure DOM handling without domain meaning** (e.g. `stopPropagation()`) goes
+  directly into the template expression — `(click)="$event.stopPropagation()"` —
+  instead of being wrapped in a handler that needs an artificial name.
 - Booleans returned by a function get an `is`/`has`/`can` prefix
   (`isItemValid()`).
 - Factories use `create`/`build` (`buildForm()`), converters use `to`/`from`
@@ -98,6 +116,14 @@ The sections below detail each category.
   `some-component.component.scss`.
 - Never pluralize beyond the kind — `models/` is the folder, the file inside is
   `item.model.ts`.
+- **Avoid overly generic file names** like `helpers.ts`, `utils.ts`,
+  `common.ts`, `misc.ts`. The file name names the *theme* of its contents
+  (`date.util.ts`, `priority.logic.ts`); if the code shares no common theme,
+  split it into several files instead.
+- Unit tests, if/when introduced, live **next to the code under test** (never in
+  a separate `tests/` directory) and end in `.spec.ts`
+  (`todo.component.spec.ts`). Today no test setup exists — see
+  [10-git-and-workflow.md](./10-git-and-workflow.md).
 
 ## Enums, interfaces & classes
 

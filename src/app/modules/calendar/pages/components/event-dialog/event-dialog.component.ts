@@ -84,26 +84,26 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     private readonly calendarService = inject(CalendarService);
     private readonly media = inject(MediaService);
     private readonly snackbar = inject(SnackbarService);
-    public readonly dialogData = inject<EventDialogData>(MAT_DIALOG_DATA);
+    private readonly dialogData = inject<EventDialogData>(MAT_DIALOG_DATA);
     private readonly destroy$ = new Subject<void>();
     private readonly skipErrorSnackbarContext = new HttpContext().set(
         SKIP_HTTP_ERROR_SNACKBAR,
         true,
     );
 
-    // --- Signals & State ---
-    public readonly isEditMode = signal<boolean>(false);
-    public readonly isMobile = this.media.isMobile;
-    public readonly isGeneratingIcal = signal<boolean>(false);
-    public readonly isLoadingCategories = computed(
+// -- Signals & State
+    protected readonly isEditMode = signal<boolean>(false);
+    protected readonly isMobile = this.media.isMobile;
+    protected readonly isGeneratingIcal = signal<boolean>(false);
+    protected readonly isLoadingCategories = computed(
         () => this.categoryService.categories().length === 0,
     );
-    public readonly categories = this.categoryService.categories;
+    private readonly categories = this.categoryService.categories;
 
     // Form setup
-    public readonly eventForm: FormGroup = this.formService.buildForm();
+    protected readonly eventForm: FormGroup = this.formService.buildForm();
 
-    public readonly selectableCategories =
+    protected readonly selectableCategories =
         this.categoryService.selectableCategoriesForModule(AppModule.CALENDAR, () =>
             this.eventForm.getRawValue().categoryId,
         );
@@ -118,7 +118,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     );
 
     // Computed properties for UI
-    public readonly isChanged = computed(() => {
+    protected readonly isChanged = computed(() => {
         if (!this.isEditMode()) return true;
         return (
             JSON.stringify(this.formValue()) !==
@@ -126,7 +126,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         );
     });
 
-    public readonly selectedCategory = computed(() => {
+    protected readonly selectedCategory = computed(() => {
         const categoryId = this.formValue()?.categoryId;
         return this.categories().find((c) => c.id === categoryId);
     });
@@ -195,8 +195,8 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             });
     }
 
-    // --- Actions ---
-    public save() {
+// -- Actions
+    protected save() {
         if (this.eventForm.invalid) return;
 
         const formValue = this.eventForm.getRawValue() as EventFormValue;
@@ -211,7 +211,7 @@ export class EventDialogComponent implements OnInit, OnDestroy {
         }
     }
 
-    public delete() {
+    protected delete() {
         const eventId = this.dialogData.event?.eventId;
         if (!eventId) return;
 
@@ -234,11 +234,11 @@ export class EventDialogComponent implements OnInit, OnDestroy {
             });
     }
 
-    public close() {
+    protected close() {
         this.dialogRef.close(null);
     }
 
-    public generateIcalLink() {
+    protected generateIcalLink() {
         if (this.isGeneratingIcal() || this.eventForm.invalid) return;
 
         const event = this.formService.getIcalLinkData(

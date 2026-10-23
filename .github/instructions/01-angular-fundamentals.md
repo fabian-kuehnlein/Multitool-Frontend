@@ -44,7 +44,9 @@
 - Single quotes for strings; trailing commas in multiline lists; semicolons at end of statements.
 - One statement per line; keep lines reasonable.
 - Larger files may be grouped with plain section comments, e.g. `// Signals & state`.
-- Do **not** use decorative comment separators such as `// --- Section ---`, `// ------`, or full-width `// ====` / `// ****` lines. They are not human-reproducible — reproducing them exactly means counting characters. Keep comments simple: a short `// Section` label on its own line.
+- Do **not** use decorative comment separators made by padding with `-`, `=`, `_`, or `*` to the end of the line, wrapping names with them, or using Unicode box-drawing characters (`─`, `━`, `═`, etc.). They are not human-reproducible.
+- Normal comments: just use `// ...`.
+- Subsection/headings that need a bit of emphasis: use at most two leading dashes only — `// -- Section Name`. Never pad to the end of the line and never wrap the name with dashes.
 
 ## Imports
 

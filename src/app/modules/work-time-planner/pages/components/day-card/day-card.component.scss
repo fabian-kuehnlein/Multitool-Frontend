@@ -16,14 +16,14 @@
         box-shadow 0.2s;
 
     &:hover {
-        border-color: var(--border-medium);
+        border-color: var(--border-strong);
         box-shadow: 0 2px 8px var(--shadow-sm);
     }
 
     &.today {
-        border-color: var(--accent-primary);
+        border-color: var(--mat-sys-primary);
         border-width: 2px;
-        box-shadow: 0 0 0 1px var(--accent-primary-light);
+        box-shadow: 0 0 0 1px var(--mat-sys-primary-container);
     }
 
     &.absent {
@@ -59,7 +59,7 @@
 
 .day-date {
     font-size: 0.75rem;
-    color: var(--text-tertiary);
+    color: var(--text-caption);
 
     .desktop & {
         font-size: 0.9rem;
@@ -87,18 +87,18 @@
 }
 
 .badge-ho {
-    background: var(--accent-primary-light);
-    color: var(--accent-primary);
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-primary);
 }
 
 .badge-holiday {
-    background: var(--accent-success-light);
-    color: var(--accent-success);
+    background: var(--color-success-container);
+    color: var(--color-success);
 }
 
 .badge-vacation {
-    background: var(--accent-warning);
-    color: var(--accent-warning-strong);
+    background: var(--color-warning-container);
+    color: var(--color-warning);
 }
 
 .badge-sick {
@@ -107,8 +107,8 @@
 }
 
 .badge-locked {
-    background: var(--bg-hover);
-    color: var(--text-muted);
+    background: var(--bg-muted);
+    color: var(--text-subtle);
     padding: 2px 4px;
 
     mat-icon {
@@ -135,7 +135,7 @@
 }
 
 .time-separator {
-    color: var(--text-muted);
+    color: var(--text-subtle);
     font-size: 1.1rem;
     padding-top: 18px;
 
@@ -155,7 +155,7 @@
 .input-label {
     font-size: 0.68rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 
@@ -173,7 +173,7 @@
     padding: 6px 26px 6px 8px;
     border: 1px solid var(--border-default);
     border-radius: 6px;
-    background: var(--bg-secondary);
+    background: var(--bg-input);
     color: var(--text-primary);
     font-size: 0.85rem;
     font-family: inherit;
@@ -187,7 +187,7 @@
     }
 
     &:focus {
-        border-color: var(--accent-primary);
+        border-color: var(--mat-sys-primary);
     }
 
     &:disabled {
@@ -237,7 +237,7 @@
     padding: 5px 8px;
     border: 1px solid var(--border-default);
     border-radius: 6px;
-    background: var(--bg-secondary);
+    background: var(--bg-input);
     color: var(--text-primary);
     font-size: 0.82rem;
     font-family: inherit;
@@ -259,7 +259,7 @@
     }
 
     &:focus {
-        border-color: var(--accent-primary);
+        border-color: var(--mat-sys-primary);
     }
 
     &:disabled {
@@ -270,7 +270,7 @@
 
 .break-unit {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--text-subtle);
 
     .desktop & {
         font-size: 0.9rem;
@@ -290,7 +290,7 @@
 
 .result-label {
     font-size: 0.78rem;
-    color: var(--text-muted);
+    color: var(--text-subtle);
 
     .desktop & {
         font-size: 0.92rem;
@@ -307,7 +307,7 @@
     }
 
     &.positive {
-        color: var(--accent-success);
+        color: var(--color-success);
     }
 
     &.negative {
@@ -325,7 +325,7 @@
     justify-content: center;
     gap: 8px;
     padding: 16px 0 4px;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     font-size: 0.85rem;
 
     .desktop & {
@@ -377,7 +377,7 @@
 
     button[mat-icon-button] {
         mat-icon {
-            color: var(--text-muted);
+            color: var(--text-subtle);
         }
     }
 }
@@ -387,18 +387,18 @@
 }
 
 .status-btn.active-holiday {
-    background: var(--accent-success-light) !important;
+    background: var(--color-success-container) !important;
 
     mat-icon {
-        color: var(--accent-success) !important;
+        color: var(--color-success) !important;
     }
 }
 
 .status-btn.active-vacation {
-    background: var(--accent-warning) !important;
+    background: var(--color-warning-container) !important;
 
     mat-icon {
-        color: var(--accent-warning-strong) !important;
+        color: var(--color-warning) !important;
     }
 }
 
@@ -411,15 +411,15 @@
 }
 
 .ho-toggle.active {
-    background: var(--accent-primary-light) !important;
+    background: var(--mat-sys-primary-container) !important;
 
     mat-icon {
-        color: var(--accent-primary) !important;
+        color: var(--mat-sys-primary) !important;
     }
 }
 
 .lock-toggle.active {
-    background: var(--bg-hover) !important;
+    background: var(--bg-surface-raised) !important;
 
     mat-icon {
         color: var(--text-secondary) !important;
@@ -439,7 +439,7 @@
     padding: 6px 10px;
     line-height: 1.2;
     border-color: var(--border-default);
-    color: var(--text-muted);
+    color: var(--text-subtle);
 
     mat-icon {
         font-size: 20px;
@@ -449,22 +449,22 @@
     }
 
     &.active-holiday {
-        background: var(--accent-success-light) !important;
-        border-color: var(--accent-success);
-        color: var(--accent-success) !important;
+        background: var(--color-success-container) !important;
+        border-color: var(--color-success);
+        color: var(--color-success) !important;
 
         mat-icon {
-            color: var(--accent-success) !important;
+            color: var(--color-success) !important;
         }
     }
 
     &.active-vacation {
-        background: var(--accent-warning) !important;
-        border-color: var(--accent-warning-strong);
-        color: var(--accent-warning-strong) !important;
+        background: var(--color-warning-container) !important;
+        border-color: var(--color-warning);
+        color: var(--color-warning) !important;
 
         mat-icon {
-            color: var(--accent-warning-strong) !important;
+            color: var(--color-warning) !important;
         }
     }
 
@@ -479,18 +479,18 @@
     }
 
     &.active-ho {
-        background: var(--accent-primary-light) !important;
-        border-color: var(--accent-primary);
-        color: var(--accent-primary) !important;
+        background: var(--mat-sys-primary-container) !important;
+        border-color: var(--mat-sys-primary);
+        color: var(--mat-sys-primary) !important;
 
         mat-icon {
-            color: var(--accent-primary) !important;
+            color: var(--mat-sys-primary) !important;
         }
     }
 
     &.active-lock {
-        background: var(--bg-hover) !important;
-        border-color: var(--text-secondary);
+        background: var(--bg-surface-raised) !important;
+        border-color: var(--border-strong);
         color: var(--text-secondary) !important;
 
         mat-icon {

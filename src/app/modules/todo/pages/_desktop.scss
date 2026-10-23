@@ -1,6 +1,6 @@
 // Desktop-only styles (toolbar layout, sidebar, todo rows, sort header, completed panel)
 
-// ── Toolbar Desktop Layout ───────────────────────────────────────────────────
+// -- Toolbar Desktop Layout
 .left-container,
 .right-container {
     display: flex;
@@ -36,7 +36,7 @@
     white-space: nowrap;
 }
 
-// ── Sidebar ──────────────────────────────────────────────────────────────────
+// -- Sidebar
 .page-sidebar {
     width: 280px;
     background: var(--bg-surface);
@@ -51,7 +51,7 @@
         font-weight: 600;
         font-size: 1.1rem;
         color: var(--text-secondary);
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-subtle);
     }
 
     .sidebar-content {
@@ -69,24 +69,24 @@
             padding: 16px 12px 8px;
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-subtle);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .active-item {
-            background-color: var(--accent-primary-light);
-            border: 2px solid var(--accent-primary);
-            color: var(--accent-primary);
+            background-color: var(--mat-sys-primary-container);
+            border: 2px solid var(--mat-sys-primary);
+            color: var(--mat-sys-primary);
 
             mat-icon {
-                color: var(--accent-primary);
+                color: var(--mat-sys-primary);
             }
         }
 
         .stat-badge {
-            background-color: var(--bg-hover);
-            color: var(--text-tertiary);
+            background-color: var(--bg-muted);
+            color: var(--text-caption);
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 0.75rem;
@@ -95,7 +95,7 @@
     }
 }
 
-// ── Desktop Content Card ─────────────────────────────────────────────────────
+// Desktop Content Card
 .todo-content-card {
     flex: 1;
     min-height: 350px;
@@ -103,11 +103,11 @@
     flex-direction: column;
 }
 
-// ── Desktop Header Actions (Search & Sort) ───────────────────────────────────
+// -- Desktop Header Actions (Search & Sort)
 .todo-header-actions {
     padding: 12px 24px;
-    background-color: var(--bg-surface-alt);
-    border-bottom: 1px solid var(--border-light);
+    background-color: var(--bg-surface-raised);
+    border-bottom: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -135,7 +135,7 @@
 
         .label {
             font-size: 0.8rem;
-            color: var(--text-muted);
+            color: var(--text-subtle);
             margin-right: 8px;
         }
 
@@ -195,11 +195,11 @@
     }
 }
 
-// ── Desktop Todo Row ─────────────────────────────────────────────────────────
+// -- Desktop Todo Row
 // Row styles (todo-row, meta container, description, delete menu item) live in
 // `pages/components/todo-item/todo-item.component.scss`.
 
-// ── Completed Tasks Panel ────────────────────────────────────────────────────
+// -- Completed Tasks Panel
 .completed-tasks-card {
     flex: none;
     min-height: auto;
@@ -222,7 +222,7 @@
         color: var(--text-secondary);
 
         .completed-icon {
-            color: var(--accent-success);
+            color: var(--color-success);
             font-size: 20px;
             width: 20px;
             height: 20px;

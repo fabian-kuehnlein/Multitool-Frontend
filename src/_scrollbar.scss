@@ -1,21 +1,21 @@
-// ═══════════════════════════════════════════════════════════════════════════════
+//
 // Global Custom Scrollbar — consistent across the entire application
-// ═══════════════════════════════════════════════════════════════════════════════
+//
 // Thin, themed scrollbar (previously only styled for the category select in the
 // event dialog via .mat-mdc-select-panel). Uses CSS variables from
 // _css-variables.scss: --scrollbar-thumb / --scrollbar-thumb-hover
 // Supports: WebKit (Chrome, Edge, Safari) + Firefox.
 //
-// Note: Colors are defined in :root / [data-theme="dark"] and switch
-// automatically with the theme. No JS required.
+// Note: Colors are derived from the Material theme in _css-variables.scss and
+// switch automatically with light/dark mode. No JS required.
 
-// ── Firefox ─────────────────────────────────────────────────────────────────
+// Firefox
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
-// ── WebKit (Chrome, Edge, Safari, Electron) ─────────────────────────────────
+// WebKit (Chrome, Edge, Safari, Electron)
 *::-webkit-scrollbar {
     width: 6px;
     height: 6px;

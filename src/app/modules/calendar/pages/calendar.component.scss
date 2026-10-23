@@ -1,6 +1,5 @@
 @use "desktop";
 @use "mobile";
-@use "theme";
 @use "fullcalendar";
 @use "fullcalendar-theme" as fc-theme;
 
@@ -21,4 +20,4 @@
     position: relative;
 }
 
-@include fc-theme.fullcalendar-dark-mode;
+@include fc-theme.fullcalendar-theme;

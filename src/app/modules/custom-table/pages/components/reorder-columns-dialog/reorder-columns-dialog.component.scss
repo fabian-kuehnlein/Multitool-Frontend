@@ -13,7 +13,7 @@ h2 {
 }
 
 .description {
-    color: var(--text-tertiary);
+    color: var(--text-caption);
     margin-bottom: 16px;
     font-size: 14px;
 }
@@ -51,7 +51,7 @@ h2 {
 .drag-handle {
     cursor: grab;
     margin-right: 12px;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     display: flex;
     align-items: center;
 
@@ -80,7 +80,7 @@ h2 {
         justify-content: flex-end;
         padding: 16px;
         margin-top: auto;
-        border-top: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-subtle);
 
         button {
             flex: 1;
@@ -107,7 +107,7 @@ mat-dialog-content {
 }
 
 .custom-placeholder {
-    background: var(--bg-hover);
+    background: var(--bg-muted);
     border: 2px dashed var(--border-strong);
     min-height: 48px;
     border-radius: 8px;
@@ -130,7 +130,7 @@ mat-dialog-content {
 
     .drag-handle {
         margin-right: 12px;
-        color: var(--text-muted);
+        color: var(--text-subtle);
         display: flex;
         align-items: center;
     }

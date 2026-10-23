@@ -1,7 +1,7 @@
 @use "desktop";
 @use "mobile";
 
-// ── Host ─────────────────────────────────────────────────────────────────────
+// -- Host
 :host {
     display: block;
     height: 100vh;
@@ -18,7 +18,7 @@
     flex-direction: column;
 }
 
-// ── Layout ───────────────────────────────────────────────────────────────────
+// -- Layout
 .main-layout {
     flex: 1;
     display: flex;
@@ -33,7 +33,7 @@
     padding: 20px;
     box-sizing: border-box;
     overflow: hidden;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-canvas);
 }
 
 .table-content-card {
@@ -43,7 +43,7 @@
     background: var(--bg-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px var(--shadow-sm);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-subtle);
     overflow: hidden;
 }
 
@@ -53,19 +53,19 @@
     position: relative;
 }
 
-// ── Utilities ────────────────────────────────────────────────────────────────
+// -- Utilities
 .hidden {
     display: none !important;
 }
 
-// ── Empty State (no table selected) ──────────────────────────────────────────
+// -- Empty State (no table selected)
 .empty-state {
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     gap: 20px;
     text-align: center;
     padding: 0 20px;

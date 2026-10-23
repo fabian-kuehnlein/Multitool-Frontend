@@ -4,6 +4,8 @@
 
 Keep every TypeScript file small enough to understand on one screen and with **exactly one clear responsibility**. Large files are not just a readability problem — they hide bugs, make review harder, and make refactoring expensive.
 
+**One concept per file:** a source file focuses on a single concept — usually one component, directive or service per file. A file *may* hold more than one class when they are small and belong to one concept (e.g. a component with a tiny local helper class), but when in doubt pick the approach that leads to smaller files.
+
 This is the methodology for splitting oversized files. It describes the *target* structure; existing code may not match it yet — migrate towards it when you touch the code.
 
 ## Triggers — when to split

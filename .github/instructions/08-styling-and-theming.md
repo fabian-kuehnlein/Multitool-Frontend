@@ -62,25 +62,65 @@ $breakpoint-laptop: 1640px;
 - Use the mixins (`@use "../../../../_breakpoints" as bp;` then `@include bp.mobile { ... }`).
 - Mirror the same ranges in TypeScript via the media service (`isMobile`, `isTablet`, `isLaptop`, `isDesktop` signals). Do not hard-code breakpoints elsewhere.
 
+## Mobile zoom
+
+- Zooming is disabled globally: `src/index.html` sets `maximum-scale=1, user-scalable=no` on the viewport, and `src/styles.scss` sets `touch-action: manipulation` on `html`/`body`.
+- `touch-action: manipulation` is the part that actually stops the accidental **double-tap zoom** on iOS Safari (which ignores `user-scalable=no`); do not remove it and do not add it per component — it is a global decision.
+- Pinch zoom on iOS Safari cannot be fully suppressed by these two rules and is intentionally left alone (accessibility). Do not add JS gesture blockers for it.
+
 ## Theming via CSS variables
 
-- Colors, borders, shadows and accents come from `src/_css-variables.scss` as CSS custom properties, defined under `:root` (light) and `[data-theme="dark"]` (dark).
-- **Always use `var(--token)` — never hard-code hex values** in component styles.
+### Material first
 
-Common tokens:
+The Material M3 theme is the single source of truth for base colors:
 
-| Group | Tokens |
-| --- | --- |
-| Backgrounds | `--bg-primary`, `--bg-secondary`, `--bg-surface`, `--bg-surface-alt`, `--bg-hover`, `--bg-active` |
-| Text | `--text-primary`, `--text-secondary`, `--text-tertiary`, `--text-muted`, `--text-disabled` |
-| Borders | `--border-default`, `--border-light`, `--border-medium`, `--border-strong` |
-| Accents | `--accent-primary`, `--accent-success`, `--accent-warning` (+ `-light`, `-hover` variants) |
-| Shadows | `--shadow-sm` … `--shadow-xl` |
-| Priority colors | `--priority-high`, `--priority-medium`, `--priority-low` |
-| Calendar | `--calendar-holiday-bg` |
+- `_material-palettes.scss` defines the tonal palettes.
+- `_theme.scss` builds `$light-theme` / `$dark-theme` from them.
+- `styles.scss` emits the theme and the global `--mat-sys-*` tokens for `html` (light) and `html[data-theme="dark"]` (dark).
 
-- Add new tokens to `_css-variables.scss` in both the light and dark block when a color is reused.
-- Theming of Material components happens via `_material-palettes.scss` + `_theme.scss`; dark mode is toggled by setting `data-theme="dark"` on `<html>` (via the theme service).
+`src/_css-variables.scss` only adds **app-specific aliases on top of** those tokens. Structural tokens are aliases of `--mat-sys-*` (so they switch automatically with the theme); only colors Material does not define (success, warning, calendar, priority) carry literal values and get a `[data-theme="dark"]` override.
+
+Rules:
+
+- **Surfaces, text, borders:** use the app tokens below.
+- **Primary & error roles:** use Material tokens directly — `--mat-sys-primary`, `--mat-sys-on-primary`, `--mat-sys-primary-container`, `--mat-sys-on-primary-container`, `--mat-sys-error`, `--mat-sys-on-error`, `--mat-sys-error-container`, `--mat-sys-on-error-container`.
+- **Success/warning:** use `--color-success` / `--color-warning` (foreground) and `--color-success-container` / `--color-warning-container` (background).
+- **Never hard-code hex/rgb values** in component styles; derive overlays/state layers with `color-mix()` from a token.
+- Only add `:host-context([data-theme="dark"])` overrides when a token alone genuinely cannot express the difference. Most components need none.
+
+App tokens (`src/_css-variables.scss`):
+
+| Purpose | Token | Material source |
+| --- | --- | --- |
+| Page/app background | `--bg-canvas` | `--mat-sys-surface` |
+| Cards, toolbars, sidenavs, popovers | `--bg-surface` | `--mat-sys-surface-container-low` |
+| Nested element inside a surface (icon tiles, section headers) | `--bg-surface-raised` | `--mat-sys-surface-container` |
+| Filled input controls (text fields, steppers) | `--bg-input` | `--mat-sys-surface-container-highest` |
+| Static subdued fill (badges, completed items, zebra stripes, muted cells) | `--bg-muted` | `--mat-sys-on-surface` @ 6% |
+| Hover state layer | `--bg-hover` | `--mat-sys-on-surface` @ 8% |
+| Strong hover/selection state layer | `--bg-hover-strong` | `--mat-sys-on-surface` @ 14% |
+| Selected/active background | `--bg-selected` | `--mat-sys-primary-container` |
+| Body/heading text | `--text-primary` | `--mat-sys-on-surface` |
+| Labels/subheadings | `--text-secondary` | `--mat-sys-on-surface-variant` |
+| Captions/metadata | `--text-caption` | `--mat-sys-on-surface` @ 76% |
+| Hints/placeholders/empty states | `--text-subtle` | `--mat-sys-on-surface` @ 62% |
+| Disabled text | `--text-disabled` | `--mat-sys-on-surface` @ 38% |
+| Internal dividers | `--border-subtle` | `--mat-sys-outline-variant` @ 60% |
+| Standard card/input borders | `--border-default` | `--mat-sys-outline-variant` |
+| Emphasized borders | `--border-strong` | `--mat-sys-outline` |
+| Shadows | `--shadow-sm` … `--shadow-xl` | `--mat-sys-shadow` |
+| Dialog backdrop | `--overlay-backdrop` | `--mat-sys-scrim` |
+| Scrollbar | `--scrollbar-thumb`, `--scrollbar-thumb-hover` | `--mat-sys-on-surface` |
+| Primary hover shade | `--color-primary-hover` | `--mat-sys-primary` |
+| Success (foreground/container) | `--color-success`, `--color-success-container` | custom |
+| Warning (foreground/container) | `--color-warning`, `--color-warning-container` | custom |
+| Text on user-chosen category colors | `--text-on-category-color` | custom |
+| Priority (red/yellow/green) | `--priority-high`, `--priority-medium`, `--priority-low` | custom, identical in both modes |
+| Calendar holiday | `--calendar-holiday-bg` | custom |
+| Past calendar days | `--calendar-past-day-bg` | custom (light) / `--mat-sys-surface-container-high` (dark) |
+
+When adding a token: prefer deriving it from `--mat-sys-*`. If it needs a literal color, add it to both `:root` and `[data-theme="dark"]` and document it here.
+
 
 ## Error colors
 
