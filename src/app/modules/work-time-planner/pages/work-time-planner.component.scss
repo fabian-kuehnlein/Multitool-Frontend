@@ -43,7 +43,7 @@
     &.mobile-layout {
         flex-direction: column;
         overflow-y: auto;
-        background-color: var(--bg-secondary);
+        background-color: var(--bg-canvas);
     }
 }
 
@@ -55,7 +55,7 @@
     padding: 24px;
     box-sizing: border-box;
     overflow-y: auto;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-canvas);
     gap: 16px;
 }
 
@@ -123,7 +123,7 @@
 }
 
 .overtime-positive {
-    color: var(--accent-success);
+    color: var(--color-success);
 }
 
 .overtime-negative {

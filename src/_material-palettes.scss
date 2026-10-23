@@ -62,7 +62,7 @@ $_palettes: (
     ),
     neutral: (
         0: #000000,
-        10: #0a1e26,
+        10: #111111,
         20: #20333b,
         25: #2b3e46,
         30: #374952,
@@ -77,12 +77,12 @@ $_palettes: (
         98: #f3faff,
         99: #fafcff,
         100: #ffffff,
-        4: #001017,
-        6: #02161d,
-        12: #0e222a,
-        17: #192c35,
-        22: #243740,
-        24: #293c44,
+        4: #060606,
+        6: #0b0b0b,
+        12: #161616,
+        17: #1d1d1d,
+        22: #232323,
+        24: #282828,
         87: #c9dde8,
         92: #d7ebf6,
         94: #dcf1fc,
@@ -135,3 +135,25 @@ $_rest: (
 
 $primary-palette: map.merge(map.get($_palettes, primary), $_rest);
 $tertiary-palette: map.merge(map.get($_palettes, tertiary), $_rest);
+
+// Dark mode uses slightly dimmed bright neutral tones so large text areas do
+// not glare against the near-black surfaces. Light mode keeps the originals.
+$_dark-rest: (
+    secondary: map.get($_palettes, secondary),
+    neutral: map.merge(
+        map.get($_palettes, neutral),
+        (
+            90: #c8dce7,
+        )
+    ),
+    neutral-variant: map.merge(
+        map.get($_palettes, neutral-variant),
+        (
+            90: #c4dde9,
+        )
+    ),
+    error: map.get($_palettes, error),
+);
+
+$dark-primary-palette: map.merge(map.get($_palettes, primary), $_dark-rest);
+$dark-tertiary-palette: map.merge(map.get($_palettes, tertiary), $_dark-rest);

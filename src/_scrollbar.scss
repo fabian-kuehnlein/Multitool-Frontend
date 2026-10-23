@@ -6,8 +6,8 @@
 // _css-variables.scss: --scrollbar-thumb / --scrollbar-thumb-hover
 // Supports: WebKit (Chrome, Edge, Safari) + Firefox.
 //
-// Note: Colors are defined in :root / [data-theme="dark"] and switch
-// automatically with the theme. No JS required.
+// Note: Colors are derived from the Material theme in _css-variables.scss and
+// switch automatically with light/dark mode. No JS required.
 
 // ── Firefox ─────────────────────────────────────────────────────────────────
 * {

@@ -72,9 +72,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg-surface-alt);
+    background: var(--bg-surface-raised);
     padding: 8px 25px;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-subtle);
     overflow: hidden;
 
     .filter-chips {
@@ -85,7 +85,7 @@
         .filter-label {
             font-size: 0.9rem;
             font-weight: 500;
-            color: var(--text-tertiary);
+            color: var(--text-caption);
         }
 
         .no-categories {
@@ -114,7 +114,7 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 10px 20px 20px;
+    padding: 10px;
     box-sizing: border-box;
     overflow: hidden;
 

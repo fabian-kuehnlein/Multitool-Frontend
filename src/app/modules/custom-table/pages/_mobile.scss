@@ -7,7 +7,7 @@
     flex-direction: column;
     overflow-y: auto;
     min-height: 0;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-canvas);
 }
 
 // ── Mobile Wrapper & Cards ───────────────────────────────────────────────────
@@ -41,18 +41,18 @@
         gap: 16px;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .field-label {
             flex: 0 0 40%;
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--text-tertiary);
+            color: var(--text-caption);
             text-transform: uppercase;
             letter-spacing: 0.3px;
             line-height: 1.2;
-            border-right: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             padding-right: 8px;
@@ -153,7 +153,7 @@
     flex: 1;
     padding: 60px 20px;
     text-align: center;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     gap: 16px;
     height: 100%;
 
@@ -184,7 +184,7 @@
     z-index: 1000;
 
     .home-fab {
-        background-color: var(--bg-hover);
+        background-color: var(--bg-surface);
         color: var(--text-primary);
     }
 }

@@ -35,7 +35,7 @@ export function toEventInput(
     const category = categories.find(
         (c) => c.id === event.categoryId,
     );
-    const color = category?.color || 'var(--accent-primary)';
+    const color = category?.color || 'var(--mat-sys-primary)';
 
     const input: EventInput = {
         id: event.id,

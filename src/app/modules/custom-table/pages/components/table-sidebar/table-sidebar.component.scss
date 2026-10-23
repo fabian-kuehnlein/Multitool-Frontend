@@ -19,7 +19,7 @@
     font-weight: 600;
     font-size: 1.1rem;
     color: var(--text-secondary);
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .sidebar-list {
@@ -32,12 +32,12 @@
     height: 100%;
 
     .active-item {
-        background-color: var(--accent-primary-light);
-        border: 2px solid var(--accent-primary);
-        color: var(--accent-primary);
+        background-color: var(--mat-sys-primary-container);
+        border: 2px solid var(--mat-sys-primary);
+        color: var(--mat-sys-primary);
 
         mat-icon {
-            color: var(--accent-primary);
+            color: var(--mat-sys-primary);
         }
     }
 }
@@ -51,5 +51,5 @@
 
 .sidebar-paginator {
     background: transparent;
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-subtle);
 }

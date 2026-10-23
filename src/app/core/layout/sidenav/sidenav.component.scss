@@ -7,7 +7,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     letter-spacing: 1px;
     margin-bottom: 20px;
     padding-left: 12px;
@@ -36,15 +36,15 @@
     }
 
     &.active {
-        background-color: var(--accent-primary-light);
-        border-color: var(--bg-active-border);
+        background-color: var(--mat-sys-primary-container);
+        border-color: var(--mat-sys-primary);
 
         .tool-icon {
-            color: var(--accent-primary);
+            color: var(--mat-sys-primary);
         }
 
         .tool-name {
-            color: var(--accent-primary);
+            color: var(--mat-sys-primary);
             font-weight: 600;
         }
     }
@@ -57,11 +57,11 @@
         background-color: var(--mat-sys-error-container);
 
         .logout-icon {
-            color: var(--mat-sys-error);
+            color: var(--mat-sys-on-error-container);
         }
 
         .tool-name {
-            color: var(--mat-sys-error);
+            color: var(--mat-sys-on-error-container);
         }
     }
 }
@@ -73,7 +73,7 @@
     width: 44px;
     height: 44px;
     border-radius: 10px;
-    background-color: var(--bg-surface-alt);
+    background-color: var(--bg-surface-raised);
     box-shadow: 0 2px 6px var(--shadow-sm);
     color: var(--text-secondary);
 }
@@ -91,7 +91,7 @@
 
 .tool-desc {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--text-subtle);
     margin-top: 2px;
 }
 
@@ -101,7 +101,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: var(--accent-primary);
+    background-color: var(--mat-sys-primary);
 }
 
 .sidenav-divider {

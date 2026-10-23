@@ -44,7 +44,7 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 - Keep the root `README.md` in sync: when a change affects what it documents (commands/scripts, build, dev server, deployment, project setup), update it in the same commit.
 - German UI: `de` locale, dayjs `DD.MM.YYYY` / `HH:mm` formats, German MatPaginator labels. Keep new UI text German.
 - Strict TS (`strict`, `noImplicitOverride`, `strictTemplates`, `isolatedModules`). 4-space indent, single quotes, 4-space indent per `.editorconfig`.
-- Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS.
+- Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS. Material's `--mat-sys-*` tokens are the base; `_css-variables.scss` only derives app-specific aliases (surfaces/text/borders) from them, so components switch light/dark automatically.
 - Keep TypeScript files small and single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `11-code-splitting.md`).
 
 ## Deploy

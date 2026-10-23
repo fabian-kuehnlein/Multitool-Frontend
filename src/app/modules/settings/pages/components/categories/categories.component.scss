@@ -19,7 +19,7 @@
 
     .section-subtitle {
         font-size: 0.9rem;
-        color: var(--text-muted);
+        color: var(--text-subtle);
         margin: 0;
     }
 
@@ -67,7 +67,7 @@
             height: 24px;
             border-radius: 50%;
             border: 2px solid var(--bg-surface);
-            box-shadow: 0 0 0 1px var(--border-medium);
+            box-shadow: 0 0 0 1px var(--border-strong);
             flex-shrink: 0;
         }
 
@@ -88,7 +88,7 @@
             .category-color-code {
                 font-size: 0.75rem;
                 font-family: monospace;
-                color: var(--text-muted);
+                color: var(--text-subtle);
             }
         }
     }
@@ -109,9 +109,9 @@
         gap: 6px;
         padding: 6px 14px;
         border-radius: 999px;
-        border: 1px solid var(--border-medium);
+        border: 1px solid var(--border-strong);
         background-color: transparent;
-        color: var(--text-muted);
+        color: var(--text-subtle);
         font-size: 0.8rem;
         font-weight: 500;
         cursor: pointer;
@@ -126,15 +126,15 @@
         }
 
         &:hover {
-            border-color: var(--accent-primary);
+            border-color: var(--mat-sys-primary);
             color: var(--text-primary);
             transform: translateY(-1px);
         }
 
         &.active {
-            background-color: var(--accent-primary-light);
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
+            background-color: var(--mat-sys-primary-container);
+            border-color: var(--mat-sys-primary);
+            color: var(--mat-sys-primary);
             font-weight: 600;
         }
     }
@@ -146,10 +146,10 @@
         flex-shrink: 0;
 
         .delete-action-button {
-            color: var(--text-muted);
+            color: var(--text-subtle);
 
             &:hover {
-                color: var(--mat-sys-error);
+                color: var(--mat-sys-on-error-container);
                 background-color: var(--mat-sys-error-container);
             }
         }
@@ -164,7 +164,7 @@
     justify-content: center;
     padding: 60px 24px;
     gap: 16px;
-    color: var(--text-muted);
+    color: var(--text-subtle);
 }
 
 .empty-state-card {
@@ -175,7 +175,7 @@
     text-align: center;
     padding: 60px 24px;
     background-color: var(--bg-surface);
-    border: 1px dashed var(--border-medium);
+    border: 1px dashed var(--border-strong);
     border-radius: 12px;
 
     .empty-state-icon {
@@ -195,7 +195,7 @@
 
     p {
         font-size: 0.9rem;
-        color: var(--text-muted);
+        color: var(--text-subtle);
         margin: 0 0 20px 0;
     }
 }
