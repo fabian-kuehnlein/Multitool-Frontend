@@ -60,7 +60,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     protected readonly getPriorityLabel = getPriorityLabel;
 
     readonly sortBy = signal<TodoSortBy>('priority');
-    readonly sortDirection = signal<TodoSortDirection>('desc');
+    readonly sortDirection = signal<TodoSortDirection>('asc');
     readonly filterStatus = signal<TodoFilterStatus>('all');
     readonly filterPriority = signal<Priority | null>(null);
     readonly filterCategory = signal<number | null>(null);
@@ -77,7 +77,7 @@ export class TodoComponent implements OnInit, OnDestroy {
             this.filterPriority() !== null ||
             this.filterCategory() !== null ||
             this.sortBy() !== 'priority' ||
-            this.sortDirection() !== 'desc' ||
+            this.sortDirection() !== 'asc' ||
             this.searchTerm().trim().length > 0,
     );
 
@@ -331,7 +331,7 @@ export class TodoComponent implements OnInit, OnDestroy {
         this.filterCategory.set(null);
         this.searchTerm.set('');
         this.sortBy.set('priority');
-        this.sortDirection.set('desc');
+        this.sortDirection.set('asc');
     }
 
     resetSort(): void {

@@ -3,13 +3,16 @@
     [class.mobile-item]="mobile"
     [class.completed]="todo.isDone"
     [style.border-left-color]="getPriorityColor(todo.priority)"
-    (click)="onItemClick()"
+    (click)="onToggleExpand()"
 >
     @if (mobile) {
         <!-- Mobile-Zeile -->
         <div class="mobile-item-container">
             <div class="mobile-item-header">
-                <div class="checkbox-wrapper" (click)="onCheckboxClick($event)">
+                <div
+                    class="checkbox-wrapper"
+                    (click)="$event.stopPropagation()"
+                >
                     <mat-checkbox
                         [checked]="todo.isDone"
                         (change)="onToggleDone()"

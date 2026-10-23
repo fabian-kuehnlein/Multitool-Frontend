@@ -20,7 +20,7 @@ export class SidenavComponent {
     private readonly router = inject(Router);
     private readonly authService = inject(AuthService);
     private readonly dialogRef = inject(MatDialogRef<SidenavComponent>);
-    public readonly dialogData = inject(MAT_DIALOG_DATA);
+    private readonly dialogData = inject(MAT_DIALOG_DATA);
     readonly navigationService = inject(NavigationService);
 
     navigate(route: string) {

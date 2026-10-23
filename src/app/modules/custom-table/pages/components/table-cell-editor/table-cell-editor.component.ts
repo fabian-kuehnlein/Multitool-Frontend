@@ -51,11 +51,11 @@ export class TableCellEditorComponent {
         });
     }
 
-    onCellFocus(): void {
+    onStartEditing(): void {
         this.initialValue = this.control.value;
     }
 
-    onCellBlur(): void {
+    onSaveCellValue(): void {
         if (this.valuesAreEqual(this.initialValue, this.control.value)) {
             return;
         }

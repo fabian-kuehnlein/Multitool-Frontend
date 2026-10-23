@@ -76,6 +76,9 @@ No custom directives or pipes exist yet — when one is added:
   generic `handleClick()`, `handleChange()`. The only accepted `handle*`
   fallback is a keyboard dispatcher (`handleKeydown(event)`) that routes many
   keys to specific, well-named actions.
+- **Pure DOM handling without domain meaning** (e.g. `stopPropagation()`) goes
+  directly into the template expression — `(click)="$event.stopPropagation()"` —
+  instead of being wrapped in a handler that needs an artificial name.
 - Booleans returned by a function get an `is`/`has`/`can` prefix
   (`isItemValid()`).
 - Factories use `create`/`build` (`buildForm()`), converters use `to`/`from`

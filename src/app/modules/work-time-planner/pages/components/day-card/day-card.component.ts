@@ -36,13 +36,13 @@ export class DayCardComponent implements OnDestroy {
     @Input({ required: true }) settings!: WorkTimeSettings;
     @Input() isDesktop = false;
     @Input() isMobile = false;
-    @Output() update = new EventEmitter<WorkDay>();
-    @Output() toggleHomeOffice = new EventEmitter<string>();
-    @Output() toggleDayStatus = new EventEmitter<{
+    @Output() readonly update = new EventEmitter<WorkDay>();
+    @Output() readonly toggleHomeOffice = new EventEmitter<string>();
+    @Output() readonly toggleDayStatus = new EventEmitter<{
         date: string;
         status: DayStatus;
     }>();
-    @Output() toggleLock = new EventEmitter<string>();
+    @Output() readonly toggleLock = new EventEmitter<string>();
 
     private readonly startTimeChanges = new Subject<string | null>();
     private readonly endTimeChanges = new Subject<string | null>();

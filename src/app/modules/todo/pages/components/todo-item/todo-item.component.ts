@@ -62,10 +62,10 @@ export class TodoItemComponent {
     @Input({ required: true }) todo!: Todo;
     @Input() mobile = false;
 
-    @Output() toggleDone = new EventEmitter<Todo>();
-    @Output() edit = new EventEmitter<Todo>();
-    @Output() delete = new EventEmitter<Todo>();
-    @Output() goToDate = new EventEmitter<string>();
+    @Output() readonly toggleDone = new EventEmitter<Todo>();
+    @Output() readonly edit = new EventEmitter<Todo>();
+    @Output() readonly delete = new EventEmitter<Todo>();
+    @Output() readonly goToDate = new EventEmitter<string>();
 
     protected readonly expanded = signal(false);
 
@@ -85,14 +85,10 @@ export class TodoItemComponent {
         this.expanded.update((value) => !value);
     }
 
-    onItemClick(): void {
+    onToggleExpand(): void {
         if (this.mobile) {
             this.toggleExpand();
         }
-    }
-
-    onCheckboxClick(event: Event): void {
-        event.stopPropagation();
     }
 
     onToggleDone(): void {
