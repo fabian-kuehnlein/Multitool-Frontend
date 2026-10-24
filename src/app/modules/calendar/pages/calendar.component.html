@@ -178,47 +178,62 @@
     </div>
 
     @if (isMobile()) {
-        <div class="mobile-action-container">
-            <button
-                matFab
-                class="mobile-fab-left"
-                (click)="openSideNav()"
-                matTooltip="Tool wechseln"
-            >
-                <mat-icon>home</mat-icon>
-            </button>
+        <div class="mobile-fab-bar">
+            <div class="mobile-fab-group mobile-fab-group-left">
+                <button
+                    matFab
+                    class="mobile-fab-surface-button"
+                    (click)="openSideNav()"
+                    matTooltip="Tool wechseln"
+                    aria-label="Navigation öffnen"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
+            </div>
 
-            <div class="mobile-nav-center">
+            <div class="mobile-fab-group mobile-fab-group-center">
                 <button
                     matMiniFab
+                    class="mobile-fab-surface-button"
                     (click)="calendarAction('prev')"
                     [disabled]="!canNavigateBack()"
+                    aria-label="Vorheriger Zeitraum"
                 >
                     <mat-icon>chevron_left</mat-icon>
                 </button>
 
                 <button
                     matMiniFab
+                    class="mobile-fab-surface-button"
+                    [class.mobile-fab-active-button]="!isToday()"
                     (click)="calendarAction('today')"
-                    [color]="isToday() ? 'basic' : 'primary'"
                     [disabled]="isToday()"
+                    aria-label="Heute"
                 >
                     <mat-icon>today</mat-icon>
                 </button>
 
-                <button matMiniFab (click)="calendarAction('next')">
+                <button
+                    matMiniFab
+                    class="mobile-fab-surface-button"
+                    (click)="calendarAction('next')"
+                    aria-label="Nächster Zeitraum"
+                >
                     <mat-icon>chevron_right</mat-icon>
                 </button>
             </div>
 
-            <button
-                matFab
-                class="mobile-fab-right"
-                (click)="createEvent()"
-                matTooltip="Neuer Eintrag"
-            >
-                <mat-icon>add</mat-icon>
-            </button>
+            <div class="mobile-fab-group mobile-fab-group-right">
+                <button
+                    matFab
+                    class="mobile-fab-primary-button"
+                    (click)="createEvent()"
+                    matTooltip="Neuer Eintrag"
+                    aria-label="Neuen Eintrag erstellen"
+                >
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
         </div>
     }
 </div>

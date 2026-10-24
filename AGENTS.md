@@ -46,6 +46,7 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 - German UI: `de` locale, dayjs `DD.MM.YYYY` / `HH:mm` formats, German MatPaginator labels. Keep new UI text German.
 - Strict TS (`strict`, `noImplicitOverride`, `strictTemplates`, `isolatedModules`). 4-space indent, single quotes, 4-space indent per `.editorconfig`.
 - Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS. Material's `--mat-sys-*` tokens are the base; `_css-variables.scss` only derives app-specific aliases (surfaces/text/borders) from them, so components switch light/dark automatically.
+- Mobile floating action buttons use the shared classes in `src/_floating-actions.scss` (`.mobile-fab-bar`, `.mobile-fab-group-*`, `.mobile-fab-surface-button`, `.mobile-fab-primary-button`, `.mobile-fab-active-button`) and `fab.fab-clearance` for bottom spacing. Never add per-module FAB positioning/colors.
 - Keep TypeScript files small and single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `11-code-splitting.md`).
 
 ## Deploy

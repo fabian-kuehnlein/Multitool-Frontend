@@ -147,51 +147,64 @@
     </div>
 
     @if (isMobile()) {
-        <div class="mobile-action-container">
-            <button
-                matFab
-                class="mobile-fab-left"
-                (click)="openSideNav()"
-                matTooltip="Tool wechseln"
-            >
-                <mat-icon>home</mat-icon>
-            </button>
+        <div class="mobile-fab-bar">
+            <div class="mobile-fab-group mobile-fab-group-left">
+                <button
+                    matFab
+                    class="mobile-fab-surface-button"
+                    (click)="openSideNav()"
+                    matTooltip="Tool wechseln"
+                    aria-label="Navigation öffnen"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
+            </div>
 
-            <div class="mobile-nav-center">
+            <div class="mobile-fab-group mobile-fab-group-center">
                 <button
                     matMiniFab
+                    class="mobile-fab-surface-button"
                     (click)="plannerService.navigateWeek('prev')"
                     matTooltip="Vorherige Woche"
+                    aria-label="Vorherige Woche"
                 >
                     <mat-icon>chevron_left</mat-icon>
                 </button>
                 <button
                     matMiniFab
+                    class="mobile-fab-surface-button"
+                    [class.mobile-fab-active-button]="
+                        !plannerService.isCurrentWeek()
+                    "
                     (click)="plannerService.navigateWeek('current')"
-                    [color]="plannerService.isCurrentWeek() ? 'basic' : 'primary'"
                     [disabled]="plannerService.isCurrentWeek()"
                     matTooltip="Heute"
+                    aria-label="Aktuelle Woche"
                 >
                     <mat-icon>today</mat-icon>
                 </button>
                 <button
                     matMiniFab
+                    class="mobile-fab-surface-button"
                     (click)="plannerService.navigateWeek('next')"
                     matTooltip="Nächste Woche"
+                    aria-label="Nächste Woche"
                 >
                     <mat-icon>chevron_right</mat-icon>
                 </button>
             </div>
 
-            <button
-                matFab
-                class="mobile-fab-right"
-                (click)="navigateToSettings()"
-                matTooltip="Einstellungen"
-                aria-label="Einstellungen öffnen"
-            >
-                <mat-icon>settings</mat-icon>
-            </button>
+            <div class="mobile-fab-group mobile-fab-group-right">
+                <button
+                    matFab
+                    class="mobile-fab-primary-button"
+                    (click)="navigateToSettings()"
+                    matTooltip="Einstellungen"
+                    aria-label="Einstellungen öffnen"
+                >
+                    <mat-icon>settings</mat-icon>
+                </button>
+            </div>
         </div>
     }
 </div>
