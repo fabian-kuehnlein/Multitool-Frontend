@@ -495,9 +495,6 @@
                             </div>
                         }
                     }
-
-                    <!-- Scroll spacer ensuring lowest items can easily be scrolled above floating buttons -->
-                    <div class="mobile-scroll-spacer"></div>
                 </div>
             } @else {
                 <!-- Desktop Content -->
@@ -714,22 +711,26 @@
 
     <!-- Mobile Floating Actions: Home on bottom-left, Search + Add on bottom-right -->
     @if (isMobile()) {
-        <div class="mobile-floating-actions">
-            <button
-                matFab
-                class="mobile-fab-left"
-                (click)="openSideNav()"
-                matTooltip="Tool wechseln"
-                aria-label="Navigation öffnen"
-            >
-                <mat-icon>home</mat-icon>
-            </button>
-
-            <div class="mobile-actions-right">
+        <div class="mobile-fab-bar">
+            <div class="mobile-fab-group mobile-fab-group-left">
                 <button
                     matFab
-                    class="mobile-fab-search"
-                    [class.active-search]="isMobileSearchOpen() || searchTerm()"
+                    class="mobile-fab-surface-button"
+                    (click)="openSideNav()"
+                    matTooltip="Tool wechseln"
+                    aria-label="Navigation öffnen"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
+            </div>
+
+            <div class="mobile-fab-group mobile-fab-group-right">
+                <button
+                    matFab
+                    class="mobile-fab-surface-button"
+                    [class.mobile-fab-active-button]="
+                        isMobileSearchOpen() || searchTerm()
+                    "
                     (click)="toggleMobileSearch()"
                     matTooltip="Suche"
                     aria-label="Suche umschalten"
@@ -739,7 +740,7 @@
 
                 <button
                     matFab
-                    class="mobile-fab-add"
+                    class="mobile-fab-primary-button"
                     (click)="onAddTodo()"
                     matTooltip="Aufgabe hinzufügen"
                     aria-label="Neue Aufgabe hinzufügen"

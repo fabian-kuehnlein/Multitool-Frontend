@@ -1,4 +1,5 @@
 @use "../../../../_breakpoints" as bp;
+@use "../../../../_floating-actions" as fab;
 
 // Mobile-only styles + responsive overrides
 
@@ -7,6 +8,7 @@
     flex-direction: column;
     overflow-y: auto;
     min-height: 0;
+    @include fab.fab-clearance;
     background-color: var(--bg-canvas);
 }
 
@@ -176,45 +178,24 @@
     }
 }
 
-// -- Mobile Navigation
-.mobile-nav-container {
-    position: fixed;
-    bottom: 24px;
-    left: 24px;
-    z-index: 1000;
-
-    .home-fab {
-        background-color: var(--bg-surface);
-        color: var(--text-primary);
-    }
-}
-
-// -- Mobile FAB Container
-.mobile-fab-container {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1000;
+// -- Mobile FAB Menu (expands upwards inside the shared fab bar)
+.mobile-fab-menu {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 12px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    transform: translate(-50%, 20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    .fab-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 8px;
-        transform: translateY(20px);
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &.active {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
+    &.active {
+        transform: translate(-50%, 0);
+        opacity: 1;
+        pointer-events: auto;
     }
 }
 
@@ -227,7 +208,7 @@
     left: 0;
     right: 0;
     background: var(--bg-surface);
-    padding: 12px 16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
     box-shadow: 0 -4px 12px var(--shadow-md);
     z-index: 1001;
 }
@@ -240,7 +221,6 @@
         overflow: visible;
         display: flex;
         flex-direction: column;
-        margin-bottom: 5rem;
     }
 
     .table-content-card {

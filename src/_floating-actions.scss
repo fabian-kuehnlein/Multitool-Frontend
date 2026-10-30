@@ -1,0 +1,131 @@
+//
+// Shared mobile floating actions
+//
+// Every module places its mobile FABs inside `.mobile-fab-bar`:
+//
+//   <div class="mobile-fab-bar">
+//       <div class="mobile-fab-group mobile-fab-group-left">...</div>
+//       <div class="mobile-fab-group mobile-fab-group-center">...</div>
+//       <div class="mobile-fab-group mobile-fab-group-right">...</div>
+//   </div>
+//
+// Color roles:
+//   `.mobile-fab-surface-button` — neutral actions (home, search, navigation)
+//   `.mobile-fab-primary-button` — main action of the page (add, settings)
+//   `.mobile-fab-active-button`  — active state of a neutral action
+//
+// The bar is a real floating overlay. A soft scrim behind it keeps the
+// buttons readable while content scrolls underneath. Scroll containers use
+// the `fab-clearance` mixin so the last content stays reachable.
+
+$mobile-fab-bar-edge: 16px;
+$mobile-fab-bar-bottom: 16px;
+
+:root {
+    // Height reserved at the bottom of scroll containers for the FAB bar.
+    --mobile-fab-clearance: 85px;
+}
+
+@mixin fab-clearance($extra: 0px) {
+    padding-bottom: calc(
+        var(--mobile-fab-clearance) + #{$extra} + env(safe-area-inset-bottom, 0px)
+    );
+}
+
+.mobile-fab-bar {
+    position: fixed;
+    left: $mobile-fab-bar-edge;
+    right: $mobile-fab-bar-edge;
+    bottom: calc(#{$mobile-fab-bar-bottom} + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+    pointer-events: none;
+
+    // Soft fade so content scrolling underneath does not touch the buttons.
+    &::before {
+        content: "";
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: calc(
+            var(--mobile-fab-clearance) + env(safe-area-inset-bottom, 0px)
+        );
+        background: linear-gradient(
+            to top,
+            var(--bg-canvas) 0%,
+            color-mix(in srgb, var(--bg-canvas) 92%, transparent) 40%,
+            transparent 100%
+        );
+        pointer-events: none;
+        z-index: -1;
+    }
+}
+
+.mobile-fab-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+}
+
+.mobile-fab-group-left {
+    grid-column: 1;
+    justify-self: start;
+}
+
+.mobile-fab-group-center {
+    grid-column: 2;
+    justify-self: center;
+}
+
+.mobile-fab-group-right {
+    grid-column: 3;
+    justify-self: end;
+}
+
+.mobile-fab-stack {
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-fab-surface-button,
+.mobile-fab-primary-button,
+.mobile-fab-active-button {
+    border: 1px solid transparent;
+    box-shadow: 0 4px 16px var(--shadow-xl);
+}
+
+.mobile-fab-surface-button {
+    --mat-fab-container-color: var(--bg-surface);
+    --mat-fab-foreground-color: var(--text-secondary);
+    --mat-fab-state-layer-color: var(--text-secondary);
+    --mat-fab-small-container-color: var(--bg-surface);
+    --mat-fab-small-foreground-color: var(--text-secondary);
+    --mat-fab-small-state-layer-color: var(--text-secondary);
+    border-color: var(--border-subtle);
+}
+
+.mobile-fab-primary-button {
+    --mat-fab-container-color: var(--mat-sys-primary);
+    --mat-fab-foreground-color: var(--mat-sys-on-primary);
+    --mat-fab-state-layer-color: var(--mat-sys-on-primary);
+    --mat-fab-small-container-color: var(--mat-sys-primary);
+    --mat-fab-small-foreground-color: var(--mat-sys-on-primary);
+    --mat-fab-small-state-layer-color: var(--mat-sys-on-primary);
+}
+
+.mobile-fab-active-button {
+    --mat-fab-container-color: var(--mat-sys-primary-container);
+    --mat-fab-foreground-color: var(--mat-sys-on-primary-container);
+    --mat-fab-state-layer-color: var(--mat-sys-on-primary-container);
+    --mat-fab-small-container-color: var(--mat-sys-primary-container);
+    --mat-fab-small-foreground-color: var(--mat-sys-on-primary-container);
+    --mat-fab-small-state-layer-color: var(--mat-sys-on-primary-container);
+    border-color: transparent;
+}

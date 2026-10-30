@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
-import { ThemeService } from '../../../../../core/services/theme.service';
+import { ThemeMode, ThemeService } from '../../../../../core/services/theme.service';
 import { SnackbarService } from '../../../../../core/services/snackbar.service';
 
 @Component({
@@ -21,15 +21,22 @@ export class AppearanceSettingsComponent {
     protected readonly themeService = inject(ThemeService);
     private readonly snackbar = inject(SnackbarService);
 
-    readonly themeMode = computed<'light' | 'dark'>(() =>
-        this.themeService.isDark() ? 'dark' : 'light',
-    );
+    readonly selectedMode = computed<ThemeMode>(() => this.themeService.mode());
 
-    onModeChange(mode: 'light' | 'dark'): void {
-        if (this.themeMode() === mode) return;
+    onModeChange(mode: ThemeMode): void {
+        if (this.selectedMode() === mode) {
+            return;
+        }
 
-        this.themeService.setDark(mode === 'dark');
-        const label = mode === 'dark' ? 'Dark Mode' : 'Light Mode';
+        this.themeService.setMode(mode);
+
+        const label =
+            mode === 'system'
+                ? 'Systemeinstellung'
+                : mode === 'dark'
+                  ? 'Dark Mode'
+                  : 'Light Mode';
+
         this.snackbar.openSuccess(`Erscheinungsbild auf ${label} gewechselt`);
     }
 }

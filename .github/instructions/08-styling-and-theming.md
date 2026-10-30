@@ -3,7 +3,7 @@
 ## SCSS everywhere
 
 - All styling is SCSS. Component styles live in the co-located `*.component.scss`.
-- Global/theme SCSS lives at `src/` root: `styles.scss`, `_theme.scss`, `_material-palettes.scss`, `_css-variables.scss`, `_breakpoints.scss`.
+- Global/theme SCSS lives at `src/` root: `styles.scss`, `_theme.scss`, `_material-palettes.scss`, `_css-variables.scss`, `_breakpoints.scss`, `_floating-actions.scss`.
 - 4-space indentation, consistent with the rest of the codebase.
 
 ## Class naming
@@ -61,6 +61,34 @@ $breakpoint-laptop: 1640px;
 
 - Use the mixins (`@use "../../../../_breakpoints" as bp;` then `@include bp.mobile { ... }`).
 - Mirror the same ranges in TypeScript via the media service (`isMobile`, `isTablet`, `isLaptop`, `isDesktop` signals). Do not hard-code breakpoints elsewhere.
+
+## Mobile floating action buttons
+
+All mobile FAB rows use the shared classes from `src/_floating-actions.scss` (imported in `styles.scss`). **Do not create per-module FAB positioning or colors.**
+
+```html
+<div class="mobile-fab-bar">
+    <div class="mobile-fab-group mobile-fab-group-left">...</div>
+    <div class="mobile-fab-group mobile-fab-group-center">...</div>
+    <div class="mobile-fab-group mobile-fab-group-right">...</div>
+</div>
+```
+
+- The bar is a real floating overlay (fixed to the viewport bottom with safe-area inset). The middle group centers navigation controls; modules without one simply omit it.
+- **Color roles:** neutral actions (home, search, navigation) use `mobile-fab-surface-button`; the page's main action (add, settings) uses `mobile-fab-primary-button`; an active neutral action uses `mobile-fab-active-button`.
+- The bar renders a soft bottom scrim so content scrolling underneath does not visually collide with the buttons.
+- Scroll containers reserve space via the mixin, not a spacer element:
+
+```scss
+@use "../../../../_floating-actions" as fab;
+
+.main-layout.mobile-layout {
+    @include fab.fab-clearance;
+}
+```
+
+- `--mobile-fab-clearance` defines the reserved height. Pass an extra offset when a container already has bottom padding: `@include fab.fab-clearance(5px)`.
+- Custom menus that expand upward (e.g. the custom-table FAB) live inside `mobile-fab-group-right mobile-fab-stack` and keep their toggle transition local.
 
 ## Mobile zoom
 

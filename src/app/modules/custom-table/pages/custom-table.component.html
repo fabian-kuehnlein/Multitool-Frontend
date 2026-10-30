@@ -375,65 +375,99 @@
     </div>
 
     @if (isMobile()) {
-        <!-- Mobile Navigation (Bottom Left) -->
-        <div class="mobile-nav-container">
-            <button
-                matFab
-                color="accent"
-                (click)="openSideNav()"
-                class="home-fab"
-            >
-                <mat-icon>home</mat-icon>
-            </button>
-        </div>
-
-        <!-- Mobile Floating Action Button (Bottom Right) -->
-        @if (tableService.tableId() !== 0) {
-            <div class="mobile-fab-container">
-                @if (!removeRowsColumn()) {
-                    <div class="fab-menu" [class.active]="isFabMenuOpen()">
-                        <button
-                            matMiniFab
-                            matTooltip="Zeile hinzufügen"
-                            (click)="addRow(); isFabMenuOpen.set(false)"
-                        >
-                            <mat-icon>splitscreen_add</mat-icon>
-                        </button>
-                        <button
-                            matMiniFab
-                            matTooltip="Spalte hinzufügen"
-                            (click)="addColumn(); isFabMenuOpen.set(false)"
-                        >
-                            <mat-icon>add_column_right</mat-icon>
-                        </button>
-                        <button
-                            matMiniFab
-                            matTooltip="Zeilen löschen"
-                            (click)="
-                                toggleRemoveMode(); isFabMenuOpen.set(false)
-                            "
-                        >
-                            <mat-icon class="error-icon"
-                                >playlist_remove</mat-icon
-                            >
-                        </button>
-                    </div>
-                    <button matFab (click)="toggleFabMenu()">
-                        <mat-icon>{{
-                            isFabMenuOpen() ? 'close' : 'add'
-                        }}</mat-icon>
-                    </button>
-                } @else {
-                    <button
-                        matFab
-                        (click)="toggleRemoveMode()"
-                        matTooltip="Löschvorgang abbrechen"
-                    >
-                        <mat-icon>close</mat-icon>
-                    </button>
-                }
+        <div class="mobile-fab-bar">
+            <div class="mobile-fab-group mobile-fab-group-left">
+                <button
+                    matFab
+                    class="mobile-fab-surface-button"
+                    (click)="openSideNav()"
+                    matTooltip="Tool wechseln"
+                    aria-label="Navigation öffnen"
+                >
+                    <mat-icon>home</mat-icon>
+                </button>
             </div>
 
+            @if (tableService.tableId() !== 0) {
+                <div
+                    class="mobile-fab-group mobile-fab-group-right mobile-fab-stack"
+                >
+                    @if (!removeRowsColumn()) {
+                        <div
+                            class="mobile-fab-menu"
+                            [class.active]="isFabMenuOpen()"
+                        >
+                            <button
+                                matMiniFab
+                                class="mobile-fab-surface-button"
+                                matTooltip="Zeile hinzufügen"
+                                aria-label="Zeile hinzufügen"
+                                (click)="
+                                    addRow(); isFabMenuOpen.set(false)
+                                "
+                            >
+                                <mat-icon>splitscreen_add</mat-icon>
+                            </button>
+                            <button
+                                matMiniFab
+                                class="mobile-fab-surface-button"
+                                matTooltip="Spalte hinzufügen"
+                                aria-label="Spalte hinzufügen"
+                                (click)="
+                                    addColumn(); isFabMenuOpen.set(false)
+                                "
+                            >
+                                <mat-icon>add_column_right</mat-icon>
+                            </button>
+                            <button
+                                matMiniFab
+                                class="mobile-fab-surface-button"
+                                matTooltip="Zeilen löschen"
+                                aria-label="Zeilen löschen"
+                                (click)="
+                                    toggleRemoveMode(); isFabMenuOpen.set(false)
+                                "
+                            >
+                                <mat-icon class="error-icon"
+                                    >playlist_remove</mat-icon
+                                >
+                            </button>
+                        </div>
+                        <button
+                            matFab
+                            class="mobile-fab-primary-button"
+                            (click)="toggleFabMenu()"
+                            [matTooltip]="
+                                isFabMenuOpen()
+                                    ? 'Aktionen schließen'
+                                    : 'Aktionen anzeigen'
+                            "
+                            [attr.aria-label]="
+                                isFabMenuOpen()
+                                    ? 'Aktionen schließen'
+                                    : 'Aktionen anzeigen'
+                            "
+                        >
+                            <mat-icon>{{
+                                isFabMenuOpen() ? 'close' : 'add'
+                            }}</mat-icon>
+                        </button>
+                    } @else {
+                        <button
+                            matFab
+                            class="mobile-fab-surface-button"
+                            (click)="toggleRemoveMode()"
+                            matTooltip="Löschvorgang abbrechen"
+                            aria-label="Löschvorgang abbrechen"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (tableService.tableId() !== 0) {
             @if (removeRowsColumn() && hasCheckedRows()) {
                 <div class="mobile-action-bar">
                     <button matButton (click)="toggleRemoveMode()">

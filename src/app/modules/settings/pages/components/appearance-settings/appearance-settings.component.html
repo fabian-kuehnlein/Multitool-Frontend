@@ -4,31 +4,33 @@
             <div class="setting-info">
                 <div class="setting-icon-wrapper">
                     <mat-icon class="setting-icon">
-                        {{ themeService.isDark() ? 'dark_mode' : 'light_mode' }}
+                        {{
+                            themeService.mode() === 'system'
+                                ? 'brightness_auto'
+                                : themeService.resolvedMode() === 'dark'
+                                    ? 'dark_mode'
+                                    : 'light_mode'
+                        }}
                     </mat-icon>
                 </div>
                 <div class="setting-text">
                     <span class="setting-title">Theme</span>
                     <span class="setting-description">
-                        Wechsle zwischen hellem und dunklem Erscheinungsbild der
-                        Anwendung.
+                        Wähle das Erscheinungsbild der Anwendung aus.
                     </span>
                 </div>
             </div>
 
             <div class="setting-action">
                 <mat-button-toggle-group
-                    [value]="themeMode()"
+                    [value]="selectedMode()"
                     (change)="onModeChange($event.value)"
                     aria-label="Theme auswählen"
                     class="mode-toggle-group"
                 >
-                    <mat-button-toggle value="light"
-                        >Light Mode</mat-button-toggle
-                    >
-                    <mat-button-toggle value="dark"
-                        >Dark Mode</mat-button-toggle
-                    >
+                    <mat-button-toggle value="light">Light</mat-button-toggle>
+                    <mat-button-toggle value="dark">Dark</mat-button-toggle>
+                    <mat-button-toggle value="system">System</mat-button-toggle>
                 </mat-button-toggle-group>
             </div>
         </div>
