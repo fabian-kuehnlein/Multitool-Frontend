@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import dayjs from 'dayjs';
 import { concatMap, finalize, of } from 'rxjs';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import { Todo, CreateTodoDto, UpdateTodoDto } from '../models/todo.model';
 import { TodoHttpService } from './todo-http.service';
 
@@ -50,7 +50,8 @@ export class TodoService {
                         ...todoDto,
                         id,
                         isDone: false,
-                        creationDateTime: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+                        creationDateTime:
+                            DateUtil.getCurrentApiDateTime(),
                     };
                     this._todos.update((todos) => [...todos, newTodo]);
                 },

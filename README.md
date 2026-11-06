@@ -7,7 +7,7 @@ Angular 22 frontend for the Multitool app — a collection of workday tools: **C
 - Angular 22 with **standalone components** (no NgModules), **zoneless** change detection, **signals**
 - Angular Material + CDK
 - SCSS with CSS-variable theming (light/dark mode)
-- dayjs for all date handling (`de` locale, `DD.MM.YYYY` / `HH:mm`)
+- dayjs for all date handling (`de` locale, `DD.MM.YYYY` / `HH:mm`), wrapped by the shared `DateUtil` (`src/app/shared/utilities/date.util.ts`)
 - FullCalendar for the calendar feature
 - RxJS, TypeScript ~6.0 (strict)
 

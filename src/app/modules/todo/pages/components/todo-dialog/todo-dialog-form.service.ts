@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import dayjs from 'dayjs';
+import { DateUtil } from '../../../../../shared/utilities/date.util';
 import {
     CreateTodoDto,
     Priority,
@@ -41,9 +41,7 @@ export class TodoDialogFormService {
                 value.description?.trim() === '' ? null : value.description,
             categoryId: value.categoryId!,
             priority: value.priority,
-            dueDate: value.dueDate
-                ? dayjs(value.dueDate).format('YYYY-MM-DDTHH:mm:ss')
-                : null,
+            dueDate: DateUtil.formatApiDateTime(value.dueDate),
         };
     }
 

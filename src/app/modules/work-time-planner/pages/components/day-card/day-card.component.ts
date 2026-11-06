@@ -7,9 +7,9 @@ import {
     OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import dayjs from 'dayjs';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
+import { DateUtil } from '../../../../../shared/utilities/date.util';
 import {
     WorkDay,
     WorkTimeSettings,
@@ -103,11 +103,11 @@ export class DayCardComponent implements OnDestroy {
     }
 
     get formattedDate(): string {
-        return dayjs(this.day.date).format('DD.MM');
+        return DateUtil.formatDayMonth(this.day.date);
     }
 
     get isToday(): boolean {
-        return this.day.date === dayjs().format('YYYY-MM-DD');
+        return DateUtil.isSameDay(this.day.date, DateUtil.getCurrent());
     }
 
     get hasData(): boolean {

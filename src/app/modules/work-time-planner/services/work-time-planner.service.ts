@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import dayjs from 'dayjs';
 import { Observable, tap } from 'rxjs';
 
 import { SettingsService } from '../../settings/services/settings.service';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import {
     WorkDay,
     WorkTimeSettings,
@@ -22,7 +22,6 @@ import {
     upsertWorkDay,
 } from '../logic/work-time-calculation.logic';
 import { DEFAULT_WORK_TIME_SETTINGS } from '../utilities/work-time.config';
-import { getWeekNumber, getWeekRange } from '../utilities/work-time.util';
 
 @Injectable({
     providedIn: 'root',
@@ -50,10 +49,12 @@ export class WorkTimePlannerService {
     readonly homeOfficeMonthCounts = this._homeOfficeMonthCounts.asReadonly();
 
     readonly weekDays = computed(() => {
-        const start = dayjs(this._currentWeekStart());
+        const start = DateUtil.parse(this._currentWeekStart());
+        if (!start) return [];
+
         return Array.from({ length: 5 }, (_, i) => {
-            const date = start.add(i, 'day');
-            const dateStr = date.format('YYYY-MM-DD');
+            const date = DateUtil.addDays(start, i);
+            const dateStr = DateUtil.formatApiDate(date) ?? '';
             const existing = this._workDays().find((wd) => wd.date === dateStr);
             return existing || createDefaultWorkDay(dateStr);
         });
@@ -86,9 +87,10 @@ export class WorkTimePlannerService {
             this._currentWeekStart.set(getWeekStart());
         } else {
             const offset = direction === 'next' ? 7 : -7;
-            const newStart = dayjs(this._currentWeekStart())
-                .add(offset, 'day')
-                .format('YYYY-MM-DD');
+            const newStart =
+                DateUtil.formatApiDate(
+                    DateUtil.addDays(this._currentWeekStart(), offset),
+                ) ?? this._currentWeekStart();
             this._currentWeekStart.set(newStart);
         }
 
@@ -101,25 +103,31 @@ export class WorkTimePlannerService {
 
     loadWorkDays(): void {
         const start = this._currentWeekStart();
-        const end = dayjs(start).add(5, 'day').format('YYYY-MM-DD');
+        const end =
+            DateUtil.formatApiDate(DateUtil.addDays(start, 5)) ?? start;
 
         this._loading.set(true);
-        this.httpService.getWorkDays(start, end).subscribe({
-            next: (days) => {
-                const normalized = days.map((d) => normalizeWorkDay(d));
-                const calculated = normalized.map((d) =>
-                    calculateWorkDay(d, this._settings()),
-                );
-                this._workDays.update((existing) => {
-                    const nonWeek = existing.filter(
-                        (e) => e.date < start || e.date >= end,
+        this.httpService
+            .getWorkDays(
+                DateUtil.formatApiDateTime(start) ?? start,
+                DateUtil.formatApiDateTime(end) ?? end,
+            )
+            .subscribe({
+                next: (days) => {
+                    const normalized = days.map((d) => normalizeWorkDay(d));
+                    const calculated = normalized.map((d) =>
+                        calculateWorkDay(d, this._settings()),
                     );
-                    return [...nonWeek, ...calculated];
-                });
-            },
-            error: () => {},
-            complete: () => this._loading.set(false),
-        });
+                    this._workDays.update((existing) => {
+                        const nonWeek = existing.filter(
+                            (e) => e.date < start || e.date >= end,
+                        );
+                        return [...nonWeek, ...calculated];
+                    });
+                },
+                error: () => {},
+                complete: () => this._loading.set(false),
+            });
 
         this.loadOvertimeBalance();
         this.loadHomeOfficeMonthCount();
@@ -147,26 +155,21 @@ export class WorkTimePlannerService {
         monthsToQuery.forEach(({ year, month }) => {
             this.httpService.getHomeOfficeMonthCount(year, month).subscribe({
                 next: (res) => {
-                    const m = dayjs(
-                        `${res.year}-${String(res.month).padStart(2, '0')}`,
-                        'YYYY-MM',
-                    );
                     results.push({
                         year: res.year,
                         month: res.month,
-                        monthName: m.format('MMMM'),
+                        monthName: DateUtil.formatMonthName(
+                            res.year,
+                            res.month,
+                        ),
                         count: res.homeOfficeDays,
                     });
                 },
                 error: () => {
-                    const m = dayjs(
-                        `${year}-${String(month).padStart(2, '0')}`,
-                        'YYYY-MM',
-                    );
                     results.push({
                         year,
                         month,
-                        monthName: m.format('MMMM'),
+                        monthName: DateUtil.formatMonthName(year, month),
                         count: 0,
                     });
                 },
@@ -281,10 +284,10 @@ export class WorkTimePlannerService {
     }
 
     getWeekRange(): string {
-        return getWeekRange(this._currentWeekStart());
+        return DateUtil.formatWeekRange(this._currentWeekStart());
     }
 
     getWeekNumber(): number {
-        return getWeekNumber(this._currentWeekStart());
+        return DateUtil.getIsoWeek(this._currentWeekStart());
     }
 }

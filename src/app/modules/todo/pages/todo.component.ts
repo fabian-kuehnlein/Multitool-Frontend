@@ -11,8 +11,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import dayjs from 'dayjs';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import { TodoService } from '../services/todo.service';
 import {
     Todo,
@@ -105,10 +105,14 @@ export class TodoComponent implements OnInit, OnDestroy {
         });
     }
 
-    readonly currentDateTime = signal(dayjs().format('DD.MM.YYYY'));
+    readonly currentDateTime = signal(
+        DateUtil.formatDisplayDate(DateUtil.getCurrent()),
+    );
     private readonly clockInterval: ReturnType<typeof setInterval> =
         setInterval(() => {
-            this.currentDateTime.set(dayjs().format('DD.MM.YYYY'));
+            this.currentDateTime.set(
+                DateUtil.formatDisplayDate(DateUtil.getCurrent()),
+            );
         }, 10_000);
 
     readonly todoCategories = computed(() => {
@@ -205,10 +209,7 @@ export class TodoComponent implements OnInit, OnDestroy {
             if (criterion === 'dueDate') {
                 if (!a.dueDate) return 1;
                 if (!b.dueDate) return -1;
-                return (
-                    (dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf()) *
-                    direction
-                );
+                return DateUtil.compare(a.dueDate, b.dueDate) * direction;
             }
             return a.title.localeCompare(b.title) * direction;
         });

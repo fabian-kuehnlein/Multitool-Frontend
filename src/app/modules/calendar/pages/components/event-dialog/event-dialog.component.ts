@@ -36,10 +36,10 @@ import {
 } from '../../../../../core/interceptors/http-error.interceptor';
 import { FullCalendarEventInput } from '../../../mappers/event.mapper';
 import type { CalendarEvent } from '../../../models';
+import { DateUtil } from '../../../../../shared/utilities/date.util';
 
 // Third-party
 import { Subject, takeUntil } from 'rxjs';
-import dayjs from 'dayjs';
 
 export interface EventDialogData {
     event?: FullCalendarEventInput | null;
@@ -271,10 +271,8 @@ export class EventDialogComponent implements OnInit, OnDestroy {
     }
 
     private buildIcalFileName(startDateTime: string | null): string {
-        const start = startDateTime ? dayjs(startDateTime) : null;
-        return start?.isValid()
-            ? `${start.format('YYYY-MM-DD-HH-mm')}.ics`
-            : 'event.ics';
+        const formatted = DateUtil.format(startDateTime, 'YYYY-MM-DD-HH-mm');
+        return formatted ? `${formatted}.ics` : 'event.ics';
     }
 
     private showIcalError() {

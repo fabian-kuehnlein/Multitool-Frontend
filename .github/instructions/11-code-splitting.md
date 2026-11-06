@@ -53,8 +53,7 @@ modules/<feature>/
 ├── logic/                   # pure business rules & calculations
 │   └── scheduling.logic.ts
 ├── utilities/               # config objects & tiny generic helpers
-│   ├── feature.config.ts
-│   └── date.util.ts
+│   └── feature.config.ts
 ├── services/
 │   ├── <feature>.service.ts        # state (signals) + orchestration
 │   └── <feature>-http.service.ts   # raw HttpClient, one per controller
@@ -124,6 +123,10 @@ When a state service exceeds the budget:
   - `mappers/<entity>.mapper.ts` — the transformations between models / DTOs / third-party shapes.
   - `logic/<domain>.logic.ts` — parsing, matching, and calculation rules.
   - `utilities/<domain>.util.ts` — shared formatting/normalization helpers.
+  - General date handling is app-wide and lives in
+    `src/app/shared/utilities/date.util.ts` (`DateUtil`). Do not create a
+    feature-local `date.util.ts`; extend the shared utility instead
+    (see [09-dates-and-localization.md](./09-dates-and-localization.md#central-date-utility)).
 - **Extract inline HTML generation from config.** If a config file builds markup with template-literal strings, extract the renderer into a pure function in `logic/` — so the config stays a config.
 - Define and export intermediate types for cross-shape mappings instead of `any`.
 

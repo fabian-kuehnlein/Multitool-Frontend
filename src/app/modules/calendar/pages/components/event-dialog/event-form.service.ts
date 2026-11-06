@@ -7,17 +7,12 @@ import {
     ValidationErrors,
     ValidatorFn,
 } from '@angular/forms';
-import dayjs from 'dayjs';
+import { DateUtil } from '../../../../../shared/utilities/date.util';
 import {
     CalendarEvent,
     CreateCalendarEventDto,
     GetICalLinkEventDto,
 } from '../../../models';
-import {
-    combineDateAndTime,
-    formatDate,
-    isUnsetTime,
-} from '../../../utilities/date.util';
 import {
     buildRecurrenceRuleString,
     parseRecurrenceRuleString,
@@ -82,31 +77,19 @@ export class EventFormService {
             : null;
         const recurrenceEnd =
             formValue.isRecurring && formValue.recurrenceEndDate
-                ? formatDate(formValue.recurrenceEndDate, null, {
-                      isRecurring: true,
-                  })
+                ? DateUtil.formatApiDateTime(
+                      DateUtil.startOfDay(formValue.recurrenceEndDate),
+                  )
                 : null;
 
-        const startDateTime = formatDate(
-            formValue.startDate,
-            formValue.startTime,
-            { isAllDay: formValue.isAllDay },
-        );
-        let endDateTime = formatDate(
-            formValue.endDate ?? formValue.startDate,
-            formValue.endTime ?? formValue.startTime,
-            {
-                isAllDay: formValue.isAllDay,
-                addDay: true,
-                fallbackDate: formValue.startDate,
-            },
-        );
+        const startDateTime = this.getStartDateTime(formValue);
+        let endDateTime = this.getEndDateTime(formValue);
 
         if (
             startDateTime &&
             endDateTime &&
-            !dayjs(endDateTime).isAfter(startDateTime) &&
-            isUnsetTime(formValue.endTime)
+            !DateUtil.isAfter(endDateTime, startDateTime) &&
+            DateUtil.isUnsetTime(formValue.endTime)
         ) {
             endDateTime = startDateTime;
         }
@@ -153,15 +136,33 @@ export class EventFormService {
         };
     }
 
-    /**
-     * Appends the local timezone offset to a floating datetime string so the
-     * backend can convert it to UTC for the iCal export. Without an offset the
-     * backend treats the value as UTC, which shifts the event by the local
-     * UTC offset (e.g. +2h in Germany).
-     */
-    private withLocalOffset(value: string | null | undefined): string | null {
-        if (!value) return null;
-        return dayjs(value).format('YYYY-MM-DDTHH:mm:ssZ');
+    private getStartDateTime(formValue: EventFormValue): string | null {
+        if (!formValue.startDate) return null;
+
+        const start = formValue.isAllDay
+            ? DateUtil.startOfDay(formValue.startDate)
+            : DateUtil.combineDateAndTime(
+                  formValue.startDate,
+                  formValue.startTime,
+              );
+
+        return DateUtil.formatApiDateTime(start);
+    }
+
+    private getEndDateTime(formValue: EventFormValue): string | null {
+        const endDate = formValue.endDate ?? formValue.startDate;
+        if (!endDate) return null;
+
+        if (formValue.isAllDay) {
+            const end = DateUtil.addDays(DateUtil.startOfDay(endDate), 1);
+            return DateUtil.formatApiDateTime(end);
+        }
+
+        const end = DateUtil.combineDateAndTime(
+            endDate,
+            formValue.endTime ?? formValue.startTime,
+        );
+        return DateUtil.formatApiDateTime(end);
     }
 
     /**
@@ -189,32 +190,24 @@ export class EventFormService {
      * Fills the form with existing event data for editing.
      */
     public patchFormForEdit(form: FormGroup, event: FullCalendarEventInput): void {
-        const start = event.startDateTime ? dayjs(event.startDateTime) : null;
-        const end = event.endDateTime ? dayjs(event.endDateTime) : null;
         const rrule = parseRecurrenceRuleString(event.recurrenceRule);
 
         form.patchValue({
             eventTitle: event.eventTitle,
             eventNote: event.eventNote,
             categoryId: event.categoryId ?? null,
-            startDate: start?.isValid()
-                ? start.startOf('day').toDate()
-                : null,
-            startTime: start?.isValid()
-                ? new Date(0, 0, 0, start.hour(), start.minute())
-                : null,
-            endDate: end?.isValid() ? end.startOf('day').toDate() : null,
-            endTime: end?.isValid()
-                ? new Date(0, 0, 0, end.hour(), end.minute())
-                : null,
+            startDate: DateUtil.toDate(
+                DateUtil.startOfDay(event.startDateTime),
+            ),
+            startTime: DateUtil.toTimeDate(event.startDateTime),
+            endDate: DateUtil.toDate(DateUtil.startOfDay(event.endDateTime)),
+            endTime: DateUtil.toTimeDate(event.endDateTime),
             isAllDay: event.isAllDay,
             isRecurring: !!rrule,
             recurrenceFrequency: rrule?.freq || 'WEEKLY',
             recurrenceInterval: rrule?.interval || 1,
             recurrenceByDay: rrule?.byDay || [],
-            recurrenceEndDate: event.recurrenceEnd
-                ? dayjs(event.recurrenceEnd).toDate()
-                : null,
+            recurrenceEndDate: DateUtil.toDate(event.recurrenceEnd),
             exDates: rrule?.exDates || [],
         });
     }
@@ -239,13 +232,13 @@ export class EventFormService {
                 errors['endDateMissing'] = true;
 
             if (!isAllDay && !isRecurring && startDate && endDate) {
-                const start = combineDateAndTime(startDate, startTime);
-                const end = combineDateAndTime(endDate, endTime);
+                const start = DateUtil.combineDateAndTime(startDate, startTime);
+                const end = DateUtil.combineDateAndTime(endDate, endTime);
                 if (
                     start &&
                     end &&
-                    end.isBefore(start) &&
-                    !isUnsetTime(endTime)
+                    DateUtil.isBefore(end, start) &&
+                    !DateUtil.isUnsetTime(endTime)
                 ) {
                     errors['endBeforeStart'] = true;
                 }

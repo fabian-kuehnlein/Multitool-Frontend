@@ -1,4 +1,5 @@
-import dayjs from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
+import { DateUtil } from '../../../shared/utilities/date.util';
 
 import {
     DayStatus,
@@ -12,12 +13,12 @@ import {
     TEN_HOURS_BREAK_MINUTES,
 } from '../utilities/work-time.config';
 
-export function getWeekStart(date: dayjs.Dayjs = dayjs()): string {
-    return date.startOf('isoWeek').format('YYYY-MM-DD');
+export function getWeekStart(date: Dayjs = DateUtil.getCurrent()): string {
+    return DateUtil.getWeekStart(date);
 }
 
 export function normalizeDate(date: string | Date): string {
-    return dayjs(date).format('YYYY-MM-DD');
+    return DateUtil.formatApiDate(date) ?? '';
 }
 
 export function normalizeTime(time: string | null): string | null {

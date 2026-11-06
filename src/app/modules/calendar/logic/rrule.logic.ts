@@ -1,6 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { DateInput } from '@fullcalendar/core';
+import { DateUtil } from '../../../shared/utilities/date.util';
 
 dayjs.extend(duration);
 
@@ -54,7 +55,7 @@ export function eventFallsOnDate(
     date: Dayjs,
     exdate?: DateInput | DateInput[],
 ): boolean {
-    const dateStr = date.format('YYYY-MM-DD');
+    const dateStr = DateUtil.formatApiDate(date) ?? '';
     const dtstart = dayjs(rule.dtstart).startOf('day');
     const targetDate = dayjs(date).startOf('day');
 
@@ -67,9 +68,7 @@ export function eventFallsOnDate(
         const exdateArray = Array.isArray(exdate) ? exdate : [exdate];
         if (
             exdateArray.some(
-                (ex) =>
-                    dayjs(ex as string | number | Date).format('YYYY-MM-DD') ===
-                    dateStr,
+                (ex) => DateUtil.formatApiDate(ex) === dateStr,
             )
         ) {
             return false;

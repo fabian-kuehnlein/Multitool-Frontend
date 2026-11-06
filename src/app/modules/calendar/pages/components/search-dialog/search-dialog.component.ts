@@ -10,6 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { HttpContext } from '@angular/common/http';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
+import { DateUtil } from '../../../../../shared/utilities/date.util';
 import {
     SearchResult,
     SearchResultRow,
@@ -26,7 +27,6 @@ import {
     SKIP_HTTP_ERROR_SNACKBAR,
 } from '../../../../../core/interceptors/http-error.interceptor';
 // Third Party
-import dayjs from 'dayjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { getNextOccurrence } from '../../../logic/rrule.logic';
@@ -88,10 +88,8 @@ export class SearchDialogComponent implements OnDestroy {
                 const processed = (events ?? []).map((event) =>
                     this.toSearchResultRow(event),
                 );
-                processed.sort(
-                    (a, b) =>
-                        dayjs(a.displayDate).valueOf() -
-                        dayjs(b.displayDate).valueOf(),
+                processed.sort((a, b) =>
+                    DateUtil.compare(a.displayDate, b.displayDate),
                 );
                 this.results.set(processed);
                 this.isLoading.set(false);
@@ -119,7 +117,7 @@ export class SearchDialogComponent implements OnDestroy {
                 cleanEnd || null,
             );
             if (next) {
-                displayDate = next.format('YYYY-MM-DDTHH:mm:ss');
+                displayDate = DateUtil.formatApiDateTime(next);
                 isNextOccurrence = true;
             }
         }
@@ -131,7 +129,7 @@ export class SearchDialogComponent implements OnDestroy {
         const dateToUse = element.displayDate || element.startDateTime;
         if (dateToUse) {
             this.dialogRef.close({
-                data: dayjs(dateToUse).format('YYYY-MM-DD'),
+                data: DateUtil.formatApiDate(dateToUse),
             });
         }
     }
