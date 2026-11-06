@@ -1,3 +1,4 @@
+import { DateUtil } from '../../../shared/utilities/date.util';
 import {
     UpsertWorkDayDto,
     WorkDay,
@@ -5,7 +6,7 @@ import {
 
 export function toUpsertWorkDayDto(day: WorkDay): UpsertWorkDayDto {
     return {
-        date: day.date,
+        date: DateUtil.formatApiDateTime(day.date) ?? day.date,
         startTime: day.startTime,
         endTime: day.endTime,
         breakMinutes: day.breakMinutes,

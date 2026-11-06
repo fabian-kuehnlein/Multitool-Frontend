@@ -2,6 +2,7 @@ import type { EventInput } from '@fullcalendar/core';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import { eventFallsOnDate, RecurrenceRuleInput } from './rrule.logic';
 
 dayjs.extend(duration);
@@ -47,17 +48,17 @@ function buildExcludedInstance(
     delete instance.exdate;
 
     if (event.allDay) {
-        instance.start = current.format('YYYY-MM-DD');
-        instance.end = current.add(1, 'day').format('YYYY-MM-DD');
+        instance.start = DateUtil.formatApiDate(current) ?? '';
+        instance.end = DateUtil.formatApiDate(DateUtil.addDays(current, 1)) ?? '';
     } else {
-        const timePart = dayjs(event.start as string).format('HH:mm:ss');
-        instance.start = current.format('YYYY-MM-DD') + 'T' + timePart;
+        const timePart = DateUtil.format(event.start, 'HH:mm:ss');
+        instance.start = `${DateUtil.formatApiDate(current) ?? ''}T${timePart}`;
 
         const duration = event.duration as string | undefined;
         if (duration) {
-            instance.end = dayjs(instance.start as string)
-                .add(dayjs.duration(duration))
-                .format('YYYY-MM-DDTHH:mm:ss');
+            instance.end = DateUtil.formatApiDateTime(
+                dayjs(instance.start as string).add(dayjs.duration(duration)),
+            ) ?? undefined;
         }
     }
 
@@ -69,17 +70,17 @@ function buildExcludedInstance(
  * directly or as part of a recurring series.
  */
 export function hasEventToday(events: EventInput[]): boolean {
-    const today = dayjs();
-    const todayStr = today.format('YYYY-MM-DD');
+    const today = DateUtil.getCurrent();
+    const todayStr = DateUtil.formatApiDate(today) ?? '';
 
     return events.some((event) => {
         const rrule = event.rrule as RecurrenceRuleInput | undefined;
         if (rrule) return eventFallsOnDate(rrule, today);
 
-        const start = dayjs(event.start as string).format('YYYY-MM-DD');
+        const start = DateUtil.formatApiDate(event.start) ?? '';
         if (start === todayStr) return true;
         if (event.end) {
-            const end = dayjs(event.end as string).format('YYYY-MM-DD');
+            const end = DateUtil.formatApiDate(event.end) ?? '';
             return start < todayStr && end > todayStr;
         }
         return false;
@@ -90,7 +91,7 @@ export function createTodayPlaceholder(today: Dayjs): EventInput {
     return {
         id: 'today-placeholder',
         title: 'Keine Termine geplant',
-        start: today.format('YYYY-MM-DD'),
+        start: DateUtil.formatApiDate(today) ?? '',
         allDay: true,
         display: 'list-item',
         extendedProps: { isPlaceholder: true },
@@ -131,7 +132,7 @@ export function filterPastEvents(
         if (event.allDay && eventStart.isBefore(todayStart)) {
             filtered.push({
                 ...event,
-                start: todayStart.format('YYYY-MM-DD'),
+                start: DateUtil.formatApiDate(todayStart) ?? '',
             });
         } else {
             filtered.push(event);
@@ -148,8 +149,8 @@ export function toHolidayEventInput(
 ): EventInput {
     return {
         id: `holiday-${index}`,
-        start: dayjs(date).format('YYYY-MM-DD'),
-        end: dayjs(date).add(1, 'day').format('YYYY-MM-DD'),
+        start: DateUtil.formatApiDate(date) ?? '',
+        end: DateUtil.formatApiDate(DateUtil.addDays(date, 1)) ?? '',
         display: 'background',
         title: name,
     };

@@ -23,7 +23,6 @@ import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular
 import type { CalendarOptions, EventClickArg, EventDropArg } from '@fullcalendar/core';
 
 // Third Party
-import dayjs from 'dayjs';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 // App Services, Components & Utilities
@@ -55,6 +54,7 @@ import {
     defaultCalendarOptions,
 } from '../utilities/calendar.config';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import { SidenavComponent } from '../../../core/layout/sidenav/sidenav.component';
 import { CategoryService } from '../../../shared/services/category.service';
 import { AppModule } from '../../../shared/models/app-module.enum';
@@ -172,7 +172,7 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
 
                 if (!dateParam) return;
 
-                const date = new Date(dateParam);
+                const date = DateUtil.toDate(dateParam);
 
                 if (date && this.calendarApi) this.calendarApi?.gotoDate(date);
             });
@@ -222,7 +222,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         const api = this.calendarApi;
         if (!api) return false;
 
-        return dayjs(api.view.currentStart).isBefore(dayjs().startOf('month'));
+        return DateUtil.isBefore(
+            DateUtil.startOfMonth(api.view.currentStart),
+            DateUtil.startOfMonth(DateUtil.getCurrent()),
+        );
     }
 
     private initCategoryControl() {
@@ -325,11 +328,17 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         if (!api) return;
 
         const view = api.view;
-        const start = dayjs(view.currentStart).startOf('day');
-        const end = dayjs(view.currentEnd).startOf('day');
-        const today = dayjs().startOf('day');
+        const start = DateUtil.startOfDay(view.currentStart);
+        const end = DateUtil.startOfDay(view.currentEnd);
+        const today = DateUtil.startOfDay(DateUtil.getCurrent());
 
-        this.isToday.set(today.isSameOrAfter(start) && today.isBefore(end));
+        this.isToday.set(
+            !!today &&
+                !!start &&
+                !!end &&
+                today.isSameOrAfter(start) &&
+                today.isBefore(end),
+        );
 
         this.canNavigateBack.set(
             this.includePastEvents() || this.isInFutureMonth(),
@@ -340,7 +349,10 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         const api = this.calendarApi;
         if (!api) return false;
 
-        return dayjs(api.view.currentStart).isAfter(dayjs().startOf('month'));
+        return DateUtil.isAfter(
+            DateUtil.startOfMonth(api.view.currentStart),
+            DateUtil.startOfMonth(DateUtil.getCurrent()),
+        );
     }
 
     protected openSideNav() {
@@ -503,9 +515,8 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
         successMessage?: string,
     ) {
         if (!instance.startDateTime) return;
-        const dateToExclude = dayjs(instance.startDateTime).format(
-            'YYYY-MM-DD',
-        );
+        const dateToExclude = DateUtil.formatApiDate(instance.startDateTime);
+        if (!dateToExclude) return;
         this.calendarService
             .excludeDateFromSeries(
                 instance.eventId,
@@ -625,11 +636,13 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                 // with EXDATE in the object format
                                 let processedEvents = expandEventInstances(
                                     mappedEvents,
-                                    dayjs(fetchInfo.start).startOf('day'),
-                                    dayjs(fetchInfo.end).startOf('day'),
+                                    DateUtil.startOfDay(fetchInfo.start) ??
+                                        DateUtil.getCurrent(),
+                                    DateUtil.startOfDay(fetchInfo.end) ??
+                                        DateUtil.getCurrent(),
                                 );
 
-                                const today = dayjs();
+                                const today = DateUtil.getCurrent();
                                 if (
                                     !hasEventToday(processedEvents) &&
                                     this.currentView() === 'listMonth'

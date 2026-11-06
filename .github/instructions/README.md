@@ -46,7 +46,7 @@ Decide what your change touches, then read the matching file(s):
 | [06-http-and-models.md](./06-http-and-models.md) | HTTP services, API base URL, models/DTOs/enums, barrel exports, backend contract |
 | [07-routing-and-auth.md](./07-routing-and-auth.md) | Lazy-loaded routes, guards, JWT interceptor, auth flow |
 | [08-styling-and-theming.md](./08-styling-and-theming.md) | SCSS structure, class naming, breakpoints, CSS variables, dark mode, error colors |
-| [09-dates-and-localization.md](./09-dates-and-localization.md) | dayjs, German locale, date/time formats, UI language |
+| [09-dates-and-localization.md](./09-dates-and-localization.md) | Central `DateUtil`, dayjs, German locale, date/time formats, UI language |
 | [10-git-and-workflow.md](./10-git-and-workflow.md) | Commands, verification, environment gotcha, commit message style |
 | [11-code-splitting.md](./11-code-splitting.md) | Splitting oversized TS files: responsibility buckets, `mappers/`/`logic/`, form services, child components |
 | [12-snackbars-and-user-feedback.md](./12-snackbars-and-user-feedback.md) | SnackbarService API, global HTTP error interceptor, `SKIP_HTTP_ERROR_SNACKBAR`, when to show success feedback |

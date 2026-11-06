@@ -10,6 +10,7 @@ import {
     SearchResult,
 } from '../models';
 import { addExcludeDateToRule } from '../logic/rrule.logic';
+import { DateUtil } from '../../../shared/utilities/date.util';
 
 @Injectable({
     providedIn: 'root',
@@ -28,7 +29,11 @@ export class CalendarService {
         categories: number[] | null,
     ): Observable<CalendarEvent[]> {
         return this.httpService
-            .getEventsByRange(startDate, endDate, categories)
+            .getEventsByRange(
+                DateUtil.formatApiDateTime(startDate) ?? startDate,
+                DateUtil.formatApiDateTime(endDate) ?? endDate,
+                categories,
+            )
             .pipe(tap((events) => this._events.set(events)));
     }
 

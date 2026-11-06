@@ -3,7 +3,7 @@ import type {
     EventContentArg,
     EventMountArg,
 } from '@fullcalendar/core';
-import dayjs from 'dayjs';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import { createElement } from '../../../shared/utilities/dom.util';
 
 export interface EventContentResult {
@@ -23,8 +23,10 @@ function getTimeDisplay(
     isAllDay: boolean,
 ): string {
     if (isAllDay || !start) return '';
-    const startStr = dayjs(start).format('HH:mm');
-    return end ? `${startStr} – ${dayjs(end).format('HH:mm')}` : startStr;
+    const startStr = DateUtil.formatDisplayTime(start);
+    return end
+        ? `${startStr} – ${DateUtil.formatDisplayTime(end)}`
+        : startStr;
 }
 
 export function buildEventContent(arg: EventContentArg): EventContentResult {
@@ -98,8 +100,7 @@ export function buildEventContent(arg: EventContentArg): EventContentResult {
 }
 
 export function getDayCellClassNames(arg: DayCellContentArg): string[] {
-    const today = dayjs().startOf('day');
-    return dayjs(arg.date).startOf('day').isBefore(today)
+    return DateUtil.isBeforeDay(arg.date, DateUtil.getCurrent())
         ? ['past-date']
         : [];
 }
@@ -135,13 +136,9 @@ export function applyEventMount(arg: EventMountArg): void {
         }
     }
 
-    const end = event.end
-        ? dayjs(event.end)
-        : event.start
-          ? dayjs(event.start)
-          : dayjs();
+    const end = event.end ?? event.start;
 
-    if (end.startOf('day').isBefore(dayjs().startOf('day'))) {
+    if (DateUtil.isBeforeDay(end, DateUtil.getCurrent())) {
         el.classList.add('past-event');
         el.style.opacity = '0.6';
     }

@@ -46,7 +46,7 @@ src/
 - **Feature modules** live under `src/app/modules/<feature>/` with kebab-case names.
 - Each feature keeps its own `models/`, `mappers/`, `logic/`, `pages/`, `services/`, `utilities/`. Do **not** put feature code in `shared/`.
 - **`core/`** holds app-wide singletons: auth, routing-adjacent pieces, layout, global services. It must not contain feature logic.
-- **`shared/`** holds genuinely reusable pieces used by two or more features. If only one feature uses it, keep it in that feature.
+- **`shared/`** holds genuinely reusable pieces used by two or more features. If only one feature uses it, keep it in that feature. App-wide helpers belong here even before a second feature uses them when they are clearly cross-cutting — e.g. date handling lives in `shared/utilities/date.util.ts` (`DateUtil`) and must not be duplicated per feature (see [09-dates-and-localization.md](./09-dates-and-localization.md#central-date-utility)).
 - **Routed components** (one per route) go directly in `<feature>/pages/` as `<feature>.component.*`. Everything they render as dialogs or child components goes in `<feature>/pages/components/<name>/`.
 - **Models** live in `<feature>/models/`. When a feature grows, split into `dtos/`, `enums/`, `metadata/`, `ui/` subfolders and expose them through a barrel `models/index.ts`. Small features may keep a single `<name>.model.ts`.
 - **HTTP vs. state**: every feature that talks to the backend has exactly two services — `<feature>-http.service.ts` (raw `HttpClient`) and `<feature>.service.ts` (signals/state). See [05-state-and-services.md](./05-state-and-services.md).

@@ -8,8 +8,8 @@ import {
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import dayjs from 'dayjs';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
+import { DateUtil } from '../../../../../shared/utilities/date.util';
 import { Todo } from '../../../models/todo.model';
 import { Category } from '../../../../../shared/models/category.model';
 import { CategoryService } from '../../../../../shared/services/category.service';
@@ -73,12 +73,15 @@ export class TodoItemComponent {
 
     isOverdue(): boolean {
         if (!this.todo.dueDate || this.todo.isDone) return false;
-        return dayjs(this.todo.dueDate).isBefore(dayjs(), 'day');
+        return DateUtil.isBeforeDay(
+            this.todo.dueDate,
+            DateUtil.getCurrent(),
+        );
     }
 
     isDueToday(): boolean {
         if (!this.todo.dueDate || this.todo.isDone) return false;
-        return dayjs(this.todo.dueDate).isSame(dayjs(), 'day');
+        return DateUtil.isToday(this.todo.dueDate);
     }
 
     toggleExpand(): void {

@@ -1,7 +1,7 @@
 import { EventApi, EventInput } from '@fullcalendar/core';
-import dayjs from 'dayjs';
 import { CalendarEvent } from '../models';
 import { Category } from '../../../shared/models/category.model';
+import { DateUtil } from '../../../shared/utilities/date.util';
 import { getDuration, parseRRuleString } from '../logic/rrule.logic';
 
 export interface FullCalendarEventInput {
@@ -20,12 +20,7 @@ export interface FullCalendarEventInput {
 }
 
 function parseAsLocal(dateStr: string | null | undefined): Date | undefined {
-    if (!dateStr) return undefined;
-    // Remove 'Z' if present to prevent UTC conversion by the browser
-    const cleanStr = dateStr.endsWith('Z')
-        ? dateStr.slice(0, -1)
-        : dateStr;
-    return dayjs(cleanStr).toDate();
+    return DateUtil.parseAsLocalDate(dateStr) ?? undefined;
 }
 
 export function toEventInput(
@@ -89,14 +84,14 @@ export function fromFullCalendarEvent(
         | undefined;
     const seriesEndDateTime = seriesEnd
         ? event.allDay
-            ? dayjs(seriesEnd).subtract(1, 'day').toDate()
-            : new Date(seriesEnd)
+            ? DateUtil.toDate(DateUtil.addDays(seriesEnd, -1))
+            : DateUtil.toDate(seriesEnd)
         : null;
 
     const endDateTime = event.end
         ? event.allDay
-            ? dayjs(event.end).subtract(1, 'day').toDate()
-            : new Date(event.end)
+            ? DateUtil.toDate(DateUtil.addDays(event.end, -1))
+            : DateUtil.toDate(event.end)
         : event.extendedProps['recurrenceRule']
           ? event.start
           : seriesEndDateTime;
@@ -119,15 +114,12 @@ export function fromFullCalendarEvent(
 }
 
 export function toCalendarEvent(event: EventApi): CalendarEvent {
-    const start = dayjs(event.start);
-    const end = event.end ? dayjs(event.end) : start;
-
     return {
         id: event.id,
         title: event.title,
         note: event.extendedProps['eventNote']?.trim() || null,
-        startDateTime: start.format('YYYY-MM-DDTHH:mm:ss'),
-        endDateTime: end.format('YYYY-MM-DDTHH:mm:ss'),
+        startDateTime: DateUtil.formatApiDateTime(event.start),
+        endDateTime: DateUtil.formatApiDateTime(event.end ?? event.start),
         isAllDay: event.allDay,
         categoryId: event.extendedProps['categoryId'] ?? null,
     };
