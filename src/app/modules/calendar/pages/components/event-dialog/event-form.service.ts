@@ -125,14 +125,19 @@ export class EventFormService {
 
     /**
      * Maps form values back to the payload expected by the iCal link endpoint.
+     *
+     * The iCal endpoint is the one exception to the floating API format: it
+     * needs a timezone offset so the backend can convert the wall-clock time to
+     * UTC. Without an offset the event would shift by the local UTC offset.
      */
     public getIcalLinkData(formValue: EventFormValue): GetICalLinkEventDto {
         const createData = this.getCreateEventData(formValue);
         return {
             title: createData.title,
             note: createData.note,
-            startDateTime: this.withLocalOffset(createData.startDateTime),
-            endDateTime: this.withLocalOffset(createData.endDateTime),
+            startDateTime: DateUtil.formatIcalDateTime(createData.startDateTime),
+            endDateTime: DateUtil.formatIcalDateTime(createData.endDateTime),
+            isAllDay: createData.isAllDay,
         };
     }
 

@@ -3,4 +3,5 @@ export interface GetICalLinkEventDto {
     note: string | null;
     startDateTime: string | null;
     endDateTime?: string | null;
+    isAllDay: boolean;
 }
