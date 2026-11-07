@@ -1,0 +1,52 @@
+@use "../../../../../../../_breakpoints" as bp;
+
+.user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+// Keep the dialog content auto-sized instead of scrolling by a few pixels.
+.dialog-content {
+    max-height: none;
+    overflow: visible;
+}
+
+.dialog-hint {
+    font-size: 0.875rem;
+    color: var(--text-subtle);
+    margin: 0;
+    line-height: 1.4;
+
+    .dialog-hint-user {
+        color: var(--text-primary);
+    }
+}
+
+.full-width-field {
+    width: 100%;
+}
+
+.field-icon {
+    color: var(--text-subtle);
+    margin-right: 8px;
+}
+
+.dialog-actions-container {
+    padding: 16px 24px 20px 24px;
+    gap: 12px;
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+
+        .cancel-button {
+            width: 100%;
+        }
+
+        .save-button {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+}

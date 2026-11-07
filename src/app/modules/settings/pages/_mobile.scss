@@ -1,5 +1,3 @@
-@use "../../../../_breakpoints" as bp;
-
 // Mobile-only styles for Settings
 
 .mobile-header {
@@ -17,12 +15,5 @@
     .mobile-title {
         font-size: 1.2rem;
         font-weight: 500;
-    }
-}
-
-@include bp.mobile {
-    .tab-content-container {
-        padding: 0;
-        gap: 16px;
     }
 }

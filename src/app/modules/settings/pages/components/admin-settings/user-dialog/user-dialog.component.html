@@ -1,0 +1,131 @@
+<h2 mat-dialog-title>
+    {{ isCreateMode ? 'Neuen Benutzer erstellen' : 'Passwort zurücksetzen' }}
+</h2>
+
+<mat-dialog-content class="dialog-content">
+    <form [formGroup]="form" class="user-form" (ngSubmit)="onSubmit()">
+        <p class="dialog-hint">
+            @if (isCreateMode) {
+                Erstelle einen neuen Benutzer mit einem temporären Passwort.
+            } @else {
+                Vergib ein neues temporäres Passwort für den Benutzer
+                <strong class="dialog-hint-user">{{ targetUser?.username }}</strong>.
+                Ein eventuell bestehender Kontoschutz (Lockout) wird dabei
+                aufgehoben.
+            }
+        </p>
+
+        @if (isCreateMode) {
+            <mat-form-field
+                appearance="outline"
+                class="full-width-field"
+                subscriptSizing="dynamic"
+            >
+                <mat-label>Benutzername</mat-label>
+                <input
+                    matInput
+                    formControlName="username"
+                    placeholder="z.B. max.mustermann"
+                    autocomplete="off"
+                    required
+                />
+                <mat-icon matPrefix class="field-icon">person</mat-icon>
+                @if (form.controls.username.hasError('required')) {
+                    <mat-error>Benutzername ist erforderlich</mat-error>
+                }
+                @if (form.controls.username.hasError('minlength')) {
+                    <mat-error>Mindestens 3 Zeichen erforderlich</mat-error>
+                }
+                @if (form.controls.username.hasError('maxlength')) {
+                    <mat-error>Maximal 50 Zeichen erlaubt</mat-error>
+                }
+                @if (form.controls.username.hasError('pattern')) {
+                    <mat-error>
+                        Nur Buchstaben, Zahlen, '.', '_' und '-' erlaubt
+                    </mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field
+                appearance="outline"
+                class="full-width-field"
+                subscriptSizing="dynamic"
+            >
+                <mat-label>Rolle</mat-label>
+                <mat-select formControlName="role">
+                    @for (role of roles; track role.value) {
+                        <mat-option [value]="role.value">{{ role.label }}</mat-option>
+                    }
+                </mat-select>
+                <mat-icon matPrefix class="field-icon">security</mat-icon>
+            </mat-form-field>
+        }
+
+        <mat-form-field
+            appearance="outline"
+            class="full-width-field"
+            subscriptSizing="dynamic"
+        >
+            <mat-label>Temporäres Passwort</mat-label>
+            <input
+                matInput
+                type="text"
+                formControlName="password"
+                autocomplete="new-password"
+                required
+            />
+            <mat-icon matPrefix class="field-icon">lock</mat-icon>
+            <button
+                matIconButton
+                matSuffix
+                type="button"
+                (click)="generateNewPassword()"
+                matTooltip="Neues Passwort generieren"
+                aria-label="Neues Passwort generieren"
+            >
+                <mat-icon>autorenew</mat-icon>
+            </button>
+            <button
+                matIconButton
+                matSuffix
+                type="button"
+                (click)="copyPassword()"
+                [matTooltip]="
+                    passwordCopied()
+                        ? 'Kopiert!'
+                        : 'In Zwischenablage kopieren'
+                "
+                aria-label="Passwort kopieren"
+            >
+                <mat-icon>{{ passwordCopied() ? 'check' : 'content_copy' }}</mat-icon>
+            </button>
+            @if (form.controls.password.hasError('required')) {
+                <mat-error>Passwort ist erforderlich</mat-error>
+            }
+            @if (form.controls.password.hasError('minlength')) {
+                <mat-error>Mindestens 6 Zeichen erforderlich</mat-error>
+            }
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions-container">
+    <button
+        matButton="outlined"
+        type="button"
+        class="cancel-button"
+        (click)="onCancel()"
+    >
+        Abbrechen
+    </button>
+    <button
+        matButton="filled"
+        type="button"
+        class="save-button"
+        [disabled]="form.invalid"
+        (click)="onSubmit()"
+    >
+        <mat-icon matButtonIcon>{{ isCreateMode ? 'person_add' : 'save' }}</mat-icon>
+        {{ isCreateMode ? 'Benutzer anlegen' : 'Passwort speichern' }}
+    </button>
+</mat-dialog-actions>

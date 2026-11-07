@@ -60,7 +60,8 @@ export const authGuard: CanActivateFn = () => {
 ## Auth flow
 
 - JWT is stored in `localStorage` under `auth_token` (`AuthService.TOKEN_KEY`).
-- `AuthService` (`core/auth/services/auth.service.ts`) exposes a public `isAuthenticated` signal and methods `login()`, `logout()`, `getToken()`, `isLoggedIn()`.
+- `AuthService` (`core/auth/services/auth.service.ts`) keeps the raw JWT in an internal signal and exposes one derived `authState` computed signal (`AuthState`: `isAuthenticated`, `isAdmin`, `userId`, `username`). Consumers read `authService.authState().isAdmin` etc. Methods: `login()`, `logout()`, `getToken()`, `isLoggedIn()`.
+- JWT claim keys are constants in `core/auth/models/jwt-claims.enum.ts` (`JwtClaims`); do not use string literals like `payload['role']`. Both short and .NET schema claim names are supported.
 - `authInterceptor` (`core/auth/interceptors/auth.interceptor.ts`) is a functional `HttpInterceptorFn` that:
   - attaches `Authorization: Bearer <token>` when a token exists,
   - logs the user out when the token is expired or a response returns `401`.

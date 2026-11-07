@@ -1,0 +1,195 @@
+<div class="tab-content-container">
+    <div class="section-header-wrapper section-header-actions">
+        <div>
+            <h2 class="section-title">Benutzerverwaltung</h2>
+            <p class="section-subtitle">
+                Verwalte bestehende Benutzerkonten, erstelle neue Zugänge oder setze temporäre Passwörter zurück.
+            </p>
+        </div>
+        <button
+            matButton="filled"
+            type="button"
+            class="section-action-button"
+            (click)="openCreateUserDialog()"
+        >
+            <mat-icon matButtonIcon>person_add</mat-icon>
+            <span>Benutzer erstellen</span>
+        </button>
+    </div>
+
+    @if (adminService.loading()) {
+        <div class="loading-state-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Benutzer werden geladen...</span>
+        </div>
+    } @else {
+        <!-- Search Bar -->
+        @if (adminService.users().length > 0) {
+            <div class="search-bar-row">
+                <mat-form-field appearance="outline" class="search-form-field" subscriptSizing="dynamic">
+                    <mat-icon matPrefix class="search-icon">search</mat-icon>
+                    <input
+                        matInput
+                        [ngModel]="searchQuery()"
+                        (ngModelChange)="onSearchChange($event)"
+                        placeholder="Benutzer suchen..."
+                    />
+                    @if (searchQuery()) {
+                        <button
+                            matIconButton
+                            matSuffix
+                            type="button"
+                            (click)="clearSearch()"
+                            matTooltip="Suche leeren"
+                            aria-label="Suche zurücksetzen"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+
+                <div class="user-count-badge">
+                    <span>{{ filteredUsers().length }} von {{ adminService.users().length }} Benutzer</span>
+                </div>
+            </div>
+        }
+
+        <!-- Empty State -->
+        @if (adminService.users().length === 0) {
+            <div class="empty-state-card">
+                <mat-icon class="empty-state-icon">group_off</mat-icon>
+                <h3 class="empty-state-title">Keine Benutzer vorhanden</h3>
+                <p class="empty-state-text">
+                    Es wurden noch keine weiteren Benutzerkonten angelegt.
+                </p>
+                <button
+                    matButton="filled"
+                    type="button"
+                    (click)="openCreateUserDialog()"
+                >
+                    <mat-icon matButtonIcon>person_add</mat-icon>
+                    <span>Ersten Benutzer anlegen</span>
+                </button>
+            </div>
+        } @else if (filteredUsers().length === 0) {
+            <div class="empty-state-card">
+                <mat-icon class="empty-state-icon">search_off</mat-icon>
+                <h3 class="empty-state-title">Keine Treffer</h3>
+                <p class="empty-state-text">
+                    Es wurde kein Benutzer für "{{ searchQuery() }}" gefunden.
+                </p>
+                <button
+                    matButton="outlined"
+                    type="button"
+                    (click)="clearSearch()"
+                >
+                    <mat-icon matButtonIcon>clear</mat-icon>
+                    <span>Suche zurücksetzen</span>
+                </button>
+            </div>
+        } @else {
+            <!-- Users List -->
+            <div class="settings-item-list">
+                @for (user of filteredUsers(); track user.id) {
+                    <mat-card
+                        appearance="outlined"
+                        class="settings-item-card user-card"
+                        [class.user-card-inactive]="!user.isActive"
+                    >
+                        <mat-card-content class="settings-item-card-content">
+                            <!-- Left: User Avatar & Basic Info -->
+                            <div class="settings-item-main-info">
+                                <div
+                                    class="user-avatar-badge"
+                                    [class.admin-badge]="isUserAdmin(user.role)"
+                                    [class.inactive-avatar]="!user.isActive"
+                                >
+                                    <mat-icon class="avatar-icon">
+                                        {{ isUserAdmin(user.role) ? 'admin_panel_settings' : 'person' }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="settings-item-details">
+                                    <div class="user-name-row">
+                                        <span class="settings-item-name">{{ user.username }}</span>
+                                        @if (isCurrentUser(user)) {
+                                            <span class="current-user-tag">Du</span>
+                                        }
+                                    </div>
+                                    <span class="settings-item-meta">
+                                        Erstellt am {{ formatDate(user.createdAt) }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Center: Badges -->
+                            <div class="user-meta-badges">
+                                <span
+                                    class="role-badge"
+                                    [class.admin-role]="isUserAdmin(user.role)"
+                                >
+                                    <mat-icon class="badge-icon">
+                                        {{ isUserAdmin(user.role) ? 'shield' : 'account_circle' }}
+                                    </mat-icon>
+                                    {{ getUserRoleLabel(user) }}
+                                </span>
+
+                                <span
+                                    class="status-badge"
+                                    [class.status-active]="user.isActive"
+                                    [class.status-inactive]="!user.isActive"
+                                >
+                                    <span class="status-dot"></span>
+                                    {{ user.isActive ? 'Aktiv' : 'Deaktiviert' }}
+                                </span>
+                            </div>
+
+                            <!-- Right: Actions -->
+                            <div class="settings-item-actions user-item-actions">
+                                <button
+                                    matIconButton
+                                    type="button"
+                                    class="action-button reset-password-btn"
+                                    (click)="openResetPasswordDialog(user)"
+                                    matTooltip="Temporäres Passwort setzen"
+                                    aria-label="Temporäres Passwort für Benutzer vergeben"
+                                >
+                                    <mat-icon>lock_reset</mat-icon>
+                                </button>
+
+                                @if (user.isActive) {
+                                    <button
+                                        matIconButton
+                                        type="button"
+                                        class="action-button deactivate-btn"
+                                        [disabled]="isCurrentUser(user)"
+                                        (click)="toggleUserActive(user)"
+                                        [matTooltip]="
+                                            isCurrentUser(user)
+                                                ? 'Eigenes Konto kann nicht deaktiviert werden'
+                                                : 'Benutzer deaktivieren'
+                                        "
+                                        aria-label="Benutzer deaktivieren"
+                                    >
+                                        <mat-icon>person_off</mat-icon>
+                                    </button>
+                                } @else {
+                                    <button
+                                        matIconButton
+                                        type="button"
+                                        class="action-button activate-btn"
+                                        (click)="toggleUserActive(user)"
+                                        matTooltip="Benutzer aktivieren"
+                                        aria-label="Benutzer aktivieren"
+                                    >
+                                        <mat-icon>person_check</mat-icon>
+                                    </button>
+                                }
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                }
+            </div>
+        }
+    }
+</div>

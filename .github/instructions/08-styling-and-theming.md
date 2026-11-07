@@ -45,6 +45,19 @@ Page components split their styles into partials imported from the component fil
 - Larger pages may add `_theme.scss` (dark-mode overrides), or feature-specific partials.
 - Import with `@use "desktop";` (no underscore/extension).
 
+## Feature-shared SCSS
+
+When several components of one feature share layout styles (tab shell, cards, list rows, loading/empty states), put them in a feature-level partial instead of duplicating them per component. Example: [settings/styles/_settings-common.scss](../../src/app/modules/settings/styles/_settings-common.scss).
+
+```scss
+// <feature>/pages/components/<component>/<component>.component.scss
+@use "../../../styles/settings-common";
+```
+
+- Import the partial with `@use` (no `@import`).
+- Keep component-specific styles (badges, toggles, feature controls) in the component's own `*.component.scss`.
+- Prefer shared layout classes from the partial in templates (e.g. `settings-item-list`, `settings-item-card`, `settings-item-main-info`) and only add feature-specific modifier classes on top.
+
 ## Breakpoints
 
 - Single source of truth: `src/_breakpoints.scss`.

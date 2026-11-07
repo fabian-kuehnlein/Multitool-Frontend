@@ -1,5 +1,6 @@
 @use "desktop";
 @use "mobile";
+@use "../styles/settings-common";
 
 // -- Host
 :host {
@@ -76,35 +77,4 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
-}
-
-.tab-content-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-.section-header-wrapper {
-    .section-title {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 4px 0;
-    }
-
-    .section-subtitle {
-        font-size: 0.9rem;
-        color: var(--text-subtle);
-        margin: 0;
-    }
-
-    &.section-header-actions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-    }
 }

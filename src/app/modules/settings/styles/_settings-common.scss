@@ -1,6 +1,38 @@
 // Shared styles for all settings components
 @use "../../../../_breakpoints" as bp;
 
+// -- Tab content & section header
+.tab-content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section-header-wrapper {
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 4px 0;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: var(--text-subtle);
+        margin: 0;
+    }
+
+    &.section-header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+}
+
 :host {
     // Height for all setting controls (toggles, inputs, steppers)
     --settings-control-height: 40px;
@@ -14,6 +46,110 @@
 
     .setting-card-body {
         padding: 20px 24px;
+    }
+}
+
+// -- Item lists & cards
+.settings-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-item-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border-default);
+    border-radius: 10px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+}
+
+.settings-item-card-content {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.settings-item-main-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 0 0 var(--settings-item-main-width, 220px);
+}
+
+.settings-item-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.settings-item-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.settings-item-meta {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+}
+
+.settings-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+// -- Loading & empty states
+.loading-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    gap: 16px;
+    color: var(--text-subtle);
+}
+
+.empty-state-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    background-color: var(--bg-surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: 12px;
+
+    .empty-state-icon {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+        color: var(--text-disabled);
+        margin-bottom: 12px;
+    }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin: 0 0 4px 0;
+    }
+
+    .empty-state-text {
+        font-size: 0.9rem;
+        color: var(--text-subtle);
+        margin: 0 0 20px 0;
     }
 }
 
@@ -244,6 +380,46 @@
 }
 
 @include bp.mobile {
+    .tab-content-container {
+        padding: 0;
+        gap: 16px;
+    }
+
+    .section-header-wrapper {
+        &.section-header-actions {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+
+            .section-action-button {
+                width: 100%;
+            }
+        }
+    }
+
+    .settings-item-card {
+        position: relative;
+    }
+
+    .settings-item-card-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 14px 16px;
+    }
+
+    .settings-item-main-info {
+        flex: none;
+        padding-right: 96px;
+    }
+
+    .settings-item-actions {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        margin-left: 0;
+    }
+
     // Stack setting layout vertically on mobile
     .setting-item {
         flex-direction: column;
@@ -291,5 +467,16 @@
     .setting-hint {
         text-align: left;
         max-width: 100%;
+    }
+}
+
+@include bp.tablet {
+    .settings-item-card-content {
+        flex-wrap: wrap;
+        row-gap: 12px;
+    }
+
+    .settings-item-main-info {
+        flex: 1 1 100%;
     }
 }

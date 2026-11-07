@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
         // loads categories as soon as a valid session exists
         // (immediately on app start when already logged in, otherwise after login)
         effect(() => {
-            if (this.authService.isAuthenticated()) {
+            if (this.authService.authState().isAuthenticated) {
                 this.categoryService.loadCategories();
             }
         });

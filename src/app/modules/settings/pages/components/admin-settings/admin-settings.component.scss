@@ -1,0 +1,188 @@
+@use "../../../../../../_breakpoints" as bp;
+@use "../../../styles/settings-common";
+
+// Search bar row
+.search-bar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .search-form-field {
+        flex: 1;
+        max-width: 400px;
+        min-width: 240px;
+
+        .search-icon {
+            color: var(--text-subtle);
+            margin-right: 4px;
+        }
+    }
+
+    .user-count-badge {
+        font-size: 0.85rem;
+        color: var(--text-subtle);
+        font-weight: 500;
+    }
+}
+
+.user-card {
+    --settings-item-main-width: 280px;
+
+    &.user-card-inactive {
+        opacity: 0.75;
+        background-color: var(--bg-muted);
+    }
+}
+
+.user-avatar-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background-color: var(--mat-sys-surface-variant);
+    color: var(--mat-sys-on-surface-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &.admin-badge {
+        background-color: var(--mat-sys-primary-container);
+        color: var(--mat-sys-primary);
+    }
+
+    &.inactive-avatar {
+        opacity: 0.6;
+    }
+
+    .avatar-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.current-user-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-primary);
+    letter-spacing: 0.02em;
+}
+
+.user-meta-badges {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    justify-content: center;
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background-color: var(--mat-sys-surface-variant);
+        color: var(--text-secondary);
+
+        &.admin-role {
+            background-color: var(--mat-sys-primary-container);
+            color: var(--mat-sys-on-primary-container);
+            font-weight: 600;
+        }
+
+        .badge-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        &.status-active {
+            background-color: var(--color-success-container);
+            color: var(--color-success);
+
+            .status-dot {
+                background-color: var(--color-success);
+            }
+        }
+
+        &.status-inactive {
+            background-color: var(--mat-sys-surface-variant);
+            color: var(--text-subtle);
+
+            .status-dot {
+                background-color: var(--text-subtle);
+            }
+        }
+    }
+}
+
+.user-item-actions {
+    gap: 8px;
+
+    .action-button {
+        color: var(--text-secondary);
+
+        &:hover {
+            color: var(--text-primary);
+        }
+
+        &.deactivate-btn:hover {
+            color: var(--mat-sys-error);
+        }
+
+        &.activate-btn:hover {
+            color: var(--color-success);
+        }
+    }
+}
+
+@include bp.mobile {
+    .search-bar-row {
+        flex-direction: column;
+        align-items: stretch;
+
+        .search-form-field {
+            max-width: none;
+        }
+    }
+
+    .user-meta-badges {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+@include bp.tablet {
+    .user-meta-badges {
+        justify-content: flex-start;
+    }
+}
