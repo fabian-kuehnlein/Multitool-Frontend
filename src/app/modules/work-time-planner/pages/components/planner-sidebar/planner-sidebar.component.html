@@ -64,7 +64,10 @@
                     <span class="stat-label">Gesamtkonto</span>
                 </div>
             </div>
-            <div class="stat-card">
+            <div
+                class="stat-card"
+                [class.limit-exceeded]="isHomeOfficeWeeklyLimitExceeded"
+            >
                 <mat-icon class="stat-icon">home</mat-icon>
                 <div class="stat-info">
                     <span class="stat-value">{{
@@ -77,7 +80,10 @@
                 month of homeOfficeMonthCounts;
                 track month.year + "-" + month.month
             ) {
-                <div class="stat-card">
+                <div
+                    class="stat-card"
+                    [class.limit-exceeded]="isMonthOverLimit(month)"
+                >
                     <mat-icon class="stat-icon">home</mat-icon>
                     <div class="stat-info">
                         <span class="stat-value">{{ month.count }}</span>

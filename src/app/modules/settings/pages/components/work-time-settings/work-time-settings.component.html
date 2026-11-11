@@ -121,69 +121,138 @@
                     <div class="setting-text">
                         <span class="setting-title">Homeoffice-Limit</span>
                         <span class="setting-description">
-                            Maximale Anzahl an Homeoffice-Tagen pro Woche oder Monat.
+                            Maximale Anzahl an Homeoffice-Tagen pro Woche und Monat.
                         </span>
                     </div>
                 </div>
 
                 <div class="setting-action">
                     <div class="setting-control-group">
-                        <div class="controls-row">
-                            <mat-button-toggle-group
-                                [value]="hoMode()"
-                                (change)="onHoModeChange($event.value)"
-                                aria-label="Homeoffice-Limit-Modus"
-                                class="mode-toggle-group"
-                            >
-                                <mat-button-toggle value="weekly"
-                                    >Wöchentlich</mat-button-toggle
-                                >
-                                <mat-button-toggle value="monthly"
-                                    >Monatlich</mat-button-toggle
-                                >
-                            </mat-button-toggle-group>
-
-                            <div class="inputs-row">
-                                <div class="setting-stepper">
+                        <div
+                            class="limit-row"
+                            [class.disabled]="!isWeeklyLimitEnabled()"
+                        >
+                            <span class="limit-label">Wöchentlich</span>
+                            <div class="limit-control-container">
+                                @if (isWeeklyLimitEnabled()) {
+                                    <div class="setting-stepper">
+                                        <button
+                                            type="button"
+                                            class="stepper-btn"
+                                            (click)="decrementWeeklyLimit()"
+                                            aria-label="Wöchentliches Homeoffice-Limit verringern"
+                                        >
+                                            <mat-icon>remove</mat-icon>
+                                        </button>
+                                        <input
+                                            type="number"
+                                            class="stepper-input"
+                                            [value]="weeklyLimit()"
+                                            (input)="onWeeklyLimitInput($event)"
+                                            (blur)="onWeeklyLimitBlur()"
+                                            min="0"
+                                            max="7"
+                                            aria-label="Homeoffice-Tage pro Woche"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="stepper-btn"
+                                            (click)="incrementWeeklyLimit()"
+                                            aria-label="Wöchentliches Homeoffice-Limit erhöhen"
+                                        >
+                                            <mat-icon>add</mat-icon>
+                                        </button>
+                                        <span class="stepper-unit">Tage</span>
+                                    </div>
                                     <button
-                                        type="button"
-                                        class="stepper-btn"
-                                        (click)="decrementHoDays()"
-                                        aria-label="Tage verringern"
+                                        matIconButton
+                                        class="limit-toggle-button"
+                                        (click)="clearWeeklyLimit()"
+                                        matTooltip="Limit deaktivieren"
+                                        aria-label="Wöchentliches Homeoffice-Limit deaktivieren"
                                     >
-                                        <mat-icon>remove</mat-icon>
+                                        <mat-icon>all_inclusive</mat-icon>
                                     </button>
-                                    <input
-                                        type="number"
-                                        class="stepper-input"
-                                        [value]="hoDaysValue()"
-                                        (input)="onHoDaysInput($event)"
-                                        min="0"
-                                        [max]="hoMode() === 'weekly' ? 7 : 31"
-                                        aria-label="Tage"
-                                    />
+                                } @else {
                                     <button
-                                        type="button"
-                                        class="stepper-btn"
-                                        (click)="incrementHoDays()"
-                                        aria-label="Tage erhöhen"
+                                        matButton="outlined"
+                                        class="set-limit-button"
+                                        (click)="enableWeeklyLimit()"
+                                        matTooltip="Limit aktivieren"
                                     >
-                                        <mat-icon>add</mat-icon>
+                                        <mat-icon
+                                            matButtonIcon
+                                            class="set-limit-icon"
+                                            >all_inclusive</mat-icon
+                                        >
+                                        Limit setzen
                                     </button>
-                                    <span class="stepper-unit">Tage</span>
-                                </div>
+                                }
                             </div>
                         </div>
 
-                        <span class="setting-hint">
-                            @if (hoDaysValue() === 0) {
-                                0 = unbegrenzt
-                            } @else if (hoMode() === "weekly") {
-                                ~{{ hoDaysValue() * 4 }} Tage/Monat
-                            } @else {
-                                ~{{ hoWeeklyEquivalent() }} Tage/Woche
-                            }
-                        </span>
+                        <div
+                            class="limit-row"
+                            [class.disabled]="!isMonthlyLimitEnabled()"
+                        >
+                            <span class="limit-label">Monatlich</span>
+                            <div class="limit-control-container">
+                                @if (isMonthlyLimitEnabled()) {
+                                    <div class="setting-stepper">
+                                        <button
+                                            type="button"
+                                            class="stepper-btn"
+                                            (click)="decrementMonthlyLimit()"
+                                            aria-label="Monatliches Homeoffice-Limit verringern"
+                                        >
+                                            <mat-icon>remove</mat-icon>
+                                        </button>
+                                        <input
+                                            type="number"
+                                            class="stepper-input"
+                                            [value]="monthlyLimit()"
+                                            (input)="onMonthlyLimitInput($event)"
+                                            (blur)="onMonthlyLimitBlur()"
+                                            min="0"
+                                            max="31"
+                                            aria-label="Homeoffice-Tage pro Monat"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="stepper-btn"
+                                            (click)="incrementMonthlyLimit()"
+                                            aria-label="Monatliches Homeoffice-Limit erhöhen"
+                                        >
+                                            <mat-icon>add</mat-icon>
+                                        </button>
+                                        <span class="stepper-unit">Tage</span>
+                                    </div>
+                                    <button
+                                        matIconButton
+                                        class="limit-toggle-button"
+                                        (click)="clearMonthlyLimit()"
+                                        matTooltip="Limit deaktivieren"
+                                        aria-label="Monatliches Homeoffice-Limit deaktivieren"
+                                    >
+                                        <mat-icon>all_inclusive</mat-icon>
+                                    </button>
+                                } @else {
+                                    <button
+                                        matButton="outlined"
+                                        class="set-limit-button"
+                                        (click)="enableMonthlyLimit()"
+                                        matTooltip="Limit aktivieren"
+                                    >
+                                        <mat-icon
+                                            matButtonIcon
+                                            class="set-limit-icon"
+                                            >all_inclusive</mat-icon
+                                        >
+                                        Limit setzen
+                                    </button>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

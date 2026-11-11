@@ -4,7 +4,8 @@ export const DEFAULT_WORK_TIME_SETTINGS: WorkTimeSettings = {
     dailyTargetMinutes: 480,
     breakRule6h: 30,
     breakRule9h: 45,
-    homeOfficeLimit: 6,
+    homeOfficeLimitWeekly: 0,
+    homeOfficeLimitMonthly: 0,
 };
 
 export const WEEKDAY_NAMES = [

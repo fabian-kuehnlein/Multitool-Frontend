@@ -16,6 +16,9 @@ import {
     WORKTIME_SETTING_KEYS,
 } from '../../../models/settings.model';
 
+const DEFAULT_WEEKLY_LIMIT = 3;
+const DEFAULT_MONTHLY_LIMIT = 10;
+
 @Component({
     selector: 'app-work-time-settings',
     standalone: true,
@@ -25,20 +28,25 @@ import {
     changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class WorkTimeSettingsComponent {
-    protected readonly settingsService = inject(SettingsService);
+    private readonly settingsService = inject(SettingsService);
 
     readonly timeMode = signal<'daily' | 'weekly'>('daily');
     readonly hoursValue = signal<number>(8);
     readonly minutesValue = signal<number>(0);
 
-    readonly hoMode = signal<'weekly' | 'monthly'>('weekly');
-    readonly hoDaysValue = signal<number>(0);
+    readonly weeklyLimit = signal<number>(0);
+    readonly monthlyLimit = signal<number>(0);
+    readonly isWeeklyLimitEnabled = signal<boolean>(false);
+    readonly isMonthlyLimitEnabled = signal<boolean>(false);
+    private lastWeeklyLimit = DEFAULT_WEEKLY_LIMIT;
+    private lastMonthlyLimit = DEFAULT_MONTHLY_LIMIT;
 
     private readonly timeInput$ = new Subject<{
         hours: number;
         minutes: number;
     }>();
-    private readonly hoInput$ = new Subject<number>();
+    private readonly weeklyLimitInput$ = new Subject<number>();
+    private readonly monthlyLimitInput$ = new Subject<number>();
     private isInitialized = false;
 
     // Derived hints
@@ -66,10 +74,6 @@ export class WorkTimeSettingsComponent {
         return dailyMins % 60;
     });
 
-    readonly hoWeeklyEquivalent = computed(() => {
-        return (this.hoDaysValue() / 4).toFixed(1);
-    });
-
     constructor() {
         effect(() => {
             const settings = this.settingsService.settings();
@@ -79,15 +83,15 @@ export class WorkTimeSettingsComponent {
             this.hoursValue.set(Math.floor(wt.dailyTargetMinutes / 60));
             this.minutesValue.set(wt.dailyTargetMinutes % 60);
 
-            if (
-                wt.homeOfficeLimitMonthly > 0 &&
-                wt.homeOfficeLimitWeekly === 0
-            ) {
-                this.hoMode.set('monthly');
-                this.hoDaysValue.set(wt.homeOfficeLimitMonthly);
-            } else {
-                this.hoMode.set('weekly');
-                this.hoDaysValue.set(wt.homeOfficeLimitWeekly);
+            this.weeklyLimit.set(wt.homeOfficeLimitWeekly);
+            this.monthlyLimit.set(wt.homeOfficeLimitMonthly);
+            this.isWeeklyLimitEnabled.set(wt.homeOfficeLimitWeekly > 0);
+            this.isMonthlyLimitEnabled.set(wt.homeOfficeLimitMonthly > 0);
+            if (wt.homeOfficeLimitWeekly > 0) {
+                this.lastWeeklyLimit = wt.homeOfficeLimitWeekly;
+            }
+            if (wt.homeOfficeLimitMonthly > 0) {
+                this.lastMonthlyLimit = wt.homeOfficeLimitMonthly;
             }
 
             this.isInitialized = true;
@@ -113,54 +117,28 @@ export class WorkTimeSettingsComponent {
                     .subscribe({ error: () => {} });
             });
 
-        this.hoInput$
+        this.weeklyLimitInput$
             .pipe(debounceTime(500), takeUntilDestroyed())
             .subscribe((days) => {
-                if (this.hoMode() === 'weekly') {
-                    const clamped = Math.max(0, Math.min(7, days));
-                    this.settingsService
-                        .updateSetting(
-                            SETTINGS_MODULE_WORKTIME,
-                            WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_WEEKLY,
-                            clamped,
-                        )
-                        .subscribe({ error: () => {} });
+                this.settingsService
+                    .updateSetting(
+                        SETTINGS_MODULE_WORKTIME,
+                        WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_WEEKLY,
+                        days,
+                    )
+                    .subscribe({ error: () => {} });
+            });
 
-                    const currentMonthly =
-                        this.settingsService.settings()?.worktime
-                            .homeOfficeLimitMonthly ?? 0;
-                    if (currentMonthly > 0) {
-                        this.settingsService
-                            .updateSetting(
-                                SETTINGS_MODULE_WORKTIME,
-                                WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_MONTHLY,
-                                0,
-                            )
-                            .subscribe({ error: () => {} });
-                    }
-                } else {
-                    const clamped = Math.max(0, Math.min(31, days));
-                    this.settingsService
-                        .updateSetting(
-                            SETTINGS_MODULE_WORKTIME,
-                            WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_MONTHLY,
-                            clamped,
-                        )
-                        .subscribe({ error: () => {} });
-
-                    const currentWeekly =
-                        this.settingsService.settings()?.worktime
-                            .homeOfficeLimitWeekly ?? 0;
-                    if (currentWeekly > 0) {
-                        this.settingsService
-                            .updateSetting(
-                                SETTINGS_MODULE_WORKTIME,
-                                WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_WEEKLY,
-                                0,
-                            )
-                            .subscribe({ error: () => {} });
-                    }
-                }
+        this.monthlyLimitInput$
+            .pipe(debounceTime(500), takeUntilDestroyed())
+            .subscribe((days) => {
+                this.settingsService
+                    .updateSetting(
+                        SETTINGS_MODULE_WORKTIME,
+                        WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_MONTHLY,
+                        days,
+                    )
+                    .subscribe({ error: () => {} });
             });
     }
 
@@ -217,12 +195,66 @@ export class WorkTimeSettingsComponent {
         this.adjustMinutes(-5);
     }
 
-    incrementHoDays(): void {
-        this.adjustHoDays(1);
+    onWeeklyLimitInput(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const raw = Number(input.value) || 0;
+        this.setWeeklyLimit(raw);
+        input.value = String(this.weeklyLimit());
     }
 
-    decrementHoDays(): void {
-        this.adjustHoDays(-1);
+    onMonthlyLimitInput(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const raw = Number(input.value) || 0;
+        this.setMonthlyLimit(raw);
+        input.value = String(this.monthlyLimit());
+    }
+
+    incrementWeeklyLimit(): void {
+        this.setWeeklyLimit(this.weeklyLimit() + 1);
+    }
+
+    decrementWeeklyLimit(): void {
+        this.setWeeklyLimit(this.weeklyLimit() - 1);
+    }
+
+    incrementMonthlyLimit(): void {
+        this.setMonthlyLimit(this.monthlyLimit() + 1);
+    }
+
+    decrementMonthlyLimit(): void {
+        this.setMonthlyLimit(this.monthlyLimit() - 1);
+    }
+
+    clearWeeklyLimit(): void {
+        this.isWeeklyLimitEnabled.set(false);
+        this.setWeeklyLimit(0);
+    }
+
+    enableWeeklyLimit(): void {
+        this.isWeeklyLimitEnabled.set(true);
+        this.setWeeklyLimit(this.lastWeeklyLimit);
+    }
+
+    onWeeklyLimitBlur(): void {
+        if (this.weeklyLimit() === 0) {
+            this.isWeeklyLimitEnabled.set(false);
+        }
+    }
+
+    clearMonthlyLimit(): void {
+        this.isMonthlyLimitEnabled.set(false);
+        this.setMonthlyLimit(0);
+    }
+
+    enableMonthlyLimit(): void {
+        this.isMonthlyLimitEnabled.set(true);
+        this.setMonthlyLimit(this.lastMonthlyLimit);
+    }
+
+    onMonthlyLimitBlur(): void {
+        if (this.monthlyLimit() === 0) {
+            this.isMonthlyLimitEnabled.set(false);
+        }
     }
 
     private adjustHours(delta: number): void {
@@ -238,64 +270,21 @@ export class WorkTimeSettingsComponent {
         this.timeInput$.next({ hours: this.hoursValue(), minutes: newVal });
     }
 
-    private adjustHoDays(delta: number): void {
-        const max = this.hoMode() === 'weekly' ? 7 : 31;
-        const newVal = Math.max(0, Math.min(max, this.hoDaysValue() + delta));
-        this.hoDaysValue.set(newVal);
-        this.hoInput$.next(newVal);
-    }
-
-    onHoModeChange(mode: 'weekly' | 'monthly'): void {
-        const prevMode = this.hoMode();
-        if (prevMode === mode) return;
-
-        this.hoMode.set(mode);
-        const currentDays = this.hoDaysValue();
-
-        if (currentDays === 0) return;
-
-        if (mode === 'monthly') {
-            const newMonthly = Math.min(31, currentDays * 4);
-            this.hoDaysValue.set(newMonthly);
-            this.settingsService
-                .updateSetting(
-                    SETTINGS_MODULE_WORKTIME,
-                    WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_MONTHLY,
-                    newMonthly,
-                )
-                .subscribe({ error: () => {} });
-            this.settingsService
-                .updateSetting(
-                    SETTINGS_MODULE_WORKTIME,
-                    WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_WEEKLY,
-                    0,
-                )
-                .subscribe({ error: () => {} });
-        } else {
-            const newWeekly = Math.min(7, Math.round(currentDays / 4));
-            this.hoDaysValue.set(newWeekly);
-            this.settingsService
-                .updateSetting(
-                    SETTINGS_MODULE_WORKTIME,
-                    WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_WEEKLY,
-                    newWeekly,
-                )
-                .subscribe({ error: () => {} });
-            this.settingsService
-                .updateSetting(
-                    SETTINGS_MODULE_WORKTIME,
-                    WORKTIME_SETTING_KEYS.HOME_OFFICE_LIMIT_MONTHLY,
-                    0,
-                )
-                .subscribe({ error: () => {} });
+    private setWeeklyLimit(value: number): void {
+        const clamped = Math.max(0, Math.min(7, value));
+        if (clamped > 0) {
+            this.lastWeeklyLimit = clamped;
         }
+        this.weeklyLimit.set(clamped);
+        this.weeklyLimitInput$.next(clamped);
     }
 
-    onHoDaysInput(event: Event): void {
-        const raw = Number((event.target as HTMLInputElement).value) || 0;
-        const max = this.hoMode() === 'weekly' ? 7 : 31;
-        const val = Math.max(0, Math.min(max, raw));
-        this.hoDaysValue.set(val);
-        this.hoInput$.next(val);
+    private setMonthlyLimit(value: number): void {
+        const clamped = Math.max(0, Math.min(31, value));
+        if (clamped > 0) {
+            this.lastMonthlyLimit = clamped;
+        }
+        this.monthlyLimit.set(clamped);
+        this.monthlyLimitInput$.next(clamped);
     }
 }
