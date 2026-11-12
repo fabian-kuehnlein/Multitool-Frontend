@@ -8,7 +8,7 @@ Every component is standalone and follows this shape:
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UI_MODULES } from '../../../shared/utilities/material-ui';
-import { ServiceExample } from '../services/service-example.service';
+import { ServiceExampleService } from '../services/service-example.service';
 
 @Component({
     selector: 'app-component-to-implement',
@@ -18,7 +18,7 @@ import { ServiceExample } from '../services/service-example.service';
     styleUrl: './component-to-implement.component.scss',
     changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class ComponentToImplement {
+export class ComponentToImplementComponent {
     // ...
 }
 ```
@@ -33,7 +33,7 @@ export class ComponentToImplement {
 - Use `inject()` for all dependencies, declared as fields near the top of the class:
 
 ```ts
-protected readonly serviceExample = inject(ServiceExample);
+protected readonly serviceExampleService = inject(ServiceExampleService);
 private readonly dialog = inject(MatDialog);
 private readonly snackbar = inject(SnackbarService);
 ```
@@ -50,8 +50,8 @@ Group Angular-specific properties together at the top of the class, **before any
 4. then the methods (event handlers, lifecycle hooks)
 
 ```ts
-export class ComponentToImplement implements OnInit {
-    private readonly serviceExample = inject(ServiceExample);
+export class ComponentToImplementComponent implements OnInit {
+    private readonly serviceExampleService = inject(ServiceExampleService);
     private readonly dialog = inject(MatDialog);
 
     readonly item = input.required<ItemModel>();
@@ -69,7 +69,7 @@ export class ComponentToImplement implements OnInit {
 This keeps the class's template API and dependencies findable at a glance.
 
 - Mark properties **initialized by Angular** as `readonly` — signal `input()`, `model()`, `output()` and queries: `readonly item = input<Item>();`. The same applies to decorator-based `@Output`/query properties (`@ViewChildren(...) readonly ...?`); decorator-based `@Input`s are exempt.
-- Keep the component **focused on presentation**: injected deps, template-bound signals/computeds and handlers only. Business rules move to `logic/`, transformations to `mappers/`, constants to `utilities/`, HTTP/state to services. See [11-code-splitting.md](./11-code-splitting.md).
+- Keep the component **focused on presentation**: injected deps, template-bound signals/computeds and handlers only. Business rules move to `logic/`, transformations to `mappers/`, constants to `utilities/`, HTTP/state to services. See [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md).
 
 ## Local state
 
@@ -94,7 +94,7 @@ This keeps the class's template API and dependencies findable at a glance.
   <div [class]="{ error: hasError, dense: density() === 'high' }">
   ```
 
-  Do not import `NgClass`/`NgStyle`. The few remaining `[ngClass]` usages (e.g. `custom-table`, `recurrence-form`) are legacy — replace them when you touch those templates.
+  Do not import `NgClass`/`NgStyle`. Any remaining `[ngClass]` usage is legacy — replace it when you touch that template.
 - **Name event handlers for what they do**, not for the triggering event: `(click)="saveItem()"`, not `(click)="handleClick()"` (full rule in [02-naming-conventions.md](./02-naming-conventions.md#functions--methods)).
 
 ## Material attribute syntax
@@ -123,12 +123,12 @@ This keeps the class's template API and dependencies findable at a glance.
 
   ```ts
   ngOnInit(): void {
-      this.serviceExample.loadItems();
+      this.serviceExampleService.loadItems();
       this.startHotkeyRegistration();
   }
   ```
 
-- Implement `OnInit` for kick-off work (e.g. `ngOnInit(): void { this.serviceExample.loadItems(); }`).
+- Implement `OnInit` for kick-off work (e.g. `ngOnInit(): void { this.serviceExampleService.loadItems(); }`).
 - Use `ngOnDestroy` to clean up subscriptions — either via `takeUntil(destroy$)` with a `Subject<void>` or by relying on signals/`toSignal`.
 - `viewChild()`/`viewChildren()` are the signal-based alternatives to `@ViewChild` — prefer them.
 - `@HostListener` is fine for keyboard shortcuts, but consider the app-wide hotkey service when the shortcut is global.
@@ -139,7 +139,7 @@ This keeps the class's template API and dependencies findable at a glance.
 - Inject `MatDialogRef<DialogComponent>` and the typed data with `MAT_DIALOG_DATA` via `inject`:
 
 ```ts
-private readonly dialogRef = inject(MatDialogRef<ComponentToImplementDialog>);
+private readonly dialogRef = inject(MatDialogRef<ComponentToImplementDialogComponent>);
 private readonly data = inject<{ item?: ItemModel }>(MAT_DIALOG_DATA);
 ```
 
@@ -155,7 +155,7 @@ private readonly data = inject<{ item?: ItemModel }>(MAT_DIALOG_DATA);
       justify-content: flex-end;
       padding: 16px;
       margin-top: auto;
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid var(--border-subtle);
 
       button { flex: 1; min-width: 0; }
       .error-button { flex: 1 1 100%; margin-bottom: 8px; }
@@ -174,7 +174,7 @@ private readonly data = inject<{ item?: ItemModel }>(MAT_DIALOG_DATA);
   }
   ```
 
-- **Form-heavy dialogs get a `<name>-form.service.ts`** co-located next to them. It owns `buildForm()` + validators, patch/init for edit mode, and form-value → DTO mapping. The dialog component keeps only open/save/close orchestration and template-bound `computed` signals. Provide the service in the component's `providers` array. See [11-code-splitting.md](./11-code-splitting.md).
+- **Form-heavy dialogs get a `<name>-form.service.ts`** co-located next to them. It owns `buildForm()` + validators, patch/init for edit mode, and form-value → DTO mapping. The dialog component keeps only open/save/close orchestration and template-bound `computed` signals. Provide the service in the component's `providers` array. See [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md).
 - Use the shared `ConfirmDialogComponent` (`shared/components/confirm-dialog`) to open a confirm dialog anywhere in the app — e.g. before destructive actions — instead of rolling your own. Pass the text via `data` (`title`, `message`, `confirmText`, `cancelText`, `isDestructive`):
 
 ```ts
@@ -188,7 +188,7 @@ const dialogRef = this.dialog.open(ConfirmDialogComponent, {
 
 - Read the result via `dialogRef.afterClosed().subscribe((result) => ...)` and only act when a value is returned — `result` is `true` when the user confirmed.
 - The sidenav is opened as a dialog with the active feature name passed as `data`.
-- If a dialog's template grows large, extract self-contained sections into child components (`pages/components/<name>/`). See [11-code-splitting.md](./11-code-splitting.md).
+- Extract self-contained sections of a dialog template into child components (`pages/components/<name>/`). See [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md).
 
 ## Reusable form components
 

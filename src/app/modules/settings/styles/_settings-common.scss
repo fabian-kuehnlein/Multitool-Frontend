@@ -1,5 +1,5 @@
 // Shared styles for all settings components
-@use "../../../../_breakpoints" as bp;
+@use "../../../../styles/breakpoints" as bp;
 
 :host {
     // Height for all setting controls (toggles, inputs, steppers)

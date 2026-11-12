@@ -1,5 +1,5 @@
-@use "../../../../_breakpoints" as bp;
-@use "../../../../_floating-actions" as fab;
+@use "../../../../styles/breakpoints" as bp;
+@use "../../../../styles/floating-actions" as fab;
 
 .mobile-header {
     display: flex;

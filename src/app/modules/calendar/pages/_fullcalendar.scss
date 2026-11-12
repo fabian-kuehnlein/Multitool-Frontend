@@ -133,7 +133,7 @@
 
     // List View — Mobile Layout
     // Note: 600px here is FullCalendar's own internal breakpoint for its list
-    // view, not our app's mobile breakpoint (see _breakpoints) — deliberately
+    // view, not our app's mobile breakpoint (see styles/breakpoints) — deliberately
     // a raw media query, not bp.mobile.
     @media (max-width: 600px) {
         .fc-list-event {

@@ -1,28 +1,21 @@
-# Code Splitting & File Organization
+# Code Organization & Splitting
 
 ## Goal
 
-Keep every TypeScript file small enough to understand on one screen and with **exactly one clear responsibility**. Large files are not just a readability problem — they hide bugs, make review harder, and make refactoring expensive.
+Give every file **exactly one clear responsibility**. Code is split so that logic has one obvious home, shared behavior is centralized, and a reader can find things without searching. Smaller files are usually easier to read, but **file length is not a criterion**: there is no line budget and no rule that a file must be split above a certain number of lines. A long file that does one coherent thing can stay as it is; a short file that mixes unrelated concerns should be split.
 
-**One concept per file:** a source file focuses on a single concept — usually one component, directive or service per file. A file *may* hold more than one class when they are small and belong to one concept (e.g. a component with a tiny local helper class), but when in doubt pick the approach that leads to smaller files.
+**One concept per file:** a source file focuses on a single concept — usually one component, directive or service per file. A file *may* hold more than one class when they are small and belong to one concept (e.g. a component with a tiny local helper class), but when in doubt pick the approach that keeps responsibilities clearly separated.
 
-This is the methodology for splitting oversized files. It describes the *target* structure; existing code may not match it yet — migrate towards it when you touch the code.
+This is the methodology for organizing code and splitting it by responsibility. It describes the *target* structure; existing code may not match it yet — migrate towards it when you touch the code.
 
 ## Triggers — when to split
 
-| Artifact | Soft budget | Hard smell |
-| --- | --- | --- |
-| Component `.ts` | ~200 lines | > ~300 lines, or the template is > ~300 lines |
-| State service `.ts` | ~300 lines | > ~300 lines |
-| HTTP service `.ts` | ~150 lines | > ~150 lines |
-| Mapper / logic / util file | ~120 lines | > ~120 lines |
-
-The real triggers are not line counts but:
+The triggers are always about responsibilities and navigation, never line counts:
 
 1. The file has **more than one responsibility** (e.g. a mapper that also parses strings, a component that also computes business rules).
-2. You have to **scroll to find a method**, or imports span many unrelated things.
+2. Unrelated concerns make the file hard to follow — finding a method means scrolling past code that has nothing to do with it, or the imports span many unrelated things.
 3. The same derived state or helper is **duplicated** in multiple files.
-4. The template is so large that the matching component carries dozens of handler methods.
+4. The template mixes several distinct sections, so the matching component carries dozens of handler methods for unrelated concerns.
 
 ## The five responsibility buckets
 
@@ -68,7 +61,7 @@ modules/<feature>/
 
 ## The split decision tree
 
-For every file that is too big, walk this list in order:
+For every file that mixes responsibilities, walk this list in order:
 
 1. **Does it hold view state the template reads or open dialogs?** → keep in the component, or extract the section as a child component.
 2. **Does it call HTTP or hold state shared across components?** → `services/`.
@@ -82,7 +75,7 @@ Start with the lowest-risk extractions (3–5), then do forms (6), then componen
 
 ## Splitting components
 
-The component is the most common offender. Four levers, applied in order:
+Components are the most common place where concerns mix. Four levers, applied in order:
 
 ### 1. Extract child components for template sections
 
@@ -110,10 +103,10 @@ Component TS should be: injected dependencies, a handful of template-bound signa
 
 ## Splitting state services
 
-When a state service exceeds the budget:
+When a state service mixes several responsibilities:
 
 1. **Extract pure calculations to `logic/` first.** Calculation helpers, normalization functions and default-setting objects are all pure → move them to `logic/` and `utilities/`. The service keeps state, orchestration and any pending-change bookkeeping.
-2. Only if the service still has multiple independent state domains, split into several `<feature>-<domain>.service.ts` files. Prefer this over a single oversized service.
+2. Only if the service still has multiple independent state domains, split into several `<feature>-<domain>.service.ts` files. Prefer this over one service that mixes unrelated domains.
 3. HTTP services stay **one per backend controller** — do not split per endpoint.
 
 ## Splitting mappers & utilities
@@ -123,16 +116,14 @@ When a state service exceeds the budget:
   - `mappers/<entity>.mapper.ts` — the transformations between models / DTOs / third-party shapes.
   - `logic/<domain>.logic.ts` — parsing, matching, and calculation rules.
   - `utilities/<domain>.util.ts` — shared formatting/normalization helpers.
-  - General date handling is app-wide and lives in
-    `src/app/shared/utilities/date.util.ts` (`DateUtil`). Do not create a
-    feature-local `date.util.ts`; extend the shared utility instead
+  - General date handling is app-wide and lives in `src/app/shared/utilities/date.util.ts` (`DateUtil`). Do not create a feature-local `date.util.ts`; extend the shared utility instead
     (see [09-dates-and-localization.md](./09-dates-and-localization.md#central-date-utility)).
 - **Extract inline HTML generation from config.** If a config file builds markup with template-literal strings, extract the renderer into a pure function in `logic/` — so the config stays a config.
 - Define and export intermediate types for cross-shape mappings instead of `any`.
 
 ## What NOT to split
 
-- Don't split for its own sake — a 60-line file stays one file. Every split costs navigation.
+- Don't split for its own sake — every split costs navigation. Split when responsibilities differ, not to hit a size target; if a split makes one concept harder to follow, it is the wrong split.
 - Don't create a service with a single method just to "organize" — plain functions cover it.
 - Don't split a state service's signals across files; one service per state domain.
 - Don't inject a service only to call one pure function — call the pure function directly.

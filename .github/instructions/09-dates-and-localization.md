@@ -55,16 +55,15 @@ DateUtil.toDate(value);                      // Date | null
 - Return values are `null` (not `Invalid Date`) when the input cannot be parsed.
 - Use the exported constants (`API_DATE_TIME_FORMAT`, `DISPLAY_DATE_FORMAT`, …)
   instead of repeating format strings.
-- Feature `utilities/date.util.ts` files were removed; do not add new
-  feature-local date helpers — extend the shared one instead.
+- Do not add feature-local date helpers — extend the shared one instead.
 
 Dayjs is still the underlying library and remains fine **inside** date math
 that chains several operations (e.g. recurrence expansion, duration handling).
 Outside `DateUtil`, prefer its methods over importing dayjs.
 
-Form services (e.g. `event-form.service.ts`, `todo-dialog-form.service.ts`)
-stay responsible for mapping form values to DTOs. They call `DateUtil` for all
-date parsing/formatting instead of doing dayjs work themselves.
+Dialog form services stay responsible for mapping form values to DTOs. They
+call `DateUtil` for all date parsing/formatting instead of doing dayjs work
+themselves.
 
 ## Rules
 

@@ -3,10 +3,10 @@
 @use "@fontsource/roboto/400.css" as *;
 @use "@fontsource/roboto/500.css" as *;
 @use "@fontsource-variable/material-symbols-outlined" as *;
-@use "theme" as *;
-@use "css-variables" as *;
-@use "scrollbar" as *;
-@use "floating-actions" as *;
+@use "styles/theme" as *;
+@use "styles/css-variables" as *;
+@use "styles/scrollbar" as *;
+@use "styles/floating-actions" as *;
 
 // -- Material Symbols
 .material-symbols-outlined {

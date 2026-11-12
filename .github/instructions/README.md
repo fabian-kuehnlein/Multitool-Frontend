@@ -16,6 +16,13 @@ These rules are **not static** — they evolve together with the codebase. Whene
 
 **Rule of thumb:** if you had to *think* about how something should be structured, or you built something you would expect future code to mirror, stop and write it down here. Update the relevant file(s) in `.github/instructions/`, add new files when a new theme emerges, adjust the index in this README and the task→file map, and keep the quick summaries in `AGENTS.md` in sync — all in the same commit as the code change.
 
+## Writing these conventions
+
+- Describe the **rule and the pattern**, not a tour of the existing code. General patterns get a generic code example (`ComponentToImplementComponent`, `ServiceExampleService`), never "look at file X".
+- Name a concrete file, class or token only when the rule is explicitly about that thing — e.g. the shared `DateUtil`, `SnackbarService` or a shared SCSS partial.
+- Do not encode size limits. Splitting is driven by responsibilities, not line counts (see [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md)).
+- The file name is the kebab-case form of its heading (`# State & Services` → `state-and-services.md`, `# Code Organization & Splitting` → `code-organization-and-splitting.md`). When a heading changes, rename the file and update every reference in the same commit.
+
 ## How to use this documentation
 
 Decide what your change touches, then read the matching file(s):
@@ -30,7 +37,7 @@ Decide what your change touches, then read the matching file(s):
 | **Styling**, theming, SCSS | [08-styling-and-theming.md](./08-styling-and-theming.md) |
 | **Dates**, localisation, German UI | [09-dates-and-localization.md](./09-dates-and-localization.md) |
 | **Folder layout**, where code lives | [03-project-structure.md](./03-project-structure.md) |
-| A **file getting too large** (split it) | [11-code-splitting.md](./11-code-splitting.md) |
+| Organizing/splitting code by **responsibility** | [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md) |
 | **Snackbars**, error/success feedback | [12-snackbars-and-user-feedback.md](./12-snackbars-and-user-feedback.md) |
 | **Committing**, verifying, building | [10-git-and-workflow.md](./10-git-and-workflow.md) |
 
@@ -48,7 +55,7 @@ Decide what your change touches, then read the matching file(s):
 | [08-styling-and-theming.md](./08-styling-and-theming.md) | SCSS structure, class naming, breakpoints, CSS variables, dark mode, error colors |
 | [09-dates-and-localization.md](./09-dates-and-localization.md) | Central `DateUtil`, dayjs, German locale, date/time formats, UI language |
 | [10-git-and-workflow.md](./10-git-and-workflow.md) | Commands, verification, environment gotcha, commit message style |
-| [11-code-splitting.md](./11-code-splitting.md) | Splitting oversized TS files: responsibility buckets, `mappers/`/`logic/`, form services, child components |
+| [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md) | Organizing code by responsibility: responsibility buckets, `mappers/`/`logic/`, form services, child components, when to split (and when not to) |
 | [12-snackbars-and-user-feedback.md](./12-snackbars-and-user-feedback.md) | SnackbarService API, global HTTP error interceptor, `SKIP_HTTP_ERROR_SNACKBAR`, when to show success feedback |
 
 ## Quick reference
