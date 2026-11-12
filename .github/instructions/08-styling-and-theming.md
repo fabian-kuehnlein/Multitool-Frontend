@@ -34,6 +34,7 @@ Page components split their styles into partials imported from the component fil
 :host {
     display: block;
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow: hidden;
     box-sizing: border-box;
@@ -44,6 +45,14 @@ Page components split their styles into partials imported from the component fil
 - `_mobile.scss` — mobile overrides; wrap breakpoint-specific rules in `@include bp.mobile { ... }`.
 - Larger pages may add `_theme.scss` (dark-mode overrides), or feature-specific partials.
 - Import with `@use "desktop";` (no underscore/extension).
+
+## Page height & document scroll
+
+- The app is a fixed-height shell: `html`/`body` are `height: 100%` with `overflow: hidden` and `overscroll-behavior: none` globally (`src/styles.scss`). **The document itself never scrolls.**
+- Every full-page component sizes itself with `height: 100vh; height: 100dvh;` (fallback first). `100dvh` matches the *visible* viewport on mobile, so browser toolbars cannot make the page taller than the screen — that mismatch is exactly what lets iOS rubber-band / pull-to-refresh the whole page.
+- Scrolling always lives in a scroll container *inside* the page (flex child with `overflow-y: auto`), never on the document/body.
+- Inner scroll containers whose edge must not hand the gesture to the page get `overscroll-behavior-y: contain` (e.g. FullCalendar's `.fc-scroller`). This stops both scroll chaining and the iOS page bounce; pull-to-refresh of the app is suppressed by the global `overscroll-behavior: none`.
+- `.full-screen-dialog` in `src/styles.scss` is sized with `100dvh` for the same reason; dialogs still get `'100vh'` in their TS config.
 
 ## Breakpoints
 

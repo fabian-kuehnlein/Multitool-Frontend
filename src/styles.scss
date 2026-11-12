@@ -31,6 +31,12 @@
 html,
 body {
     height: 100%;
+    // The app is a fixed-height shell: every page owns its own scroll
+    // containers, the document itself never scrolls. This also stops iOS from
+    // rubber-banding / pull-to-refreshing the whole page when a touch scroll
+    // reaches the edge of an inner list.
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 html {
     -webkit-text-size-adjust: 100%;
@@ -174,6 +180,7 @@ html[data-theme="dark"] {
     max-width: 100vw !important;
     width: 100vw !important;
     height: 100vh !important;
+    height: 100dvh !important;
 }
 
 // -- Page Loading Overlay

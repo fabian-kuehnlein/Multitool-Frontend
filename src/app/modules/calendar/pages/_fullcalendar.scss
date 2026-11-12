@@ -2,6 +2,14 @@
 // Must use ::ng-deep to pierce ViewEncapsulation
 
 ::ng-deep {
+    // -- Scroll Containment
+    // A touch pull at either end of the list stays inside the calendar and
+    // does not chain to the document (on iOS that would rubber-band the whole
+    // page instead of the list).
+    .fc-scroller {
+        overscroll-behavior-y: contain;
+    }
+
     // Event Styling
     .fc-daygrid-event,
     .fc-timegrid-event {
