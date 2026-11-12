@@ -677,7 +677,17 @@ export class CalendarComponent implements OnDestroy, AfterViewInit {
                                         toHolidayEventInput(h.name, h.date, i),
                                     ),
                                 ),
-                            error: (err) => failureCallback(err),
+                            error: (err) => {
+                                if (err.status === 404) {
+                                    this.snackbar.openError(
+                                        `Für das Jahr ${info.start.getFullYear()} konnten keine Feiertage geladen werden.`,
+                                    );
+                                } else {
+                                    this.snackbar.openHttpError(err);
+                                }
+
+                                failureCallback(err);
+                            },
                         });
                 },
             },

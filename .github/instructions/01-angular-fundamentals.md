@@ -12,7 +12,7 @@
 
 - The app has **no NgModules**. All components, directives and pipes are **standalone** and declare `standalone: true` with their `imports` inline.
 - Never create or reintroduce `NgModule`s.
-- Use `imports: [CommonModule, UI_MODULES, ...]`; Material modules come via the centralized `UI_MODULES` array (`src/app/shared/utilities/material-ui.ts`). Add Material modules there when needed, do not import them ad hoc in every component — except when a single component needs a rarely used module.
+- Use `imports: [CommonModule, UI_MODULES, ...]`; Material modules come via the centralized `UI_MODULES` array. Add Material modules there when needed, do not import them ad hoc in every component — except when a single component needs a rarely used module.
 
 ## Zoneless change detection
 
@@ -23,7 +23,7 @@
 ## Change detection strategy
 
 - Every component sets `changeDetection: ChangeDetectionStrategy.Eager`.
-  `Eager` is the Angular 20+ name for the previous `Default` strategy. Do not use `OnPush` (components must react to signal updates).
+  `Eager` is the Angular 20+ name for the previous `Default` strategy. Do not introduce `OnPush` in new components: the codebase standardizes on one strategy. Signals work with either strategy — this is a consistency rule, not a technical limitation.
 - Keep the ordering in `@Component` metadata consistent: `selector`, `standalone`, `imports`, `templateUrl`/`template`, `styleUrl`, `changeDetection`, then optional extras (`animations`, `host`, ...).
 
 ## Dependency injection
@@ -32,7 +32,7 @@
 
   ```ts
   private readonly dialog = inject(MatDialog);
-  protected readonly serviceExample = inject(ServiceExample);
+  protected readonly serviceExampleService = inject(ServiceExampleService);
   ```
 
 - Constructor injection is only acceptable where required by a legacy pattern; new code always uses `inject()`.

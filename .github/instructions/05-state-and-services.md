@@ -13,7 +13,7 @@ Components never touch the HTTP service directly and never hold server state the
 
 ```ts
 @Injectable({ providedIn: 'root' })
-export class ServiceExample {
+export class ServiceExampleService {
     private readonly httpService = inject(ServiceExampleHttpService);
 
     // Private state signals
@@ -51,10 +51,10 @@ Conventions:
 
 ## Where logic lives
 
-- **Feature service**: state, data fetching, and orchestration. It must stay under ~300 lines — once it grows, pure business rules move out to `logic/`.
+- **Feature service**: state, data fetching, and orchestration. Keep it focused on those concerns — pure business rules belong in `logic/`, regardless of how long the service is.
 - **Component**: view/UI orchestration only — sorting a list for display, opening dialogs, formatting for the template.
 - **HTTP service**: no business logic.
-- Pure logic goes to `logic/`, data transformations to `mappers/`, config/constants to `utilities/` (see [11-code-splitting.md](./11-code-splitting.md)).
+- Pure logic goes to `logic/`, data transformations to `mappers/`, config/constants to `utilities/` (see [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md)).
 
 ## Derived state lives in the service
 

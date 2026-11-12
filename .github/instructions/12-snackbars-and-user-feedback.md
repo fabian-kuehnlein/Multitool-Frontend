@@ -10,7 +10,7 @@ All snackbars go through `SnackbarService` (`core/services/snackbar.service.ts`)
 | `openError(message)` | Known, specific failure with a custom message | `error-snackbar` (red in both themes) |
 | `openHttpError(err)` | Generic status-based HTTP error message | `error-snackbar`; multi-line variants add `multiline-snackbar` |
 
-Success messages are **not** green — they use a neutral color that adapts to the theme (`--snackbar-neutral-bg` / `--snackbar-neutral-text` in `_css-variables.scss`).
+Success messages are **not** green — they use the theme's inverse surface (`--mat-sys-inverse-surface` / `--mat-sys-inverse-on-surface`), so they stay neutral and adapt to light/dark automatically.
 
 Global defaults (duration 5000 ms, centered top position) live in `MAT_SNACK_BAR_DEFAULT_OPTIONS` (`app.config.ts`). Never put a `panelClass` there — each snackbar type sets its class explicitly.
 
@@ -36,7 +36,7 @@ private readonly skipErrorSnackbarContext = new HttpContext().set(
     true,
 );
 
-this.serviceExample.updateSomething(dto, this.skipErrorSnackbarContext).subscribe({
+this.serviceExampleService.updateSomething(dto, this.skipErrorSnackbarContext).subscribe({
     next: () => this.snackbar.openSuccess('Eintrag aktualisiert'),
     error: () => this.snackbar.openError('Der Eintrag konnte nicht aktualisiert werden.'),
 });
