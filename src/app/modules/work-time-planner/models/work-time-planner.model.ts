@@ -20,7 +20,11 @@ export interface WorkDay {
 }
 
 export interface WorkDayWarning {
-    type: 'PauseTooShort' | 'Over10Hours' | 'Under6Hours';
+    type:
+        | 'PauseTooShort'
+        | 'Over10Hours'
+        | 'Under6Hours'
+        | 'HomeOfficeLimitExceeded';
     message: string;
 }
 
@@ -32,7 +36,8 @@ export interface WorkTimeSettings {
     dailyTargetMinutes: number;
     breakRule6h: number;
     breakRule9h: number;
-    homeOfficeLimit: number;
+    homeOfficeLimitWeekly: number;
+    homeOfficeLimitMonthly: number;
 }
 
 export interface UpsertWorkDayDto {

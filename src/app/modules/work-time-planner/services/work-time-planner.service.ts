@@ -21,6 +21,10 @@ import {
     normalizeWorkDay,
     upsertWorkDay,
 } from '../logic/work-time-calculation.logic';
+import {
+    collectHomeOfficeLimitWarnings,
+    isHomeOfficeLimitExceeded,
+} from '../logic/home-office-limit.logic';
 import { DEFAULT_WORK_TIME_SETTINGS } from '../utilities/work-time.config';
 
 @Injectable({
@@ -42,13 +46,11 @@ export class WorkTimePlannerService {
     private readonly _loading = signal<boolean>(false);
     private _overtimeBalanceLoaded = false;
 
-    readonly workDays = this._workDays.asReadonly();
-    readonly currentWeekStart = this._currentWeekStart.asReadonly();
     readonly settings = this._settings.asReadonly();
     readonly loading = this._loading.asReadonly();
     readonly homeOfficeMonthCounts = this._homeOfficeMonthCounts.asReadonly();
 
-    readonly weekDays = computed(() => {
+    private readonly baseWeekDays = computed(() => {
         const start = DateUtil.parse(this._currentWeekStart());
         if (!start) return [];
 
@@ -60,16 +62,24 @@ export class WorkTimePlannerService {
         });
     });
 
+    readonly weekDays = computed(() => {
+        const limitWarnings = this.homeOfficeLimitWarnings();
+        if (limitWarnings.size === 0) return this.baseWeekDays();
+
+        return this.baseWeekDays().map((day) => {
+            const warning = limitWarnings.get(day.date);
+            if (!warning) return day;
+
+            return { ...day, warnings: [...day.warnings, warning] };
+        });
+    });
+
     readonly weeklyWorkMinutes = computed(() =>
-        this.weekDays().reduce((sum, d) => sum + d.workMinutes, 0),
+        this.baseWeekDays().reduce((sum, d) => sum + d.workMinutes, 0),
     );
 
     readonly weeklyOvertimeMinutes = computed(() =>
-        this.weekDays().reduce((sum, d) => sum + d.overtimeMinutes, 0),
-    );
-
-    readonly weeklyTargetMinutes = computed(
-        () => this._settings().dailyTargetMinutes * 5,
+        this.baseWeekDays().reduce((sum, d) => sum + d.overtimeMinutes, 0),
     );
 
     readonly totalOvertime = computed(() => this._overtimeBalance());
@@ -79,7 +89,32 @@ export class WorkTimePlannerService {
     );
 
     readonly homeOfficeDaysThisWeek = computed(
-        () => this.weekDays().filter((d) => d.isHomeOffice).length,
+        () => this.baseWeekDays().filter((d) => d.isHomeOffice).length,
+    );
+
+    private readonly homeOfficeLimitWeekly = computed(
+        () => this._settings().homeOfficeLimitWeekly,
+    );
+
+    readonly homeOfficeLimitMonthly = computed(
+        () => this._settings().homeOfficeLimitMonthly,
+    );
+
+    readonly isHomeOfficeWeeklyLimitExceeded = computed(() => {
+        const limit = this.homeOfficeLimitWeekly();
+        return isHomeOfficeLimitExceeded(
+            this.homeOfficeDaysThisWeek(),
+            limit,
+        );
+    });
+
+    private readonly homeOfficeLimitWarnings = computed(() =>
+        collectHomeOfficeLimitWarnings(
+            this.baseWeekDays(),
+            this.homeOfficeLimitWeekly(),
+            this.homeOfficeLimitMonthly(),
+            this.homeOfficeMonthCounts(),
+        ),
     );
 
     navigateWeek(direction: 'prev' | 'next' | 'current'): void {
@@ -201,7 +236,8 @@ export class WorkTimePlannerService {
                     dailyTargetMinutes: wt.dailyTargetMinutes,
                     breakRule6h: 30,
                     breakRule9h: 45,
-                    homeOfficeLimit: wt.homeOfficeLimitWeekly,
+                    homeOfficeLimitWeekly: wt.homeOfficeLimitWeekly ?? 0,
+                    homeOfficeLimitMonthly: wt.homeOfficeLimitMonthly ?? 0,
                 };
                 this._settings.set(newSettings);
                 this._workDays.update((days) =>

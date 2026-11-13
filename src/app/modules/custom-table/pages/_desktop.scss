@@ -1,4 +1,4 @@
-@use "../../../../_breakpoints" as bp;
+@use "../../../../styles/breakpoints" as bp;
 
 // Desktop-only styles (sidebar wrapper, data table, footer actions)
 
@@ -44,7 +44,8 @@
     }
 
     th {
-        background-color: var(--bg-muted);
+        background-color: var(--bg-surface);
+        background-image: linear-gradient(var(--bg-muted), var(--bg-muted));
         font-weight: 700;
         color: var(--text-primary);
         padding: 0;
@@ -52,7 +53,6 @@
         border-right: 1px solid var(--border-strong);
         white-space: nowrap;
         cursor: pointer;
-        transition: background-color 0.2s;
         font-size: 0.85rem;
         letter-spacing: 0.5px;
 
@@ -61,7 +61,10 @@
         }
 
         &:hover {
-            background-color: var(--bg-hover-strong);
+            background-image: linear-gradient(
+                var(--bg-hover-strong),
+                var(--bg-hover-strong)
+            );
 
             .delete-col-btn {
                 opacity: 1;

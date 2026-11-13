@@ -41,6 +41,20 @@
     background: var(--bg-surface-raised);
     border-radius: 10px;
     border: 1px solid var(--border-subtle);
+
+    &.limit-exceeded {
+        border-color: var(--mat-sys-error);
+        background: color-mix(
+            in srgb,
+            var(--mat-sys-error-container) 30%,
+            var(--bg-surface-raised)
+        );
+
+        .stat-icon,
+        .stat-value {
+            color: var(--mat-sys-error);
+        }
+    }
 }
 
 .stat-icon {

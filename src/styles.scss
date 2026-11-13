@@ -3,10 +3,10 @@
 @use "@fontsource/roboto/400.css" as *;
 @use "@fontsource/roboto/500.css" as *;
 @use "@fontsource-variable/material-symbols-outlined" as *;
-@use "theme" as *;
-@use "css-variables" as *;
-@use "scrollbar" as *;
-@use "floating-actions" as *;
+@use "styles/theme" as *;
+@use "styles/css-variables" as *;
+@use "styles/scrollbar" as *;
+@use "styles/floating-actions" as *;
 
 // -- Material Symbols
 .material-symbols-outlined {
@@ -31,6 +31,12 @@
 html,
 body {
     height: 100%;
+    // The app is a fixed-height shell: every page owns its own scroll
+    // containers, the document itself never scrolls. This also stops iOS from
+    // rubber-banding / pull-to-refreshing the whole page when a touch scroll
+    // reaches the edge of an inner list.
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 html {
     -webkit-text-size-adjust: 100%;
@@ -174,6 +180,7 @@ html[data-theme="dark"] {
     max-width: 100vw !important;
     width: 100vw !important;
     height: 100vh !important;
+    height: 100dvh !important;
 }
 
 // -- Page Loading Overlay

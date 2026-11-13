@@ -3,7 +3,8 @@
 ## SCSS everywhere
 
 - All styling is SCSS. Component styles live in the co-located `*.component.scss`.
-- Global/theme SCSS lives at `src/` root: `styles.scss`, `_theme.scss`, `_material-palettes.scss`, `_css-variables.scss`, `_breakpoints.scss`, `_floating-actions.scss`.
+- Global/shared SCSS partials live in `src/styles/`: `_theme.scss`, `_material-palettes.scss`, `_css-variables.scss`, `_breakpoints.scss`, `_floating-actions.scss`, `_scrollbar.scss`. The entry point stays `src/styles.scss` (registered in `angular.json`); never add new top-level `_*.scss` files under `src/`.
+- Feature-specific partials stay next to their feature (`<feature>/pages/_*.scss`, or `<feature>/styles/` for SCSS shared within the feature). Only SCSS reused by several features belongs in `src/app/shared/styles/` — never put feature-specific styles there.
 - 4-space indentation, consistent with the rest of the codebase.
 
 ## Class naming
@@ -34,6 +35,7 @@ Page components split their styles into partials imported from the component fil
 :host {
     display: block;
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow: hidden;
     box-sizing: border-box;
@@ -45,22 +47,17 @@ Page components split their styles into partials imported from the component fil
 - Larger pages may add `_theme.scss` (dark-mode overrides), or feature-specific partials.
 - Import with `@use "desktop";` (no underscore/extension).
 
-## Feature-shared SCSS
+## Page height & document scroll
 
-When several components of one feature share layout styles (tab shell, cards, list rows, loading/empty states), put them in a feature-level partial instead of duplicating them per component. Example: [settings/styles/_settings-common.scss](../../src/app/modules/settings/styles/_settings-common.scss).
-
-```scss
-// <feature>/pages/components/<component>/<component>.component.scss
-@use "../../../styles/settings-common";
-```
-
-- Import the partial with `@use` (no `@import`).
-- Keep component-specific styles (badges, toggles, feature controls) in the component's own `*.component.scss`.
-- Prefer shared layout classes from the partial in templates (e.g. `settings-item-list`, `settings-item-card`, `settings-item-main-info`) and only add feature-specific modifier classes on top.
+- The app is a fixed-height shell: `html`/`body` are `height: 100%` with `overflow: hidden` and `overscroll-behavior: none` globally (`src/styles.scss`). **The document itself never scrolls.**
+- Every full-page component sizes itself with `height: 100vh; height: 100dvh;` (fallback first). `100dvh` matches the *visible* viewport on mobile, so browser toolbars cannot make the page taller than the screen — that mismatch is exactly what lets iOS rubber-band / pull-to-refresh the whole page.
+- Scrolling always lives in a scroll container *inside* the page (flex child with `overflow-y: auto`), never on the document/body.
+- Inner scroll containers whose edge must not hand the gesture to the page get `overscroll-behavior-y: contain` (e.g. FullCalendar's `.fc-scroller`). This stops both scroll chaining and the iOS page bounce; pull-to-refresh of the app is suppressed by the global `overscroll-behavior: none`.
+- `.full-screen-dialog` in `src/styles.scss` is sized with `100dvh` for the same reason; dialogs still get `'100vh'` in their TS config.
 
 ## Breakpoints
 
-- Single source of truth: `src/_breakpoints.scss`.
+- Single source of truth: `src/styles/_breakpoints.scss`.
 
 ```scss
 $breakpoint-mobile: 600px;
@@ -72,12 +69,12 @@ $breakpoint-laptop: 1640px;
 @mixin laptop  { @media (min-width: #{$breakpoint-tablet + 1px}) and (max-width: #{$breakpoint-laptop}) { @content; } }
 ```
 
-- Use the mixins (`@use "../../../../_breakpoints" as bp;` then `@include bp.mobile { ... }`).
+- Use the mixins (`@use "../../../../styles/breakpoints" as bp;` then `@include bp.mobile { ... }`).
 - Mirror the same ranges in TypeScript via the media service (`isMobile`, `isTablet`, `isLaptop`, `isDesktop` signals). Do not hard-code breakpoints elsewhere.
 
 ## Mobile floating action buttons
 
-All mobile FAB rows use the shared classes from `src/_floating-actions.scss` (imported in `styles.scss`). **Do not create per-module FAB positioning or colors.**
+All mobile FAB rows use the shared classes from `src/styles/_floating-actions.scss` (imported in `styles.scss`). **Do not create per-module FAB positioning or colors.**
 
 ```html
 <div class="mobile-fab-bar">
@@ -93,7 +90,7 @@ All mobile FAB rows use the shared classes from `src/_floating-actions.scss` (im
 - Scroll containers reserve space via the mixin, not a spacer element:
 
 ```scss
-@use "../../../../_floating-actions" as fab;
+@use "../../../../styles/floating-actions" as fab;
 
 .main-layout.mobile-layout {
     @include fab.fab-clearance;
@@ -101,7 +98,7 @@ All mobile FAB rows use the shared classes from `src/_floating-actions.scss` (im
 ```
 
 - `--mobile-fab-clearance` defines the reserved height. Pass an extra offset when a container already has bottom padding: `@include fab.fab-clearance(5px)`.
-- Custom menus that expand upward (e.g. the custom-table FAB) live inside `mobile-fab-group-right mobile-fab-stack` and keep their toggle transition local.
+- Custom menus that expand upward live inside `mobile-fab-group-right mobile-fab-stack` and keep their toggle transition local.
 
 ## Mobile zoom
 
@@ -115,11 +112,11 @@ All mobile FAB rows use the shared classes from `src/_floating-actions.scss` (im
 
 The Material M3 theme is the single source of truth for base colors:
 
-- `_material-palettes.scss` defines the tonal palettes.
-- `_theme.scss` builds `$light-theme` / `$dark-theme` from them.
-- `styles.scss` emits the theme and the global `--mat-sys-*` tokens for `html` (light) and `html[data-theme="dark"]` (dark).
+- `src/styles/_material-palettes.scss` defines the tonal palettes.
+- `src/styles/_theme.scss` builds `$light-theme` / `$dark-theme` from them.
+- `src/styles.scss` emits the theme and the global `--mat-sys-*` tokens for `html` (light) and `html[data-theme="dark"]` (dark).
 
-`src/_css-variables.scss` only adds **app-specific aliases on top of** those tokens. Structural tokens are aliases of `--mat-sys-*` (so they switch automatically with the theme); only colors Material does not define (success, warning, calendar, priority) carry literal values and get a `[data-theme="dark"]` override.
+`src/styles/_css-variables.scss` only adds **app-specific aliases on top of** those tokens. Structural tokens are aliases of `--mat-sys-*` (so they switch automatically with the theme); only colors Material does not define (success, warning, calendar, priority) carry literal values and get a `[data-theme="dark"]` override.
 
 Rules:
 
@@ -129,7 +126,7 @@ Rules:
 - **Never hard-code hex/rgb values** in component styles; derive overlays/state layers with `color-mix()` from a token.
 - Only add `:host-context([data-theme="dark"])` overrides when a token alone genuinely cannot express the difference. Most components need none.
 
-App tokens (`src/_css-variables.scss`):
+App tokens (`src/styles/_css-variables.scss`):
 
 | Purpose | Token | Material source |
 | --- | --- | --- |

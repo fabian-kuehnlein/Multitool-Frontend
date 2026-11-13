@@ -8,7 +8,7 @@ opening the file. These rules apply to **all** TypeScript/SCSS the team writes.
 
 | Kind | Case | Example |
 | --- | --- | --- |
-| Classes (component, service, model, enum, interface) | PascalCase | `ComponentToImplement`, `ServiceExample` |
+| Classes (component, service, model, enum, interface) | PascalCase | `ComponentToImplementComponent`, `ServiceExampleService` |
 | Functions, methods, variables, signals | camelCase | `filterItems()`, `selectedItem` |
 | Constants & enum members | UPPER_SNAKE_CASE | `DEFAULT_LIMIT`, `CREATE_MODE` |
 | Files & folders | kebab-case | `component-to-implement.component.ts` |
@@ -20,20 +20,22 @@ The sections below detail each category.
 
 - Class names are **PascalCase**, broad and declarative — a noun describing what
   the class is (`CalendarEventRow`, `DashboardWidget`), never a verb.
-- The class name of a component matches its file and selector (minus the
-  `Component` suffix): a file `component-to-implement.component.ts` defines
-  `class ComponentToImplement` with selector `app-component-to-implement`.
+- A component's class name is the PascalCase form of its file base name,
+  including the type suffix: a file `component-to-implement.component.ts`
+  defines `class ComponentToImplementComponent` with selector
+  `app-component-to-implement`.
 - Keep the `Component`/`Service`/`Directive`/`Pipe` suffix in the class name so
-  the file suffix and class suffix agree (`class ComponentToImplement`).
+  the class and file suffix agree (`ComponentToImplementComponent`,
+  `ServiceExampleService`).
 
 ## Services
 
 - Service classes end in `Service` (state/orchestration) or `HttpService`
-  (raw HTTP): `ServiceExample`, `ServiceExampleHttpService`.
+  (raw HTTP): `ServiceExampleService`, `ServiceExampleHttpService`.
 - A feature that talks to the backend has exactly two services — the state
-  service and the HTTP service. The names differ only by the `Http` segment;
-  the file suffixes differ (see [Files & folders](#files--folders)):
-  `ServiceExample` (state) and `ServiceExampleHttpService` (HTTP).
+  service and the HTTP service. The class names differ only by the `Http`
+  segment; the file suffixes differ (see [Files & folders](#files--folders)):
+  `ServiceExampleService` (state) and `ServiceExampleHttpService` (HTTP).
 - Cross-cutting shared services keep their `Service` suffix too
   (`SharedFeatureService`).
 
@@ -54,9 +56,11 @@ No custom directives or pipes exist yet — when one is added:
 - Fields start with a noun/verb phrase that describes their content or purpose
   (`selectedItem`, `totalCount`, `isLoading`). Booleans use a `is`/`has`/`can`
   prefix (`isLoading`, `hasError`, `canSubmit`).
-- An injected dependency is a `readonly` camelCase field named after the dashed
-  class, lowercased first letter: `private readonly serviceExample =
-  inject(ServiceExample);`.
+- An injected dependency is a `readonly` camelCase field named after the
+  injected type with a lowercased first letter: `private readonly
+  serviceExampleService = inject(ServiceExampleService);`. Feature services keep
+  the `Service` suffix in the field name; short, obvious framework services may
+  drop it (`dialog`, `snackbar`, `media`).
 - **Signals:**
   - A mutable (private) signal uses an underscore-prefixed camelCase name:
     `private readonly _items = signal<Item[]>([]);`.

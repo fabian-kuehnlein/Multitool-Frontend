@@ -6,6 +6,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { UI_MODULES } from '../../../../../shared/utilities/material-ui';
 import { MonthHoCount } from '../../../models/work-time-planner.model';
+import { isHomeOfficeLimitExceeded } from '../../../logic/home-office-limit.logic';
 import { formatMinutes } from '../../../utilities/work-time.util';
 
 @Component({
@@ -23,7 +24,16 @@ export class PlannerSidebarComponent {
     @Input() baseOvertime = 0;
     @Input() totalOvertime = 0;
     @Input() homeOfficeDaysThisWeek = 0;
+    @Input() homeOfficeLimitMonthly = 0;
+    @Input() isHomeOfficeWeeklyLimitExceeded = false;
     @Input() homeOfficeMonthCounts: MonthHoCount[] = [];
 
     readonly formatMinutes = formatMinutes;
+
+    isMonthOverLimit(month: MonthHoCount): boolean {
+        return isHomeOfficeLimitExceeded(
+            month.count,
+            this.homeOfficeLimitMonthly,
+        );
+    }
 }

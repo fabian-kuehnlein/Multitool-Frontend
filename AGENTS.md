@@ -21,7 +21,7 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
 ## Architecture
 
 - `src/app/core/` — auth (login page, guard, JWT interceptor), layout, services, date (dayjs Material DateAdapter).
-- `src/app/modules/` — one folder per feature: `calendar`, `custom-table`, `todo`, `work-time-planner`. Each feature splits HTTP from logic: `<feature>-http.service.ts` (raw HttpClient) + `<feature>.service.ts` (signals/state). Models live under `models/` with `dtos/`/`enums`/`metadata`/`ui` subfolders; `models/index.ts` barrel exports exist.
+- `src/app/modules/` — one folder per feature: `calendar`, `custom-table`, `settings`, `todo`, `work-time-planner`. Each feature splits HTTP from logic: `<feature>-http.service.ts` (raw HttpClient) + `<feature>.service.ts` (signals/state). Models live under `models/` with `dtos/`/`enums`/`metadata`/`ui` subfolders; `models/index.ts` barrel exports exist.
 - `src/app/shared/` — shared components, models, services, utilities.
 - Auth: JWT stored in `localStorage` under `auth_token`; `AuthService` checks `exp` locally; `auth.interceptor.ts` auto-logs-out on 401 or expired token.
 
@@ -40,15 +40,16 @@ Angular 22 frontend for the Multitool app. Standalone components (no NgModules),
   - Styling & theming: `08-styling-and-theming.md`
   - Dates & German UI: `09-dates-and-localization.md`
   - Git, commit messages, verification: `10-git-and-workflow.md`
-  - Splitting oversized files: `11-code-splitting.md`
+  - Organizing/splitting code by responsibility: `11-code-organization-and-splitting.md`
   - Snackbars & user feedback: `12-snackbars-and-user-feedback.md`
 - Keep the root `README.md` in sync: when a change affects what it documents (commands/scripts, build, dev server, deployment, project setup), update it in the same commit.
 - German UI: `de` locale, dayjs `DD.MM.YYYY` / `HH:mm` formats, German MatPaginator labels. Keep new UI text German.
 - Dates: all general date parsing/formatting/comparison goes through `DateUtil` in `src/app/shared/utilities/date.util.ts` (pure functions, dayjs-backed) — do not add feature-local `date.util.ts` files. API payloads use `YYYY-MM-DDTHH:mm:ss` (DB is `timestamp without time zone`); the iCal export is the only exception and uses `DateUtil.formatIcalDateTime` with a timezone offset.
 - Strict TS (`strict`, `noImplicitOverride`, `strictTemplates`, `isolatedModules`). 4-space indent, single quotes, 4-space indent per `.editorconfig`.
-- Angular Material theming lives in SCSS partials at `src/` root (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); component styles are SCSS. Material's `--mat-sys-*` tokens are the base; `_css-variables.scss` only derives app-specific aliases (surfaces/text/borders) from them, so components switch light/dark automatically.
-- Mobile floating action buttons use the shared classes in `src/_floating-actions.scss` (`.mobile-fab-bar`, `.mobile-fab-group-*`, `.mobile-fab-surface-button`, `.mobile-fab-primary-button`, `.mobile-fab-active-button`) and `fab.fab-clearance` for bottom spacing. Never add per-module FAB positioning/colors.
-- Keep TypeScript files small and single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `11-code-splitting.md`).
+- Angular Material theming lives in SCSS partials under `src/styles/` (`_theme.scss`, `_css-variables.scss`, `_material-palettes.scss`, `_breakpoints.scss`); `src/styles.scss` is the global entry point, component styles are SCSS. Material's `--mat-sys-*` tokens are the base; `_css-variables.scss` only derives app-specific aliases (surfaces/text/borders) from them, so components switch light/dark automatically.
+- Mobile floating action buttons use the shared classes in `src/styles/_floating-actions.scss` (`.mobile-fab-bar`, `.mobile-fab-group-*`, `.mobile-fab-surface-button`, `.mobile-fab-primary-button`, `.mobile-fab-active-button`) and `fab.fab-clearance` for bottom spacing. Never add per-module FAB positioning/colors.
+- Fixed-height shell: the document never scrolls (`html`/`body` get `overflow: hidden` + `overscroll-behavior: none`); pages are `height: 100vh; height: 100dvh;` and own their inner scroll containers (`overscroll-behavior-y: contain` on edge scroll areas). Details: `.github/instructions/08-styling-and-theming.md` → *Page height & document scroll*.
+- Keep TypeScript files single-purpose: pure logic → feature `logic/`, mappings → feature `mappers/`, config/constants → feature `utilities/`, dialog forms → `<name>-form.service.ts` next to the dialog (see `11-code-organization-and-splitting.md`).
 
 ## Deploy
 

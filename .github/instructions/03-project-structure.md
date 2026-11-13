@@ -5,11 +5,14 @@
 ```
 src/
 ├── main.ts                          # bootstrapApplication + appConfig
-├── styles.scss                      # global styles
-├── _breakpoints.scss                # shared SCSS breakpoint mixins
-├── _css-variables.scss              # light/dark theme CSS custom properties
-├── _material-palettes.scss          # Angular Material palette definitions
-├── _theme.scss                      # Angular Material theme configuration
+├── styles.scss                      # global entry point (registered in angular.json)
+├── styles/                          # global/shared SCSS partials
+│   ├── _breakpoints.scss            # shared breakpoint mixins
+│   ├── _css-variables.scss          # light/dark theme CSS custom properties
+│   ├── _floating-actions.scss       # shared mobile FAB bar + clearance mixin
+│   ├── _material-palettes.scss      # Angular Material palette definitions
+│   ├── _scrollbar.scss              # global scrollbar styling
+│   └── _theme.scss                  # Angular Material theme configuration
 ├── environments/
 │   ├── environment.ts               # base (always replaced via fileReplacements)
 │   ├── environment.development.ts   # dev API base
@@ -36,10 +39,11 @@ src/
         ├── components/
         ├── models/
         ├── services/
+        ├── styles/                  # cross-feature SCSS partials
         └── utilities/
 ```
 
-> Splitting files across `mappers/`, `logic/`, `utilities/` and form services is covered in [11-code-splitting.md](./11-code-splitting.md).
+> Organizing code across `mappers/`, `logic/`, `utilities/` and form services is covered in [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md).
 
 ## Rules
 
@@ -51,6 +55,7 @@ src/
 - **Models** live in `<feature>/models/`. When a feature grows, split into `dtos/`, `enums/`, `metadata/`, `ui/` subfolders and expose them through a barrel `models/index.ts`. Small features may keep a single `<name>.model.ts`.
 - **HTTP vs. state**: every feature that talks to the backend has exactly two services — `<feature>-http.service.ts` (raw `HttpClient`) and `<feature>.service.ts` (signals/state). See [05-state-and-services.md](./05-state-and-services.md).
 - **SCSS partials** for a page (`_desktop.scss`, `_mobile.scss`, optional `_theme.scss`) are co-located next to the page component. See [08-styling-and-theming.md](./08-styling-and-theming.md).
+- **Global/shared SCSS** lives in `src/styles/`; `src/styles.scss` stays the single global entry point registered in `angular.json`. Never add new top-level `_*.scss` files directly under `src/`.
 - Component files always travel together: `*.component.ts`, `*.component.html`, `*.component.scss`.
 - Files are named by type suffix; full naming rules live in [02-naming-conventions.md](./02-naming-conventions.md#files--folders).
 - **Feature first, never app-wide type folders.** Code is grouped by the
@@ -61,10 +66,10 @@ src/
   `pages/`, `services/`, `utilities/` apply — this is a **deliberate deviation**
   from the official Angular style guide's "avoid type-based directories" rule,
   kept for consistency with the rest of this codebase (see
-  [11-code-splitting.md](./11-code-splitting.md)).
-- **Don't let a directory grow unbounded.** When a folder becomes hard to scan,
-  split it into sub-folders — e.g. child components under
-  `pages/components/<name>/`, models into `models/dtos/`, `models/enums/`, …
+  [11-code-organization-and-splitting.md](./11-code-organization-and-splitting.md)).
+- **Keep folders scannable.** When a folder becomes hard to scan, split it into
+  sub-folders — e.g. child components under `pages/components/<name>/`, models
+  into `models/dtos/`, `models/enums/`, …
 
 ## When adding a new feature
 
