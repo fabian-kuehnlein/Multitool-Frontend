@@ -39,7 +39,11 @@ export class AdminService {
     }
 
     resetPassword(id: number, dto: ResetPasswordDto, context?: HttpContext): Observable<void> {
-        return this.httpService.resetPassword(id, dto, context);
+        return this.httpService.resetPassword(id, dto, context).pipe(
+            tap(() => {
+                this.loadUsers();
+            }),
+        );
     }
 
     setUserActive(id: number, isActive: boolean, context?: HttpContext): Observable<void> {

@@ -1,4 +1,4 @@
-@use "../../../../../../_breakpoints" as bp;
+@use "../../../../../../styles/_breakpoints" as bp;
 @use "../../../styles/settings-common";
 
 // Search bar row
@@ -141,6 +141,24 @@
             .status-dot {
                 background-color: var(--text-subtle);
             }
+        }
+    }
+
+    .password-pending-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background-color: var(--color-warning-container);
+        color: var(--color-warning);
+
+        .badge-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
         }
     }
 }

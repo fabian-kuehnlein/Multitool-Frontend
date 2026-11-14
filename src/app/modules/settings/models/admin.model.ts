@@ -10,6 +10,7 @@ export interface AdminUserModel {
     username: string;
     role: UserRoleValue;
     isActive: boolean;
+    mustChangePassword: boolean;
     createdAt: string;
 }
 

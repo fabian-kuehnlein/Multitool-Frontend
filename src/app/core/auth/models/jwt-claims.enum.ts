@@ -9,4 +9,5 @@ export enum JwtClaims {
     USERNAME = 'unique_name',
     USERNAME_MICROSOFT = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
     NAME = 'name',
+    MUST_CHANGE_PASSWORD = 'must_change_password',
 }

@@ -142,6 +142,13 @@
                                     <span class="status-dot"></span>
                                     {{ user.isActive ? 'Aktiv' : 'Deaktiviert' }}
                                 </span>
+
+                                @if (user.mustChangePassword) {
+                                    <span class="password-pending-badge">
+                                        <mat-icon class="badge-icon">key</mat-icon>
+                                        Temporäres Passwort
+                                    </span>
+                                }
                             </div>
 
                             <!-- Right: Actions -->

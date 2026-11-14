@@ -3,4 +3,5 @@ export interface AuthState {
     isAdmin: boolean;
     userId: number | null;
     username: string | null;
+    mustChangePassword: boolean;
 }

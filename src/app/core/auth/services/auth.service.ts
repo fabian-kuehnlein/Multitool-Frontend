@@ -8,6 +8,7 @@ import {
 } from '../../interceptors/http-error.interceptor';
 import { AuthState } from '../models/auth-state.model';
 import { JwtClaims } from '../models/jwt-claims.enum';
+import { UpdateCredentialsDto } from '../models/update-credentials.model';
 
 interface LoginResponse {
     token: string;
@@ -20,6 +21,7 @@ const EMPTY_AUTH_STATE: AuthState = {
     isAdmin: false,
     userId: null,
     username: null,
+    mustChangePassword: false,
 };
 
 @Injectable({
@@ -29,7 +31,8 @@ export class AuthService {
     private readonly TOKEN_KEY = 'auth_token';
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
-    private readonly apiUrl = `${environment.MultitoolApi}/api/Auth`;
+    private readonly authUrl = `${environment.MultitoolApi}/api/Auth`;
+    private readonly accountUrl = `${environment.MultitoolApi}/api/Account`;
     private readonly skipErrorSnackbarContext = new HttpContext().set(
         SKIP_HTTP_ERROR_SNACKBAR,
         true,
@@ -51,16 +54,30 @@ export class AuthService {
             isAdmin: this.extractIsAdmin(payload),
             userId: this.extractUserId(payload),
             username: this.extractUsername(payload),
+            mustChangePassword: this.extractMustChangePassword(payload),
         };
     });
 
     login(username: string, password: string): Observable<LoginResponse> {
         return this.http
             .post<LoginResponse>(
-                `${this.apiUrl}/login`,
+                `${this.authUrl}/login`,
                 { username, password },
                 { context: this.skipErrorSnackbarContext },
             )
+            .pipe(
+                tap((response) => {
+                    this.setToken(response.token);
+                    this.updateAuthState();
+                }),
+            );
+    }
+
+    updateCredentials(dto: UpdateCredentialsDto): Observable<LoginResponse> {
+        return this.http
+            .put<LoginResponse>(`${this.accountUrl}/credentials`, dto, {
+                context: this.skipErrorSnackbarContext,
+            })
             .pipe(
                 tap((response) => {
                     this.setToken(response.token);
@@ -141,6 +158,11 @@ export class AuthService {
             payload[JwtClaims.USERNAME_MICROSOFT] ??
             payload[JwtClaims.NAME];
         return typeof name === 'string' ? name : null;
+    }
+
+    private extractMustChangePassword(payload: JwtPayload): boolean {
+        const value = payload[JwtClaims.MUST_CHANGE_PASSWORD];
+        return value === true || value === 'true';
     }
 
     private decodeToken(token: string | null): JwtPayload | null {
