@@ -83,7 +83,7 @@ export class WorkTimePlannerComponent implements OnInit, OnDestroy {
 
     navigateToSettings(): void {
         this.router.navigate(['/settings'], {
-            queryParams: { tab: 'allgemein', section: 'worktime' },
+            queryParams: { tab: 'general', section: 'worktime' },
         });
     }
 
