@@ -8,7 +8,7 @@ import {
     ValidatorFn,
     Validators,
 } from '@angular/forms';
-import { UpdateCredentialsDto } from '../../models/update-credentials.model';
+import { SetupAccountCredentialsDto } from '../../models/setup-account-credentials-dto.model';
 
 export interface LoginForm {
     username: FormControl<string>;
@@ -72,7 +72,9 @@ export class LoginFormService {
         );
     }
 
-    toUpdateCredentials(form: FormGroup<SetupForm>): UpdateCredentialsDto {
+    toSetupCredentials(
+        form: FormGroup<SetupForm>,
+    ): SetupAccountCredentialsDto {
         const value = form.getRawValue();
 
         return {

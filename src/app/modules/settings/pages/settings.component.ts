@@ -20,6 +20,7 @@ import { CategoriesComponent } from './components/categories/categories.componen
 import { WorkTimeSettingsComponent } from './components/work-time-settings/work-time-settings.component';
 import { AppearanceSettingsComponent } from './components/appearance-settings/appearance-settings.component';
 import { AdminSettingsComponent } from './components/admin-settings/admin-settings.component';
+import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 import { SettingsService } from '../services/settings.service';
 
 @Component({
@@ -33,6 +34,7 @@ import { SettingsService } from '../services/settings.service';
         WorkTimeSettingsComponent,
         AppearanceSettingsComponent,
         AdminSettingsComponent,
+        AccountSettingsComponent,
     ],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss',

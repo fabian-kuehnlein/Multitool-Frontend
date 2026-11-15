@@ -86,7 +86,7 @@ export class LoginComponent implements OnInit {
             return;
         }
 
-        const dto = this.formService.toUpdateCredentials(this.setupForm);
+        const dto = this.formService.toSetupCredentials(this.setupForm);
 
         if (dto.password === this.temporaryPassword) {
             this.snackbar.openError(
@@ -97,7 +97,7 @@ export class LoginComponent implements OnInit {
 
         this.isSaving.set(true);
 
-        this.authService.updateCredentials(dto).subscribe({
+        this.authService.setupCredentials(dto).subscribe({
             next: () => {
                 this.isSaving.set(false);
                 this.temporaryPassword = '';

@@ -1,0 +1,90 @@
+@use "../../../../../../../styles/breakpoints" as bp;
+
+:host {
+    @include bp.mobile {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+}
+
+.dialog-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    margin-bottom: 0;
+
+    mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+    }
+
+    @include bp.mobile {
+        font-size: 1.2rem;
+        margin-top: 8px;
+        padding: 16px 16px 8px 16px;
+    }
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    @include bp.mobile {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 16px !important;
+    }
+}
+
+.dialog-hint {
+    font-size: 0.875rem;
+    color: var(--text-subtle);
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+}
+
+.account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.full-width-field {
+    width: 100%;
+}
+
+.field-icon {
+    color: var(--text-subtle);
+    margin-right: 8px;
+}
+
+.form-error {
+    margin: -8px 0 0;
+    color: var(--mat-sys-error);
+    font-size: 0.75rem;
+}
+
+.dialog-actions-container {
+    padding: 16px 24px 20px 24px;
+    gap: 12px;
+
+    @include bp.mobile {
+        flex-wrap: wrap;
+        padding: 16px;
+        margin-top: auto;
+        border-top: 1px solid var(--border-subtle);
+
+        .cancel-button {
+            flex: 1 1 100%;
+        }
+
+        .primary-action {
+            flex: 1 1 100%;
+        }
+    }
+}

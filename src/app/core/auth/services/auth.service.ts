@@ -8,7 +8,9 @@ import {
 } from '../../interceptors/http-error.interceptor';
 import { AuthState } from '../models/auth-state.model';
 import { JwtClaims } from '../models/jwt-claims.enum';
-import { UpdateCredentialsDto } from '../models/update-credentials.model';
+import { SetupAccountCredentialsDto } from '../models/setup-account-credentials-dto.model';
+import { ChangeAccountCredentialsDto } from '../models/change-account-credentials-dto.model';
+import { VerifyAccountCredentialsDto } from '../models/verify-account-credentials-dto.model';
 
 interface LoginResponse {
     token: string;
@@ -65,25 +67,31 @@ export class AuthService {
                 { username, password },
                 { context: this.skipErrorSnackbarContext },
             )
-            .pipe(
-                tap((response) => {
-                    this.setToken(response.token);
-                    this.updateAuthState();
-                }),
-            );
+            .pipe(tap((response) => this.applyToken(response.token)));
     }
 
-    updateCredentials(dto: UpdateCredentialsDto): Observable<LoginResponse> {
+    setupCredentials(dto: SetupAccountCredentialsDto): Observable<LoginResponse> {
+        return this.http
+            .put<LoginResponse>(`${this.accountUrl}/credentials/setup`, dto, {
+                context: this.skipErrorSnackbarContext,
+            })
+            .pipe(tap((response) => this.applyToken(response.token)));
+    }
+
+    verifyCredentials(dto: VerifyAccountCredentialsDto): Observable<void> {
+        return this.http.post<void>(
+            `${this.accountUrl}/credentials/verify`,
+            dto,
+            { context: this.skipErrorSnackbarContext },
+        );
+    }
+
+    changeCredentials(dto: ChangeAccountCredentialsDto): Observable<LoginResponse> {
         return this.http
             .put<LoginResponse>(`${this.accountUrl}/credentials`, dto, {
                 context: this.skipErrorSnackbarContext,
             })
-            .pipe(
-                tap((response) => {
-                    this.setToken(response.token);
-                    this.updateAuthState();
-                }),
-            );
+            .pipe(tap((response) => this.applyToken(response.token)));
     }
 
     logout(): void {
@@ -104,6 +112,11 @@ export class AuthService {
     isLoggedIn(): boolean {
         this.updateAuthState();
         return this.authState().isAuthenticated;
+    }
+
+    private applyToken(token: string): void {
+        this.setToken(token);
+        this.updateAuthState();
     }
 
     private updateAuthState(): void {

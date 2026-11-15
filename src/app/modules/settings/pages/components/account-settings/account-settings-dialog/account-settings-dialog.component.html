@@ -1,0 +1,190 @@
+<h2 mat-dialog-title class="dialog-title">
+    <mat-icon color="primary">
+        {{ step() === "verify" ? "lock" : "manage_accounts" }}
+    </mat-icon>
+    <span>
+        {{
+            step() === "verify"
+                ? "Aktuelle Daten bestätigen"
+                : "Neue Benutzerdaten"
+        }}
+    </span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+    @if (step() === "verify") {
+        <p class="dialog-hint">
+            Bestätige zuerst deinen aktuellen Benutzernamen und dein Passwort,
+            um fortzufahren.
+        </p>
+
+        <form
+            [formGroup]="verifyForm"
+            class="account-form"
+            (ngSubmit)="onVerify()"
+        >
+            <mat-form-field appearance="outline" class="full-width-field">
+                <mat-label>Benutzername</mat-label>
+                <input
+                    matInput
+                    formControlName="username"
+                    autocomplete="username"
+                    required
+                />
+                <mat-icon matPrefix class="field-icon">person</mat-icon>
+                @if (verifyForm.controls.username.hasError("required")) {
+                    <mat-error>Benutzername ist erforderlich</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width-field">
+                <mat-label>Aktuelles Passwort</mat-label>
+                <input
+                    matInput
+                    type="password"
+                    formControlName="password"
+                    autocomplete="current-password"
+                    required
+                />
+                <mat-icon matPrefix class="field-icon">lock</mat-icon>
+                @if (verifyForm.controls.password.hasError("required")) {
+                    <mat-error>Passwort ist erforderlich</mat-error>
+                }
+            </mat-form-field>
+        </form>
+    } @else {
+        @if (editForm(); as form) {
+            <p class="dialog-hint">
+                Lege deinen neuen Benutzernamen und/oder ein neues Passwort
+                fest.
+            </p>
+
+            <form [formGroup]="form" class="account-form" (ngSubmit)="onSave()">
+                <mat-form-field appearance="outline" class="full-width-field">
+                    <mat-label>Neuer Benutzername</mat-label>
+                    <input
+                        matInput
+                        formControlName="newUsername"
+                        autocomplete="username"
+                        required
+                    />
+                    <mat-icon matPrefix class="field-icon">person</mat-icon>
+                    @if (form.controls.newUsername.hasError("required")) {
+                        <mat-error>Benutzername ist erforderlich</mat-error>
+                    }
+                    @if (form.controls.newUsername.hasError("minlength")) {
+                        <mat-error>Mindestens 3 Zeichen erforderlich</mat-error>
+                    }
+                    @if (form.controls.newUsername.hasError("maxlength")) {
+                        <mat-error>Maximal 50 Zeichen erlaubt</mat-error>
+                    }
+                    @if (form.controls.newUsername.hasError("pattern")) {
+                        <mat-error>
+                            Nur Buchstaben, Zahlen, ".", "_" und "-" erlaubt
+                        </mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-field">
+                    <mat-label>Neues Passwort</mat-label>
+                    <input
+                        matInput
+                        type="password"
+                        formControlName="newPassword"
+                        autocomplete="new-password"
+                    />
+                    <mat-icon matPrefix class="field-icon">lock</mat-icon>
+                    @if (form.controls.newPassword.hasError("minlength")) {
+                        <mat-error>Mindestens 6 Zeichen erforderlich</mat-error>
+                    }
+                    <mat-hint>
+                        Leer lassen, um das Passwort beizubehalten.
+                    </mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-field">
+                    <mat-label>Neues Passwort wiederholen</mat-label>
+                    <input
+                        matInput
+                        type="password"
+                        formControlName="confirmPassword"
+                        autocomplete="new-password"
+                    />
+                    <mat-icon matPrefix class="field-icon">lock</mat-icon>
+                </mat-form-field>
+
+                @if (
+                    form.hasError("passwordMismatch") &&
+                    form.controls.confirmPassword.touched
+                ) {
+                    <p class="form-error">
+                        Die Passwörter stimmen nicht überein.
+                    </p>
+                }
+
+                @if (
+                    form.hasError("passwordUnchanged") &&
+                    form.controls.newPassword.touched
+                ) {
+                    <p class="form-error">
+                        Das neue Passwort muss sich vom aktuellen Passwort
+                        unterscheiden.
+                    </p>
+                }
+
+                @if (
+                    form.hasError("noChanges") &&
+                    form.controls.newUsername.touched
+                ) {
+                    <p class="form-error">
+                        Ändere den Benutzernamen oder gib ein neues Passwort
+                        ein.
+                    </p>
+                }
+            </form>
+        }
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions-container">
+    @if (step() === "verify") {
+        <button
+            matButton="outlined"
+            type="button"
+            class="cancel-button"
+            (click)="onCancel()"
+        >
+            Abbrechen
+        </button>
+        <button
+            matButton="filled"
+            type="button"
+            class="primary-action"
+            [disabled]="verifyForm.invalid || isVerifying()"
+            (click)="onVerify()"
+        >
+            <mat-icon matButtonIcon>arrow_forward</mat-icon>
+            {{ isVerifying() ? "Wird geprüft..." : "Weiter" }}
+        </button>
+    } @else {
+        <button
+            matButton="outlined"
+            type="button"
+            class="cancel-button"
+            (click)="onBack()"
+        >
+            <mat-icon matButtonIcon>arrow_back</mat-icon>
+            Zurück
+        </button>
+        <button
+            matButton="filled"
+            type="button"
+            class="primary-action"
+            [disabled]="editForm()?.invalid || isSaving()"
+            (click)="onSave()"
+        >
+            <mat-icon matButtonIcon>save</mat-icon>
+            {{ isSaving() ? "Speichern läuft..." : "Speichern" }}
+        </button>
+    }
+</mat-dialog-actions>

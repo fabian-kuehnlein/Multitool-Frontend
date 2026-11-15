@@ -1,4 +1,4 @@
-export interface UpdateCredentialsDto {
+export interface SetupAccountCredentialsDto {
     username: string;
     password: string;
 }
