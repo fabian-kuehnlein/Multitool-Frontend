@@ -85,6 +85,18 @@
 
                         <app-work-time-settings></app-work-time-settings>
                     </div>
+
+                    <!-- Section: Account -->
+                    <div id="section-account" class="settings-section">
+                        <div class="section-header-wrapper">
+                            <h2 class="section-title">Benutzerkonto</h2>
+                            <p class="section-subtitle">
+                                Ändere deinen Benutzernamen oder dein Passwort.
+                            </p>
+                        </div>
+
+                        <app-account-settings></app-account-settings>
+                    </div>
                 </div>
             </mat-tab>
 
@@ -97,6 +109,18 @@
 
                 <app-categories></app-categories>
             </mat-tab>
+
+            <!-- Tab 3: Administration (Only visible if Admin) -->
+            @if (authService.authState().isAdmin) {
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon class="tab-label-icon">admin_panel_settings</mat-icon>
+                        <span>Administration</span>
+                    </ng-template>
+
+                    <app-admin-settings></app-admin-settings>
+                </mat-tab>
+            }
         </mat-tab-group>
     </main>
 </div>

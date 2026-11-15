@@ -1,58 +1,194 @@
-<div class="login-container">
-    <mat-card class="login-card">
-        <mat-card-header>
-            <mat-card-title>Anmelden</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            @if (isLoading()) {
-                <div class="loading-overlay">
-                    <mat-progress-spinner
-                        mode="indeterminate"
-                        diameter="40"
-                    ></mat-progress-spinner>
-                </div>
-            }
+@if (mode() === 'login') {
+    <div class="login-container">
+        <mat-card class="login-card">
+            <mat-card-header>
+                <mat-card-title>Anmelden</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                @if (isLoading()) {
+                    <div class="loading-overlay">
+                        <mat-progress-spinner
+                            mode="indeterminate"
+                            diameter="40"
+                        ></mat-progress-spinner>
+                    </div>
+                }
 
-            <form
-                [formGroup]="loginForm"
-                (ngSubmit)="onSubmit()"
-                [class.hidden]="isLoading()"
-            >
-                <mat-form-field appearance="outline">
-                    <mat-label>Benutzername</mat-label>
-                    <input
-                        matInput
-                        formControlName="username"
-                        placeholder="Benutzername"
-                    />
-                    @if (loginForm.get("username")?.hasError("required")) {
-                        <mat-error> Benutzername ist erforderlich </mat-error>
+                <form
+                    [formGroup]="loginForm"
+                    (ngSubmit)="onSubmit()"
+                    [class.hidden]="isLoading()"
+                >
+                    <mat-form-field appearance="outline">
+                        <mat-label>Benutzername</mat-label>
+                        <input
+                            matInput
+                            formControlName="username"
+                            placeholder="Benutzername"
+                            autocomplete="username"
+                        />
+                        @if (
+                            loginForm.controls.username.hasError('required')
+                        ) {
+                            <mat-error>
+                                Benutzername ist erforderlich
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Passwort</mat-label>
+                        <input
+                            matInput
+                            type="password"
+                            formControlName="password"
+                            placeholder="Passwort"
+                            autocomplete="current-password"
+                        />
+                        @if (
+                            loginForm.controls.password.hasError('required')
+                        ) {
+                            <mat-error> Passwort ist erforderlich </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <div class="actions">
+                        <button
+                            matButton="elevated"
+                            type="submit"
+                            [disabled]="loginForm.invalid || isLoading()"
+                        >
+                            {{
+                                isLoading()
+                                    ? 'Anmeldung läuft...'
+                                    : 'Anmelden'
+                            }}
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+} @else {
+    <div class="login-container">
+        <mat-card class="login-card">
+            <mat-card-header>
+                <mat-card-title>Zugangsdaten festlegen</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p class="setup-hint">
+                    Du hast dich mit einem temporären Passwort angemeldet.
+                    Bitte lege jetzt deinen eigenen Benutzernamen und dein
+                    neues Passwort fest.
+                </p>
+
+                <form [formGroup]="setupForm" (ngSubmit)="onSetupSubmit()">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Benutzername</mat-label>
+                        <input
+                            matInput
+                            formControlName="username"
+                            placeholder="Benutzername"
+                            autocomplete="username"
+                        />
+                        @if (
+                            setupForm.controls.username.hasError('required')
+                        ) {
+                            <mat-error>
+                                Benutzername ist erforderlich
+                            </mat-error>
+                        }
+                        @if (
+                            setupForm.controls.username.hasError('minlength')
+                        ) {
+                            <mat-error>
+                                Mindestens 3 Zeichen erforderlich
+                            </mat-error>
+                        }
+                        @if (
+                            setupForm.controls.username.hasError('maxlength')
+                        ) {
+                            <mat-error>
+                                Maximal 50 Zeichen erlaubt
+                            </mat-error>
+                        }
+                        @if (setupForm.controls.username.hasError('pattern')) {
+                            <mat-error>
+                                Nur Buchstaben, Zahlen, ".", "_" und "-"
+                                erlaubt
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Neues Passwort</mat-label>
+                        <input
+                            matInput
+                            type="password"
+                            formControlName="password"
+                            autocomplete="new-password"
+                        />
+                        @if (
+                            setupForm.controls.password.hasError('required')
+                        ) {
+                            <mat-error>Passwort ist erforderlich</mat-error>
+                        }
+                        @if (
+                            setupForm.controls.password.hasError('minlength')
+                        ) {
+                            <mat-error>
+                                Mindestens 6 Zeichen erforderlich
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Passwort wiederholen</mat-label>
+                        <input
+                            matInput
+                            type="password"
+                            formControlName="confirmPassword"
+                            autocomplete="new-password"
+                        />
+                        @if (
+                            setupForm.controls.confirmPassword.hasError(
+                                "required"
+                            )
+                        ) {
+                            <mat-error>
+                                Passwortwiederholung ist erforderlich
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    @if (
+                        setupForm.hasError('passwordMismatch') &&
+                        setupForm.controls.confirmPassword.touched &&
+                        !setupForm.controls.confirmPassword.hasError('required')
+                    ) {
+                        <p class="form-error">
+                            Die Passwörter stimmen nicht überein.
+                        </p>
                     }
-                </mat-form-field>
 
-                <mat-form-field appearance="outline">
-                    <mat-label>Passwort</mat-label>
-                    <input
-                        matInput
-                        type="password"
-                        formControlName="password"
-                        placeholder="Passwort"
-                    />
-                    @if (loginForm.get("password")?.hasError("required")) {
-                        <mat-error> Passwort ist erforderlich </mat-error>
-                    }
-                </mat-form-field>
-
-                <div class="actions">
-                    <button
-                        matButton="elevated"
-                        type="submit"
-                        [disabled]="loginForm.invalid || isLoading()"
-                    >
-                        {{ isLoading() ? "Anmeldung läuft..." : "Anmelden" }}
-                    </button>
-                </div>
-            </form>
-        </mat-card-content>
-    </mat-card>
-</div>
+                    <div class="actions setup-actions">
+                        <button matButton type="button" (click)="onLogout()">
+                            Abmelden
+                        </button>
+                        <button
+                            matButton="elevated"
+                            type="submit"
+                            [disabled]="setupForm.invalid || isSaving()"
+                        >
+                            {{
+                                isSaving()
+                                    ? 'Speichern läuft...'
+                                    : 'Zugangsdaten speichern'
+                            }}
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+}

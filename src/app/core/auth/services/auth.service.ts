@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpContext, HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -6,10 +6,25 @@ import { Router } from '@angular/router';
 import {
     SKIP_HTTP_ERROR_SNACKBAR,
 } from '../../interceptors/http-error.interceptor';
+import { AuthState } from '../models/auth-state.model';
+import { JwtClaims } from '../models/jwt-claims.enum';
+import { SetupAccountCredentialsDto } from '../models/setup-account-credentials-dto.model';
+import { ChangeAccountCredentialsDto } from '../models/change-account-credentials-dto.model';
+import { VerifyAccountCredentialsDto } from '../models/verify-account-credentials-dto.model';
 
 interface LoginResponse {
     token: string;
 }
+
+type JwtPayload = Record<string, unknown>;
+
+const EMPTY_AUTH_STATE: AuthState = {
+    isAuthenticated: false,
+    isAdmin: false,
+    userId: null,
+    username: null,
+    mustChangePassword: false,
+};
 
 @Injectable({
     providedIn: 'root',
@@ -18,80 +33,164 @@ export class AuthService {
     private readonly TOKEN_KEY = 'auth_token';
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
-    private readonly apiUrl = `${environment.MultitoolApi}/api/Auth`;
+    private readonly authUrl = `${environment.MultitoolApi}/api/Auth`;
+    private readonly accountUrl = `${environment.MultitoolApi}/api/Account`;
     private readonly skipErrorSnackbarContext = new HttpContext().set(
         SKIP_HTTP_ERROR_SNACKBAR,
         true,
     );
 
-    public readonly isAuthenticated = signal<boolean>(
-        this.checkTokenValidity(),
-    );
+    // The stored token is the single source of truth; claims and derived
+    // auth state are computed from it so they cannot drift apart.
+    private readonly _token = signal<string | null>(this.readToken());
+    private readonly _payload = computed(() => this.decodeToken(this._token()));
+
+    public readonly authState = computed<AuthState>(() => {
+        const payload = this._payload();
+        if (!this.isPayloadValid(payload)) {
+            return EMPTY_AUTH_STATE;
+        }
+
+        return {
+            isAuthenticated: true,
+            isAdmin: this.extractIsAdmin(payload),
+            userId: this.extractUserId(payload),
+            username: this.extractUsername(payload),
+            mustChangePassword: this.extractMustChangePassword(payload),
+        };
+    });
 
     login(username: string, password: string): Observable<LoginResponse> {
         return this.http
             .post<LoginResponse>(
-                `${this.apiUrl}/login`,
+                `${this.authUrl}/login`,
                 { username, password },
                 { context: this.skipErrorSnackbarContext },
             )
-            .pipe(
-                tap((response) => {
-                    this.setToken(response.token);
-                    this.isAuthenticated.set(true);
-                }),
-            );
+            .pipe(tap((response) => this.applyToken(response.token)));
+    }
+
+    setupCredentials(dto: SetupAccountCredentialsDto): Observable<LoginResponse> {
+        return this.http
+            .put<LoginResponse>(`${this.accountUrl}/credentials/setup`, dto, {
+                context: this.skipErrorSnackbarContext,
+            })
+            .pipe(tap((response) => this.applyToken(response.token)));
+    }
+
+    verifyCredentials(dto: VerifyAccountCredentialsDto): Observable<void> {
+        return this.http.post<void>(
+            `${this.accountUrl}/credentials/verify`,
+            dto,
+            { context: this.skipErrorSnackbarContext },
+        );
+    }
+
+    changeCredentials(dto: ChangeAccountCredentialsDto): Observable<LoginResponse> {
+        return this.http
+            .put<LoginResponse>(`${this.accountUrl}/credentials`, dto, {
+                context: this.skipErrorSnackbarContext,
+            })
+            .pipe(tap((response) => this.applyToken(response.token)));
     }
 
     logout(): void {
-        localStorage.removeItem(this.TOKEN_KEY);
-        this.isAuthenticated.set(false);
+        this.removeToken();
+        this.updateAuthState();
         this.router.navigate(['/login']);
     }
 
     getToken(): string | null {
-        return localStorage.getItem(this.TOKEN_KEY);
+        return this._token();
     }
 
     setToken(token: string): void {
         localStorage.setItem(this.TOKEN_KEY, token);
+        this._token.set(token);
     }
 
     isLoggedIn(): boolean {
-        const isValid = this.checkTokenValidity();
-        if (this.isAuthenticated() !== isValid) {
-            this.isAuthenticated.set(isValid);
-        }
-        return isValid;
+        this.updateAuthState();
+        return this.authState().isAuthenticated;
     }
 
-    private checkTokenValidity(): boolean {
-        const token = this.getToken();
-        if (!token) return false;
+    private applyToken(token: string): void {
+        this.setToken(token);
+        this.updateAuthState();
+    }
+
+    private updateAuthState(): void {
+        const token = this.readToken();
+        if (token !== this._token()) {
+            this._token.set(token);
+        }
+
+        if (this._token() !== null && !this.isPayloadValid(this._payload())) {
+            this.removeToken();
+        }
+    }
+
+    private removeToken(): void {
+        localStorage.removeItem(this.TOKEN_KEY);
+        this._token.set(null);
+    }
+
+    private readToken(): string | null {
+        return localStorage.getItem(this.TOKEN_KEY);
+    }
+
+    private isPayloadValid(payload: JwtPayload | null): payload is JwtPayload {
+        if (!payload) return false;
+
+        const expiry = payload[JwtClaims.EXPIRY];
+        if (typeof expiry !== 'number') return false;
+
+        return Math.floor(Date.now() / 1000) < expiry;
+    }
+
+    private extractIsAdmin(payload: JwtPayload): boolean {
+        const role =
+            payload[JwtClaims.ROLE] ??
+            payload[JwtClaims.ROLE_MICROSOFT] ??
+            payload[JwtClaims.ROLE_CAPITALIZED];
+        return role === 'Admin' || role === 'admin' || role === 1;
+    }
+
+    private extractUserId(payload: JwtPayload): number | null {
+        const idRaw =
+            payload[JwtClaims.USER_ID] ??
+            payload[JwtClaims.USER_ID_MICROSOFT] ??
+            payload[JwtClaims.SUBJECT];
+        const id = Number(idRaw);
+        return Number.isFinite(id) ? id : null;
+    }
+
+    private extractUsername(payload: JwtPayload): string | null {
+        const name =
+            payload[JwtClaims.USERNAME] ??
+            payload[JwtClaims.USERNAME_MICROSOFT] ??
+            payload[JwtClaims.NAME];
+        return typeof name === 'string' ? name : null;
+    }
+
+    private extractMustChangePassword(payload: JwtPayload): boolean {
+        const value = payload[JwtClaims.MUST_CHANGE_PASSWORD];
+        return value === true || value === 'true';
+    }
+
+    private decodeToken(token: string | null): JwtPayload | null {
+        if (!token) return null;
 
         try {
             const parts = token.split('.');
-            if (parts.length !== 3) return false;
+            if (parts.length !== 3) return null;
 
             const base64Payload = parts[1]
                 .replace(/-/g, '+')
                 .replace(/_/g, '/');
-            const payload = JSON.parse(atob(base64Payload));
-            const expiry = payload.exp;
-            const now = Math.floor(Date.now() / 1000);
-
-            if (now >= expiry) {
-                this.clearToken();
-                return false;
-            }
-            return true;
-        } catch (e) {
-            this.clearToken();
-            return false;
+            return JSON.parse(atob(base64Payload)) as JwtPayload;
+        } catch {
+            return null;
         }
-    }
-
-    private clearToken(): void {
-        localStorage.removeItem(this.TOKEN_KEY);
     }
 }

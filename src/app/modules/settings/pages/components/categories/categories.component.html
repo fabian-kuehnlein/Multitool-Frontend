@@ -9,7 +9,7 @@
         <button
             matButton="filled"
             type="button"
-            class="add-category-button"
+            class="section-action-button"
             (click)="openAddCategoryDialog()"
         >
             <mat-icon matButtonIcon>add</mat-icon>
@@ -25,8 +25,10 @@
     } @else if (categoryService.categories().length === 0) {
         <div class="empty-state-card">
             <mat-icon class="empty-state-icon">category</mat-icon>
-            <h3>Keine Kategorien vorhanden</h3>
-            <p>Erstelle deine erste globale Kategorie, um Einträge besser zu organisieren.</p>
+            <h3 class="empty-state-title">Keine Kategorien vorhanden</h3>
+            <p class="empty-state-text">
+                Erstelle deine erste globale Kategorie, um Einträge besser zu organisieren.
+            </p>
             <button
                 matButton="filled"
                 type="button"
@@ -37,18 +39,20 @@
             </button>
         </div>
     } @else {
-        <div class="category-list">
+        <div class="settings-item-list">
             @for (category of visibleCategories(); track category.id) {
-                <mat-card appearance="outlined" class="category-card">
-                    <mat-card-content class="category-card-content">
-                        <div class="category-main-info">
+                <mat-card appearance="outlined" class="settings-item-card category-card">
+                    <mat-card-content class="settings-item-card-content">
+                        <div class="settings-item-main-info">
                             <div
                                 class="category-color-badge"
                                 [style.background-color]="category.color"
                             ></div>
-                            <div class="category-details">
-                                <span class="category-name">{{ category.name }}</span>
-                                <span class="category-color-code">{{ category.color }}</span>
+                            <div class="settings-item-details">
+                                <span class="settings-item-name">{{ category.name }}</span>
+                                <span class="settings-item-meta category-color-code">
+                                    {{ category.color }}
+                                </span>
                             </div>
                         </div>
 
@@ -72,7 +76,7 @@
                             }
                         </div>
 
-                        <div class="category-item-actions">
+                        <div class="settings-item-actions">
                             <button
                                 matIconButton
                                 type="button"

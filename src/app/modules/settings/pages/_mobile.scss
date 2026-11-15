@@ -19,10 +19,3 @@
         font-weight: 500;
     }
 }
-
-@include bp.mobile {
-    .tab-content-container {
-        padding: 0;
-        gap: 16px;
-    }
-}

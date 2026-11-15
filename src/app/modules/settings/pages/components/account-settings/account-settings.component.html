@@ -1,0 +1,32 @@
+<mat-card appearance="outlined" class="setting-card">
+    <mat-card-content class="setting-card-body">
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-icon-wrapper">
+                    <mat-icon class="setting-icon">manage_accounts</mat-icon>
+                </div>
+                <div class="setting-text">
+                    <span class="setting-title">Benutzerdaten ändern</span>
+                    <span class="setting-description">
+                        Ändere deinen Benutzernamen und/oder dein Passwort.
+                        @if (authState().username; as username) {
+                            Aktuell angemeldet als
+                            <strong>{{ username }}</strong>.
+                        }
+                    </span>
+                </div>
+            </div>
+
+            <div class="setting-action">
+                <button
+                    matButton="filled"
+                    type="button"
+                    (click)="onChangeCredentials()"
+                >
+                    <mat-icon matButtonIcon>edit</mat-icon>
+                    Ändern
+                </button>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
